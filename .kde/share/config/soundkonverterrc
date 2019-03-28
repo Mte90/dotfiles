@@ -1,0 +1,219 @@
+[Advanced]
+ejectCdAfterRip=true
+maxSizeForSharedMemoryTempFiles=399
+usePipes=false
+useSharedMemoryForTempFiles=false
+
+[BackendOptimizationsIgnoreList]
+count=0
+
+[Backends]
+3gp_decoders=libav,FFmpeg,MPlayer
+3gp_encoders=
+3gp_replaygain=
+8svx_decoders=SoX
+8svx_encoders=SoX
+8svx_replaygain=
+aac_decoders=libav,FFmpeg,MPlayer
+aac_encoders=FFmpeg
+aac_replaygain=
+ac3_decoders=libav,FFmpeg,MPlayer
+ac3_encoders=libav,FFmpeg
+ac3_replaygain=
+aiff_decoders=SoX
+aiff_encoders=SoX
+aiff_replaygain=
+als_decoders=libav,FFmpeg,MPlayer
+als_encoders=
+als_replaygain=
+amr nb_decoders=libav,FFmpeg,MPlayer,SoX
+amr nb_encoders=libav,SoX
+amr nb_replaygain=
+amr wb_decoders=libav,FFmpeg,MPlayer,SoX
+amr wb_encoders=SoX
+amr wb_replaygain=
+ape_decoders=Mac,libav,FFmpeg,MPlayer
+ape_encoders=Mac
+ape_replaygain=
+audio cd_decoders=cdparanoia
+audio cd_encoders=
+audio cd_replaygain=
+avi_decoders=libav,FFmpeg,MPlayer
+avi_encoders=
+avi_replaygain=
+enabledFilters=
+filters=SoX
+flac_decoders=FLAC,libav,FFmpeg,MPlayer,SoX
+flac_encoders=FLAC,libav,FFmpeg,SoX
+flac_replaygain=Metaflac,Prova internamente
+flv_decoders=libav,FFmpeg,MPlayer
+flv_encoders=
+flv_replaygain=
+formats=ogg vorbis,mp3,flac,m4a/aac,m4a/alac,wma,3gp,aac,ac3,als,amr nb,amr wb,ape,audio cd,avi,flv,mkv,mov,mp1,mp2,mp4,mpeg,musepack,ogv,ra,rm,rv,sad,shorten,speex,tta,wavpack,wmv,8svx,aiff,midi,mod,opus,webm
+m4a/aac_decoders=libav,FFmpeg,MPlayer
+m4a/aac_encoders=FFmpeg
+m4a/aac_replaygain=
+m4a/alac_decoders=libav,FFmpeg,MPlayer
+m4a/alac_encoders=libav,FFmpeg
+m4a/alac_replaygain=
+midi_decoders=TiMidity++
+midi_encoders=
+midi_replaygain=
+mkv_decoders=libav,FFmpeg,MPlayer
+mkv_encoders=
+mkv_replaygain=
+mod_decoders=TiMidity++
+mod_encoders=
+mod_replaygain=
+mov_decoders=libav,FFmpeg,MPlayer
+mov_encoders=
+mov_replaygain=
+mp1_decoders=libav,FFmpeg,MPlayer
+mp1_encoders=
+mp1_replaygain=
+mp2_decoders=libav,FFmpeg,lame,MPlayer,SoX
+mp2_encoders=libav,FFmpeg,SoX
+mp2_replaygain=
+mp3_decoders=lame,libav,FFmpeg,MPlayer,SoX
+mp3_encoders=lame,FFmpeg,SoX,libav
+mp3_replaygain=
+mp4_decoders=libav,FFmpeg,MPlayer
+mp4_encoders=
+mp4_replaygain=
+mpeg_decoders=libav,FFmpeg,MPlayer
+mpeg_encoders=
+mpeg_replaygain=
+musepack_decoders=libav,FFmpeg,MPlayer
+musepack_encoders=
+musepack_replaygain=
+ogg vorbis_decoders=libav,FFmpeg,MPlayer,SoX
+ogg vorbis_encoders=FFmpeg,SoX
+ogg vorbis_replaygain=
+ogv_decoders=libav,FFmpeg,MPlayer
+ogv_encoders=
+ogv_replaygain=
+opus_decoders=Opus Tools
+opus_encoders=Opus Tools,FFmpeg
+opus_replaygain=
+ra_decoders=libav,FFmpeg,MPlayer
+ra_encoders=FFmpeg
+ra_replaygain=
+rm_decoders=libav,FFmpeg,MPlayer
+rm_encoders=
+rm_replaygain=
+rv_decoders=libav,FFmpeg,MPlayer
+rv_encoders=
+rv_replaygain=
+sad_decoders=libav,FFmpeg,MPlayer
+sad_encoders=
+sad_replaygain=
+shorten_decoders=libav,FFmpeg,MPlayer
+shorten_encoders=
+shorten_replaygain=
+speex_decoders=libav,FFmpeg,MPlayer
+speex_encoders=FFmpeg
+speex_replaygain=
+tta_decoders=libav,FFmpeg,MPlayer
+tta_encoders=FFmpeg
+tta_replaygain=
+wavpack_decoders=WavPack,libav,FFmpeg,MPlayer
+wavpack_encoders=WavPack,FFmpeg
+wavpack_replaygain=Wv Gain
+webm_decoders=libav,FFmpeg,MPlayer
+webm_encoders=
+webm_replaygain=
+wma_decoders=libav,FFmpeg,MPlayer
+wma_encoders=libav,FFmpeg
+wma_replaygain=
+wmv_decoders=libav,FFmpeg,MPlayer
+wmv_encoders=
+wmv_replaygain=
+
+[CDOpener]
+Height 1024=523
+Height 1080=592
+Height 768=523
+Width 1280=756
+Width 1360=756
+Width 1920=771
+
+[CoverArt]
+writeCoverDefaultName=cover
+writeCoverName=0
+writeCovers=1
+
+[FileOpener]
+Height 1024=316
+Height 768=316
+Width 1280=763
+Width 1360=734
+
+[General]
+actionMenuConvertMimeTypes=application/ogg,audio/vorbis,application/x-ogg,audio/ogg,audio/x-vorbis+ogg,audio/x-mp3,audio/mpeg,audio/mp3,audio/flac,audio/x-flac,audio/x-flac+ogg,audio/x-oggflac,audio/mp4,audio/x-m4a,audio/mp4,audio/x-m4a,audio/x-ms-wma,video/3gpp,audio/3gpp,video/3gpp2,audio/3gpp2,audio/x-8svx,audio/8svx,audio/x-aiff,audio/aiff,audio/aac,audio/ac3,audio/x-aiff,audio/aiff,audio/mp4,audio/amr,audio/3gpp,audio/3gpp2,audio/amr-wb,audio/3gpp,audio/x-ape,video/x-msvideo,video/x-flv,video/flv,audio/midi,video/x-matroska,audio/x-mod,video/quicktime,audio/mpeg,audio/mpa,audio/mp2,audio/x-mp2,video/mp4,video/mpeg,audio/x-musepack,audio/musepack,video/ogg,audio/ogg,audio/opus,audio/vnd.rn-realaudio,application/vnd.rn-realmedia,video/vnd.rn-realvideo,application/x-shorten,audio/x-speex,audio/x-speex+ogg,audio/x-tta,audio/x-wavpack,video/webm,video/x-ms-wmv,video/x-ms-asf,audio/x-wav,audio/wav
+actionMenuReplayGainMimeTypes=audio/flac,audio/x-flac,audio/x-flac+ogg,audio/x-oggflac,audio/x-wavpack
+configVersion=1005
+conflictHandling=0
+copyIfSameCodec=false
+copyStructureOutputDirectory=/home/mte90/soundKonverter
+defaultFormat=Usato l'ultima volta
+defaultProfile=Alta
+lastFormat=mp3
+lastMetaDataOutputDirectoryPaths=/tmp/rite/%b/%d - %n - %a - %t
+lastNormalOutputDirectoryPaths=/home/mte90/Desktop
+lastOutputDirectoryMode=0
+lastProfile=Alta
+lastTab=1
+metaDataOutputDirectory=/tmp/rite/%b/%d - %n - %a - %t
+numFiles=8
+numReplayGainFiles=4
+preferredOggVorbisExtension=ogg
+preferredVorbisCommentCommentTag=DESCRIPTION
+preferredVorbisCommentDiscTotalTag=DISCTOTAL
+preferredVorbisCommentTrackTotalTag=TRACKTOTAL
+replayGainGrouping=0
+specifyOutputDirectory=/home/mte90/Desktop
+startTab=0
+useVFATNames=false
+waitForAlbumGain=true
+writeLogFiles=false
+
+[KFileDialog Settings]
+Height 1024=468
+Height 768=512
+Width 1280=720
+Width 1360=768
+
+[MainWindow]
+Height 1024=1025
+Height 1080=551
+Height 768=551
+Height 900=551
+State=AAAA/wAAAAD9AAAAAAAABCIAAAIPAAAABAAAAAQAAAAIAAAACPwAAAABAAAAAgAAAAEAAAAOAHQAbwBvAGwAYgBhAHIAAAAAAP////8AAAAAAAAAAA==
+ToolBarsMovable=Disabled
+Width 1280=1281
+Width 1360=1058
+Width 1600=1058
+Width 1920=1058
+
+[Phonon::AudioOutput]
+soundKonverter_Volume=0.5
+
+[Plugin-FFmpeg]
+codecList=libtwolame,libmp3lame,vorbis,wmav1,wmav2,wavpack,flac,real_144,tta,alac,mp2,libvorbis,aac,libspeex,ac3,libopus
+configVersion=3
+ffmpegLastModified=2017,12,20,15,3,12
+ffmpegVersionMajor=0
+ffmpegVersionMinor=0
+
+[Plugin-SoX]
+codecList=wav,vorbis,amr-wb,flac,aiff,8svx,mp2,mp3,amr-nb
+configVersion=1
+samplingRateQuality=low
+soxLastModified=2017,12,18,14,55,7
+
+[Plugin-libav]
+codecList=vorbis,wmav1,wmav2,flac,alac,mp2,mp3,aac,ac3,amr_nb
+configVersion=2
+libavLastModified=2017,12,20,15,3,12
+libavVersionMajor=0
+libavVersionMinor=0
