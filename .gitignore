@@ -1,0 +1,12 @@
+.ICEauthority
+.Xauthority
+.bash_history
+.cache/
+.config/chromium/
+.config/pulse/
+.dbus/
+.gconf/
+.gnupg/
+.pki/
+.xfce4-session.*
+.xsession-errors
