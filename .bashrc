@@ -10,7 +10,8 @@ esac
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
-HISTCONTROL=ignoreboth
+HISTCONTROL="erasedups:ignoreboth:ignorespace"
+HISTFILESIZE=2000        # increase history file size (default is 500)
 
 # append to the history file, don't overwrite it
 shopt -s histappend
@@ -25,6 +26,10 @@ shopt -s checkwinsize
 # If set, the pattern "**" used in a pathname expansion context will
 # match all files and zero or more directories and subdirectories.
 #shopt -s globstar
+
+# Auto fix filenames with spell checker
+shopt -s dirspell
+shopt -s cdspell
 
 # make less more friendly for non-text input files, see lesspipe(1)
 #[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -75,8 +80,8 @@ esac
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto -h'
-
-    alias grep='grep --color=auto --exclude-dir=\.git'
+    export GREP_OPTIONS='--color=auto'
+    alias grep='grep --exclude-dir=\.git'
 fi
 
 
@@ -117,6 +122,8 @@ if [ -x /usr/lib/command-not-found -o -x /usr/share/command-not-found/command-no
 	}
 fi
 
+# Autocompletion ignore case for filenames
+bind "set completion-ignore-case on"
 
 # CD stuff
 alias casa='cd /home/mte90/Desktop'
@@ -196,9 +203,6 @@ function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 
 # https://github.com/dvorka/hstr
 export HH_CONFIG=hicolor         # get more colors
-export HISTCONTROL=ignorespace   # leading space hides commands from history
-export HISTFILESIZE=1000        # increase history file size (default is 500)
-export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
 export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"   # mem/file sync
 # if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)
 if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hh -- \C-j"'; fi
@@ -237,6 +241,9 @@ export XDG_RUNTIME_DIR="/run/user/1000"
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 export PATH=$PATH:/usr/local/sbin
 export FZF_DEFAULT_COMMAND='ag --ignore-dir .sass-cache --ignore-dir _output --ignore-dir node_modules --ignore-dir vendor -g "" -U --nogroup --column --nocolor --php --html --css --js'
+export FZF_DEFAULT_OPTS='--exact --preview "head -100 {}"'
+# Bind F1 to open file to Kate and Ctrl-Y to copy to the clipboard the path
+fzf --bind 'f1:execute(kate {}),ctrl-y:execute-silent(echo {} | pbcopy)+abort'
 
 # TO use KDE file dialog with firefox https://daniele.tech/2019/02/how-to-execute-firefox-with-support-for-kde-filepicker/
 export GTK_USE_PORTAL=1
