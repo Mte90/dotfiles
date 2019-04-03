@@ -10,22 +10,20 @@ esac
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
-HISTCONTROL="erasedups:ignoreboth:ignorespace"
-HISTFILESIZE=2000        # increase history file size (default is 500)
+export HISTCONTROL="erasedups:ignoreboth:ignorespace"
+export HISTFILESIZE=2000        # increase history file size (default is 500)
+# Show datetime on every command
+export HISTTIMEFORMAT="%h %d %H:%M:%S "
 
 # append to the history file, don't overwrite it
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
+export HISTSIZE=1000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
 shopt -s checkwinsize
-
-# If set, the pattern "**" used in a pathname expansion context will
-# match all files and zero or more directories and subdirectories.
-#shopt -s globstar
 
 # Auto fix filenames with spell checker
 shopt -s dirspell
@@ -47,7 +45,7 @@ esac
 # uncomment for a colored prompt, if the terminal has the capability; turned
 # off by default to not distract the user: the focus in a terminal window
 # should be on the output of commands, not on the prompt
-#force_color_prompt=yes
+force_color_prompt=yes
 
 if [ -n "$force_color_prompt" ]; then
     if [ -x /usr/bin/tput ] && tput setaf 1 >&/dev/null; then
@@ -142,22 +140,16 @@ alias codeatcs='phpcs -p -s -d memory_limit=512M --ignore=*composer*,*.js,*.css,
 alias codeatcscbf='phpcbf -p -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
 alias dotfiles="/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
 
-export PATH=./vendor/bin:$PATH
-export PATH=./composer/bin:$PATH
-export PATH=~/.composer/vendor/bin:$PATH
-
-# Fix issues with pulse on my system
-PULSE_DIR="/tmp/$( whoami )-pulse"
-mkdir -p $PULSE_DIR && chmod 777 $PULSE_DIR && chown mte90:mte90 $PULSE_DIR
-export PULSE_CONFIG_PATH=$PULSE_DIR
-export PULSE_STATE_PATH=$PULSE_DIR
-export PULSE_RUNTIME_PATH=$PULSE_DIR
+# https://github.com/sharkdp/bat
+alias cat='bat'
 
 # Move to the # parent folder
 up(){ DEEP=$1; [ -z "${DEEP}" ] && { DEEP=1; }; for i in $(seq 1 ${DEEP}); do cd ../; done; }
 
 # Create folder and join it
 function mkcd(){ mkdir -p $@ && cd $_; }
+# Create all the parent directories with children
+alias mkdir='mkdir -p'
 
 # Download your fork and add the upstream
 function git-fork() {
@@ -178,23 +170,23 @@ function git-fork() {
 }
 
 # https://github.com/github/hub
-if [ -f /hub.bash_completion ]; then
-    . /hub.bash_completion
+if [ -f /usr/share/bash-completion/completions/hub ]; then
+    . /usr/share/bash-completion/completions/hub
 fi
 eval "$(hub alias -s)"
 
 # For Git
 alias git-commit-rename='git commit --amend'
 alias git-remove-last-commit='git reset --soft HEAD~1'
-# To remember the SSH password for 36000 minutes
+#  To remember the SSH password for 36000 minutes
 alias git-pass='ssh-add -t 36000'
 alias gpm="git push origin master"
 alias git-restage="git update-index --again"
 alias git-rename-branch="git rename-branch"
 alias git-remove-deleted-branch-remotely="git remote prune origin"
-# add and remove new/deleted files from git index automatically
+#  Add and remove new/deleted files from git index automatically
 alias git-remove-file-not-exist-anymore-history="git ls-files -d -m -o -z --exclude-standard | xargs -0 git update-index --add --remove"
-function git-merge-last-commit() { git reset --soft HEAD~$1 && git commit; }
+function git-merge-last-commits() { git reset --soft HEAD~$1 && git commit; }
 function commit() { commit=$(kdialog --title 'Commit message' --inputbox 'Insert the commit' '') && git commit -m "$commit" && echo "$commit"; }
 function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 
@@ -234,16 +226,27 @@ function vvv-debug(){
 # https://github.com/wting/autojump
 source /usr/share/autojump/autojump.sh
 
-# Fix issues with permissions
-export XDG_RUNTIME_DIR="/run/user/1000"
-
 # https://github.com/junegunn/fzf
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
-export PATH=$PATH:/usr/local/sbin
 export FZF_DEFAULT_COMMAND='ag --ignore-dir .sass-cache --ignore-dir _output --ignore-dir node_modules --ignore-dir vendor -g "" -U --nogroup --column --nocolor --php --html --css --js'
-export FZF_DEFAULT_OPTS='--exact --preview "head -100 {}"'
-# Bind F1 to open file to Kate and Ctrl-Y to copy to the clipboard the path
-fzf --bind 'f1:execute(kate {}),ctrl-y:execute-silent(echo {} | pbcopy)+abort'
+export FZF_DEFAULT_OPTS='--exact --preview "bat --style=numbers --color=always {}"'
+# Bind F1 to open file to Kate, Ctrl-Y to copy to the clipboard the path, Ctrl-N to enter the folder
+alias fzf='fzf --bind "f1:execute(kate {}),ctrl-y:execute-silent(echo {} | pbcopy)+abort,ctrl-n:execute(cd {})"'
 
-# TO use KDE file dialog with firefox https://daniele.tech/2019/02/how-to-execute-firefox-with-support-for-kde-filepicker/
+# To use KDE file dialog with firefox https://daniele.tech/2019/02/how-to-execute-firefox-with-support-for-kde-filepicker/
 export GTK_USE_PORTAL=1
+
+# Fix issues with pulse on my system
+PULSE_DIR="/tmp/$( whoami )-pulse"
+mkdir -p $PULSE_DIR && chmod 777 $PULSE_DIR && chown mte90:mte90 $PULSE_DIR
+export PULSE_CONFIG_PATH=$PULSE_DIR
+export PULSE_STATE_PATH=$PULSE_DIR
+export PULSE_RUNTIME_PATH=$PULSE_DIR
+
+# Fix issues with permissions on my system
+export XDG_RUNTIME_DIR="/run/user/1000"
+
+export PATH=$PATH:/usr/local/sbin
+export PATH=./vendor/bin:$PATH
+export PATH=./composer/bin:$PATH
+export PATH=~/.composer/vendor/bin:$PATH
