@@ -17,7 +17,6 @@ shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 HISTSIZE=1000
-HISTFILESIZE=2000
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -122,11 +121,11 @@ fi
 # CD stuff
 alias casa='cd /home/mte90/Desktop'
 alias www='cd /var/www'
-alias vvv='cd /var/www/VVV/www'
+alias vvv='cd /var/www/VVV/www 2>/dev/null;cd /home/mte90/Desktop/VVV/www 2>/dev/null'
 alias wpp='cd ./public_html/wp-content/plugins 2>/dev/null;cd ./public_html/build/wp-content/plugins 2>/dev/null;cd ./htdocs/wp-content/plugins 2>/dev/null;cd ./wp-content/plugins 2>/dev/null'
 alias wpt='cd ./htdocs/wp-content/themes 2>/dev/null;cd ./wp-content/themes 2>/dev/null'
 # Misc
-alias biggest='BLOCKSIZE=1048576; du -x -h | sort -nr | head -10'
+alias biggest-10-files='BLOCKSIZE=1048576; du -x -h | sort -nr | head -10'
 alias yt2mp3='youtube-dl -l --extract-audio --audio-format=mp3 -w -c'
 alias kate='kate -b'
 # dev
@@ -135,39 +134,25 @@ alias howdoi='howdoi -c'
 alias codeatcs='phpcs -p -s -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
 alias codeatcscbf='phpcbf -p -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
 alias dotfiles="/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
-export FZF_DEFAULT_COMMAND='ag --ignore-dir .sass-cache --ignore-dir _output --ignore-dir node_modules --ignore-dir vendor -g "" -U --nogroup --column --nocolor --php --html --css --js'
+
 export PATH=./vendor/bin:$PATH
 export PATH=./composer/bin:$PATH
 export PATH=~/.composer/vendor/bin:$PATH
 
+# Fix issues with pulse on my system
 PULSE_DIR="/tmp/$( whoami )-pulse"
 mkdir -p $PULSE_DIR && chmod 777 $PULSE_DIR && chown mte90:mte90 $PULSE_DIR
 export PULSE_CONFIG_PATH=$PULSE_DIR
 export PULSE_STATE_PATH=$PULSE_DIR
 export PULSE_RUNTIME_PATH=$PULSE_DIR
 
+# Move to the # parent folder
 up(){ DEEP=$1; [ -z "${DEEP}" ] && { DEEP=1; }; for i in $(seq 1 ${DEEP}); do cd ../; done; }
 
+# Create folder and join it
 function mkcd(){ mkdir -p $@ && cd $_; }
 
-function vvv-debug(){
-    log="/var/www/VVV/www/$1/htdocs/wp-content/debug.log"
-    if [ ! -f $log ]; then
-        log="/var/www/VVV/www/$1/public_html/wp-content/debug.log"
-    fi
-    
-    if [ -f $log ]; then
-        actualsize=$(du -k $log | cut -f 1)
-        if [ $actualsize -ge 300 ]; then
-            rm $log;
-        fi
-        echo "" > $log
-        multitail -cS php -m 600 $log;
-    else
-        echo "Log not found"
-    fi
-}
-
+# Download your fork and add the upstream
 function git-fork() {
     url=$1
     url=${url%/}
@@ -189,18 +174,19 @@ function git-fork() {
 if [ -f /hub.bash_completion ]; then
     . /hub.bash_completion
 fi
-# For Git
 eval "$(hub alias -s)"
+
+# For Git
 alias git-commit-rename='git commit --amend'
 alias git-remove-last-commit='git reset --soft HEAD~1'
+# To remember the SSH password for 36000 minutes
 alias git-pass='ssh-add -t 36000'
 alias gpm="git push origin master"
 alias git-restage="git update-index --again"
 alias git-rename-branch="git rename-branch"
-alias git-create-branch="git create-branch -r"
-alias git-delete-branch="git delete-branch"
+alias git-remove-deleted-branch-remotely="git remote prune origin"
 # add and remove new/deleted files from git index automatically
-alias gitar="git ls-files -d -m -o -z --exclude-standard | xargs -0 git update-index --add --remove"
+alias git-remove-file-not-exist-anymore-history="git ls-files -d -m -o -z --exclude-standard | xargs -0 git update-index --add --remove"
 function git-merge-last-commit() { git reset --soft HEAD~$1 && git commit; }
 function commit() { commit=$(kdialog --title 'Commit message' --inputbox 'Insert the commit' '') && git commit -m "$commit" && echo "$commit"; }
 function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
@@ -210,7 +196,6 @@ function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 
 # https://github.com/dvorka/hstr
 export HH_CONFIG=hicolor         # get more colors
-shopt -s histappend              # append new history items to .bash_history
 export HISTCONTROL=ignorespace   # leading space hides commands from history
 export HISTFILESIZE=1000        # increase history file size (default is 500)
 export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
@@ -218,18 +203,40 @@ export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"   # mem/file s
 # if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)
 if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hh -- \C-j"'; fi
 
+# For VVV development
 export WP_TESTS_DB_HOST=localhost
 export WP_TESTS_DB_USER=root
 export WP_TESTS_DB_PASSWORD='test'
 
+# Open the debug of that website
+function vvv-debug(){
+    log="/var/www/VVV/www/$1/htdocs/wp-content/debug.log"
+    if [ ! -f $log ]; then
+        log="/var/www/VVV/www/$1/public_html/wp-content/debug.log"
+    fi
+    
+    if [ -f $log ]; then
+        actualsize=$(du -k $log | cut -f 1)
+        if [ $actualsize -ge 300 ]; then
+            rm $log;
+        fi
+        echo "" > $log
+        multitail -cS php -m 600 $log;
+    else
+        echo "Log not found"
+    fi
+}
+
+# https://github.com/wting/autojump
 source /usr/share/autojump/autojump.sh
 
+# Fix issues with permissions
 export XDG_RUNTIME_DIR="/run/user/1000"
 
-# added by travis gem
-[ -f /home/mte90/.travis/travis.sh ] && source /home/mte90/.travis/travis.sh
-
+# https://github.com/junegunn/fzf
 [ -f ~/.fzf.bash ] && source ~/.fzf.bash
 export PATH=$PATH:/usr/local/sbin
+export FZF_DEFAULT_COMMAND='ag --ignore-dir .sass-cache --ignore-dir _output --ignore-dir node_modules --ignore-dir vendor -g "" -U --nogroup --column --nocolor --php --html --css --js'
 
+# TO use KDE file dialog with firefox https://daniele.tech/2019/02/how-to-execute-firefox-with-support-for-kde-filepicker/
 export GTK_USE_PORTAL=1
