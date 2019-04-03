@@ -78,8 +78,8 @@ esac
 if [ -x /usr/bin/dircolors ]; then
     test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
     alias ls='ls --color=auto -h'
-    export GREP_OPTIONS='--color=auto'
-    alias grep='grep --exclude-dir=\.git'
+    
+    alias grep='grep --color=auto --exclude-dir=\.git'
 fi
 
 # enable programmable completion features (you don't need to enable
