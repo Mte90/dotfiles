@@ -82,16 +82,6 @@ if [ -x /usr/bin/dircolors ]; then
     alias grep='grep --exclude-dir=\.git'
 fi
 
-
-# Alias definitions.
-# You may want to put all your additions into a separate file like
-# ~/.bash_aliases, instead of adding them here directly.
-# See /usr/share/doc/bash-doc/examples in the bash-doc package.
-
-if [ -f ~/.bash_aliases ]; then
-    . ~/.bash_aliases
-fi
-
 # enable programmable completion features (you don't need to enable
 # this, if it's already enabled in /etc/bash.bashrc and /etc/profile
 # sources /etc/bash.bashrc).
@@ -232,6 +222,13 @@ export FZF_DEFAULT_COMMAND='ag --ignore-dir .sass-cache --ignore-dir _output --i
 export FZF_DEFAULT_OPTS='--exact --preview "bat --style=numbers --color=always {}"'
 # Bind F1 to open file to Kate, Ctrl-Y to copy to the clipboard the path, Ctrl-N to enter the folder
 alias fzf='fzf --bind "f1:execute(kate {}),ctrl-y:execute-silent(echo {} | pbcopy)+abort,ctrl-n:execute(cd {})"'
+
+# https://github.com/cykerway/complete-alias
+if [ -f ~/.bash_completion ]; then
+    . ~/.bash_completion
+fi
+complete -F _complete_alias fzf
+complete -F _complete_alias dotfiles
 
 # To use KDE file dialog with firefox https://daniele.tech/2019/02/how-to-execute-firefox-with-support-for-kde-filepicker/
 export GTK_USE_PORTAL=1
