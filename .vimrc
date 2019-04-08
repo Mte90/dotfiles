@@ -1,4 +1,4 @@
-" not load for tiny vi
+" Note: Skip initialization for vim-tiny or vim-small.
 if !1 | finish | endif
 
 filetype plugin on
@@ -7,47 +7,48 @@ syntax on
 
 set encoding=utf-8          " The encoding displayed
 set fileencoding=utf-8      " The encoding written to file
-set number      " Show line numbers
+set number          " Show line numbers
 set textwidth=100   " Line wrap (number of cols)
-set showmatch   " Highlight matching brace
-set visualbell  " Use visual bell (no beeping)
-set title             " change the terminal's title
-set mouse=a           " enable mouse in all modes
-set clipboard^=unnamedplus
+set showmatch       " Highlight matching brace
+set visualbell      " Use visual bell (no beeping)
+set title           " change the terminal's title
+set mouse=a         " enable mouse in all modes
+set clipboard^=unnamedplus " Allow use of system clipboard
 set guioptions+=a
-set ttyfast                 " Faster redrawing
-set lazyredraw              " Only redraw when necessary
+set guioptions-=e  " Don't use GUI tabline
+set ttyfast        " Faster redrawing
+set lazyredraw     " Only redraw when necessary
+" File type preferences
+set fileformats=unix,dos
 " New splits open to right and bottom
 set splitbelow
 set splitright
 " Autofolding
-set foldmethod=indent
+set foldmethod=syntax " Fold by syntax highlighting
 set foldnestmax=10
-set nofoldenable
+set nofoldenable      " Turn off folding by default
 set foldcolumn=2
 set report=0
 " Search option
-set hlsearch
-set incsearch
+set hlsearch              " Search highlighting
+set incsearch             " Search starts while entering string
 set cursorline            " Color the cursorline
 set undolevels=2000       " Number of undo levels
 set backspace=indent,eol,start  " Intuitive backspacing in insert mode
-set ignorecase
-set smartcase
+set ignorecase      " Search ignore case
+set smartcase       " Search ignore case unless search contains an uppercase
 set infercase       " Adjust case in insert completion mode
 set wrapscan        " Searches wrap around the end of the file
 set showmatch       " Jump to matching bracket
 " Switch off automatic creation of backup files
 set nobackup
 set nowritebackup
-set noswapfile
-set hidden
+set noswapfile   " Turn off swap files
+set hidden       " Buffer becomes hidden when abandoned to prevent need to save
 set completeopt=menu,noinsert
-" Statusline
-set laststatus=2
+set laststatus=2 " Always show the status line
 " Tabbar
 set showtabline=2  " Show tabline
-set guioptions-=e  " Don't use GUI tabline
 " Frequency update
 set updatetime=250
 " Behaviour
@@ -60,37 +61,34 @@ set scrolloff=2         " Keep at least 2 lines above/below
 set sidescrolloff=5     " Keep at least 5 lines left/right
 set noshowcmd           " Don't show command in status line
 " Enable indent
-set autoindent                          " Uses indent from previous line
-set smartindent                         " Like cindent except lil' more clever
-set copyindent                          " Copy the structure of existing line's indent when autoin
+set autoindent          " Uses indent from previous line
+set smartindent         " Like cindent except lil' more clever
+set copyindent          " Copy the structure of existing line's indent when autoin
 set sw=4
 set shiftwidth=4     " Number of auto-indent spaces
 set smarttab         " Enable smart-tabs
 set softtabstop=4    " Number of spaces per Tab
-set expandtab
+set expandtab        " Insert spaces when tab pressed
 set pumheight=15
 set ruler
-" Set the file path as pwd
-set autochdir
-" Set global replacement as the default
-set gdefault
+set autochdir        " Set the file path as pwd
+set gdefault         " Set searching to global by default
 " Make every wrapped line visually indented.
 set breakindent
 set showbreak=\\\\\
 " Display extra whitespace.
 set list
 set listchars=tab:»·,trail:·,nbsp:·
-" automenu complete
-set wildmenu
+set wildmenu " Command line completion help
 " Set color
 set guifont=Droid\ Sans\ Mono\ Nerd\ Font:h10
 colorscheme valloric
 " exclusions from the autocomplete menu
 set wildoptions=tagfile
-"if has('nvim')
-"    set pumblend=20
-"    set wildoptions+=pum
-"endif
+if has('nvim-0.4')
+    set pumblend=20
+    set wildoptions+=pum
+endif
 " Ignore case when completing file names and directories.
 set wildignorecase
 " A list of file patterns to ignore when performing expansion and completion.
@@ -263,8 +261,6 @@ augroup default
     autocmd FileType php.wordpress setlocal tabstop=4 softtabstop=4 shiftwidth=4 expandtab autoindent
     autocmd FileType javascript setlocal tabstop=2 softtabstop=2 shiftwidth=2 expandtab
     autocmd FileType php let b:surround_45 = "<?php \r ?>"
-    " Alias for git add
-    autocmd User fugitive command! -bar -buffer -nargs=* Gadd :Gwrite <args>
     " Autosave session
     autocmd BufRead,BufReadPost,BufNewFile,BufFilePost * :SaveSession
 augroup END
