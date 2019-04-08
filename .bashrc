@@ -159,6 +159,11 @@ function git-fork() {
     fi
 }
 
+# Commit easily
+function gcm() {
+    git commit -m "$@"
+}
+
 # https://github.com/github/hub
 if [ -f /usr/share/bash-completion/completions/hub ]; then
     . /usr/share/bash-completion/completions/hub
