@@ -5,6 +5,8 @@ filetype plugin on
 filetype indent on
 syntax on
 
+set encoding=utf-8          " The encoding displayed
+set fileencoding=utf-8      " The encoding written to file
 set number      " Show line numbers
 set textwidth=100   " Line wrap (number of cols)
 set showmatch   " Highlight matching brace
@@ -13,6 +15,8 @@ set title             " change the terminal's title
 set mouse=a           " enable mouse in all modes
 set clipboard^=unnamedplus
 set guioptions+=a
+set ttyfast                 " Faster redrawing
+set lazyredraw              " Only redraw when necessary
 " New splits open to right and bottom
 set splitbelow
 set splitright
@@ -56,7 +60,6 @@ set scrolloff=2         " Keep at least 2 lines above/below
 set sidescrolloff=5     " Keep at least 5 lines left/right
 set noshowcmd           " Don't show command in status line
 " Enable indent
-set autoindent
 set autoindent                          " Uses indent from previous line
 set smartindent                         " Like cindent except lil' more clever
 set copyindent                          " Copy the structure of existing line's indent when autoin
