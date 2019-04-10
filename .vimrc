@@ -128,6 +128,8 @@ call vundle#begin()
     Plugin 'Konfekt/FastFold'
     " Remove trailing whitespaces
     Plugin 'vim-scripts/DeleteTrailingWhitespace'
+    " Move block of code
+    Plugin 'matze/vim-move'
     " Improve scrolloff area
     Plugin 'drzel/vim-scroll-off-fraction'
     " Underlines the words under your cursor
@@ -351,8 +353,6 @@ map <esc> :noh<cr>
 nmap <expr> <2-LeftMouse> 'za'
 " Search in the project files
 nmap <leader>f :Rg<space>
-" To search on history with fuzzy
-nmap <leader>h :History<cr>
 " Object view
 nmap <C-t> :TagbarToggle<CR>
 " Undo tree tab
