@@ -51,3 +51,5 @@
 	user = Mte90
 [help]
 	autocorrect = 1
+[fetch]
+	prune = true
