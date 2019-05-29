@@ -259,9 +259,9 @@ augroup default
     " Add support of stuff on different files
     autocmd BufReadPost * if line("'\"") && line("'\"") <= line("$") | exe "normal `\"" | endif
     autocmd BufRead,BufNewFile jquery.*.js set ft=javascript syntax=jquery
-    autocmd FileType php setlocal tabstop=4 softtabstop=4 shiftwidth=4 expandtab autoindent
-    autocmd FileType php.wordpress setlocal tabstop=4 softtabstop=4 shiftwidth=4 expandtab autoindent
-    autocmd FileType javascript setlocal tabstop=2 softtabstop=2 shiftwidth=2 expandtab
+    autocmd FileType php set tabstop=4
+    autocmd FileType php.wordpress set tabstop=4
+    autocmd FileType javascript set tabstop=2 shiftwidth=2
     autocmd FileType php let b:surround_45 = "<?php \r ?>"
     " Autosave session
     autocmd BufRead,BufReadPost,BufNewFile,BufFilePost * :SaveSession
