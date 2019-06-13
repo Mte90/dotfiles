@@ -246,6 +246,7 @@ source /home/mte90/.vim/custom/custom-deoplete.vim
 source /home/mte90/.vim/custom/custom-ale.vim
 source /home/mte90/.vim/custom/custom-gutentags.vim
 source /home/mte90/.vim/custom/custom-startify.vim
+source /home/mte90/.vim/custom/custom-fzf.vim
 
 
 let g:sessions_dir = '~/.vim/sessions'
@@ -286,10 +287,6 @@ augroup fmt
   autocmd BufWritePre *.sass :normal =G
 augroup END
 
-let g:fzf_action = {
-  \ 'return': 'tab split',
-\}
-let $FZF_DEFAULT_COMMAND = 'ag --ignore-dir .sass-cache --ignore-dir _output --ignore-dir node_modules --ignore-dir vendor -g "" -U --nogroup --column --nocolor --php --html --css --js'
 " Find root
 let g:rooter_patterns = ['.git/']
 let g:rooter_resolve_links = 1
