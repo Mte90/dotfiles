@@ -24,9 +24,9 @@ set fileformats=unix,dos
 set splitbelow
 set splitright
 " Autofolding
-set foldmethod=syntax " Fold by syntax highlighting
+set foldmethod=marker
+set foldmarker=/*,*/
 set foldnestmax=10
-set nofoldenable      " Turn off folding by default
 set foldcolumn=2
 set report=0
 " Search option
