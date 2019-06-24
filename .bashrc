@@ -187,7 +187,8 @@ function git-merge-last-commits() { git reset --soft HEAD~$1 && git commit; }
 function commit() { commit=$(kdialog --title 'Commit message' --inputbox 'Insert the commit' '') && git commit -m "$commit" && echo "$commit"; }
 function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 
-# https://github.com/riobard/bash-powerline
+# https://github.com/petobens/trueline
+TRUELINE_GIT_MODIFIED_COLOR='red'
 . ~/.bash_powerline
 
 # https://github.com/dvorka/hstr
