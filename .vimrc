@@ -13,6 +13,7 @@ set showmatch       " Highlight matching brace
 set visualbell      " Use visual bell (no beeping)
 set title           " change the terminal's title
 set mouse=a         " enable mouse in all modes
+set mousemodel=popup  " set the behaviour of mouse
 set clipboard^=unnamedplus " Allow use of system clipboard
 set guioptions+=a
 set guioptions-=e  " Don't use GUI tabline
@@ -45,7 +46,7 @@ set nobackup
 set nowritebackup
 set noswapfile   " Turn off swap files
 set hidden       " Buffer becomes hidden when abandoned to prevent need to save
-set completeopt=menu,noinsert
+set completeopt =menu,noinsert
 set laststatus=2 " Always show the status line
 " Tabbar
 set showtabline=2  " Show tabline
@@ -66,6 +67,7 @@ set smartindent         " Like cindent except lil' more clever
 set copyindent          " Copy the structure of existing line's indent when autoin
 set sw=4
 set shiftwidth=4     " Number of auto-indent spaces
+set shiftround       " align indent to next multiple value of shiftwidth
 set smarttab         " Enable smart-tabs
 set softtabstop=4    " Number of spaces per Tab
 set expandtab        " Insert spaces when tab pressed
@@ -78,7 +80,7 @@ set breakindent
 set showbreak=\\\\\
 " Display extra whitespace.
 set list
-set listchars=tab:»·,trail:·,nbsp:·
+set listchars=tab:»·,trail:·,nbsp:·,eol:¬
 set wildmenu " Command line completion help
 " Set color
 set guifont=Droid\ Sans\ Mono\ Nerd\ Font:h10
@@ -388,6 +390,11 @@ nmap <M-Left> :tabprevious<CR>
 nmap K <Plug>(devdocs-under-cursor)
 " Align by cursor with plugin
 nmap <leader>t glip=
+
+if has('nvim-0.4')
+    vmap <LeftRelease> "*ygv
+    imap <C-S-v> <C-R>*
+endif
 
 " \\\\ correct :W to :w #typo
 cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))
