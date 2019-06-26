@@ -1,7 +1,7 @@
 let g:fzf_action = {
   \ 'return': 'tab split',
 \}
-
+let $FZF_DEFAULT_COMMAND = 'ag --ignore-dir .sass-cache --ignore-dir _output --ignore-dir node_modules --ignore _bootstrap.php --ignore-dir _generated --ignore-dir vendor -g "" -U --nogroup --column --nocolor --php --html --css --js'
 command! -bang -nargs=? -complete=dir Files
   \ call fzf#vim#files(<q-args>,
   \ fzf#vim#with_preview(),
