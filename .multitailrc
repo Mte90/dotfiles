@@ -30,7 +30,7 @@ cs_re_s:blue:(\[|\]|\{|\})
 mcsre_s:green:("[^"]*")
 mcsre_s:green:('[^']*')
 # file/class paths
-mcsre_s:blue:(([a-zA-Z0-9_:]+(/|\\)+)+[a-zA-Z0-9_.]+) 
+mcsre_s:blue:(([a-zA-Z0-9_:-]+(/|\\)+)+[a-zA-Z0-9_.-]+) 
 
 # success
 cs_re:green:Success:.*

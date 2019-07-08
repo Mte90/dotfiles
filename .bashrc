@@ -215,7 +215,7 @@ function vvv-debug(){
             rm $log;
         fi
         echo "" > $log
-        multitail-m 600 $log;
+        multitail -m 600 $log;
     else
         echo "Log not found"
     fi
