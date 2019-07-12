@@ -80,7 +80,7 @@ set breakindent
 set showbreak=\\\\\
 " Display extra whitespace.
 set list
-set listchars=tab:»·,trail:·,nbsp:·,eol:¬
+set listchars=tab:»·,trail:·,nbsp:·,precedes:«,extends:»
 set wildmenu " Command line completion help
 " Set color
 set guifont=Droid\ Sans\ Mono\ Nerd\ Font:h10
@@ -240,6 +240,10 @@ call vundle#begin()
     Plugin 'elzr/vim-json'
     " Open docs on K
     Plugin 'rhysd/devdocs.vim'
+    " Search pulse
+    Plugin 'inside/vim-search-pulse'
+    " Split one-liner into multiple
+    Plugin 'AndrewRadev/splitjoin.vim'
 call vundle#end()
 
 source /home/mte90/.vim/custom/custom-nerdtree.vim
@@ -249,7 +253,6 @@ source /home/mte90/.vim/custom/custom-ale.vim
 source /home/mte90/.vim/custom/custom-gutentags.vim
 source /home/mte90/.vim/custom/custom-startify.vim
 source /home/mte90/.vim/custom/custom-fzf.vim
-
 
 let g:sessions_dir = '~/.vim/sessions'
 let g:session_directory = '~/.vim/sessions'
@@ -290,7 +293,7 @@ augroup fmt
 augroup END
 
 " Find root
-let g:rooter_patterns = ['.git/']
+let g:rooter_patterns = ['.git/', 'package.json', 'composer.json']
 let g:rooter_resolve_links = 1
 let g:rooter_silent_chdir  = 1
 " Emmett

@@ -7,7 +7,7 @@ command! -bang -nargs=? -complete=dir Files
   \ fzf#vim#with_preview(),
   \ <bang>0)
 
-  augroup fzf_hide_statusline
+augroup fzf_hide_statusline
         autocmd!
         autocmd! FileType fzf
         autocmd  FileType fzf set laststatus=0 noshowmode noruler

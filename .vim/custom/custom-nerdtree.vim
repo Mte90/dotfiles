@@ -25,7 +25,7 @@ let g:NERDTreeDirArrowExpandable = ''
 let g:NERDTreeDirArrowCollapsible = ''
 "  ignore files
 let NERDTreeIgnore = [
-	\ '\.git$', '\.hg$', '\.svn$', '\.stversions$', '\.pyc$', '\.svn$', '__init__.py', 'vendor',
+	\ '\.git$', '\.hg$', '\.svn$', '\.stversions$', '\.pyc$', '\.svn$', '__init__.py', 'vendor', '\~$',
 	\ '\.DS_Store$', '\.sass*$', '__pycache__$', '\.egg-info$', '\.cache$','composer.lock','node_modules'
 \ ]
 " Webdevicons
