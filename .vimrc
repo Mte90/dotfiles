@@ -158,6 +158,7 @@ call vundle#begin()
     Plugin 'sniphpets/sniphpets'
     Plugin 'sniphpets/sniphpets-common'
     " markdown
+    Plugin 'godlygeek/tabular'
     Plugin 'plasticboy/vim-markdown'
     " php doc autocompletion
     Plugin 'tobyS/vmustache' | Plugin 'tobyS/pdv'
@@ -218,7 +219,6 @@ call vundle#begin()
     Plugin 'othree/html5.vim'
     Plugin 'mattn/emmet-vim'
     Plugin 'hail2u/vim-css3-syntax'
-    Plugin 'groenewege/vim-less'
     Plugin 'othree/csscomplete.vim'
     Plugin 'stephpy/vim-yaml'
     " Javascript
@@ -338,6 +338,9 @@ let g:devdocs_open_cmd = 'firefox'
 " Trigger a highlight only when pressing f and F.
 let g:qs_highlight_on_keys = ['f']
 let g:qs_max_chars=80
+" Markdown
+let g:vim_markdown_folding_disabled = 1
+
 
 " Hotkeys
 " Insert blank lines above and bellow current line, respectively.
