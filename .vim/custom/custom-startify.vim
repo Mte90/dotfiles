@@ -4,7 +4,7 @@ let g:startify_bookmarks = [
             \ {'w': '/var/www/VVV/www/woocommerce/htdocs/wp-content/plugins/woo-fiscalita-italiana/woo-fiscalita-italiana.php'},
             \ {'b': '/var/www/VVV/www/boilerplate/htdocs/wp-content/plugins/'},
             \ {'d': '/var/www/VVV/www/daniele/htdocs/wp-content/themes/daniele.tech-2019/'},
-            \ {'c': '/var/www/VVV/www/cmlearning/htdocs/wp-content/plugins/cmlearning/'},
+            \ {'c': '/var/www/VVV/www/cmagazine/htdocs/wp-content/plugins/'},
             \ {'o': '/home/mte90/Desktop/Prog/GlotDict/'},
             \ {'s': '/home/mte90/Desktop/Prog/Share-Backported/'}
 \]
