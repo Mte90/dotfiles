@@ -18,10 +18,8 @@
 	undo-commit = reset --soft HEAD^
 	#http://www.mte90.net/en/2016/04/git-clone-auto-download-composer-npm-pip-vagrant-bower/
 	clone = clone --recursive --template=/home/mte90/.git-templates
-	permission-reset = "!git diff -p | grep -E \"^(diff|old mode|new mode)\" | sed -e \"s/^old/NEW/;s/^new/old/;s/^NEW/new/\" | git apply"
-	permission-reset = "!git diff -p -R --no-color --no-ext-diff  | grep -E \"^(diff|(old|new) mode)\" --color=nenver | sed -e \"s/^old/NEW/;s/^new/old/;s/^NEW/new/\" | git apply"
-	permission-reset = !git diff -p -R --no-color --no-ext-diff  | grep -E \"^(diff|(old|new) mode)\" --color=nenver | git apply
 	permission-reset = !git diff -p -R --no-color --no-ext-diff  | grep -E \"^(diff|(old|new) mode)\" --color=never | git apply
+	rebase-last-ten = "!b=\"$(git rev-parse --abbrev-ref HEAD)\" ; h=\"$(git rev-parse $b)\" ; echo \"Current branch: $b $h\" ; c=\"$(git rev-parse $b~10)\" ; echo \"Recreating $b branch with initial commit $c ...\" ; git checkout --orphan new-start $c ; git commit -C $c ; git rebase --onto new-start $c $b ; git branch -d new-start ; git reflog expire --expire=now --all; git gc --prune=now"
 [merge]
     # See here:
     # http://aaronbonner.io/post/78444674979/only-allow-git-fast-forward-merges-to-avoid-ugly
