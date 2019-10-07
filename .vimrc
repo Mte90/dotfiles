@@ -164,7 +164,6 @@ call vundle#begin()
     Plugin 'tobyS/vmustache' | Plugin 'tobyS/pdv'
     " object view
     Plugin 'majutsushi/tagbar'
-    Plugin 'lvht/tagbar-markdown'
     Plugin 'hushicai/tagbar-javascript.vim'
     Plugin 'mtscout6/vim-tagbar-css'
     " Nerdtree + modifications: git icons plugin, color filetype plugin
@@ -208,6 +207,7 @@ call vundle#begin()
     Plugin 'nishigori/vim-php-dictionary'
     Plugin '2072/PHP-Indenting-for-VIm'
     Plugin 'captbaritone/better-indent-support-for-php-with-html'
+    Plugin 'vim-vdebug/vdebug'
     " Comments
     Plugin 'scrooloose/nerdcommenter'
     " highlights which characters to target
@@ -341,6 +341,11 @@ let g:qs_max_chars=80
 " Markdown
 let g:vim_markdown_folding_disabled = 1
 
+let g:vdebug_options = {
+    \    'break_on_open' : 0,
+    \    'ide_key' : 'VVVDEBUG'
+    \}
+let g:vdebug_options.path_maps = {"/srv/www/": "/home/mte90/Desktop/VVV/www/"}
 
 " Hotkeys
 " Insert blank lines above and bellow current line, respectively.
@@ -397,12 +402,14 @@ nmap K <Plug>(devdocs-under-cursor)
 " Align by cursor with plugin
 nmap <leader>t glip=
 
+" On selecting test will be copied
 if has('nvim-0.4')
     vmap <LeftRelease> "*ygv
+    " copy and paste to system clipboard
     imap <C-S-v> <C-R>*
 endif
 
-" \\\\ correct :W to :w #typo
+" correct :W to :w #typo
 cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))
-" \\\\ correct :Q to :q #typo
+" correct :Q to :q #typo
 cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline() is# 'Q')?('q'):('Q'))
