@@ -189,7 +189,7 @@ function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 
 # https://github.com/petobens/trueline
 TRUELINE_GIT_MODIFIED_COLOR='red'
-. ~/.bash_powerline
+source ~/.bash_powerline
 
 # https://github.com/dvorka/hstr
 export HH_CONFIG=hicolor         # get more colors
