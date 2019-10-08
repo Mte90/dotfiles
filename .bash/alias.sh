@@ -1,9 +1,14 @@
-alias ls='ls --color=auto -h'
+alias ls='ls --color=auto -Fh'
 alias grep='grep --color=auto --exclude-dir=\.git'
 # https://github.com/sharkdp/bat
 alias cat='bat'
 # https://the.exa.website/
 alias lx='exa'
+alias ln='ln -sf'
+# Create all the parent directories with children
+alias mkdir='mkdir -p'
+# Create folder and join it
+function mkcd(){ mkdir -p $@ && cd $_; }
 
 # CD stuff
 alias casa='cd /home/mte90/Desktop'
@@ -14,22 +19,15 @@ alias wpt='cd ./htdocs/wp-content/themes 2>/dev/null;cd ./wp-content/themes 2>/d
 # Misc
 alias biggest-10-files='BLOCKSIZE=1048576; du -x -h | sort -nr | head -10'
 alias yt2mp3='youtube-dl -l --extract-audio --audio-format=mp3 -w -c'
+alias changedfiles="find . -type f -print0 | xargs -0 stat --format '%Z :%z %n' | sort -nr | cut -d: -f2- | head -n 20"
 alias kate='kate -b'
+
 # dev
 # https://github.com/gleitz/howdoi
 alias howdoi='howdoi -c'
+
 alias codeatcs='phpcs -p -s -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
 alias codeatcscbf='phpcbf -p -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
-alias dotfiles="/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
-alias changedfiles="find . -type f -print0 | xargs -0 stat --format '%Z :%z %n' | sort -nr | cut -d: -f2- | head -n 20"
-
-# Move to the # parent folder
-up(){ DEEP=$1; [ -z "${DEEP}" ] && { DEEP=1; }; for i in $(seq 1 ${DEEP}); do cd ../; done; }
-
-# Create folder and join it
-function mkcd(){ mkdir -p $@ && cd $_; }
-# Create all the parent directories with children
-alias mkdir='mkdir -p'
 
 # Download your fork and add the upstream
 function git-fork() {
@@ -67,6 +65,7 @@ alias git-rename-branch="git rename-branch"
 alias git-remove-deleted-branch-remotely="git remote prune origin"
 #  Add and remove new/deleted files from git index automatically
 alias git-remove-file-not-exist-anymore-history="git ls-files -d -m -o -z --exclude-standard | xargs -0 git update-index --add --remove"
+alias dotfiles="/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
 function git-merge-last-commits() { git reset --soft HEAD~$1 && git commit; }
 function commit() { commit=$(kdialog --title 'Commit message' --inputbox 'Insert the commit' '') && git commit -m "$commit" && echo "$commit"; }
 function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
@@ -88,6 +87,22 @@ function vvv-debug(){
         multitail -m 600 "$log";
     else
         echo "Log not found"
+    fi
+}
+
+# cd back up to the top-level git/hg repo dir
+function cdreporoot () {
+    ORIGINAL_PWD=`pwd`
+    while [ ! -d ".git" -a ! -d ".hg" -a `pwd` != "/" ]
+    do
+        cd ..
+    done
+    if [  -d ".git" ] ; then
+        :
+    elif [ -d ".hg" ] ; then
+        :
+    else
+        cd $ORIGINAL_PWD
     fi
 }
 
