@@ -109,6 +109,14 @@ bind "set completion-ignore-case on"
 
 # https://github.com/petobens/trueline
 TRUELINE_GIT_MODIFIED_COLOR='red'
+TRUELINE_SEGMENTS=(
+        'user,black,white,bold'
+        'venv,black,purple,bold'
+        'git,grey,special_grey,normal'
+        'working_dir,mono,cursor_grey,normal'
+        'read_only,black,orange,bold'
+        'bg_jobs,black,orange,bold'
+    )
 
 for i in ${HOME}/.bash/*.sh
   do
