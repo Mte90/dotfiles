@@ -111,8 +111,9 @@ call vundle#begin()
     Plugin 'VundleVim/Vundle.vim'
     " Show "Match 123 of 456 /search term/" in Vim searches
     Plugin 'henrik/vim-indexed-search'
-    " wrapper for git and display git diff in the left gutter
+    " wrapper for git
     Plugin 'tpope/vim-fugitive'
+    " display git diff in the left gutter
     Plugin 'airblade/vim-gitgutter'
     " autoclose bracket and parenthesis when open
     Plugin 'Townk/vim-autoclose'
@@ -126,6 +127,8 @@ call vundle#begin()
     endif
     " Indentation is very helpful
     Plugin 'Yggdroot/indentLine'
+    " Rainbow Parentheses Improved
+    Plugin 'luochen1990/rainbow'
     " Folding fast is important
     Plugin 'Konfekt/FastFold'
     " Remove trailing whitespaces
@@ -162,10 +165,6 @@ call vundle#begin()
     Plugin 'plasticboy/vim-markdown'
     " php doc autocompletion
     Plugin 'tobyS/vmustache' | Plugin 'tobyS/pdv'
-    " object view
-    Plugin 'majutsushi/tagbar'
-    Plugin 'hushicai/tagbar-javascript.vim'
-    Plugin 'mtscout6/vim-tagbar-css'
     " Nerdtree + modifications: git icons plugin, color filetype plugin
     Plugin 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind']}
     Plugin 'Xuyuanp/nerdtree-git-plugin'
@@ -177,12 +176,14 @@ call vundle#begin()
     Plugin 'macthecadillac/lightline-gitdiff'
     " Tags are very important
     Plugin 'ludovicchabant/vim-gutentags'
-    " https://github.com/vim-php/phpctags/pull/82/files
+    " object view
+    Plugin 'majutsushi/tagbar'
+    Plugin 'hushicai/tagbar-javascript.vim'
+    Plugin 'mtscout6/vim-tagbar-css'
+    " PHPctags support
     Plugin 'vim-php/tagbar-phpctags.vim'
     " undo tree
     Plugin 'sjl/gundo.vim'
-    " select text
-    Plugin 'terryma/vim-expand-region'
     " fzf - poweful search
     Plugin 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plugin 'junegunn/fzf.vim'
@@ -197,8 +198,9 @@ call vundle#begin()
     Plugin 'maximbaz/lightline-ale'
     " Wakatime
     Plugin 'wakatime/vim-wakatime'
-    " Misc
+    " EditorConfig support
     Plugin 'editorconfig/editorconfig-vim'
+    " Align text
     Plugin 'tommcdo/vim-lion'
     " PHP syntax
     Plugin 'StanAngeloff/php.vim'
@@ -207,7 +209,10 @@ call vundle#begin()
     Plugin 'nishigori/vim-php-dictionary'
     Plugin '2072/PHP-Indenting-for-VIm'
     Plugin 'captbaritone/better-indent-support-for-php-with-html'
+    " xDebug support
     Plugin 'vim-vdebug/vdebug'
+    " Comfortable scroll
+    Plugin 'yuttie/comfortable-motion.vim'
     " Comments
     Plugin 'scrooloose/nerdcommenter'
     " highlights which characters to target
@@ -229,8 +234,6 @@ call vundle#begin()
     Plugin 'mklabs/grunt.vim'
     " Syntax highlighting for vue js framework
     Plugin 'posva/vim-vue'
-    " Syntax highlighting for JSX
-    Plugin 'mxw/vim-jsx'
     " Syntax highlighting for coffeescript
     Plugin 'kchmck/vim-coffee-script'
     Plugin 'lukaszkorecki/CoffeeTags'
@@ -292,6 +295,8 @@ augroup fmt
   autocmd BufWritePre *.sass :normal =G
 augroup END
 
+" Enable Rainbow Parenthesis
+let g:rainbow_active = 1
 " Find root
 let g:rooter_patterns = ['.git/', 'package.json', 'composer.json']
 let g:rooter_resolve_links = 1
@@ -318,6 +323,8 @@ let g:NERDCompactSexyComs = 1
 let g:NERDCommentEmptyLines = 1
 let g:NERDTrimTrailingWhitespace = 1
 let g:NERDCreateDefaultMappings = 0
+" Comfortable settings
+let g:comfortable_motion_no_default_key_mappings = 1
 " Tagbar
 let g:tagbar_width = 30
 let g:tagbar_indent = 1
@@ -347,18 +354,50 @@ let g:vdebug_options = {
     \}
 let g:vdebug_options.path_maps = {"/srv/www/": "/home/mte90/Desktop/VVV/www/"}
 
-" Hotkeys
+" Internals mapping
 " Insert blank lines above and bellow current line, respectively.
 nnoremap [<Space> :<c-u>put! =repeat(nr2char(10), v:count1)<CR>
 nnoremap ]<Space> :<c-u>put =repeat(nr2char(10), v:count1)<CR>
+" Reselect text ater indent/unindent.
+vnoremap < <gv
+vnoremap > >gv
 " Remove spaces at the end of lines
 nnoremap <silent> ,<Space> :<C-u>silent! keeppatterns %substitute/\s\+$//e<CR>
+" Remove highlights
+map <esc> :noh<cr>
+" Granular undo
+inoremap <c-u> <c-g>u<c-u>
+inoremap <c-w> <c-g>u<c-w>
+imap <Space> <Space><C-G>u
+" Move between panes/split with Ctrl
+map <silent> <C-Up> :wincmd k<CR>
+map <silent> <C-Down> :wincmd j<CR>
+map <silent> <C-Left> :wincmd h<CR>
+map <silent> <C-Right> :wincmd l<CR>
+nmap <silent> <C-Up> :wincmd k<CR>
+nmap <silent> <C-Down> :wincmd j<CR>
+nmap <silent> <C-Left> :wincmd h<CR>
+nmap <silent> <C-Right> :wincmd l<CR>
+" Move between tabs with Alt
+nmap <M-Right> :tabnext<CR>
+nmap <M-Left> :tabprevious<CR>
+nmap K <Plug>(devdocs-under-cursor)
+" On selecting test will be copied
+if has('nvim-0.4')
+    vmap <LeftRelease> "*ygv
+    " copy and paste to system clipboard
+    imap <C-S-v> <C-R>*
+endif
+" correct :W to :w #typo
+cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))
+" correct :Q to :q #typo
+cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline() is# 'Q')?('q'):('Q'))
+
+" Hotkeys
 " Save
 nnoremap <leader>x :w<CR>
 " Open Folder tab current directory
 nmap <leader>n :call NERDTreeToggleInCurDir()<CR>
-" Remove highlights
-map <esc> :noh<cr>
 " Fold code open/close with click
 nmap <expr> <2-LeftMouse> 'za'
 " Search in the project files
@@ -380,36 +419,8 @@ nmap <silent> <C-q> <Plug>(ale_fix)
 nmap <C-d> <Plug>NERDCommenterToggle('n', 'Toggle')<Cr>
 " Append ; to the end of the line -> Leader+B
 map <leader>b :call setline('.', getline('.') . ';')<CR>
-" Granular undo
-inoremap <c-u> <c-g>u<c-u>
-inoremap <c-w> <c-g>u<c-w>
-imap <Space> <Space><C-G>u
-" V-Block replace
-vnoremap <leader>r :%s/\%V//g
-" Move between panes/split with Ctrl
-map <silent> <C-Up> :wincmd k<CR>
-map <silent> <C-Down> :wincmd j<CR>
-map <silent> <C-Left> :wincmd h<CR>
-map <silent> <C-Right> :wincmd l<CR>
-nmap <silent> <C-Up> :wincmd k<CR>
-nmap <silent> <C-Down> :wincmd j<CR>
-nmap <silent> <C-Left> :wincmd h<CR>
-nmap <silent> <C-Right> :wincmd l<CR>
-" Move between tabs with Alt
-nmap <M-Right> :tabnext<CR>
-nmap <M-Left> :tabprevious<CR>
-nmap K <Plug>(devdocs-under-cursor)
 " Align by cursor with plugin
 nmap <leader>t glip=
-
-" On selecting test will be copied
-if has('nvim-0.4')
-    vmap <LeftRelease> "*ygv
-    " copy and paste to system clipboard
-    imap <C-S-v> <C-R>*
-endif
-
-" correct :W to :w #typo
-cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))
-" correct :Q to :q #typo
-cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline() is# 'Q')?('q'):('Q'))
+" Comfortable support to mouse 
+noremap <silent> <ScrollWheelDown> :call comfortable_motion#flick(40)<CR>
+noremap <silent> <ScrollWheelUp>   :call comfortable_motion#flick(-40)<CR>

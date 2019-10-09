@@ -23,25 +23,36 @@ let g:NERDTreeWinSize=35
 "  change the arrows
 let g:NERDTreeDirArrowExpandable = ''
 let g:NERDTreeDirArrowCollapsible = ''
+"  Fix issue with char width
 "  ignore files
 let NERDTreeIgnore = [
 	\ '\.git$', '\.hg$', '\.svn$', '\.stversions$', '\.pyc$', '\.svn$', '__init__.py', 'vendor', '\~$',
 	\ '\.DS_Store$', '\.sass*$', '__pycache__$', '\.egg-info$', '\.cache$','composer.lock','node_modules'
 \ ]
+function! NERDTreeRefresh()
+    if &filetype == "nerdtree"
+        silent exe substitute(mapcheck("R"), "<CR>", "", "")
+    endif
+endfunction
+autocmd BufEnter * call NERDTreeRefresh()
+" if nerdtree is only window, kill nerdtree so buffer can die
+autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | :bdelete | endif
+let g:NERDTreeFileExtensionHighlightFullName = 1
+let g:NERDTreeExactMatchHighlightFullName = 1
+let g:NERDTreePatternMatchHighlightFullName = 1
+let g:NERDTreeLimitedSyntax = 1
+let g:NERDTreeHighlightCursorline = 0
+
 " Webdevicons
 let g:webdevicons_enable = 1
 let g:webdevicons_enable_nerdtree = 1
 let entry_format = "'   ['. index .']'. repeat(' ', (3 - strlen(index)))"
 let g:WebDevIconsNerdTreeGitPluginForceVAlign = 1
 let g:WebDevIconsNerdTreeAfterGlyphPadding    = ' '
+let g:WebDevIconsUnicodeDecorateFileNodes = 1
+let g:WebDevIconsUnicodeDecorateFolderNodes = 1
+let g:WebDevIconsUnicodeGlyphDoubleWidth = 1
 let entry_format .= '. entry_path'
 if exists('*WebDevIconsGetFileTypeSymbol')  " support for vim-devicons
   let entry_format .= ". WebDevIconsGetFileTypeSymbol(entry_path) .' '.  entry_path"
 endif
-function! NERDTreeRefresh()
-    if &filetype == "nerdtree"
-        silent exe substitute(mapcheck("R"), "<CR>", "", "")
-    endif
-endfunction
-
-autocmd BufEnter * call NERDTreeRefresh()

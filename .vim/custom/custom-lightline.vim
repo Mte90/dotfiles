@@ -36,10 +36,10 @@ let s:short_modes = {
 \ }
 let g:powerline_symbols = {}
 let g:powerline_symbols.separator    = { 'left': '', 'right': '' }
-    let g:powerline_symbols.subseparator = { 'left': '|', 'right': '|' }
-    let g:powerline_symbols.linenr       = ''
-    let g:powerline_symbols.branch       = ''
-    let g:powerline_symbols.readonly     = 'RO'
+let g:powerline_symbols.subseparator = { 'left': '|', 'right': '|' }
+let g:powerline_symbols.linenr       = ''
+let g:powerline_symbols.branch       = ''
+let g:powerline_symbols.readonly     = 'RO'
 let g:powerline_symbols.clipboard = ' @'
 function! LightlineWinWidth() abort
     return winwidth(0)
