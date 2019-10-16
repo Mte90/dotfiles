@@ -155,6 +155,7 @@ call vundle#begin()
         Plugin 'roxma/nvim-yarp'
         Plugin 'Shougo/deoplete.nvim'
     endif
+    Plugin 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
     " Snippets engine and... snippets!
     Plugin 'SirVer/ultisnips'
     Plugin 'honza/vim-snippets'
@@ -325,6 +326,7 @@ let g:NERDTrimTrailingWhitespace = 1
 let g:NERDCreateDefaultMappings = 0
 " Comfortable settings
 let g:comfortable_motion_no_default_key_mappings = 1
+let g:comfortable_motion_friction = 90.0
 " Tagbar
 let g:tagbar_width = 30
 let g:tagbar_indent = 1
@@ -358,7 +360,9 @@ let g:vdebug_options.path_maps = {"/srv/www/": "/home/mte90/Desktop/VVV/www/"}
 " Insert blank lines above and bellow current line, respectively.
 nnoremap [<Space> :<c-u>put! =repeat(nr2char(10), v:count1)<CR>
 nnoremap ]<Space> :<c-u>put =repeat(nr2char(10), v:count1)<CR>
-" Reselect text ater indent/unindent.
+nnoremap {<Space> :<c-u>put! =repeat(nr2char(10), v:count1)<CR>
+nnoremap }<Space> :<c-u>put =repeat(nr2char(10), v:count1)<CR>
+" Reselect text after indent/unindent.
 vnoremap < <gv
 vnoremap > >gv
 " Remove spaces at the end of lines
@@ -388,9 +392,9 @@ if has('nvim-0.4')
     " copy and paste to system clipboard
     imap <C-S-v> <C-R>*
 endif
-" correct :W to :w #typo
+" correct :W to :w typo
 cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))
-" correct :Q to :q #typo
+" correct :Q to :q typo
 cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline() is# 'Q')?('q'):('Q'))
 
 " Hotkeys
@@ -422,5 +426,7 @@ map <leader>b :call setline('.', getline('.') . ';')<CR>
 " Align by cursor with plugin
 nmap <leader>t glip=
 " Comfortable support to mouse 
-noremap <silent> <ScrollWheelDown> :call comfortable_motion#flick(40)<CR>
-noremap <silent> <ScrollWheelUp>   :call comfortable_motion#flick(-40)<CR>
+noremap <silent> <ScrollWheelDown> :call comfortable_motion#flick(30)<CR>
+noremap <silent> <ScrollWheelUp>   :call comfortable_motion#flick(-30)<CR>
+" Convert snake_case to camelCase https://www.reddit.com/r/commandline/comments/dib8e6/sed_convert_only_function_names_in_snake_case_to/
+map <leader>k :%s/\<\l[a-z0-9]*\zs\%(_\l[a-z0-9]*\)\+\ze(/\=substitute(submatch(0), '_\(\l\)', '\u\1', 'g')/g

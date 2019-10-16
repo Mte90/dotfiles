@@ -7,6 +7,8 @@
 	logallrefupdates=true
 [core]
 	editor = vim -Nu NONE -c startinsert
+	# Treat spaces before tabs and all kinds of trailing whitespace as an error
+	whitespace=space-before-tab,-indent-with-non-tab,trailing-space
 	# Changes in file permissions will be ignored: please use it!
 	filemode = false
 	autocrlf = input
@@ -39,14 +41,21 @@
     #See here:
     #http://stevenharman.net/git-pull-with-automatic-rebase
     rebase = true
+[rebase]
+    autosquash = true        # auto squash fixups by default
+    autostash = true         # auto git stash ; git stash pop when rebasing
 [http]
 	sslverify = false
 [color]
 	ui = auto
+[apply]
+	whitespace = nowarn,fix
 [init]
 	templatedir = /home/mte90/.gh-license/git-templates
 [github]
 	user = Mte90
+[url "https://github"]
+  insteadOf = git://github
 [help]
 	autocorrect = 1
 [fetch]
