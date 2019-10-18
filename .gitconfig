@@ -48,8 +48,6 @@
 	sslverify = false
 [color]
 	ui = auto
-[apply]
-	whitespace = nowarn,fix
 [init]
 	templatedir = /home/mte90/.gh-license/git-templates
 [github]
