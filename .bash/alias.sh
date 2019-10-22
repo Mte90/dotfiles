@@ -29,25 +29,6 @@ alias howdoi='howdoi -c'
 alias codeatcs='phpcs -p -s -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
 alias codeatcscbf='phpcbf -p -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
 
-# Download your fork and add the upstream
-function git-fork() {
-    url=$1
-    url=${url%/}
-    url=$(echo "$url" | sed 's/.git//g' | sed 's/git\@//g' | sed 's/github.com\://g')
-    echo "$url download in progress"
-    git clone "git@github.com:$url.git" &> /dev/null
-    user=$(echo "$url" | awk -F/ '{print $1}')
-    repo=$(echo "$url" | awk -F/ '{print $NF}')
-    cd $repo
-    remote=$(curl -s "https://api.github.com/repos/$user/$repo" | jq -r '.parent.clone_url' | tail -c +20)
-    if [ "$remote" != "" ]; then
-        echo "$remote download in progress"
-        git remote add upstream "git@github.com:$remote" &> /dev/null
-        git fetch --all &> /dev/null
-    fi
-}
-
-
 # https://github.com/github/hub
 if [ -f /usr/share/bash-completion/completions/hub ]; then
     source /usr/share/bash-completion/completions/hub
@@ -70,41 +51,6 @@ function git-merge-last-commits() { git reset --soft HEAD~$1 && git commit; }
 function commit() { commit=$(kdialog --title 'Commit message' --inputbox 'Insert the commit' '') && git commit -m "$commit" && echo "$commit"; }
 function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 function gcm() { git commit -m "$@"; } 
-
-# Open the debug of that website
-function vvv-debug(){
-    log="/var/www/VVV/www/$1/htdocs/wp-content/debug.log"
-    if [ ! -f "$log" ]; then
-        log="/var/www/VVV/www/$1/public_html/wp-content/debug.log"
-    fi
-    
-    if [ -f "$log" ]; then
-        actualsize=$(du -k "$log" | cut -f 1)
-        if [ $actualsize -ge 300 ]; then
-            rm "$log";
-        fi
-        echo "" > $log
-        multitail -m 600 "$log";
-    else
-        echo "Log not found"
-    fi
-}
-
-# cd back up to the top-level git/hg repo dir
-function cdreporoot () {
-    ORIGINAL_PWD=`pwd`
-    while [ ! -d ".git" -a ! -d ".hg" -a `pwd` != "/" ]
-    do
-        cd ..
-    done
-    if [  -d ".git" ] ; then
-        :
-    elif [ -d ".hg" ] ; then
-        :
-    else
-        cd $ORIGINAL_PWD
-    fi
-}
 
 # https://github.com/junegunn/fzf
 export FZF_DEFAULT_COMMAND='ag --ignore-dir .sass-cache --ignore-dir _output --ignore-dir node_modules --ignore-dir _generated --ignore _bootstrap.php --ignore-dir vendor -g "" -U --nogroup --column --nocolor --php --html --css --js'
