@@ -5,6 +5,19 @@ let g:ale_php_phpmd_ruleset = '/home/mte90/Desktop/Prog/CodeatCS/codeat-phpmd.xm
 let g:ale_php_cs_fixer_options = 'position_after_functions_and_oop_constructs=same'
 let g:ale_php_langserver_executable = 'php /opt/php-language-server/bin/php-language-server.php'
 let g:ale_php_langserver_use_global = 1
+
+function LoadNewPHPCS()
+    " Wait Rooter that set the path
+    sleep 100m
+    if filereadable(getcwd() . '/phpcs.xml')
+        let g:ale_php_phpcs_standard = getcwd() . '/phpcs.xml'
+    endif
+endfunction
+augroup PHP
+  autocmd!
+  autocmd BufReadPost,BufNewFile *.php call LoadNewPHPCS()
+augroup END
+
 let g:ale_linters = {
 \   '*': ['remove_trailing_lines', 'trim_whitespace'],
 \   'bash': ['shellcheck'],

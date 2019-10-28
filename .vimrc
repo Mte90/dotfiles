@@ -104,6 +104,8 @@ set wildignore+=*.zip,*.tar.gz,*.tar.bz2,*.rar,*.tar.xz
 set wildignore+=*.swp,*~,._*,*/vendor/cache/*,*/.sass-cache/*
 set wildignore+=*/public/assets/*,*/tmp/cache/assets/*/sass/*
 set wildignore+=*DS_Store*
+" Tags folder
+set tags+=/home/mte90/.vim/tags
 
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
@@ -135,6 +137,8 @@ call vundle#begin()
     Plugin 'vim-scripts/DeleteTrailingWhitespace'
     " Move block of code
     Plugin 'matze/vim-move'
+    " Wrapper for sd
+    Plugin 'SirJson/sd.vim'
     " Improve scrolloff area
     Plugin 'drzel/vim-scroll-off-fraction'
     " Underlines the words under your cursor
@@ -147,6 +151,11 @@ call vundle#begin()
     Plugin 'xolox/vim-misc'
     " check https://github.com/xolox/vim-session/pull/144
     Plugin 'xolox/vim-session'
+    " Snippets engine and... snippets!
+    Plugin 'SirVer/ultisnips'
+    Plugin 'honza/vim-snippets'
+    Plugin 'sniphpets/sniphpets'
+    Plugin 'sniphpets/sniphpets-common'
     " Autocomplete system in real time
     if has('nvim')
         Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -156,11 +165,6 @@ call vundle#begin()
         Plugin 'Shougo/deoplete.nvim'
     endif
     Plugin 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
-    " Snippets engine and... snippets!
-    Plugin 'SirVer/ultisnips'
-    Plugin 'honza/vim-snippets'
-    Plugin 'sniphpets/sniphpets'
-    Plugin 'sniphpets/sniphpets-common'
     " markdown
     Plugin 'godlygeek/tabular'
     Plugin 'plasticboy/vim-markdown'
@@ -195,7 +199,7 @@ call vundle#begin()
     " Cool icons"
     Plugin 'ryanoasis/vim-devicons'
     " Report lint errors
-    Plugin 'w0rp/ale'
+    Plugin 'dense-analysis/ale'
     Plugin 'maximbaz/lightline-ale'
     " Wakatime
     Plugin 'wakatime/vim-wakatime'
@@ -210,6 +214,7 @@ call vundle#begin()
     Plugin 'nishigori/vim-php-dictionary'
     Plugin '2072/PHP-Indenting-for-VIm'
     Plugin 'captbaritone/better-indent-support-for-php-with-html'
+    "Plugin 'shawncplus/phpcomplete.vim'
     " xDebug support
     Plugin 'vim-vdebug/vdebug'
     " Comfortable scroll
@@ -275,18 +280,7 @@ augroup default
     autocmd FileType php let b:surround_45 = "<?php \r ?>"
     " Autosave session
     autocmd BufRead,BufReadPost,BufNewFile,BufFilePost * :SaveSession
-augroup END
-function LoadNewPHPCS()
-    " Wait Rooter that set the path
-    sleep 100m
-    if filereadable(getcwd() . '/phpcs.xml')
-        let g:ale_php_phpcs_standard = getcwd() . '/phpcs.xml'
-    endif
-endfunction
-augroup PHP
-  autocmd!
-  autocmd BufReadPost,BufNewFile *.php call LoadNewPHPCS()
-augroup END
+augroup END 
 augroup fmt
   autocmd!
   " Autoformat in tabs
@@ -309,8 +303,8 @@ let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 " PhpDoc
 let g:pdv_template_dir = $HOME .'/.vim/bundle/pdv/templates_snip'
 " Ultisnip
-let g:UltiSnipsExpandTrigger='<tab>'
 let g:UltiSnipsEditSplit = 'vertical'
+let g:UltiSnipsExpandTrigger='<tab>'
 " JS smart complete
 let g:vimjs#smartcomplete = 1
 " php
@@ -326,7 +320,8 @@ let g:NERDTrimTrailingWhitespace = 1
 let g:NERDCreateDefaultMappings = 0
 " Comfortable settings
 let g:comfortable_motion_no_default_key_mappings = 1
-let g:comfortable_motion_friction = 90.0
+let g:comfortable_motion_friction = 80.0
+let g:comfortable_motion_air_drag = 2.0
 " Tagbar
 let g:tagbar_width = 30
 let g:tagbar_indent = 1
