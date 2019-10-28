@@ -152,7 +152,8 @@ export PULSE_RUNTIME_PATH=$PULSE_DIR
 # Fix issues with permissions on my system
 export XDG_RUNTIME_DIR="/run/user/1000"
 
-export PATH=$PATH:/usr/local/sbin
+export PATH=/usr/local/sbin$PATH
 export PATH=./vendor/bin:$PATH
 export PATH=./composer/bin:$PATH
 export PATH=~/.composer/vendor/bin:$PATH
+export PATH=~/.cargo/bin:$PATH

@@ -1,12 +1,14 @@
 alias ls='ls --color=auto -Fh'
-alias grep='grep --color=auto --exclude-dir=\.git'
+alias grep='rg'
+# https://altbox.dev/
 # https://github.com/sharkdp/bat
 alias cat='bat'
 # https://the.exa.website/
-alias lx='exa'
+alias ls='exa --group-directories-first --git-ignore --git -abghlS'
 alias ln='ln -sf'
 # Create all the parent directories with children
 alias mkdir='mkdir -p'
+alias diff='colordiff'
 # Create folder and join it
 function mkcd(){ mkdir -p $@ && cd $_; }
 
