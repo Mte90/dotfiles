@@ -214,7 +214,7 @@ call vundle#begin()
     Plugin 'nishigori/vim-php-dictionary'
     Plugin '2072/PHP-Indenting-for-VIm'
     Plugin 'captbaritone/better-indent-support-for-php-with-html'
-    "Plugin 'shawncplus/phpcomplete.vim'
+    Plugin 'lvht/phpcd.vim', { 'for': 'php', 'do': 'composer install' }
     " xDebug support
     Plugin 'vim-vdebug/vdebug'
     " Comfortable scroll
@@ -274,6 +274,8 @@ augroup default
     " Add support of stuff on different files
     autocmd BufReadPost * if line("'\"") && line("'\"") <= line("$") | exe "normal `\"" | endif
     autocmd BufRead,BufNewFile jquery.*.js set ft=javascript syntax=jquery
+    autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
+    autocmd FileType css set omnifunc=csscomplete#CompleteCSS
     autocmd FileType php set tabstop=4
     autocmd FileType php.wordpress set tabstop=4
     autocmd FileType javascript set tabstop=2 shiftwidth=2
