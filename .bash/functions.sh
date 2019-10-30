@@ -14,7 +14,7 @@ function git-fork() {
         git remote add upstream "git@github.com:$remote" &> /dev/null
         git fetch --all &> /dev/null
     fi
-} 
+}  
 
 # Open the debug of that website
 function vvv-debug(){

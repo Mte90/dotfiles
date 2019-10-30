@@ -31,6 +31,8 @@ alias howdoi='howdoi -c'
 alias codeatcs='phpcs -p -s -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
 alias codeatcscbf='phpcbf -p -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
 
+alias codecoverage='codecept run wpunit --coverage-html && /home/mte90/ffnightly/firefox *.html'
+
 # https://github.com/github/hub
 if [ -f /usr/share/bash-completion/completions/hub ]; then
     source /usr/share/bash-completion/completions/hub
@@ -53,12 +55,6 @@ function git-merge-last-commits() { git reset --soft HEAD~$1 && git commit; }
 function commit() { commit=$(kdialog --title 'Commit message' --inputbox 'Insert the commit' '') && git commit -m "$commit" && echo "$commit"; }
 function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 function gcm() { git commit -m "$@"; } 
-
-# https://github.com/junegunn/fzf
-export FZF_DEFAULT_COMMAND='ag --ignore-dir .sass-cache --ignore-dir _output --ignore-dir node_modules --ignore-dir _generated --ignore _bootstrap.php --ignore-dir vendor -g "" -U --nogroup --column --nocolor --php --html --css --js'
-export FZF_DEFAULT_OPTS='--exact --preview "bat --style=numbers --color=always {}"'
-# Bind F1 to open file to Kate, Ctrl-Y to copy to the clipboard the path, Ctrl-N to enter the folder
-alias fzf='fzf --bind "f1:execute(kate {}),ctrl-y:execute-silent(echo {} | pbcopy)+abort,ctrl-n:execute(cd {})"'
 
 # https://github.com/cykerway/complete-alias
 complete -F _complete_alias fzf
