@@ -227,7 +227,6 @@ call vundle#begin()
     " WordPress
     Plugin 'salcode/vim-wordpress-dict'
     Plugin 'sudar/vim-wordpress-snippets'
-    Plugin 'kloppster/Wordpress-Vim-Syntax'
     " Web
     Plugin 'othree/html5.vim'
     Plugin 'mattn/emmet-vim'
@@ -279,9 +278,7 @@ augroup default
     autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
     autocmd FileType css set omnifunc=csscomplete#CompleteCSS
     autocmd FileType php set tabstop=4 
-    autocmd FileType php set syn=wordpress
     autocmd FileType php.wordpress set tabstop=4
-    autocmd FileType php.wordpress syn=wordpress
     autocmd FileType javascript set tabstop=2 shiftwidth=2
     autocmd FileType php let b:surround_45 = "<?php \r ?>"
     " Autosave session
