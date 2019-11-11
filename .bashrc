@@ -28,6 +28,8 @@ shopt -s checkwinsize
 # Auto fix filenames with spell checker
 shopt -s dirspell
 shopt -s cdspell
+# Case-insensitive globbing (used in pathname expansion)
+shopt -s nocaseglob
 
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then

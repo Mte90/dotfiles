@@ -46,7 +46,7 @@ set nobackup
 set nowritebackup
 set noswapfile   " Turn off swap files
 set hidden       " Buffer becomes hidden when abandoned to prevent need to save
-set completeopt =menu,noinsert
+set completeopt=menu,noinsert
 set laststatus=2 " Always show the status line
 " Tabbar
 set showtabline=2  " Show tabline
@@ -165,6 +165,7 @@ call vundle#begin()
         Plugin 'Shougo/deoplete.nvim'
     endif
     Plugin 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
+    Plugin 'mte90/deoplete-wp-hooks'
     " markdown
     Plugin 'godlygeek/tabular'
     Plugin 'plasticboy/vim-markdown'
@@ -226,6 +227,7 @@ call vundle#begin()
     " WordPress
     Plugin 'salcode/vim-wordpress-dict'
     Plugin 'sudar/vim-wordpress-snippets'
+    Plugin 'kloppster/Wordpress-Vim-Syntax'
     " Web
     Plugin 'othree/html5.vim'
     Plugin 'mattn/emmet-vim'
@@ -276,8 +278,10 @@ augroup default
     autocmd BufRead,BufNewFile jquery.*.js set ft=javascript syntax=jquery
     autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
     autocmd FileType css set omnifunc=csscomplete#CompleteCSS
-    autocmd FileType php set tabstop=4
+    autocmd FileType php set tabstop=4 
+    autocmd FileType php set syn=wordpress
     autocmd FileType php.wordpress set tabstop=4
+    autocmd FileType php.wordpress syn=wordpress
     autocmd FileType javascript set tabstop=2 shiftwidth=2
     autocmd FileType php let b:surround_45 = "<?php \r ?>"
     " Autosave session
@@ -340,6 +344,7 @@ let g:tagbar_type_php  = {
         \ 'v:variables:1'
     \ ]
 \ }
+" Browser to open the devdocs
 let g:devdocs_open_cmd = 'firefox'
 " Trigger a highlight only when pressing f and F.
 let g:qs_highlight_on_keys = ['f']
@@ -383,12 +388,6 @@ nmap <silent> <C-Right> :wincmd l<CR>
 nmap <M-Right> :tabnext<CR>
 nmap <M-Left> :tabprevious<CR>
 nmap K <Plug>(devdocs-under-cursor)
-" On selecting test will be copied
-if has('nvim-0.4')
-    vmap <LeftRelease> "*ygv
-    " copy and paste to system clipboard
-    imap <C-S-v> <C-R>*
-endif
 " correct :W to :w typo
 cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))
 " correct :Q to :q typo
@@ -427,3 +426,9 @@ noremap <silent> <ScrollWheelDown> :call comfortable_motion#flick(30)<CR>
 noremap <silent> <ScrollWheelUp>   :call comfortable_motion#flick(-30)<CR>
 " Convert snake_case to camelCase https://www.reddit.com/r/commandline/comments/dib8e6/sed_convert_only_function_names_in_snake_case_to/
 map <leader>k :%s/\<\l[a-z0-9]*\zs\%(_\l[a-z0-9]*\)\+\ze(/\=substitute(submatch(0), '_\(\l\)', '\u\1', 'g')/g
+
+" https://www.cyberciti.biz/faq/how-to-reload-vimrc-file-without-restarting-vim-on-linux-unix/
+" Edit vimr configuration file
+nnoremap confe :e $MYVIMRC<CR>
+" Reload vims configuration file
+nnoremap confr :source $MYVIMRC<CR>
