@@ -220,6 +220,8 @@ call vundle#begin()
     Plugin 'vim-vdebug/vdebug'
     " Comfortable scroll
     Plugin 'yuttie/comfortable-motion.vim'
+    " Add function Context based on cursor
+    Plugin 'wellle/context.vim'
     " Comments
     Plugin 'scrooloose/nerdcommenter'
     " highlights which characters to target
@@ -419,8 +421,8 @@ map <leader>b :call setline('.', getline('.') . ';')<CR>
 " Align by cursor with plugin
 nmap <leader>t glip=
 " Comfortable support to mouse 
-noremap <silent> <ScrollWheelDown> :call comfortable_motion#flick(30)<CR>
-noremap <silent> <ScrollWheelUp>   :call comfortable_motion#flick(-30)<CR>
+noremap <silent> <ScrollWheelDown> :call comfortable_motion#flick(20)<CR>
+noremap <silent> <ScrollWheelUp>   :call comfortable_motion#flick(-20)<CR>
 " Convert snake_case to camelCase https://www.reddit.com/r/commandline/comments/dib8e6/sed_convert_only_function_names_in_snake_case_to/
 map <leader>k :%s/\<\l[a-z0-9]*\zs\%(_\l[a-z0-9]*\)\+\ze(/\=substitute(submatch(0), '_\(\l\)', '\u\1', 'g')/g
 
