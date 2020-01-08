@@ -1,14 +1,14 @@
-alias ls='ls --color=auto -Fh'
 alias grep='rg'
 # https://altbox.dev/
 # https://github.com/sharkdp/bat
-alias cat='bat'
+alias cat='bat --paging=never'
 # https://the.exa.website/
 alias ls='exa --group-directories-first --git-ignore --git -abghlS'
 alias ln='ln -sf'
 # Create all the parent directories with children
 alias mkdir='mkdir -p'
 alias diff='colordiff'
+alias fd='fdfind'
 # Create folder and join it
 function mkcd(){ mkdir -p $@ && cd $_; }
 
@@ -20,7 +20,7 @@ alias wpp='cd ./public_html/wp-content/plugins 2>/dev/null;cd ./public_html/buil
 alias wpt='cd ./htdocs/wp-content/themes 2>/dev/null;cd ./wp-content/themes 2>/dev/null'
 # Misc
 alias biggest-10-files='BLOCKSIZE=1048576; du -x -h | sort -nr | head -10'
-alias yt2mp3='youtube-dl -l --extract-audio --audio-format=mp3 -w -c'
+alias yt2mp3='youtube-dl -l -x --audio-format=mp3 -w -c'
 alias changedfiles="find . -type f -print0 | xargs -0 stat --format '%Z :%z %n' | sort -nr | cut -d: -f2- | head -n 20"
 alias kate='kate -b'
 
@@ -30,8 +30,6 @@ alias howdoi='howdoi -c'
 
 alias codeatcs='phpcs -p -s -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
 alias codeatcscbf='phpcbf -p -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
-
-alias codecoverage='codecept run wpunit --coverage-html && /home/mte90/ffnightly/firefox *.html'
 
 # https://github.com/github/hub
 if [ -f /usr/share/bash-completion/completions/hub ]; then
@@ -52,7 +50,7 @@ alias git-remove-deleted-branch-remotely="git remote prune origin"
 alias git-remove-file-not-exist-anymore-history="git ls-files -d -m -o -z --exclude-standard | xargs -0 git update-index --add --remove"
 alias dotfiles="/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
 function git-merge-last-commits() { git reset --soft HEAD~$1 && git commit; }
-function commit() { commit=$(kdialog --title 'Commit message' --inputbox 'Insert the commit' '') && git commit -m "$commit" && echo "$commit"; }
+alias commit="/home/mte90/Desktop/Prog/My-Scripts/dev/validate-commit.py"
 function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 function gcm() { git commit -m "$@"; } 
 
