@@ -37,8 +37,8 @@ function vvv-debug(){
 
 # cd back up to the top-level git/hg repo dir
 function cdreporoot () {
-    ORIGINAL_PWD=`pwd`
-    while [ ! -d ".git" -a ! -d ".hg" -a `pwd` != "/" ]
+    ORIGINAL_PWD=$(pwd)
+    while [ ! -d ".git" -a ! -d ".hg" -a $ORIGINAL_PWD != "/" ]
     do
         cd ..
     done
@@ -59,4 +59,12 @@ debugger() {
     eval "$line"
   done
   echo
+}
+
+codecoverage() {
+    codecept run wpunit --coverage-html 
+    
+    rsync --exclude={.sass-cache*,*.map,node_modules,.php_cs,.git*,*.lock,*.yml,*lock.json} --progress -avz ./tests/_output/coverage -e ssh dev.codeat.it:/var/www/plugin/$1/coverage > /dev/null
+    
+    /home/mte90/ffnightly/firefox https://dev.codeat.it/plugin/$1
 }
