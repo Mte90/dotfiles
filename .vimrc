@@ -166,6 +166,8 @@ call vundle#begin()
     endif
     Plugin 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
     Plugin 'mte90/deoplete-wp-hooks'
+    "Plugin 'neovim/nvim-lsp'
+    "Plugin 'Shougo/deoplete-lsp'
     " markdown
     Plugin 'godlygeek/tabular'
     Plugin 'plasticboy/vim-markdown'
@@ -206,8 +208,6 @@ call vundle#begin()
     Plugin 'wakatime/vim-wakatime'
     " EditorConfig support
     Plugin 'editorconfig/editorconfig-vim'
-    " Align text
-    Plugin 'tommcdo/vim-lion'
     " PHP syntax
     Plugin 'StanAngeloff/php.vim'
     Plugin 'arnaud-lb/vim-php-namespace'
@@ -218,8 +218,6 @@ call vundle#begin()
     Plugin 'lvht/phpcd.vim', { 'for': 'php', 'do': 'composer install' }
     " xDebug support
     Plugin 'vim-vdebug/vdebug'
-    " Comfortable scroll
-    Plugin 'yuttie/comfortable-motion.vim'
     " Add function Context based on cursor
     Plugin 'wellle/context.vim'
     " Comments
@@ -323,10 +321,6 @@ let g:NERDCompactSexyComs = 1
 let g:NERDCommentEmptyLines = 1
 let g:NERDTrimTrailingWhitespace = 1
 let g:NERDCreateDefaultMappings = 0
-" Comfortable settings
-let g:comfortable_motion_no_default_key_mappings = 1
-let g:comfortable_motion_friction = 80.0
-let g:comfortable_motion_air_drag = 2.0
 " Tagbar
 let g:tagbar_width = 30
 let g:tagbar_indent = 1
@@ -350,6 +344,9 @@ let g:qs_highlight_on_keys = ['f']
 let g:qs_max_chars=80
 " Markdown
 let g:vim_markdown_folding_disabled = 1
+let g:context_max_per_indent = 4
+let g:context_resize_linewise = 0.1
+let g:context_max_height = 10
 
 let g:vdebug_options = {
     \    'break_on_open' : 0,
@@ -418,11 +415,6 @@ nmap <silent> <C-q> <Plug>(ale_fix)
 nmap <C-d> <Plug>NERDCommenterToggle('n', 'Toggle')<Cr>
 " Append ; to the end of the line -> Leader+B
 map <leader>b :call setline('.', getline('.') . ';')<CR>
-" Align by cursor with plugin
-nmap <leader>t glip=
-" Comfortable support to mouse 
-noremap <silent> <ScrollWheelDown> :call comfortable_motion#flick(20)<CR>
-noremap <silent> <ScrollWheelUp>   :call comfortable_motion#flick(-20)<CR>
 " Convert snake_case to camelCase https://www.reddit.com/r/commandline/comments/dib8e6/sed_convert_only_function_names_in_snake_case_to/
 map <leader>k :%s/\<\l[a-z0-9]*\zs\%(_\l[a-z0-9]*\)\+\ze(/\=substitute(submatch(0), '_\(\l\)', '\u\1', 'g')/g
 

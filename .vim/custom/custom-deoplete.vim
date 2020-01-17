@@ -9,12 +9,11 @@ let g:deoplete#enable_camel_case = 1
 "  Other stuff
 call deoplete#custom#option('sources', {
 		\ '_': ['buffer'],
-		\ 'php': ['tabnine', 'phpcd', 'ultisnips', 'omni'],
+		\ 'php': [ 'wp-hooks'],
 		\ 'css': ['tabnine', 'omni', 'ultisnips'],
 		\ 'js': ['tabnine', 'omni', 'ultisnips'],
 		\ 'html': ['tabnine', 'omni', 'ultisnips'],
 \})
-
 function! s:check_back_space() abort "{{{
     let col = col('.') - 1
     return !col || getline('.')[col - 1]  =~ '\s'
@@ -30,3 +29,5 @@ inoremap <silent><expr> <s-tab>
 
 " Close the documentation window when completion is done
 autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
+
+"call lsp#add_server_config('php', { 'execute_path': '/opt/php-language-server/bin/php-language-server.php', 'args': [] }, {})

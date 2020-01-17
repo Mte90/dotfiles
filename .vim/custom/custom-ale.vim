@@ -45,7 +45,7 @@ let g:ale_fixers = {
 \}
 let g:PHP_vintage_case_default_indent = 1
 " Sometimes phpcbf replace the content of the file with the output of the command with ale
-let g:ale_fix_on_save = 0
+let g:ale_fix_on_save = 1
 let g:ale_sign_error = 'EE'
 let g:ale_sign_warning = 'WW'
 let g:ale_change_sign_column_color = 1
