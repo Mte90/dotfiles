@@ -68,3 +68,15 @@ codecoverage() {
     
     /home/mte90/ffnightly/firefox https://dev.codeat.it/plugin/$1
 }
+
+# https://www.reddit.com/r/commandline/comments/f182j8/github_tkmrumln_a_modern_version_of_ln/fh36gk0/
+mln() {
+    target="$1"
+    name="$2"
+    if [ ! -e "$1" ]; then
+        name="$1"
+        target="$2"
+    fi
+    ln -sf "$target" "$name"
+    echo "Linked $name -> $target"
+}
