@@ -46,7 +46,10 @@ set nobackup
 set nowritebackup
 set noswapfile   " Turn off swap files
 set hidden       " Buffer becomes hidden when abandoned to prevent need to save
-set completeopt=menu,noinsert
+set completeopt-=preview
+set completeopt+=longest,menuone,noselect
+" use omni completion provided by lsp
+set omnifunc=lsp#omnifunc
 set laststatus=2 " Always show the status line
 " Tabbar
 set showtabline=2  " Show tabline
@@ -164,10 +167,8 @@ call vundle#begin()
         Plugin 'roxma/nvim-yarp'
         Plugin 'Shougo/deoplete.nvim'
     endif
-    Plugin 'tbodt/deoplete-tabnine', { 'do': './install.sh' }
+    Plugin 'Shougo/deoplete-lsp'
     Plugin 'mte90/deoplete-wp-hooks'
-    "Plugin 'neovim/nvim-lsp'
-    "Plugin 'Shougo/deoplete-lsp'
     " markdown
     Plugin 'godlygeek/tabular'
     Plugin 'plasticboy/vim-markdown'
@@ -204,6 +205,8 @@ call vundle#begin()
     " Report lint errors
     Plugin 'dense-analysis/ale'
     Plugin 'maximbaz/lightline-ale'
+    " LSP 
+    Plugin 'neovim/nvim-lsp'
     " Wakatime
     Plugin 'wakatime/vim-wakatime'
     " EditorConfig support
@@ -215,7 +218,6 @@ call vundle#begin()
     Plugin 'nishigori/vim-php-dictionary'
     Plugin '2072/PHP-Indenting-for-VIm'
     Plugin 'captbaritone/better-indent-support-for-php-with-html'
-    Plugin 'lvht/phpcd.vim', { 'for': 'php', 'do': 'composer install' }
     " xDebug support
     Plugin 'vim-vdebug/vdebug'
     " Add function Context based on cursor
@@ -292,6 +294,21 @@ augroup fmt
   autocmd BufWritePre *.css :normal =G
   autocmd BufWritePre *.sass :normal =G
 augroup END
+
+lua << EOF
+local nvim_lsp = require'nvim_lsp'
+local php_stubs = '/home/mte90/.composer/vendor/php-stubs/'
+nvim_lsp.intelephense.setup({
+    settings = {
+        intelephense = {
+            stubs = { php_stubs .. '/wordpress-stubs/wordpress-stubs.php', php_stubs .. '/woocommerce-stubs/woocommerce-stubs.php' },
+            files = {
+                maxSize = 5000000;
+            };
+        };
+    }; 
+});
+EOF
 
 " Enable Rainbow Parenthesis
 let g:rainbow_active = 1

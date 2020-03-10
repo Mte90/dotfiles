@@ -9,10 +9,10 @@ let g:deoplete#enable_camel_case = 1
 "  Other stuff
 call deoplete#custom#option('sources', {
 		\ '_': ['buffer'],
-		\ 'php': [ 'wp-hooks'],
-		\ 'css': ['tabnine', 'omni', 'ultisnips'],
-		\ 'js': ['tabnine', 'omni', 'ultisnips'],
-		\ 'html': ['tabnine', 'omni', 'ultisnips'],
+		\ 'php': [ 'lsp', 'wp-hooks'],
+		\ 'css': ['omni', 'ultisnips'],
+		\ 'js': ['omni', 'ultisnips'],
+		\ 'html': ['omni', 'ultisnips'],
 \})
 function! s:check_back_space() abort "{{{
     let col = col('.') - 1
@@ -30,4 +30,5 @@ inoremap <silent><expr> <s-tab>
 " Close the documentation window when completion is done
 autocmd InsertLeave,CompleteDone * if pumvisible() == 0 | pclose | endif
 
-"call lsp#add_server_config('php', { 'execute_path': '/opt/php-language-server/bin/php-language-server.php', 'args': [] }, {})
+" maximum candidate window length
+call deoplete#custom#source('_', 'max_menu_width', 80)
