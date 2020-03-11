@@ -191,8 +191,6 @@ call vundle#begin()
     Plugin 'mtscout6/vim-tagbar-css'
     " PHPctags support
     Plugin 'vim-php/tagbar-phpctags.vim'
-    " undo tree
-    Plugin 'sjl/gundo.vim'
     " fzf - poweful search
     Plugin 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
     Plugin 'junegunn/fzf.vim'
@@ -290,7 +288,6 @@ augroup END
 augroup fmt
   autocmd!
   " Autoformat in tabs
-  autocmd BufWritePre *.php :normal =G
   autocmd BufWritePre *.js :normal =G
   autocmd BufWritePre *.css :normal =G
   autocmd BufWritePre *.sass :normal =G
@@ -316,7 +313,7 @@ let g:vimjs#smartcomplete = 1
 " php
 let g:PHP_autoformatcomment = 1
 " Indent lines
-let g:indentLine_fileTypeExclude = ['help', 'nerdtree', 'startify']
+let g:indentLine_fileTypeExclude = ['help', 'nerdtree', 'startify', 'fzf']
 let g:indentLine_char = '┊'
 " Nerdcommenter for... better comments
 let g:NERDSpaceDelims = 1
@@ -324,6 +321,7 @@ let g:NERDCompactSexyComs = 1
 let g:NERDCommentEmptyLines = 1
 let g:NERDTrimTrailingWhitespace = 1
 let g:NERDCreateDefaultMappings = 0
+let g:NERDToggleCheckAllLines = 1
 " Tagbar
 let g:tagbar_width = 30
 let g:tagbar_indent = 1
@@ -404,7 +402,6 @@ nmap <leader>f :Rg<space>
 " Object view
 nmap <C-t> :TagbarToggle<CR>
 " Undo tree tab
-nmap <leader>g :GundoToggle<CR>
 nmap <leader>x :Files<CR>
 map <silent> <C-w> <Plug>(expand_region_expand)
 map <silent> <C-r> <Plug>(expand_region_shrink)
@@ -415,11 +412,10 @@ nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
 nmap <silent> <C-q> <Plug>(ale_fix)
 " Toggle comments
-nmap <C-d> <Plug>NERDCommenterToggle('n', 'Toggle')<Cr>
+nmap <C-d> <plug>NERDCommenterToggle<CR>
+vmap <C-d> <plug>NERDCommenterToggle<CR>
 " Append ; to the end of the line -> Leader+B
 map <leader>b :call setline('.', getline('.') . ';')<CR>
-" Convert snake_case to camelCase https://www.reddit.com/r/commandline/comments/dib8e6/sed_convert_only_function_names_in_snake_case_to/
-map <leader>k :%s/\<\l[a-z0-9]*\zs\%(_\l[a-z0-9]*\)\+\ze(/\=substitute(submatch(0), '_\(\l\)', '\u\1', 'g')/g
 
 " https://www.cyberciti.biz/faq/how-to-reload-vimrc-file-without-restarting-vim-on-linux-unix/
 " Edit vimr configuration file
