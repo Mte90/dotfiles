@@ -265,6 +265,7 @@ source /home/mte90/.vim/custom/custom-ale.vim
 source /home/mte90/.vim/custom/custom-gutentags.vim
 source /home/mte90/.vim/custom/custom-startify.vim
 source /home/mte90/.vim/custom/custom-fzf.vim
+source /home/mte90/.vim/custom/custom-lsp.vim
 
 let g:sessions_dir = '~/.vim/sessions'
 let g:session_directory = '~/.vim/sessions'
@@ -294,21 +295,6 @@ augroup fmt
   autocmd BufWritePre *.css :normal =G
   autocmd BufWritePre *.sass :normal =G
 augroup END
-
-lua << EOF
-local nvim_lsp = require'nvim_lsp'
-local php_stubs = '/home/mte90/.composer/vendor/php-stubs/'
-nvim_lsp.intelephense.setup({
-    settings = {
-        intelephense = {
-            stubs = { php_stubs .. '/wordpress-stubs/wordpress-stubs.php', php_stubs .. '/woocommerce-stubs/woocommerce-stubs.php' },
-            files = {
-                maxSize = 5000000;
-            };
-        };
-    }; 
-});
-EOF
 
 " Enable Rainbow Parenthesis
 let g:rainbow_active = 1
