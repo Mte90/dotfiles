@@ -1,7 +1,7 @@
 alias grep='rg'
 # https://altbox.dev/
 # https://github.com/sharkdp/bat
-alias cat='bat --paging=never'
+alias cat='batcat --paging=never'
 # https://the.exa.website/
 alias ls='exa --group-directories-first --git-ignore --git -abghlS'
 alias ln='ln -sf'
