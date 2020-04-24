@@ -1,6 +1,6 @@
 # For VVV development
-export WP_TESTS_DB_HOST=localhost
-export WP_TESTS_DB_USER=root
+export WP_TESTS_DB_HOST='localhost'
+export WP_TESTS_DB_USER='root'
 export WP_TESTS_DB_PASSWORD='test'
 
 # To use KDE file dialog with firefox https://daniele.tech/2019/02/how-to-execute-firefox-with-support-for-kde-filepicker/

@@ -6,7 +6,7 @@
     # See http://alblue.bandlem.com/2011/11/git-tip-of-week-gc-and-pruning-this.html
 	logallrefupdates=true
 [core]
-	editor = vim -Nu NONE -c startinsert
+	editor = vi -Nu NONE -c startinsert
 	# Treat spaces before tabs and all kinds of trailing whitespace as an error
 	whitespace=space-before-tab,-indent-with-non-tab,trailing-space
 	# Changes in file permissions will be ignored: please use it!

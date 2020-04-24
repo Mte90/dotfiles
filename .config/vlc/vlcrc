@@ -1,5 +1,5 @@
 ﻿###
-###  vlc 3.0.4
+###  vlc 3.0.8
 ###
 
 ###
@@ -1136,6 +1136,9 @@ qt-privacy-ask=0
 # Advanced options (string)
 #sout-avformat-options=
 
+# Reset timestamps (boolean)
+#sout-avformat-reset-ts=0
+
 [mod] # MOD demuxer (libmodplug)
 
 # Noise reduction (boolean)
@@ -1235,6 +1238,15 @@ qt-privacy-ask=0
 
 # Check packets continuity counter (boolean)
 #ts-cc-check=1
+
+# Only create ES on program sending data (boolean)
+#ts-pmtfix-waitdata=1
+
+# Try to generate PAT/PMT if missing (boolean)
+#ts-patfix=1
+
+# Try to fix too early PCR (or late DTS) (boolean)
+#ts-pcr-offsetfix=1
 
 [rawaud] # Raw audio demuxer
 
@@ -1462,7 +1474,7 @@ alsa-audio-device=sysdefault:CARD=PCH
 #prefetch-buffer-size=16384
 
 # Read size (integer)
-#prefetch-read-size=16384
+#prefetch-read-size=16777216
 
 # Seek threshold (integer)
 #prefetch-seek-threshold=16384
@@ -1501,6 +1513,236 @@ alsa-audio-device=sysdefault:CARD=PCH
 
 # Scale factor (float)
 #svg-scale=-1.000000
+
+[x26410b] # H.264/MPEG-4 Part 10/AVC encoder (x264 10-bit)
+
+# Maximum GOP size (integer)
+#sout-x26410b-keyint=250
+
+# Minimum GOP size (integer)
+#sout-x26410b-min-keyint=25
+
+# Use recovery points to close GOPs (boolean)
+#sout-x26410b-opengop=0
+
+# Enable compatibility hacks for Blu-ray support (boolean)
+#sout-x26410b-bluray-compat=0
+
+# Extra I-frames aggressivity (integer)
+#sout-x26410b-scenecut=40
+
+# B-frames between I and P (integer)
+#sout-x26410b-bframes=3
+
+# Adaptive B-frame decision (integer)
+#sout-x26410b-b-adapt=1
+
+# Influence (bias) B-frames usage (integer)
+#sout-x26410b-b-bias=0
+
+# Keep some B-frames as references (string)
+#sout-x26410b-bpyramid=normal
+
+# CABAC (boolean)
+#sout-x26410b-cabac=1
+
+# Use fullrange instead of TV colorrange (boolean)
+#sout-x26410b-fullrange=0
+
+# Number of reference frames (integer)
+#sout-x26410b-ref=3
+
+# Skip loop filter (boolean)
+#sout-x26410b-nf=0
+
+# Loop filter AlphaC0 and Beta parameters alpha:beta (string)
+#sout-x26410b-deblock=0:0
+
+# Strength of psychovisual optimization, default is "1.0:0.0" (string)
+#sout-x26410b-psy-rd=1.0:0.0
+
+# Use Psy-optimizations (boolean)
+#sout-x26410b-psy=1
+
+# H.264 level (string)
+#sout-x26410b-level=0
+
+# H.264 profile (string)
+#sout-x26410b-profile=high
+
+# Interlaced mode (boolean)
+#sout-x26410b-interlaced=0
+
+# Frame packing (integer)
+#sout-x26410b-frame-packing=-1
+
+# Force number of slices per frame (integer)
+#sout-x26410b-slices=0
+
+# Limit the size of each slice in bytes (integer)
+#sout-x26410b-slice-max-size=0
+
+# Limit the size of each slice in macroblocks (integer)
+#sout-x26410b-slice-max-mbs=0
+
+# HRD-timing information (string)
+#sout-x26410b-hrd=none
+
+# Set QP (integer)
+#sout-x26410b-qp=-1
+
+# Quality-based VBR (integer)
+#sout-x26410b-crf=23
+
+# Min QP (integer)
+#sout-x26410b-qpmin=10
+
+# Max QP (integer)
+#sout-x26410b-qpmax=51
+
+# Max QP step (integer)
+#sout-x26410b-qpstep=4
+
+# Average bitrate tolerance (float)
+#sout-x26410b-ratetol=1.000000
+
+# Max local bitrate (integer)
+#sout-x26410b-vbv-maxrate=0
+
+# VBV buffer (integer)
+#sout-x26410b-vbv-bufsize=0
+
+# Initial VBV buffer occupancy (float)
+#sout-x26410b-vbv-init=0.900000
+
+# QP factor between I and P (float)
+#sout-x26410b-ipratio=1.400000
+
+# QP factor between P and B (float)
+#sout-x26410b-pbratio=1.300000
+
+# QP difference between chroma and luma (integer)
+#sout-x26410b-chroma-qp-offset=0
+
+# Multipass ratecontrol (integer)
+#sout-x26410b-pass=0
+
+# QP curve compression (float)
+#sout-x26410b-qcomp=0.600000
+
+# Reduce fluctuations in QP (float)
+#sout-x26410b-cplxblur=20.000000
+
+# Reduce fluctuations in QP (float)
+#sout-x26410b-qblur=0.500000
+
+# How AQ distributes bits (integer)
+#sout-x26410b-aq-mode=1
+
+# Strength of AQ (float)
+#sout-x26410b-aq-strength=1.000000
+
+# Partitions to consider (string)
+#sout-x26410b-partitions=normal
+
+# Direct MV prediction mode (string)
+#sout-x26410b-direct=spatial
+
+# Direct prediction size (integer)
+#sout-x26410b-direct-8x8=1
+
+# Weighted prediction for B-frames (boolean)
+#sout-x26410b-weightb=1
+
+# Weighted prediction for P-frames (integer)
+#sout-x26410b-weightp=2
+
+# Integer pixel motion estimation method (string)
+#sout-x26410b-me=hex
+
+# Maximum motion vector search range (integer)
+#sout-x26410b-merange=16
+
+# Maximum motion vector length (integer)
+#sout-x26410b-mvrange=-1
+
+# Minimum buffer space between threads (integer)
+#sout-x26410b-mvrange-thread=-1
+
+# Subpixel motion estimation and partition decision quality (integer)
+#sout-x26410b-subme=7
+
+# Decide references on a per partition basis (boolean)
+#sout-x26410b-mixed-refs=1
+
+# Chroma in motion estimation (boolean)
+#sout-x26410b-chroma-me=1
+
+# Adaptive spatial transform size (boolean)
+#sout-x26410b-8x8dct=1
+
+# Trellis RD quantization (integer)
+#sout-x26410b-trellis=1
+
+# Framecount to use on frametype lookahead (integer)
+#sout-x26410b-lookahead=40
+
+# Use Periodic Intra Refresh (boolean)
+#sout-x26410b-intra-refresh=0
+
+# Use mb-tree ratecontrol (boolean)
+#sout-x26410b-mbtree=1
+
+# Early SKIP detection on P-frames (boolean)
+#sout-x26410b-fast-pskip=1
+
+# Coefficient thresholding on P-frames (boolean)
+#sout-x26410b-dct-decimate=1
+
+# Noise reduction (integer)
+#sout-x26410b-nr=0
+
+# Inter luma quantization deadzone (integer)
+#sout-x26410b-deadzone-inter=21
+
+# Intra luma quantization deadzone (integer)
+#sout-x26410b-deadzone-intra=11
+
+# Non-deterministic optimizations when threaded (boolean)
+#sout-x26410b-non-deterministic=0
+
+# CPU optimizations (boolean)
+#sout-x26410b-asm=1
+
+# PSNR computation (boolean)
+#sout-x26410b-psnr=0
+
+# SSIM computation (boolean)
+#sout-x26410b-ssim=0
+
+# Quiet mode (boolean)
+#sout-x26410b-quiet=0
+
+# SPS and PPS id numbers (integer)
+#sout-x26410b-sps-id=0
+
+# Access unit delimiters (boolean)
+#sout-x26410b-aud=0
+
+# Statistics (boolean)
+#sout-x26410b-verbose=0
+
+# Filename for 2 pass stats file (string)
+#sout-x26410b-stats=x264_2pass.log
+
+# Default preset setting used (string)
+#sout-x26410b-preset=
+
+# Default tune setting used (string)
+#sout-x26410b-tune=
+
+# x264 advanced options (string)
+#sout-x26410b-options=
 
 [aribsub] # ARIB subtitles decoder
 
@@ -2556,7 +2798,7 @@ sout-x264-tune=film
 #sout-avi-subject=
 
 # Encoder (string)
-#sout-avi-encoder=VLC Media Player - 3.0.4 Vetinari
+#sout-avi-encoder=VLC Media Player - 3.0.8 Vetinari
 
 # Keywords (string)
 #sout-avi-keywords=

@@ -3,8 +3,7 @@ let g:ale_php_phpcs_standard  = '/home/mte90/Desktop/Prog/CodeatCS/codeat.xml'
 let g:ale_php_phpcbf_standard  = '/home/mte90/Desktop/Prog/CodeatCS/codeat.xml'
 let g:ale_php_phpmd_ruleset = '/home/mte90/Desktop/Prog/CodeatCS/codeat-phpmd.xml'
 let g:ale_php_cs_fixer_options = 'position_after_functions_and_oop_constructs=same'
-let g:ale_php_langserver_executable = 'php /opt/php-language-server/bin/php-language-server.php'
-let g:ale_php_langserver_use_global = 1
+let g:ale_php_psalm_executable      = '/usr/local/bin/psalm'
 
 function LoadNewPHPCS()
     " Wait Rooter that set the path
@@ -24,9 +23,9 @@ let g:ale_linters = {
 \   'coffee': ['coffeelint'],
 \   'css': ['prettier'],
 \   'html': ['htmlhint'],
-\   'javascript': ['eslint'],
+\   'javascript': ['eslint', 'jshint'],
 \   'markdown': ['remark-lint'],
-\   'php': ['phpcs', 'phpmd', 'langserver'],
+\   'php': ['phpcs', 'phpmd', 'psalm'],
 \   'sass': ['sass-lint'],
 \   'scss': ['sass-lint'],
 \}
@@ -36,7 +35,7 @@ let g:ale_fixers = {
 \   'bash': ['shellcheck'],
 \   'coffee': ['coffeelint'],
 \   'css': ['prettier'],
-\   'html': ['htmlhint', 'prettier'],
+\   'html': ['htmlhint', 'prettier', 'jshint'],
 \   'javascript': ['eslint', 'prettier'],
 \   'markdown': ['remark-lint'],
 \   'php': ['phpcbf'],
