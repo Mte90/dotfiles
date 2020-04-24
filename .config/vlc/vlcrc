@@ -2899,7 +2899,11 @@ sout-x264-tune=film
 #sout-avi-subject=
 
 # Encoder (string)
+<<<<<<< HEAD
 #sout-avi-encoder=VLC Media Player - 3.0.12 Vetinari
+=======
+#sout-avi-encoder=VLC Media Player - 3.0.8 Vetinari
+>>>>>>> c15e3cc (added psalm)
 
 # Keywords (string)
 #sout-avi-keywords=
