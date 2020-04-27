@@ -1,4 +1,5 @@
 alias grep='rg'
+alias hh='hstr'
 # https://altbox.dev/
 # https://github.com/sharkdp/bat
 alias cat='batcat --paging=never'
