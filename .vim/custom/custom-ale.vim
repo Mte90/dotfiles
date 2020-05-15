@@ -25,7 +25,7 @@ let g:ale_linters = {
 \   'html': ['htmlhint'],
 \   'javascript': ['eslint', 'jshint'],
 \   'markdown': ['remark-lint'],
-\   'php': ['phpcs', 'phpmd', 'psalm'],
+\   'php': ['phpcs', 'phpmd', 'psalm', 'phpstan'],
 \   'sass': ['sass-lint'],
 \   'scss': ['sass-lint'],
 \}
