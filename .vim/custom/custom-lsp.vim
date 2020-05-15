@@ -73,7 +73,7 @@ nvim_lsp.intelephense.setup({
 EOF
 
 au User lsp_setup call lsp#register_server({
-     \ 'name': '/home/mte90/.composer/vendor/bin/psalm-language-server',
-     \ 'cmd': {server_info->[expand('vendor/bin/psalm-language-server')]},
+     \ 'name': 'psalm-language-server',
+     \ 'cmd': '/home/mte90/.composer/vendor/bin/psalm-language-server',
      \ 'whitelist': ['php'],
      \ })
