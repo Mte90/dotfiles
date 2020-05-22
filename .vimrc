@@ -114,6 +114,10 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
     " Package manager
     Plugin 'VundleVim/Vundle.vim'
+    " Auto cwd
+    Plugin 'airblade/vim-rooter'
+    " startify for a cool home page
+    Plugin 'mhinz/vim-startify'
     " Show "Match 123 of 456 /search term/" in Vim searches
     Plugin 'henrik/vim-indexed-search'
     " wrapper for git
@@ -146,10 +150,6 @@ call vundle#begin()
     Plugin 'drzel/vim-scroll-off-fraction'
     " Underlines the words under your cursor
     Plugin 'itchyny/vim-cursorword'
-    " Auto cwd
-    Plugin 'airblade/vim-rooter'
-    " startify for a cool home page
-    Plugin 'mhinz/vim-startify'
     " session
     Plugin 'xolox/vim-misc'
     " check https://github.com/xolox/vim-session/pull/144
@@ -389,6 +389,8 @@ nmap K <Plug>(devdocs-under-cursor)
 cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))
 " correct :Q to :q typo
 cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline() is# 'Q')?('q'):('Q'))
+" Paste more than once
+xnoremap p pgvy
 
 " Hotkeys
 " Save
