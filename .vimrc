@@ -175,7 +175,7 @@ call vundle#begin()
     " php doc autocompletion
     Plugin 'tobyS/vmustache' | Plugin 'tobyS/pdv'
     " Nerdtree + modifications: git icons plugin, color filetype plugin
-    Plugin 'scrooloose/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind']}
+    Plugin 'preservim/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind']}
     Plugin 'Xuyuanp/nerdtree-git-plugin'
     Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
     Plugin 'jistr/vim-nerdtree-tabs'
@@ -271,6 +271,11 @@ let g:session_autoload = 'no'
 let g:session_autosave = 'yes'
 let g:session_autosave_periodic = 1
 let g:session_silent = 1
+" https://www.reddit.com/r/neovim/comments/gofplz/neovim_has_added_the_ability_to_highlight_yanked/
+augroup highlight_yank
+    autocmd!
+    autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank("IncSearch", 1000)
+augroup END
 augroup default
     autocmd!
     " Add support of stuff on different files
