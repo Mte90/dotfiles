@@ -224,8 +224,6 @@ call vundle#begin()
     Plugin 'captbaritone/better-indent-support-for-php-with-html'
     " xDebug support
     Plugin 'vim-vdebug/vdebug'
-    " Add function Context based on cursor
-    Plugin 'wellle/context.vim'
     " Comments
     Plugin 'scrooloose/nerdcommenter'
     " highlights which characters to target
@@ -353,9 +351,6 @@ let g:qs_highlight_on_keys = ['f']
 let g:qs_max_chars=80
 " Markdown
 let g:vim_markdown_folding_disabled = 1
-let g:context_max_per_indent = 4
-let g:context_resize_linewise = 0.1
-let g:context_max_height = 10
 
 let g:vdebug_options = {
     \    'break_on_open' : 0,
