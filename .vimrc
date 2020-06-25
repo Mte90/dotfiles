@@ -188,6 +188,7 @@ call vundle#begin()
     Plugin 'itchyny/lightline.vim'
     Plugin 'macthecadillac/lightline-gitdiff'
     Plugin 'itchyny/vim-gitbranch'
+    Plugin 'fisle/vim-no-fixme'
     " Tags are very important
     Plugin 'ludovicchabant/vim-gutentags'
     " object view

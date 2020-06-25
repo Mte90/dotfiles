@@ -57,13 +57,6 @@ function! LightlineDisplayFileinfo() abort
     return 1
 endfunction
 
-function! LightlineDisplayLineinfo() abort
-    if LightlineWinWidth() >= 50 && &filetype =~? 'help\|qf\|godoc\|gedoc'
-        return 1
-    endif
-    return LightlineDisplayFileinfo()
-endfunction
-
 function! LightlineModified() abort
     return &filetype =~? 'help' ? '' : &modified ? '+' : &modifiable ? '' : '-'
 endfunction
@@ -93,14 +86,6 @@ endfunction
 
 function! LightlineModeAndClipboard() abort
     return LightlineMode() . LightlineClipboard()
-endfunction
-
-function! LightlineTabnum(n) abort
-    return printf('[%d]', a:n)
-endfunction
-
-function! LightlineTabLabel() abort
-    return 'Tabs'
 endfunction
 
 " Copied from https://github.com/itchyny/lightline-powerful
@@ -180,27 +165,12 @@ function! LightlineFilename() abort
     return LightlineFilenameWithFlags(fname)
 endfunction
 
-function! LightlineLineinfo() abort
-    if LightlineDisplayLineinfo()
-        return printf('%s%4d:%3d', g:powerline_symbols.linenr, line('.'), col('.'))
-    endif
-    return ''
-endfunction
-
 function! LightlineFileencoding() abort
     if LightlineDisplayFileinfo()
         let encoding = strlen(&fenc) ? &fenc : &enc
         if encoding !=? 'utf-8'
             return encoding
         endif
-    endif
-    return ''
-endfunction
-
-function! LightlineTabsOrSpacesStatus() abort
-    if LightlineDisplayFileinfo()
-        let shiftwidth = exists('*shiftwidth') ? shiftwidth() : &shiftwidth
-        return (&expandtab ? 'Spaces' : 'Tab Size') . ': ' . shiftwidth
     endif
     return ''
 endfunction
@@ -212,15 +182,14 @@ endfunction
 let g:lightline = {
     \ 'colorscheme': 'tender',
     \ 'active': {
-    \   'left': [['mode', 'paste'], ['readonly', 'filename', 'modified'], ['tagbar', 'gitbranch', 'gitstatus']],
-    \   'right': [['lineinfo'], ['filetype'], ['nofixme'], [ 'lsp_errors', 'lsp_warnings', 'lsp_ok', 'linter_errors', 'linter_warnings', 'linter_ok', 'spaces' ]]
+    \   'left': [['mode', 'paste'], ['filename', 'modified'], ['tagbar', 'gitbranch']],
+    \   'right': [['filetype'], ['nofixme', 'gitstatus'], [ 'lsp_errors', 'lsp_warnings', 'lsp_ok', 'linter_errors', 'linter_warnings', 'linter_ok' ]]
     \ },
     \ 'inactive': {
-    \   'left': [['mode', 'paste'], ['readonly', 'filename', 'modified'], ['tagbar', 'gitbranch', 'gitstatus']],
-    \   'right': [['lineinfo'], ['filetype']]
+    \   'left': [['mode', 'paste'], ['filename', 'modified'], ['gitbranch', 'gitstatus']],
+    \   'right': [['filetype']]
     \ },
     \ 'component': {
-    \   'lineinfo': '%l\%L [%p%%]',
     \   'tagbar': '%{tagbar#currenttag("[%s]", "", "f")}',
     \   'gitstatus': '%<%{lightline_gitdiff#get_status()}',
     \ },
@@ -228,22 +197,19 @@ let g:lightline = {
     \   'gitstatus': 'lightline_gitdiff#get_status() !=# ""',
     \ },
     \ 'component_function': {
-    \   'filetype': 'WDIFileType',
-    \   'tablabel': 'LightlineTabLabel',
-    \   'mode':     'LightlineModeAndClipboard',
-    \   'filename': 'LightlineFilename',
-    \   'lineinfo': 'LightlineLineinfo',
-    \   'spaces':   'LightlineTabsOrSpacesStatus',
+    \   'filetype':  'WDIFileType',
+    \   'mode':      'LightlineModeAndClipboard',
+    \   'filename':  'LightlineFilename',
     \   'gitbranch': 'gitbranch#name'
     \ },
     \ 'component_expand': {
     \   'linter_warnings': 'lightline#ale#warnings',
-    \   'linter_errors': 'lightline#ale#errors',
-    \   'linter_ok': 'lightline#ale#ok',
+    \   'linter_errors':   'lightline#ale#errors',
+    \   'linter_ok':    'lightline#ale#ok',
     \   'lsp_warnings': 'lightline_lsp#warnings',
     \   'lsp_errors':   'lightline_lsp#errors',
     \   'lsp_ok':       'lightline_lsp#ok',
-    \   'nofixme': 'nofixme#amount',
+    \   'nofixme':      'nofixme#amount',
     \ },
     \ 'component_type': {
     \   'linter_warnings': 'warning',
@@ -251,7 +217,8 @@ let g:lightline = {
     \   'lsp_warnings': 'warning',
     \   'lsp_errors':   'error',
     \   'lsp_ok':       'middle',
-    \   'nofixme': 'warning',
+    \   'gitstatus':    'middle',
+    \   'nofixme':      'warning',
     \ },
     \ 'subseparator': {
     \   'left': '', 'right': ''
