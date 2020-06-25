@@ -1,8 +1,6 @@
 " based on https://github.com/phongnh/lightline-settings.vim/blob/master/plugin/lightline_settings.vim
 let s:filename_modes = {
             \ '__Tagbar__':           'Tagbar',
-            \ '__Gundo__':            'Gundo',
-            \ '__Gundo_Preview__':    'Gundo Preview',
             \ '[BufExplorer]':        'BufExplorer',
             \ 'NERD_tree':            'NERDTree',
             \ 'NERD_tree_1':          'NERDTree',
@@ -127,21 +125,6 @@ function! LightlineTabFilename(n) abort
     return fname =~# '^\[preview' ? 'Preview' : get(s:filename_modes, fname, get(s:filetype_modes, ft, fname))
 endfunction
 
-function! LightlineFugitive() abort
-    if LightlineDisplayFileinfo() && LightlineWinWidth() > 100 && exists('*fugitive#head')
-        let mark = g:powerline_symbols.branch
-        try
-            let branch = fugitive#head()
-            if strlen(branch) > 30
-                let branch = strcharpart(branch, 0, 20) . '...'
-            endif
-            return mark . branch
-        catch
-        endtry
-    endif
-    return ''
-endfunction
-
 function! LightlineAlternateFilename(fname) abort
     if a:fname ==# 'ControlP'
         return LightlineCtrlPMark()
@@ -197,37 +180,9 @@ function! LightlineFilename() abort
     return LightlineFilenameWithFlags(fname)
 endfunction
 
-function! LightlineInactiveFilename() abort
-    let fname = expand('%:t')
-
-    let str = LightlineAlternateFilename(fname)
-
-    if strlen(str)
-        return str
-    endif
-
-    let str = get(s:filename_modes, fname, get(s:filetype_modes, &filetype, ''))
-    if strlen(str)
-        if &filetype ==? 'help'
-            let str .= ' ' .  expand('%:~:.')
-        endif
-
-        return str
-    endif
-
-    return LightlineFilenameWithFlags(fname)
-endfunction
-
 function! LightlineLineinfo() abort
     if LightlineDisplayLineinfo()
         return printf('%s%4d:%3d', g:powerline_symbols.linenr, line('.'), col('.'))
-    endif
-    return ''
-endfunction
-
-function! LightlinePercent() abort
-    if LightlineDisplayLineinfo()
-        return printf('%3d%%', line('.') * 100 / line('$'))
     endif
     return ''
 endfunction
@@ -253,15 +208,12 @@ endfunction
 function! WDIFileType()
   return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype . ' ' . WebDevIconsGetFileTypeSymbol() : 'no ft') : ''
 endfunction
-function! WDIFileFormat()
-  return winwidth(0) > 70 ? (&fileformat . ' ' . WebDevIconsGetFileFormatSymbol()) : ''
-endfunction 
 
 let g:lightline = {
     \ 'colorscheme': 'tender',
     \ 'active': {
     \   'left': [['mode', 'paste'], ['readonly', 'filename', 'modified'], ['tagbar', 'gitbranch', 'gitstatus']],
-    \   'right': [['lineinfo'], ['filetype'], [ 'linter_errors', 'linter_warnings', 'linter_ok' ]]
+    \   'right': [['lineinfo'], ['filetype'], ['nofixme'], [ 'lsp_errors', 'lsp_warnings', 'lsp_ok', 'linter_errors', 'linter_warnings', 'linter_ok', 'spaces' ]]
     \ },
     \ 'inactive': {
     \   'left': [['mode', 'paste'], ['readonly', 'filename', 'modified'], ['tagbar', 'gitbranch', 'gitstatus']],
@@ -270,7 +222,6 @@ let g:lightline = {
     \ 'component': {
     \   'lineinfo': '%l\%L [%p%%]',
     \   'tagbar': '%{tagbar#currenttag("[%s]", "", "f")}',
-    \   'gitbranch': '%{&filetype=="help"?"":exists("*fugitive#head")?fugitive#head():""}',
     \   'gitstatus': '%<%{lightline_gitdiff#get_status()}',
     \ },
     \ 'component_visible_condition': {
@@ -278,24 +229,29 @@ let g:lightline = {
     \ },
     \ 'component_function': {
     \   'filetype': 'WDIFileType',
-    \   'fileformat': 'WDIFileFormat',
-    \   'tablabel':         'LightlineTabLabel',
-    \   'mode':             'LightlineModeAndClipboard',
-    \   'fugitive':         'LightlineFugitive',
-    \   'filename':         'LightlineFilename',
-    \   'inactivefilename': 'LightlineInactiveFilename',
-    \   'lineinfo':         'LightlineLineinfo',
-    \   'percent':          'LightlinePercent',
-    \   'spaces': 'LightlineTabsOrSpacesStatus',
+    \   'tablabel': 'LightlineTabLabel',
+    \   'mode':     'LightlineModeAndClipboard',
+    \   'filename': 'LightlineFilename',
+    \   'lineinfo': 'LightlineLineinfo',
+    \   'spaces':   'LightlineTabsOrSpacesStatus',
+    \   'gitbranch': 'gitbranch#name'
     \ },
     \ 'component_expand': {
     \   'linter_warnings': 'lightline#ale#warnings',
     \   'linter_errors': 'lightline#ale#errors',
     \   'linter_ok': 'lightline#ale#ok',
+    \   'lsp_warnings': 'lightline_lsp#warnings',
+    \   'lsp_errors':   'lightline_lsp#errors',
+    \   'lsp_ok':       'lightline_lsp#ok',
+    \   'nofixme': 'nofixme#amount',
     \ },
     \ 'component_type': {
     \   'linter_warnings': 'warning',
     \   'linter_errors': 'error',
+    \   'lsp_warnings': 'warning',
+    \   'lsp_errors':   'error',
+    \   'lsp_ok':       'middle',
+    \   'nofixme': 'warning',
     \ },
     \ 'subseparator': {
     \   'left': '', 'right': ''

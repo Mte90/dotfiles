@@ -169,6 +169,10 @@ call vundle#begin()
     endif
     Plugin 'Shougo/deoplete-lsp'
     Plugin 'mte90/deoplete-wp-hooks'
+    " Learn new movements
+    if has('python3') && has('timers')
+        "Plugin 'AlphaMycelium/pathfinder.vim'
+    endif
     " markdown
     Plugin 'godlygeek/tabular'
     Plugin 'plasticboy/vim-markdown'
@@ -183,6 +187,7 @@ call vundle#begin()
     Plugin 'jacoborus/tender.vim'
     Plugin 'itchyny/lightline.vim'
     Plugin 'macthecadillac/lightline-gitdiff'
+    Plugin 'itchyny/vim-gitbranch'
     " Tags are very important
     Plugin 'ludovicchabant/vim-gutentags'
     " object view
@@ -205,6 +210,7 @@ call vundle#begin()
     Plugin 'maximbaz/lightline-ale'
     " LSP 
     Plugin 'neovim/nvim-lsp'
+    Plugin 'halkn/lightline-lsp'
     " Wakatime
     Plugin 'wakatime/vim-wakatime'
     " EditorConfig support
@@ -241,9 +247,6 @@ call vundle#begin()
     Plugin 'mklabs/grunt.vim'
     " Syntax highlighting for vue js framework
     Plugin 'posva/vim-vue'
-    " Syntax highlighting for coffeescript
-    Plugin 'kchmck/vim-coffee-script'
-    Plugin 'lukaszkorecki/CoffeeTags'
     " Syntax highlighting for webapi
     Plugin 'mattn/webapi-vim'
     " Syntax highlighting for json

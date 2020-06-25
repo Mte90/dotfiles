@@ -1,11 +1,11 @@
 " deoplete
-let g:deoplete#enable_at_startup = 1
-let g:deoplete#min_pattern_length = 1
-let g:deoplete#max_candidates = 30
+call deoplete#custom#option('enable_at_startup',1)
+call deoplete#custom#option('min_pattern_length',1)
+call deoplete#custom#option('max_candidates', 30)
 "  deoplete tab-complete
-let g:deoplete#file#enable_buffer_path = 1
-let g:deoplete#enable_smart_case = 1
-let g:deoplete#enable_camel_case = 1
+call deoplete#custom#option('enable_buffer_path',1)
+call deoplete#custom#option('enable_smart_case',1)
+call deoplete#custom#option('enable_camel_case',1)
 "  Other stuff
 call deoplete#custom#option('sources', {
 		\ '_': ['buffer'],

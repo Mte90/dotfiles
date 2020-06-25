@@ -3,7 +3,7 @@ let g:ale_php_phpcs_standard  = '/home/mte90/Desktop/Prog/CodeatCS/codeat.xml'
 let g:ale_php_phpcbf_standard  = '/home/mte90/Desktop/Prog/CodeatCS/codeat.xml'
 let g:ale_php_phpmd_ruleset = '/home/mte90/Desktop/Prog/CodeatCS/codeat-phpmd.xml'
 let g:ale_php_cs_fixer_options = 'position_after_functions_and_oop_constructs=same'
-let g:ale_php_psalm_executable      = '/usr/local/bin/psalm'
+let g:ale_php_psalm_executable = '/usr/local/bin/psalm'
 
 function LoadNewPHPCS()
     " Wait Rooter that set the path
@@ -20,7 +20,6 @@ augroup END
 let g:ale_linters = {
 \   '*': ['remove_trailing_lines', 'trim_whitespace'],
 \   'bash': ['shellcheck'],
-\   'coffee': ['coffeelint'],
 \   'css': ['prettier'],
 \   'html': ['htmlhint'],
 \   'javascript': ['eslint', 'jshint'],
@@ -29,18 +28,17 @@ let g:ale_linters = {
 \   'sass': ['sass-lint'],
 \   'scss': ['sass-lint'],
 \}
- " removed php_cs_fixer
+
 let g:ale_fixers = {
 \   '*': ['remove_trailing_lines', 'trim_whitespace'],
 \   'bash': ['shellcheck'],
-\   'coffee': ['coffeelint'],
 \   'css': ['prettier'],
 \   'html': ['htmlhint', 'prettier', 'jshint'],
 \   'javascript': ['eslint', 'prettier'],
 \   'markdown': ['remark-lint'],
-\   'php': ['phpcbf'],
-\   'sass': ['sass-lint'],
-\   'scss': ['sass-lint'],
+\   'sass': ['sasslint'],
+\   'scss': ['sasslint'],
+\   'php': ['phpcbf', 'php_cs_fixer'],
 \}
 let g:PHP_vintage_case_default_indent = 1
 " Sometimes phpcbf replace the content of the file with the output of the command with ale
