@@ -4,12 +4,15 @@ let g:ale_php_phpcbf_standard  = '/home/mte90/Desktop/Prog/CodeatCS/codeat.xml'
 let g:ale_php_phpmd_ruleset = '/home/mte90/Desktop/Prog/CodeatCS/codeat-phpmd.xml'
 let g:ale_php_cs_fixer_options = 'position_after_functions_and_oop_constructs=same'
 let g:ale_php_psalm_executable = '/usr/local/bin/psalm'
+let g:ale_php_phpcbf_use_global = 1
+let g:ale_php_phpcbf_executable = $HOME.'/.vim/custom/phpcbf-helper.sh'
 
 function LoadNewPHPCS()
     " Wait Rooter that set the path
     sleep 100m
     if filereadable(getcwd() . '/phpcs.xml')
         let g:ale_php_phpcs_standard = getcwd() . '/phpcs.xml'
+        let g:ale_php_phpcbf_standard  = getcwd() . '/phpcs.xml'
     endif
 endfunction
 augroup PHP
@@ -36,8 +39,8 @@ let g:ale_fixers = {
 \   'html': ['htmlhint', 'prettier', 'jshint'],
 \   'javascript': ['eslint', 'prettier'],
 \   'markdown': ['remark-lint'],
-\   'sass': ['sasslint'],
-\   'scss': ['sasslint'],
+\   'sass': ['sass-lint'],
+\   'scss': ['sass-lint'],
 \   'php': ['phpcbf', 'php_cs_fixer'],
 \}
 let g:PHP_vintage_case_default_indent = 1

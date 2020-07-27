@@ -17,8 +17,8 @@ function mkcd(){ mkdir -p $@ && cd $_; }
 alias casa='cd /home/mte90/Desktop'
 alias www='cd /var/www'
 alias vvv='cd /var/www/VVV/www 2>/dev/null;cd /home/mte90/Desktop/VVV/www 2>/dev/null'
-alias wpp='cd ./public_html/wp-content/plugins 2>/dev/null;cd ./public_html/build/wp-content/plugins 2>/dev/null;cd ./htdocs/wp-content/plugins 2>/dev/null;cd ./wp-content/plugins 2>/dev/null'
-alias wpt='cd ./htdocs/wp-content/themes 2>/dev/null;cd ./wp-content/themes 2>/dev/null'
+alias wpp='cd ./public_html/wp-content/plugins 2>/dev/null;cd ./public_html/build/wp-content/plugins 2>/dev/null;cd ./wp-content/plugins 2>/dev/null'
+alias wpt='cd ./public_html/wp-content/themes 2>/dev/null;cd ./public_html/build/wp-content/themes 2>/dev/null;cd ./wp-content/themes 2>/dev/null'
 # Misc
 alias biggest-10-files='BLOCKSIZE=1048576; du -x -h | sort -nr | head -10'
 alias yt2mp3='youtube-dl -l -x --audio-format=mp3 -w -c'
