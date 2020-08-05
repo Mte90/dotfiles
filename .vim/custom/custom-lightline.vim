@@ -2,8 +2,6 @@
 let s:filename_modes = {
             \ '__Tagbar__':           'Tagbar',
             \ '[BufExplorer]':        'BufExplorer',
-            \ 'NERD_tree':            'NERDTree',
-            \ 'NERD_tree_1':          'NERDTree',
             \ '[Command Line]':       'Command Line',
             \ '[Plugins]':            'Plugins',
             \ '__committia_status__': 'Committia Status',
@@ -11,7 +9,7 @@ let s:filename_modes = {
 \ }
 let s:filetype_modes = {
             \ 'netrw':         'NetrwTree',
-            \ 'nerdtree':      'NERDTree',
+            \ 'chaddtree':     'CHADTree',
             \ 'startify':      'Startify',
             \ 'vimshell':      'VimShell',
             \ 'help':          'Help',

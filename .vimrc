@@ -178,11 +178,8 @@ call vundle#begin()
     Plugin 'plasticboy/vim-markdown'
     " php doc autocompletion
     Plugin 'tobyS/vmustache' | Plugin 'tobyS/pdv'
-    " Nerdtree + modifications: git icons plugin, color filetype plugin
-    Plugin 'preservim/nerdtree', { 'on': ['NERDTreeToggle', 'NERDTreeFind']}
-    Plugin 'Xuyuanp/nerdtree-git-plugin'
-    Plugin 'tiagofumo/vim-nerdtree-syntax-highlight'
-    Plugin 'jistr/vim-nerdtree-tabs'
+    " chadtree
+    Plugin 'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}
     " Status bar
     Plugin 'jacoborus/tender.vim'
     Plugin 'itchyny/lightline.vim'
@@ -258,7 +255,6 @@ call vundle#begin()
     Plugin 'AndrewRadev/splitjoin.vim'
 call vundle#end()
 
-source /home/mte90/.vim/custom/custom-nerdtree.vim
 source /home/mte90/.vim/custom/custom-lightline.vim
 source /home/mte90/.vim/custom/custom-deoplete.vim
 source /home/mte90/.vim/custom/custom-ale.vim
@@ -320,7 +316,7 @@ let g:vimjs#smartcomplete = 1
 " php
 let g:PHP_autoformatcomment = 1
 " Indent lines
-let g:indentLine_fileTypeExclude = ['help', 'nerdtree', 'startify', 'fzf']
+let g:indentLine_fileTypeExclude = ['help', 'chadtree', 'startify', 'fzf', 'tagbar']
 let g:indentLine_char = '┊'
 " Nerdcommenter for... better comments
 let g:NERDSpaceDelims = 1
@@ -358,6 +354,9 @@ let g:vdebug_options = {
     \    'ide_key' : 'VVVDEBUG'
     \}
 let g:vdebug_options.path_maps = {"/srv/www/": "/home/mte90/Desktop/VVV/www/"}
+
+lua vim.api.nvim_set_var("chadtree_ignores", { name = {".*", ".git", "vendor", "node_modules"} })
+let g:chadtree_settings = {"keymap": { "tertiary": ["t"], 'trash': ['a'] }}
 
 " Internals mapping
 " Insert blank lines above and bellow current line, respectively.
@@ -400,7 +399,7 @@ xnoremap p pgvy
 " Save
 nnoremap <leader>x :w<CR>
 " Open Folder tab current directory
-nmap <leader>n :call NERDTreeToggleInCurDir()<CR>
+nmap <leader>n <cmd>CHADopen<cr>
 " Fold code open/close with click
 nmap <expr> <2-LeftMouse> 'za'
 " Search in the project files
