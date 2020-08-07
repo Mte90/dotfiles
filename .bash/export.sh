@@ -23,3 +23,5 @@ export PATH=~/.config/vendor/bin:$PATH
 export PATH=~/.cargo/bin:$PATH 
 export PATH=/home/mte90/.composer/vendor/bin/:$PATH 
 export PATH=/home/mte90/.bash/git-extras/:$PATH
+
+./_ls-colors.sh
