@@ -33,6 +33,7 @@ set report=0
 " Search option
 set hlsearch              " Search highlighting
 set incsearch             " Search starts while entering string
+set inccommand=nosplit    " live preview the :substitute command
 set cursorline            " Color the cursorline
 set undolevels=2000       " Number of undo levels
 set backspace=indent,eol,start  " Intuitive backspacing in insert mode
@@ -169,10 +170,6 @@ call vundle#begin()
     endif
     Plugin 'Shougo/deoplete-lsp'
     Plugin 'mte90/deoplete-wp-hooks'
-    " Learn new movements
-    if has('python3') && has('timers')
-        "Plugin 'AlphaMycelium/pathfinder.vim'
-    endif
     " markdown
     Plugin 'godlygeek/tabular'
     Plugin 'plasticboy/vim-markdown'
@@ -357,6 +354,7 @@ let g:vdebug_options.path_maps = {"/srv/www/": "/home/mte90/Desktop/VVV/www/"}
 
 lua vim.api.nvim_set_var("chadtree_ignores", { name = {".*", ".git", "vendor", "node_modules"} })
 let g:chadtree_settings = {"keymap": { "tertiary": ["t"], 'trash': ['a'] }}
+let g:splitjoin_join_mapping = ''
 
 " Internals mapping
 " Insert blank lines above and bellow current line, respectively.
@@ -387,7 +385,6 @@ nmap <silent> <C-Right> :wincmd l<CR>
 " Move between tabs with Alt
 nmap <M-Right> :tabnext<CR>
 nmap <M-Left> :tabprevious<CR>
-nmap K <Plug>(devdocs-under-cursor)
 " correct :W to :w typo
 cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))
 " correct :Q to :q typo
@@ -395,7 +392,8 @@ cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline() is# 'Q')?('q'):('Q')
 " Paste more than once
 xnoremap p pgvy
 
-" Hotkeys
+" Plugins custom mapping
+nmap K <Plug>(devdocs-under-cursor)
 " Save
 nnoremap <leader>x :w<CR>
 " Open Folder tab current directory
@@ -406,10 +404,8 @@ nmap <expr> <2-LeftMouse> 'za'
 nmap <leader>f :Rg<space>
 " Object view
 nmap <C-t> :TagbarToggle<CR>
-" Undo tree tab
+" File list with fzf
 nmap <leader>x :Files<CR>
-map <silent> <C-w> <Plug>(expand_region_expand)
-map <silent> <C-r> <Plug>(expand_region_shrink)
 " Emmett
 let g:user_emmet_leader_key=',' " ,,
 " navigate between errors
@@ -421,9 +417,12 @@ nmap <C-d> <plug>NERDCommenterToggle<CR>
 vmap <C-d> <plug>NERDCommenterToggle<CR>
 " Append ; to the end of the line -> Leader+B
 map <leader>b :call setline('.', getline('.') . ';')<CR>
-
+" Search & replace https://bluz71.github.io/2019/03/11/find-replace-helpers-for-vim.html
+nnoremap <Leader>r :let @s='\<'.expand('<cword>').'\>'<CR>:%s/<C-r>s//<Left>
+xnoremap <Leader>r "sy:%s/<C-r>s//<Left>
 " https://www.cyberciti.biz/faq/how-to-reload-vimrc-file-without-restarting-vim-on-linux-unix/
-" Edit vimr configuration file
+" Edit vimrc configuration file
 nnoremap confe :e $MYVIMRC<CR>
 " Reload vims configuration file
 nnoremap confr :source $MYVIMRC<CR>
+nmap <Leader>s :SplitjoinSplit<cr>
