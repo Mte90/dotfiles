@@ -1,13 +1,12 @@
 " Ale linting
 let g:ale_php_cs_fixer_options = 'position_after_functions_and_oop_constructs=same'
 let g:ale_php_phpcs_standard  = 'CodeatCodingStandard'
-let g:ale_php_phpcbf_standard  = '/CodeatCodingStandard'
+let g:ale_php_phpcbf_standard  = 'CodeatCodingStandard'
 let g:ale_php_phpmd_ruleset = '/home/mte90/Desktop/Prog/CodeatCS/codeat-phpmd.xml'
 let g:ale_php_psalm_executable = '/usr/local/bin/psalm'
 let g:ale_php_phpstan_executable = $HOME.'/.composer/vendor/bin/phpstan'
 let g:ale_php_phpcbf_executable = $HOME.'/.vim/custom/phpcbf-helper.sh'
 let g:ale_scss_sasslint_executable = '/usr/bin/sass-lint'
-let g:ale_php_phpcbf_use_global = 1
 let g:ale_php_phpcs_use_global = 1
 let g:ale_php_cs_fixer_use_global = 1
 
@@ -53,3 +52,6 @@ let g:ale_sign_error = 'EE'
 let g:ale_sign_warning = 'WW'
 let g:ale_change_sign_column_color = 1
 let g:ale_completion_enabled = 1 
+let g:ale_set_loclist = 0
+let g:ale_set_quickfix = 1
+let g:ale_open_list = 1

@@ -5,7 +5,6 @@ let g:startify_enable_special = 0
 let g:startify_session_dir = '~/.vim/sessions'
 let g:startify_lists = [
           \ { 'type': 'files',     'header': ['   Most Recent'] },
-          \ { 'type': 'sessions',  'header': ['   Sessions']    },
           \ { 'type': 'bookmarks', 'header': ['   Bookmarks']   },
 \ ]
 let g:startify_files_number = 3

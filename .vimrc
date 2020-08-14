@@ -151,10 +151,6 @@ call vundle#begin()
     Plugin 'drzel/vim-scroll-off-fraction'
     " Underlines the words under your cursor
     Plugin 'itchyny/vim-cursorword'
-    " session
-    Plugin 'xolox/vim-misc'
-    " check https://github.com/xolox/vim-session/pull/144
-    Plugin 'xolox/vim-session'
     " Snippets engine and... snippets!
     Plugin 'SirVer/ultisnips'
     Plugin 'honza/vim-snippets'
@@ -260,12 +256,6 @@ source /home/mte90/.vim/custom/custom-startify.vim
 source /home/mte90/.vim/custom/custom-fzf.vim
 source /home/mte90/.vim/custom/custom-lsp.vim
 
-let g:sessions_dir = '~/.vim/sessions'
-let g:session_directory = '~/.vim/sessions'
-let g:session_autoload = 'no'
-let g:session_autosave = 'yes'
-let g:session_autosave_periodic = 1
-let g:session_silent = 1
 " https://www.reddit.com/r/neovim/comments/gofplz/neovim_has_added_the_ability_to_highlight_yanked/
 augroup highlight_yank
     autocmd!
@@ -282,8 +272,6 @@ augroup default
     autocmd FileType php.wordpress set tabstop=4
     autocmd FileType javascript set tabstop=2 shiftwidth=2
     autocmd FileType php let b:surround_45 = "<?php \r ?>"
-    " Autosave session
-    autocmd BufRead,BufReadPost,BufNewFile,BufFilePost * :SaveSession
 augroup END 
 augroup fmt
   autocmd!
@@ -292,6 +280,11 @@ augroup fmt
   autocmd BufWritePre *.css :normal =G
   autocmd BufWritePre *.sass :normal =G
 augroup END
+
+au FileType qf call AdjustWindowHeight(3, 5)
+function! AdjustWindowHeight(minheight, maxheight)
+  exe max([min([line("$"), a:maxheight]), a:minheight]) . "wincmd _"
+endfunction
 
 " Enable Rainbow Parenthesis
 let g:rainbow_active = 1
