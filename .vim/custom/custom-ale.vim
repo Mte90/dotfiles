@@ -54,4 +54,3 @@ let g:ale_change_sign_column_color = 1
 let g:ale_completion_enabled = 1 
 let g:ale_set_loclist = 0
 let g:ale_set_quickfix = 1
-let g:ale_open_list = 1

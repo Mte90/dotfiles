@@ -60,7 +60,8 @@ function! LightlineModified() abort
 endfunction
 
 function! LightlineReadonly() abort
-    return &filetype !~? 'help' && &readonly ? g:powerline_symbols.readonly : ''
+        let fname = expand('%:t')
+    return &readonly && &filetype !~# '\v(help|vista|chadtree|netrw)'  ? 'RO' : ''
 endfunction
 
 function! LightlineClipboard() abort
@@ -76,20 +77,25 @@ endfunction
 
 function! LightlineMode() abort
     let fname = expand('%:t')
-    if fname =~? '^NrrwRgn' && exists('b:nrrw_instn')
-        return printf('%s#%d', 'NrrwRgn', b:nrrw_instn)
+    if &filetype == 'netrw'
+        return ''
+    else
+        return fname  ==# '__Tagbar__' ? 'Tagbar':
+            \ fname ==# '__vista__' ? 'Vista':
+            \ fname ==# 'ControlP' ? 'CtrlP':
+            \ &filetype ==# 'chadtree' ? 'CHADTree' :
+            \ get(s:filename_modes, fname, get(s:filetype_modes, &filetype, LightlineShortMode(lightline#mode())))
     endif
-    return get(s:filename_modes, fname, get(s:filetype_modes, &filetype, LightlineShortMode(lightline#mode())))
 endfunction
 
 function! LightlineModeAndClipboard() abort
     return LightlineMode() . LightlineClipboard()
 endfunction
 
-" Copied from https://github.com/itchyny/lightline-powerful
+" Copied from https://github.com/SethBarberee/dotfiles/blob/master/neovim/.config/nvim/after/plugin/lightline.vim
 function! LightlineTabReadonly(n) abort
-    let winnr = tabpagewinnr(a:n)
-    return gettabwinvar(a:n, winnr, '&readonly') ? g:powerline_symbols.readonly : ''
+    let fname = expand('%:t')
+    return &readonly && &filetype !~# '\v(help|vista|chadtree|netrw)'  ? 'RO' : ''
 endfunction
 
 " Copied from https://github.com/itchyny/lightline-powerful
@@ -181,7 +187,7 @@ let g:lightline = {
     \ 'colorscheme': 'tender',
     \ 'active': {
     \   'left': [['mode', 'paste'], ['filename', 'modified'], ['tagbar', 'gitbranch']],
-    \   'right': [['filetype'], ['nofixme', 'gitstatus'], [ 'lsp_errors', 'lsp_warnings', 'lsp_ok', 'linter_errors', 'linter_warnings', 'linter_ok' ]]
+    \   'right': [['filetype', 'readonly'], ['nofixme', 'gitstatus'], [ 'lsp_errors', 'lsp_warnings', 'lsp_ok', 'linter_errors', 'linter_warnings', 'linter_ok' ]]
     \ },
     \ 'inactive': {
     \   'left': [['mode', 'paste'], ['filename', 'modified'], ['gitbranch', 'gitstatus']],
@@ -197,6 +203,7 @@ let g:lightline = {
     \ 'component_function': {
     \   'filetype':  'WDIFileType',
     \   'mode':      'LightlineModeAndClipboard',
+    \   'readonly': 'LightlineReadonly',
     \   'filename':  'LightlineFilename',
     \   'gitbranch': 'gitbranch#name'
     \ },

@@ -91,7 +91,7 @@ set guifont=Droid\ Sans\ Mono\ Nerd\ Font:h10
 colorscheme valloric
 " exclusions from the autocomplete menu
 set wildoptions=tagfile
-if has('nvim-0.4')
+if has('nvim')
     set pumblend=20
     set wildoptions+=pum
 endif
@@ -110,6 +110,8 @@ set wildignore+=*/public/assets/*,*/tmp/cache/assets/*/sass/*
 set wildignore+=*DS_Store*
 " Tags folder
 set tags+=/home/mte90/.vim/tags
+" if a file is changed outside Vim, automatically re-read it
+set autoread
 
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
@@ -125,8 +127,6 @@ call vundle#begin()
     Plugin 'tpope/vim-fugitive'
     " display git diff in the left gutter
     Plugin 'airblade/vim-gitgutter'
-    " autoclose bracket and parenthesis when open
-    Plugin 'Townk/vim-autoclose'
     " Always highlight enclosing tags
     Plugin 'andymass/vim-matchup'
     " close tags on </
@@ -141,8 +141,6 @@ call vundle#begin()
     Plugin 'luochen1990/rainbow'
     " Folding fast is important
     Plugin 'Konfekt/FastFold'
-    " Remove trailing whitespaces
-    Plugin 'vim-scripts/DeleteTrailingWhitespace'
     " Move block of code
     Plugin 'matze/vim-move'
     " Wrapper for sd
@@ -155,6 +153,7 @@ call vundle#begin()
     Plugin 'SirVer/ultisnips'
     Plugin 'honza/vim-snippets'
     Plugin 'sniphpets/sniphpets'
+    Plugin 'sniphpets/sniphpets-phpunit'
     Plugin 'sniphpets/sniphpets-common'
     " Autocomplete system in real time
     if has('nvim')
@@ -188,8 +187,8 @@ call vundle#begin()
     " PHPctags support
     Plugin 'vim-php/tagbar-phpctags.vim'
     " fzf - poweful search
-    Plugin 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-    Plugin 'junegunn/fzf.vim'
+    Plugin 'junegunn/fzf'
+    Plugin 'junegunn/fzf.vim' 
     " allow multisearch in current directory / multi replace as well
     Plugin 'wincent/ferret'
     " display the hexadecimal colors - useful for css and color config
@@ -220,7 +219,7 @@ call vundle#begin()
     " highlights which characters to target
     Plugin 'unblevable/quick-scope'
     " WordPress
-    Plugin 'salcode/vim-wordpress-dict'
+    Plugin 'miya0001/vim-dict-wordpress'
     Plugin 'sudar/vim-wordpress-snippets'
     " Web
     Plugin 'othree/html5.vim'
@@ -343,7 +342,7 @@ let g:vdebug_options = {
     \    'break_on_open' : 0,
     \    'ide_key' : 'VVVDEBUG'
     \}
-let g:vdebug_options.path_maps = {"/srv/www/": "/home/mte90/Desktop/VVV/www/"}
+let g:vdebug_options.path_maps = {"/srv/www/": "/var/www/VVV/www/"}
 
 lua vim.api.nvim_set_var("chadtree_ignores", { name = {".*", ".git", "vendor", "node_modules"} })
 let g:chadtree_settings = {"keymap": { "tertiary": ["t"], 'trash': ['a'] }}
