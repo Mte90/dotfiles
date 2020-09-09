@@ -26,11 +26,8 @@ alias changedfiles="find . -type f -print0 | xargs -0 stat --format '%Z :%z %n' 
 alias kate='kate -b'
 
 # dev
-# https://github.com/gleitz/howdoi
-alias howdoi='howdoi -c'
-
-alias codeatcs='phpcs -p -s -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
-alias codeatcscbf='phpcbf -p -d memory_limit=512M --ignore=*composer*,*.js,*.css,*vendor*,*/lib,index.php,*tests*,*config* --standard=/home/mte90/Desktop/Prog/CodeatCS/codeat.xml '
+alias codeatcs='phpcs -p -s -d memory_limit=512M --ignore=*vendor*,index.php,*tests* --standard=CodeatCodingStandard '
+alias codeatcscbf='phpcbf -p -d memory_limit=512M --ignore=*vendor*,index.php,*tests* --standard=CodeatCodingStandard '
 
 # https://github.com/github/hub
 if [ -f /usr/share/bash-completion/completions/hub ]; then

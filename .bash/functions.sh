@@ -61,14 +61,6 @@ debugger() {
   echo
 }
 
-codecoverage() {
-    codecept run wpunit --coverage-html 
-    
-    rsync --exclude={.sass-cache*,*.map,node_modules,.php_cs,.git*,*.lock,*.yml,*lock.json} --progress -avz ./tests/_output/coverage -e ssh dev.codeat.it:/var/www/plugin/$1/coverage > /dev/null
-    
-    /home/mte90/ffnightly/firefox https://dev.codeat.it/plugin/$1
-}
-
 # https://www.reddit.com/r/commandline/comments/f182j8/github_tkmrumln_a_modern_version_of_ln/fh36gk0/
 mln() {
     target="$1"
