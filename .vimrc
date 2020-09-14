@@ -219,7 +219,6 @@ call vundle#begin()
     " highlights which characters to target
     Plugin 'unblevable/quick-scope'
     " WordPress
-    Plugin 'miya0001/vim-dict-wordpress'
     Plugin 'sudar/vim-wordpress-snippets'
     " Web
     Plugin 'othree/html5.vim'
