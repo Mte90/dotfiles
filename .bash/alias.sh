@@ -51,6 +51,7 @@ function git-merge-last-commits() { git reset --soft HEAD~$1 && git commit; }
 alias commit="/home/mte90/Desktop/Prog/My-Scripts/dev/validate-commit.py"
 function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 function gcm() { git commit -m "$@"; } 
+# https://github.com/therealklanni/gdex, git-diff-branch
 
 # https://github.com/cykerway/complete-alias
 complete -F _complete_alias fzf

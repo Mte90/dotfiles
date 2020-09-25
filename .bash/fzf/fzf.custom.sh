@@ -1,6 +1,6 @@
 # https://github.com/junegunn/fzf
 export FZF_DEFAULT_COMMAND="rg --files --no-ignore --follow -g '!{.sass\-cache,node_modules,_generated,_bootstrap.php,vendor}/*' 2> /dev/null"
-export FZF_DEFAULT_OPTS='--exact --preview "bat --style=numbers --color=always {}"'
+export FZF_DEFAULT_OPTS='--exact --preview "batcat --style=numbers --color=always {}"'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 bind -x '"\C-p": nvim-qt $(fzf);'
 # Bind F1 to open file to Kate, Ctrl-Y to copy to the clipboard the path, Ctrl-N to enter the folder
