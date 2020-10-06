@@ -94,6 +94,7 @@ set wildoptions=tagfile
 if has('nvim')
     set pumblend=20
     set wildoptions+=pum
+    set inccommand=nosplit
 endif
 " Ignore case when completing file names and directories.
 set wildignorecase
@@ -143,8 +144,6 @@ call vundle#begin()
     Plugin 'Konfekt/FastFold'
     " Move block of code
     Plugin 'matze/vim-move'
-    " Wrapper for sd
-    Plugin 'SirJson/sd.vim'
     " Improve scrolloff area
     Plugin 'drzel/vim-scroll-off-fraction'
     " Underlines the words under your cursor
@@ -158,16 +157,22 @@ call vundle#begin()
     " Autocomplete system in real time
     if has('nvim')
         Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+        Plugin 'Shougo/deoplete-lsp'
     else
         Plugin 'roxma/vim-hug-neovim-rpc'
         Plugin 'roxma/nvim-yarp'
         Plugin 'Shougo/deoplete.nvim'
     endif
-    Plugin 'Shougo/deoplete-lsp'
     Plugin 'mte90/deoplete-wp-hooks'
     " markdown
     Plugin 'godlygeek/tabular'
     Plugin 'plasticboy/vim-markdown'
+    " highlights which characters to target
+    Plugin 'unblevable/quick-scope'
+    " Search pulse
+    Plugin 'inside/vim-search-pulse'
+    " Split one-liner into multiple
+    Plugin 'AndrewRadev/splitjoin.vim'
     " php doc autocompletion
     Plugin 'tobyS/vmustache' | Plugin 'tobyS/pdv'
     " chadtree
@@ -189,8 +194,8 @@ call vundle#begin()
     " fzf - poweful search
     Plugin 'junegunn/fzf'
     Plugin 'junegunn/fzf.vim' 
-    " allow multisearch in current directory / multi replace as well
-    Plugin 'wincent/ferret'
+    " Wrapper for sd
+    Plugin 'SirJson/sd.vim'
     " display the hexadecimal colors - useful for css and color config
     Plugin 'RRethy/vim-hexokinase'
     " Cool icons"
@@ -216,8 +221,6 @@ call vundle#begin()
     Plugin 'vim-vdebug/vdebug'
     " Comments
     Plugin 'scrooloose/nerdcommenter'
-    " highlights which characters to target
-    Plugin 'unblevable/quick-scope'
     " WordPress
     Plugin 'sudar/vim-wordpress-snippets'
     " Web
@@ -240,10 +243,6 @@ call vundle#begin()
     Plugin 'elzr/vim-json'
     " Open docs on K
     Plugin 'rhysd/devdocs.vim'
-    " Search pulse
-    Plugin 'inside/vim-search-pulse'
-    " Split one-liner into multiple
-    Plugin 'AndrewRadev/splitjoin.vim'
 call vundle#end()
 
 source /home/mte90/.vim/custom/custom-lightline.vim
@@ -361,9 +360,12 @@ nnoremap <silent> ,<Space> :<C-u>silent! keeppatterns %substitute/\s\+$//e<CR>
 " Remove highlights
 map <esc> :noh<cr>
 " Granular undo
-inoremap <c-u> <c-g>u<c-u>
-inoremap <c-w> <c-g>u<c-w>
-imap <Space> <Space><C-G>u
+inoremap <Space> <Space><C-G>u
+" No yank on delete
+nnoremap d "_d
+nnoremap D "_D
+vnoremap d "_d
+nnoremap <del> <C-G>"_x
 " Move between panes/split with Ctrl
 map <silent> <C-Up> :wincmd k<CR>
 map <silent> <C-Down> :wincmd j<CR>
@@ -380,13 +382,11 @@ nmap <M-Left> :tabprevious<CR>
 cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))
 " correct :Q to :q typo
 cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline() is# 'Q')?('q'):('Q'))
-" Paste more than once
-xnoremap p pgvy
 
+" Replace all
+nnoremap <leader>r :exec "Rgi ".expand("<cword>")<cr>
 " Plugins custom mapping
 nmap K <Plug>(devdocs-under-cursor)
-" Save
-nnoremap <leader>x :w<CR>
 " Open Folder tab current directory
 nmap <leader>n <cmd>CHADopen<cr>
 " Fold code open/close with click
@@ -408,9 +408,6 @@ nmap <C-d> <plug>NERDCommenterToggle<CR>
 vmap <C-d> <plug>NERDCommenterToggle<CR>
 " Append ; to the end of the line -> Leader+B
 map <leader>b :call setline('.', getline('.') . ';')<CR>
-" Search & replace https://bluz71.github.io/2019/03/11/find-replace-helpers-for-vim.html
-nnoremap <Leader>r :let @s='\<'.expand('<cword>').'\>'<CR>:%s/<C-r>s//<Left>
-xnoremap <Leader>r "sy:%s/<C-r>s//<Left>
 " https://www.cyberciti.biz/faq/how-to-reload-vimrc-file-without-restarting-vim-on-linux-unix/
 " Edit vimrc configuration file
 nnoremap confe :e $MYVIMRC<CR>
