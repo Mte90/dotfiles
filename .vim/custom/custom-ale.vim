@@ -20,6 +20,8 @@ function LoadNewPHPStan()
     sleep 100m
     if filereadable(getcwd() . '/phpstan.neon')
         let g:ale_php_phpstan_configuration = getcwd() . '/phpstan.neon'
+    else
+        let g:ale_php_phpstan_configuration = '/home/mte90/Desktop/Prog/CodeatCS/codeat-phpstan.neon'
     endif
 endfunction
 augroup PHP
