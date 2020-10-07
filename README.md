@@ -2,6 +2,10 @@
 
 A list of external tools that is repo use (or extend) or that I use on daily usage.
 
+## NeoVim
+
+My setup includes various plugin with various settings, so to work better on WordPress contributions I created an alias `nvim-wp` that run nvim with less plugins and different [ALE settings](.vim/custom/custom-ale.vim).
+
 ## Bash tools
 
 * [Custom bash line](https://github.com/petobens/trueline), Fast and extensible bash powerline prompt with true color and fancy icon support
@@ -9,6 +13,7 @@ A list of external tools that is repo use (or extend) or that I use on daily usa
 * [hstr](https://github.com/dvorka/hstr), shell history suggest box
 * [exa](https://the.exa.website/), A modern replacement for ls
 * [bat](https://github.com/sharkdp/bat), A cat(1) clone with wings
+* [sd](https://github.com/chmln/sd), A sed alternative more simple
 * [fdfind](https://github.com/sharkdp/fd), A simple, fast and user-friendly alternative to 'find'
 * [ripgrep](https://github.com/BurntSushi/ripgrep), ripgrep recursively searches directories for a regex pattern 
 * [colordiff](https://www.colordiff.org/), diff with syntax highlighting
@@ -30,7 +35,7 @@ A list of external tools that is repo use (or extend) or that I use on daily usa
 
 ### My own tools
 
-* [GH-License](https://github.com/Mte90/GH-License) - Check if a repo include a license manually or with local Git Hooks
+* [GH-License](https://github.com/Mte90/GH-License), Check if a repo include a license manually or with local Git Hooks
 * [Delete song file playing in VLC and move to next](https://github.com/Mte90/My-Scripts/blob/master/misc/delete_song_by_dbus.py)
 * [DL-Telegram-by-file-attachment](https://github.com/Mte90/DL-Telegram-by-file-attachment/), Download documents by terms looking in a Telegram channel
 * [pydal](https://github.com/Mte90/pydal), Remap your specific keyboard to execute custom scripts!

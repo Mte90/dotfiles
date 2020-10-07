@@ -1,6 +1,9 @@
 " Note: Skip initialization for vim-tiny or vim-small.
 if !1 | finish | endif
 
+" Disable some plugin to have a wordpress core contributing experience
+" vim --cmd "let wordpress_mode=1" 
+
 filetype plugin on
 filetype indent on
 syntax on
@@ -120,8 +123,10 @@ call vundle#begin()
     Plugin 'VundleVim/Vundle.vim'
     " Auto cwd
     Plugin 'airblade/vim-rooter'
-    " startify for a cool home page
-    Plugin 'mhinz/vim-startify'
+    if !exists('wordpress_mode')
+        " startify for a cool home page
+        Plugin 'mhinz/vim-startify'
+    endif
     " Show "Match 123 of 456 /search term/" in Vim searches
     Plugin 'henrik/vim-indexed-search'
     " wrapper for git
@@ -154,6 +159,7 @@ call vundle#begin()
     Plugin 'sniphpets/sniphpets'
     Plugin 'sniphpets/sniphpets-phpunit'
     Plugin 'sniphpets/sniphpets-common'
+    Plugin 'sudar/vim-wordpress-snippets'
     " Autocomplete system in real time
     if has('nvim')
         Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -164,9 +170,11 @@ call vundle#begin()
         Plugin 'Shougo/deoplete.nvim'
     endif
     Plugin 'mte90/deoplete-wp-hooks'
-    " markdown
-    Plugin 'godlygeek/tabular'
-    Plugin 'plasticboy/vim-markdown'
+    if !exists('wordpress_mode')
+        " markdown
+        Plugin 'godlygeek/tabular'
+        Plugin 'plasticboy/vim-markdown'
+    endif
     " highlights which characters to target
     Plugin 'unblevable/quick-scope'
     " Search pulse
@@ -221,35 +229,37 @@ call vundle#begin()
     Plugin 'vim-vdebug/vdebug'
     " Comments
     Plugin 'scrooloose/nerdcommenter'
-    " WordPress
-    Plugin 'sudar/vim-wordpress-snippets'
     " Web
     Plugin 'othree/html5.vim'
     Plugin 'mattn/emmet-vim'
     Plugin 'hail2u/vim-css3-syntax'
     Plugin 'othree/csscomplete.vim'
-    Plugin 'stephpy/vim-yaml'
     " Javascript
-    Plugin 'moll/vim-node'
     Plugin 'pangloss/vim-javascript'
     Plugin 'othree/javascript-libraries-syntax.vim'
     Plugin '1995eaton/vim-better-javascript-completion'
     Plugin 'mklabs/grunt.vim'
-    " Syntax highlighting for vue js framework
-    Plugin 'posva/vim-vue'
-    " Syntax highlighting for webapi
-    Plugin 'mattn/webapi-vim'
+    if !exists('wordpress_mode')
+        Plugin 'moll/vim-node'
+        " Syntax highlighting for vue js framework
+        Plugin 'posva/vim-vue'
+        " Syntax highlighting for webapi
+        Plugin 'mattn/webapi-vim'
+        Plugin 'stephpy/vim-yaml'
+    endif
     " Syntax highlighting for json
     Plugin 'elzr/vim-json'
     " Open docs on K
     Plugin 'rhysd/devdocs.vim'
 call vundle#end()
 
+if !exists('wordpress_mode')
+    source /home/mte90/.vim/custom/custom-startify.vim
+endif
 source /home/mte90/.vim/custom/custom-lightline.vim
 source /home/mte90/.vim/custom/custom-deoplete.vim
 source /home/mte90/.vim/custom/custom-ale.vim
 source /home/mte90/.vim/custom/custom-gutentags.vim
-source /home/mte90/.vim/custom/custom-startify.vim
 source /home/mte90/.vim/custom/custom-fzf.vim
 source /home/mte90/.vim/custom/custom-lsp.vim
 

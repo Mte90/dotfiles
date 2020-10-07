@@ -56,3 +56,6 @@ function gcm() { git commit -m "$@"; }
 # https://github.com/cykerway/complete-alias
 complete -F _complete_alias fzf
 complete -F _complete_alias dotfiles
+
+# WordPress vim mode
+alias nvim-wp="nvim --cmd 'let wordpress_mode=1' /var/www/VVV/www/wordpress-develop/"
