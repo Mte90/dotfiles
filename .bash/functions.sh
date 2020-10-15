@@ -1,21 +1,3 @@
-# Download your fork and add the upstream
-function git-fork() {
-    url=$1
-    url=${url%/}
-    url=$(echo "$url" | sed 's/.git//g' | sed 's/git\@//g' | sed 's/github.com\://g')
-    echo "$url download in progress"
-    git clone "git@github.com:$url.git" &> /dev/null
-    user=$(echo "$url" | awk -F/ '{print $1}')
-    repo=$(echo "$url" | awk -F/ '{print $NF}')
-    cd $repo
-    remote=$(curl -s "https://api.github.com/repos/$user/$repo" | jq -r '.parent.clone_url' | tail -c +20)
-    if [ "$remote" != "" ]; then
-        echo "$remote download in progress"
-        git remote add upstream "git@github.com:$remote" &> /dev/null
-        git fetch --all &> /dev/null
-    fi
-}  
-
 # Open the debug of that website
 function vvv-debug(){
     log="/var/www/VVV/www/$1/htdocs/wp-content/debug.log"

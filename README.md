@@ -40,6 +40,7 @@ My setup includes various plugin with various settings, so to work better on Wor
 * [DL-Telegram-by-file-attachment](https://github.com/Mte90/DL-Telegram-by-file-attachment/), Download documents by terms looking in a Telegram channel
 * [pydal](https://github.com/Mte90/pydal), Remap your specific keyboard to execute custom scripts!
 * [SyntaxAutoFix](https://github.com/Mte90/SyntaxAutoFix), Autofix your typos on Linux easily!
+* [gitapper](https://github.com/Mte90/gitapper), Extend git commands with your scripts
 * [ExtStoreStats](https://github.com/Mte90/ExtStoreStats), Get the stats of your browser extension on different marketplace
 * [CSVEmaiLVerifier](https://github.com/CodeAtCode/CSVEmailVerifier), Automatic validation if email exist by CSV file
 * [My-Scripts](https://github.com/Mte90/My-Scripts), Archive of my own scripts

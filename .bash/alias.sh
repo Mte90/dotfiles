@@ -12,6 +12,7 @@ alias diff='colordiff'
 alias fd='fdfind'
 # Create folder and join it
 function mkcd(){ mkdir -p $@ && cd $_; }
+alias jpeg-to-webp='fd "./*\.jpg$" -x cwebp -q 95 {} -o {.}.jpg.webp'
 
 # CD stuff
 alias casa='cd /home/mte90/Desktop'
@@ -29,13 +30,8 @@ alias kate='kate -b'
 alias codeatcs='phpcs -p -s -d memory_limit=512M --ignore=*vendor*,index.php,*tests* --standard=CodeatCodingStandard '
 alias codeatcscbf='phpcbf -p -d memory_limit=512M --ignore=*vendor*,index.php,*tests* --standard=CodeatCodingStandard '
 
-# https://github.com/github/hub
-if [ -f /usr/share/bash-completion/completions/hub ]; then
-    source /usr/share/bash-completion/completions/hub
-fi
-eval "$(hub alias -s)"
-
 # For Git
+alias git='/home/mte90/Desktop/Prog/gitapper/gitapper.sh'
 alias git-commit-rename='git commit --amend'
 alias git-remove-last-commit='git reset --soft HEAD~1'
 #  To remember the SSH password for 36000 minutes
@@ -48,9 +44,7 @@ alias git-remove-deleted-branch-remotely="git remote prune origin"
 alias git-remove-file-not-exist-anymore-history="git ls-files -d -m -o -z --exclude-standard | xargs -0 git update-index --add --remove"
 alias dotfiles="/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
 function git-merge-last-commits() { git reset --soft HEAD~$1 && git commit; }
-alias commit="/home/mte90/Desktop/Prog/My-Scripts/dev/validate-commit.py"
 function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
-function gcm() { git commit -m "$@"; } 
 # https://github.com/therealklanni/gdex, git-diff-branch
 
 # https://github.com/cykerway/complete-alias
@@ -58,4 +52,4 @@ complete -F _complete_alias fzf
 complete -F _complete_alias dotfiles
 
 # WordPress vim mode
-alias nvim-wp="nvim --cmd 'let wordpress_mode=1' /var/www/VVV/www/wordpress-develop/"
+alias nvim-wp="nvim-qt /var/www/VVV/www/wordpress-develop/public_html -- --cmd 'let wordpress_mode=1' "
