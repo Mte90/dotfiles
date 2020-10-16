@@ -50,6 +50,7 @@ function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 # https://github.com/cykerway/complete-alias
 complete -F _complete_alias fzf
 complete -F _complete_alias dotfiles
+complete -F _complete_alias git
 
 # WordPress vim mode
 alias nvim-wp="nvim-qt /var/www/VVV/www/wordpress-develop/public_html -- --cmd 'let wordpress_mode=1' "
