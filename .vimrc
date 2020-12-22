@@ -121,6 +121,11 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
     " Package manager
     Plugin 'VundleVim/Vundle.vim'
+    " LSP 
+    Plugin 'neovim/nvim-lspconfig'
+    Plugin 'halkn/lightline-lsp'
+    " Tree-Sitter
+    Plugin 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
     " Auto cwd
     Plugin 'airblade/vim-rooter'
     if !exists('wordpress_mode')
@@ -131,6 +136,7 @@ call vundle#begin()
     Plugin 'henrik/vim-indexed-search'
     " wrapper for git
     Plugin 'tpope/vim-fugitive'
+    Plugin 'f-person/git-blame.nvim'
     " display git diff in the left gutter
     Plugin 'airblade/vim-gitgutter'
     " Always highlight enclosing tags
@@ -160,6 +166,8 @@ call vundle#begin()
     Plugin 'sniphpets/sniphpets-phpunit'
     Plugin 'sniphpets/sniphpets-common'
     Plugin 'sudar/vim-wordpress-snippets'
+    Plugin 'thomasfaingnaert/vim-lsp-snippets'
+    Plugin 'thomasfaingnaert/vim-lsp-ultisnips'
     " Autocomplete system in real time
     if has('nvim')
         Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -181,8 +189,10 @@ call vundle#begin()
     Plugin 'inside/vim-search-pulse'
     " Split one-liner into multiple
     Plugin 'AndrewRadev/splitjoin.vim'
-    " php doc autocompletion
-    Plugin 'tobyS/vmustache' | Plugin 'tobyS/pdv'
+    if !has('nvim')
+        " php doc autocompletion
+        Plugin 'tobyS/vmustache' | Plugin 'tobyS/pdv'
+    endif
     " chadtree
     Plugin 'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}
     " Status bar
@@ -211,44 +221,53 @@ call vundle#begin()
     " Report lint errors
     Plugin 'dense-analysis/ale'
     Plugin 'maximbaz/lightline-ale'
-    " LSP 
-    Plugin 'neovim/nvim-lsp'
-    Plugin 'halkn/lightline-lsp'
     " Wakatime
     Plugin 'wakatime/vim-wakatime'
     " EditorConfig support
     Plugin 'editorconfig/editorconfig-vim'
-    " PHP syntax
-    Plugin 'StanAngeloff/php.vim'
-    Plugin 'arnaud-lb/vim-php-namespace'
-    Plugin '2072/vim-syntax-for-PHP.git'
-    Plugin 'nishigori/vim-php-dictionary'
-    Plugin '2072/PHP-Indenting-for-VIm'
-    Plugin 'captbaritone/better-indent-support-for-php-with-html'
+    if !has('nvim')
+        " PHP syntax
+        Plugin 'StanAngeloff/php.vim'
+        Plugin 'arnaud-lb/vim-php-namespace'
+        Plugin '2072/vim-syntax-for-PHP.git'
+        Plugin 'nishigori/vim-php-dictionary'
+        Plugin '2072/PHP-Indenting-for-VIm'
+        Plugin 'captbaritone/better-indent-support-for-php-with-html'
+    endif
     " xDebug support
     Plugin 'vim-vdebug/vdebug'
     " Comments
     Plugin 'scrooloose/nerdcommenter'
     " Web
-    Plugin 'othree/html5.vim'
     Plugin 'mattn/emmet-vim'
-    Plugin 'hail2u/vim-css3-syntax'
-    Plugin 'othree/csscomplete.vim'
+    if !has('nvim')
+        Plugin 'othree/html5.vim'
+        Plugin 'hail2u/vim-css3-syntax'
+        Plugin 'othree/csscomplete.vim'
+    endif
     " Javascript
-    Plugin 'pangloss/vim-javascript'
-    Plugin 'othree/javascript-libraries-syntax.vim'
-    Plugin '1995eaton/vim-better-javascript-completion'
+    if !has('nvim')
+        Plugin 'pangloss/vim-javascript'
+        Plugin 'othree/javascript-libraries-syntax.vim'
+        Plugin '1995eaton/vim-better-javascript-completion'
+    endif
     Plugin 'mklabs/grunt.vim'
     if !exists('wordpress_mode')
         Plugin 'moll/vim-node'
-        " Syntax highlighting for vue js framework
-        Plugin 'posva/vim-vue'
+        if !has('nvim')
+            " Syntax highlighting for vue js framework
+            Plugin 'posva/vim-vue'
+        endif
         " Syntax highlighting for webapi
         Plugin 'mattn/webapi-vim'
-        Plugin 'stephpy/vim-yaml'
+        if !has('nvim')
+            Plugin 'stephpy/vim-yaml'
+        endif
     endif
-    " Syntax highlighting for json
-    Plugin 'elzr/vim-json'
+    if !has('nvim')
+        " Syntax highlighting for json
+        Plugin 'elzr/vim-json'
+    endif
     " Open docs on K
     Plugin 'rhysd/devdocs.vim'
 call vundle#end()
@@ -262,6 +281,7 @@ source /home/mte90/.vim/custom/custom-ale.vim
 source /home/mte90/.vim/custom/custom-gutentags.vim
 source /home/mte90/.vim/custom/custom-fzf.vim
 source /home/mte90/.vim/custom/custom-lsp.vim
+source /home/mte90/.vim/custom/custom-ts.vim
 
 " https://www.reddit.com/r/neovim/comments/gofplz/neovim_has_added_the_ability_to_highlight_yanked/
 augroup highlight_yank

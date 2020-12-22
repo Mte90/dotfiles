@@ -2,8 +2,8 @@ lua << EOF
 -- composer global require php-stubs/wordpress-globals
 -- composer global require php-stubs/wordpress-stubs
 -- composer global require php-stubs/woocommerce-stubs
-local nvim_lsp = require'nvim_lsp'
-local util = require 'nvim_lsp/util'
+local nvim_lsp = require'lspconfig'
+local util = require 'lspconfig/util'
 nvim_lsp.intelephense.setup({
     settings = {
         intelephense = {
