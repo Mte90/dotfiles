@@ -94,11 +94,9 @@ set guifont=Droid\ Sans\ Mono\ Nerd\ Font:h10
 set background=light
 " exclusions from the autocomplete menu
 set wildoptions=tagfile
-if has('nvim')
-    set pumblend=20
-    set wildoptions+=pum
-    set inccommand=nosplit
-endif
+set pumblend=20
+set wildoptions+=pum
+set inccommand=nosplit
 " Ignore case when completing file names and directories.
 set wildignorecase
 " A list of file patterns to ignore when performing expansion and completion.
@@ -112,10 +110,8 @@ set wildignore+=*.zip,*.tar.gz,*.tar.bz2,*.rar,*.tar.xz
 set wildignore+=*.swp,*~,._*,*/vendor/cache/*,*/.sass-cache/*
 set wildignore+=*/public/assets/*,*/tmp/cache/assets/*/sass/*
 set wildignore+=*DS_Store*
-if has('nvim')
-    " Tags folder
-    set tags+=/home/mte90/.vim/tags
-endif
+" Tags folder
+set tags+=/home/mte90/.vim/tags
 " if a file is changed outside Vim, automatically re-read it
 set autoread
 
@@ -125,15 +121,13 @@ call vundle#begin()
     Plugin 'VundleVim/Vundle.vim'
     " KDE style theme
     Plugin 'fneu/breezy'
-    if has('nvim')
-        " LSP 
-        Plugin 'neovim/nvim-lspconfig'
-        Plugin 'halkn/lightline-lsp'
-        " Tree-Sitter
-        Plugin 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-        Plugin 'nvim-lua/completion-nvim'
-        Plugin 'nvim-treesitter/completion-treesitter'
-    endif
+    " LSP 
+    Plugin 'neovim/nvim-lspconfig'
+    Plugin 'halkn/lightline-lsp'
+    " Tree-Sitter
+    Plugin 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    Plugin 'nvim-lua/completion-nvim'
+    Plugin 'nvim-treesitter/completion-treesitter'
     " Auto cwd
     Plugin 'airblade/vim-rooter'
     if !exists('wordpress_mode')
@@ -175,14 +169,8 @@ call vundle#begin()
     Plugin 'sniphpets/sniphpets-common'
     Plugin 'sudar/vim-wordpress-snippets'
     " Autocomplete system in real time
-    if has('nvim')
-        Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-        Plugin 'Shougo/deoplete-lsp'
-    else
-        Plugin 'roxma/vim-hug-neovim-rpc'
-        Plugin 'roxma/nvim-yarp'
-        Plugin 'Shougo/deoplete.nvim'
-    endif
+    Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    Plugin 'Shougo/deoplete-lsp'
     Plugin 'mte90/deoplete-wp-hooks'
     if !exists('wordpress_mode')
         " markdown
@@ -195,10 +183,6 @@ call vundle#begin()
     Plugin 'inside/vim-search-pulse'
     " Split one-liner into multiple
     Plugin 'AndrewRadev/splitjoin.vim'
-    if !has('nvim')
-        " php doc autocompletion
-        Plugin 'tobyS/vmustache' | Plugin 'tobyS/pdv'
-    endif
     " chadtree
     Plugin 'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}
     " Status bar
@@ -207,17 +191,7 @@ call vundle#begin()
     Plugin 'itchyny/vim-gitbranch'
     Plugin 'fisle/vim-no-fixme'
     " object view
-    if !has('nvim')
-        " Tags are very important
-        Plugin 'ludovicchabant/vim-gutentags'
-        Plugin 'majutsushi/tagbar'
-        Plugin 'hushicai/tagbar-javascript.vim'
-        Plugin 'mtscout6/vim-tagbar-css'
-        " PHPctags support
-        Plugin 'vim-php/tagbar-phpctags.vim'
-    else
-        Plugin 'liuchengxu/vista.vim'
-    endif
+    Plugin 'liuchengxu/vista.vim'
     " fzf - poweful search
     Plugin 'junegunn/fzf'
     Plugin 'junegunn/fzf.vim' 
@@ -238,46 +212,17 @@ call vundle#begin()
     Plugin 'wakatime/vim-wakatime'
     " EditorConfig support
     Plugin 'editorconfig/editorconfig-vim'
-    if !has('nvim')
-        " PHP syntax
-        Plugin 'StanAngeloff/php.vim'
-        Plugin 'arnaud-lb/vim-php-namespace'
-        Plugin '2072/vim-syntax-for-PHP.git'
-        Plugin 'nishigori/vim-php-dictionary'
-        Plugin '2072/PHP-Indenting-for-VIm'
-        Plugin 'captbaritone/better-indent-support-for-php-with-html'
-    endif
     " xDebug support
     Plugin 'vim-vdebug/vdebug'
     " Comments
     Plugin 'scrooloose/nerdcommenter'
     " Web
     Plugin 'mattn/emmet-vim'
-    if !has('nvim')
-        Plugin 'othree/html5.vim'
-        Plugin 'hail2u/vim-css3-syntax'
-        Plugin 'othree/csscomplete.vim'
-        " Javascript
-        Plugin 'pangloss/vim-javascript'
-        Plugin 'othree/javascript-libraries-syntax.vim'
-        Plugin '1995eaton/vim-better-javascript-completion'
-    endif
     Plugin 'mklabs/grunt.vim'
     if !exists('wordpress_mode')
         Plugin 'moll/vim-node'
-        if !has('nvim')
-            " Syntax highlighting for vue js framework
-            Plugin 'posva/vim-vue'
-        endif
         " Syntax highlighting for webapi
         Plugin 'mattn/webapi-vim'
-        if !has('nvim')
-            Plugin 'stephpy/vim-yaml'
-        endif
-    endif
-    if !has('nvim')
-        " Syntax highlighting for json
-        Plugin 'elzr/vim-json'
     endif
     " Open docs on K
     Plugin 'rhysd/devdocs.vim'
@@ -291,15 +236,10 @@ endif
 source /home/mte90/.vim/custom/custom-lightline.vim
 source /home/mte90/.vim/custom/custom-deoplete.vim
 source /home/mte90/.vim/custom/custom-ale.vim
-if !has('nvim')
-    source /home/mte90/.vim/custom/custom-gutentags.vim
-endif
 source /home/mte90/.vim/custom/custom-fzf.vim
-if has('nvim')
-    source /home/mte90/.vim/custom/custom-lsp.vim
-    source /home/mte90/.vim/custom/custom-ts.vim
-    source /home/mte90/.vim/custom/custom-vista.vim
-endif
+source /home/mte90/.vim/custom/custom-lsp.vim
+source /home/mte90/.vim/custom/custom-ts.vim
+source /home/mte90/.vim/custom/custom-vista.vim
 
 " https://www.reddit.com/r/neovim/comments/gofplz/neovim_has_added_the_ability_to_highlight_yanked/
 augroup highlight_yank
@@ -311,10 +251,6 @@ augroup default
     " Add support of stuff on different files
     autocmd BufReadPost * if line("'\"") && line("'\"") <= line("$") | exe "normal `\"" | endif
     autocmd BufRead,BufNewFile jquery.*.js set ft=javascript syntax=jquery
-    if !has('nvim')
-        autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
-        autocmd FileType css set omnifunc=csscomplete#CompleteCSS
-    endif
     autocmd FileType php set tabstop=4 
     autocmd FileType php.wordpress set tabstop=4
     autocmd FileType javascript set tabstop=2 shiftwidth=2
@@ -343,19 +279,9 @@ let g:rooter_silent_chdir  = 1
 let g:user_emmet_install_global = 1
 " Editorconfig
 let g:EditorConfig_exclude_patterns = ['fugitive://.*']
-if !has('nvim')
-    " PhpDoc
-    let g:pdv_template_dir = $HOME .'/.vim/bundle/pdv/templates_snip'
-endif
 " Ultisnip
 let g:UltiSnipsEditSplit = 'vertical'
 let g:UltiSnipsExpandTrigger='<tab>'
-if !has('nvim')
-    " JS smart complete
-    let g:vimjs#smartcomplete = 1
-    " php
-    let g:PHP_autoformatcomment = 1
-endif
 " Indent lines
 let g:indentLine_fileTypeExclude = ['help', 'chadtree', 'startify', 'fzf', 'tagbar']
 let g:indentLine_char = '┊'
@@ -366,24 +292,6 @@ let g:NERDCommentEmptyLines = 1
 let g:NERDTrimTrailingWhitespace = 1
 let g:NERDCreateDefaultMappings = 0
 let g:NERDToggleCheckAllLines = 1
-if !has('nvim')
-" Tagbar
-    let g:tagbar_width = 30
-    let g:tagbar_indent = 1
-    let g:tagbar_autoshowtag = 2
-    let g:tagbar_singleclick = 1
-    let g:tagbar_sort = 1
-    let g:tagbar_type_php  = {
-        \ 'kinds'     : [
-            \ 'i:interfaces',
-            \ 'c:classes',
-            \ 'd:constant definitions',
-            \ 'f:functions',
-            \ 'j:javascript functions:1',
-            \ 'v:variables:1'
-        \ ]
-    \ }
-endif
 
 " Browser to open the devdocs
 let g:devdocs_open_cmd = 'firefox'
@@ -451,7 +359,7 @@ nmap <expr> <2-LeftMouse> 'za'
 " Search in the project files
 nmap <leader>f :Rg<space>
 " Object view
-nmap <C-t> :Vista!! nvim_lsp<CR>
+nmap <C-t> :Vista nvim_lsp<CR>
 " File list with fzf
 nmap <leader>x :Files<CR>
 " Emmett
