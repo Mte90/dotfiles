@@ -1,6 +1,7 @@
 " based on https://github.com/phongnh/lightline-settings.vim/blob/master/plugin/lightline_settings.vim
 let s:filename_modes = {
             \ '__Tagbar__':           'Tagbar',
+            \ 'Vista':           '__vista__',
             \ '[BufExplorer]':        'BufExplorer',
             \ '[Command Line]':       'Command Line',
             \ '[Plugins]':            'Plugins',
@@ -10,6 +11,7 @@ let s:filename_modes = {
 let s:filetype_modes = {
             \ 'netrw':         'NetrwTree',
             \ 'chaddtree':     'CHADTree',
+            \ 'vista':     'Vista',
             \ 'startify':      'Startify',
             \ 'vimshell':      'VimShell',
             \ 'help':          'Help',
@@ -183,6 +185,11 @@ endfunction
 function! FileNameWithIcon() abort
   return winwidth(0) > 70  ? luaeval("require'nvim-web-devicons'.get_icon(_A[1], _A[2], { default = true })", [expand('%:t'), expand('%:e')]) . ' ' . expand('%:e') : '' 
 endfunction
+
+function! NearestMethodOrFunction() abort
+  return get(b:, 'vista_nearest_method_or_function', '')
+endfunction
+
 
 let g:lightline = {
     \ 'colorscheme': 'breezy',
