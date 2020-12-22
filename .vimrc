@@ -125,13 +125,15 @@ call vundle#begin()
     Plugin 'VundleVim/Vundle.vim'
     " KDE style theme
     Plugin 'fneu/breezy'
-    " LSP 
-    Plugin 'neovim/nvim-lspconfig'
-    Plugin 'halkn/lightline-lsp'
-    " Tree-Sitter
-    Plugin 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-    Plugin 'nvim-lua/completion-nvim'
-    Plugin 'nvim-treesitter/completion-treesitter'
+    if has('nvim')
+        " LSP 
+        Plugin 'neovim/nvim-lspconfig'
+        Plugin 'halkn/lightline-lsp'
+        " Tree-Sitter
+        Plugin 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+        Plugin 'nvim-lua/completion-nvim'
+        Plugin 'nvim-treesitter/completion-treesitter'
+    endif
     " Auto cwd
     Plugin 'airblade/vim-rooter'
     if !exists('wordpress_mode')
@@ -293,8 +295,11 @@ if !has('nvim')
     source /home/mte90/.vim/custom/custom-gutentags.vim
 endif
 source /home/mte90/.vim/custom/custom-fzf.vim
-source /home/mte90/.vim/custom/custom-lsp.vim
-source /home/mte90/.vim/custom/custom-ts.vim
+if has('nvim')
+    source /home/mte90/.vim/custom/custom-lsp.vim
+    source /home/mte90/.vim/custom/custom-ts.vim
+    source /home/mte90/.vim/custom/custom-vista.vim
+endif
 
 " https://www.reddit.com/r/neovim/comments/gofplz/neovim_has_added_the_ability_to_highlight_yanked/
 augroup highlight_yank
@@ -379,6 +384,7 @@ if !has('nvim')
         \ ]
     \ }
 endif
+
 " Browser to open the devdocs
 let g:devdocs_open_cmd = 'firefox'
 " Trigger a highlight only when pressing f and F.
@@ -445,7 +451,7 @@ nmap <expr> <2-LeftMouse> 'za'
 " Search in the project files
 nmap <leader>f :Rg<space>
 " Object view
-nmap <C-t> :Vista nvim_lsp<CR>
+nmap <C-t> :Vista!! nvim_lsp<CR>
 " File list with fzf
 nmap <leader>x :Files<CR>
 " Emmett

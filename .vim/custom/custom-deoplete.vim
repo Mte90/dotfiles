@@ -14,10 +14,10 @@ call deoplete#custom#option({
 "  Other stuff
 call deoplete#custom#option('sources', {
 		\ '_': ['buffer'],
-		\ 'php': [ 'lsp', 'wp-hooks', 'ultisnips'],
-		\ 'css': ['omni', 'ultisnips'],
-		\ 'js': ['omni', 'ultisnips'],
-		\ 'html': ['omni', 'ultisnips'],
+		\ 'php': ['wp-hooks', 'ultisnips', 'lsp'],
+		\ 'css': ['lsp', 'ultisnips'],
+		\ 'js': ['lsp', 'ultisnips'],
+		\ 'html': ['lsp', 'ultisnips'],
 \})
 function! s:check_back_space() abort "{{{
     let col = col('.') - 1

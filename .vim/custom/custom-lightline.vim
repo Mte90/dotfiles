@@ -187,7 +187,7 @@ endfunction
 let g:lightline = {
     \ 'colorscheme': 'breezy',
     \ 'active': {
-    \   'left': [['mode', 'paste'], ['filename', 'modified'], ['gitbranch']],
+    \   'left': [['mode', 'paste'], ['filename', 'modified', 'method'], ['gitbranch']],
     \   'right': [['filetype', 'readonly'], ['nofixme', 'gitstatus'], [ 'lsp_errors', 'lsp_warnings', 'lsp_ok', 'linter_errors', 'linter_warnings', 'linter_ok' ]]
     \ },
     \ 'inactive': {
@@ -203,8 +203,9 @@ let g:lightline = {
     \ 'component_function': {
     \   'filetype':  'FileNameWithIcon',
     \   'mode':      'LightlineModeAndClipboard',
-    \   'readonly': 'LightlineReadonly',
+    \   'readonly':  'LightlineReadonly',
     \   'filename':  'LightlineFilename',
+    \   'method':    'NearestMethodOrFunction',
     \   'gitbranch': 'gitbranch#name'
     \ },
     \ 'component_expand': {

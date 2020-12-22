@@ -70,6 +70,10 @@ nvim_lsp.intelephense.setup({
         };
     }; 
 });
+
+require'lspconfig'.cssls.setup{}
+require'lspconfig'.html.setup{}
+require'lspconfig'.bashls.setup{}
 EOF
 
 au User lsp_setup call lsp#register_server({
