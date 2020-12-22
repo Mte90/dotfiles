@@ -91,7 +91,7 @@ set listchars=tab:»·,trail:·,nbsp:·,precedes:«,extends:»
 set wildmenu " Command line completion help
 " Set color
 set guifont=Droid\ Sans\ Mono\ Nerd\ Font:h10
-colorscheme valloric
+set background=light
 " exclusions from the autocomplete menu
 set wildoptions=tagfile
 if has('nvim')
@@ -112,8 +112,10 @@ set wildignore+=*.zip,*.tar.gz,*.tar.bz2,*.rar,*.tar.xz
 set wildignore+=*.swp,*~,._*,*/vendor/cache/*,*/.sass-cache/*
 set wildignore+=*/public/assets/*,*/tmp/cache/assets/*/sass/*
 set wildignore+=*DS_Store*
-" Tags folder
-set tags+=/home/mte90/.vim/tags
+if has('nvim')
+    " Tags folder
+    set tags+=/home/mte90/.vim/tags
+endif
 " if a file is changed outside Vim, automatically re-read it
 set autoread
 
@@ -121,11 +123,15 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
     " Package manager
     Plugin 'VundleVim/Vundle.vim'
+    " KDE style theme
+    Plugin 'fneu/breezy'
     " LSP 
     Plugin 'neovim/nvim-lspconfig'
     Plugin 'halkn/lightline-lsp'
     " Tree-Sitter
     Plugin 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    Plugin 'nvim-lua/completion-nvim'
+    Plugin 'nvim-treesitter/completion-treesitter'
     " Auto cwd
     Plugin 'airblade/vim-rooter'
     if !exists('wordpress_mode')
@@ -166,8 +172,6 @@ call vundle#begin()
     Plugin 'sniphpets/sniphpets-phpunit'
     Plugin 'sniphpets/sniphpets-common'
     Plugin 'sudar/vim-wordpress-snippets'
-    Plugin 'thomasfaingnaert/vim-lsp-snippets'
-    Plugin 'thomasfaingnaert/vim-lsp-ultisnips'
     " Autocomplete system in real time
     if has('nvim')
         Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
@@ -196,19 +200,22 @@ call vundle#begin()
     " chadtree
     Plugin 'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}
     " Status bar
-    Plugin 'jacoborus/tender.vim'
     Plugin 'itchyny/lightline.vim'
     Plugin 'macthecadillac/lightline-gitdiff'
     Plugin 'itchyny/vim-gitbranch'
     Plugin 'fisle/vim-no-fixme'
-    " Tags are very important
-    Plugin 'ludovicchabant/vim-gutentags'
     " object view
-    Plugin 'majutsushi/tagbar'
-    Plugin 'hushicai/tagbar-javascript.vim'
-    Plugin 'mtscout6/vim-tagbar-css'
-    " PHPctags support
-    Plugin 'vim-php/tagbar-phpctags.vim'
+    if !has('nvim')
+        " Tags are very important
+        Plugin 'ludovicchabant/vim-gutentags'
+        Plugin 'majutsushi/tagbar'
+        Plugin 'hushicai/tagbar-javascript.vim'
+        Plugin 'mtscout6/vim-tagbar-css'
+        " PHPctags support
+        Plugin 'vim-php/tagbar-phpctags.vim'
+    else
+        Plugin 'liuchengxu/vista.vim'
+    endif
     " fzf - poweful search
     Plugin 'junegunn/fzf'
     Plugin 'junegunn/fzf.vim' 
@@ -216,8 +223,12 @@ call vundle#begin()
     Plugin 'SirJson/sd.vim'
     " display the hexadecimal colors - useful for css and color config
     Plugin 'RRethy/vim-hexokinase'
-    " Cool icons"
-    Plugin 'ryanoasis/vim-devicons'
+    " Cool icons
+    if !has('nvim')
+        Plugin 'ryanoasis/vim-devicons'
+    else
+        Plugin 'kyazdani42/nvim-web-devicons'
+    endif
     " Report lint errors
     Plugin 'dense-analysis/ale'
     Plugin 'maximbaz/lightline-ale'
@@ -244,9 +255,7 @@ call vundle#begin()
         Plugin 'othree/html5.vim'
         Plugin 'hail2u/vim-css3-syntax'
         Plugin 'othree/csscomplete.vim'
-    endif
-    " Javascript
-    if !has('nvim')
+        " Javascript
         Plugin 'pangloss/vim-javascript'
         Plugin 'othree/javascript-libraries-syntax.vim'
         Plugin '1995eaton/vim-better-javascript-completion'
@@ -272,13 +281,17 @@ call vundle#begin()
     Plugin 'rhysd/devdocs.vim'
 call vundle#end()
 
+colorscheme breezy
+
 if !exists('wordpress_mode')
     source /home/mte90/.vim/custom/custom-startify.vim
 endif
 source /home/mte90/.vim/custom/custom-lightline.vim
 source /home/mte90/.vim/custom/custom-deoplete.vim
 source /home/mte90/.vim/custom/custom-ale.vim
-source /home/mte90/.vim/custom/custom-gutentags.vim
+if !has('nvim')
+    source /home/mte90/.vim/custom/custom-gutentags.vim
+endif
 source /home/mte90/.vim/custom/custom-fzf.vim
 source /home/mte90/.vim/custom/custom-lsp.vim
 source /home/mte90/.vim/custom/custom-ts.vim
@@ -293,8 +306,10 @@ augroup default
     " Add support of stuff on different files
     autocmd BufReadPost * if line("'\"") && line("'\"") <= line("$") | exe "normal `\"" | endif
     autocmd BufRead,BufNewFile jquery.*.js set ft=javascript syntax=jquery
-    autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
-    autocmd FileType css set omnifunc=csscomplete#CompleteCSS
+    if !has('nvim')
+        autocmd FileType html set omnifunc=htmlcomplete#CompleteTags
+        autocmd FileType css set omnifunc=csscomplete#CompleteCSS
+    endif
     autocmd FileType php set tabstop=4 
     autocmd FileType php.wordpress set tabstop=4
     autocmd FileType javascript set tabstop=2 shiftwidth=2
@@ -323,15 +338,19 @@ let g:rooter_silent_chdir  = 1
 let g:user_emmet_install_global = 1
 " Editorconfig
 let g:EditorConfig_exclude_patterns = ['fugitive://.*']
-" PhpDoc
-let g:pdv_template_dir = $HOME .'/.vim/bundle/pdv/templates_snip'
+if !has('nvim')
+    " PhpDoc
+    let g:pdv_template_dir = $HOME .'/.vim/bundle/pdv/templates_snip'
+endif
 " Ultisnip
 let g:UltiSnipsEditSplit = 'vertical'
 let g:UltiSnipsExpandTrigger='<tab>'
-" JS smart complete
-let g:vimjs#smartcomplete = 1
-" php
-let g:PHP_autoformatcomment = 1
+if !has('nvim')
+    " JS smart complete
+    let g:vimjs#smartcomplete = 1
+    " php
+    let g:PHP_autoformatcomment = 1
+endif
 " Indent lines
 let g:indentLine_fileTypeExclude = ['help', 'chadtree', 'startify', 'fzf', 'tagbar']
 let g:indentLine_char = '┊'
@@ -342,22 +361,24 @@ let g:NERDCommentEmptyLines = 1
 let g:NERDTrimTrailingWhitespace = 1
 let g:NERDCreateDefaultMappings = 0
 let g:NERDToggleCheckAllLines = 1
+if !has('nvim')
 " Tagbar
-let g:tagbar_width = 30
-let g:tagbar_indent = 1
-let g:tagbar_autoshowtag = 2
-let g:tagbar_singleclick = 1
-let g:tagbar_sort = 1
-let g:tagbar_type_php  = {
-    \ 'kinds'     : [
-        \ 'i:interfaces',
-        \ 'c:classes',
-        \ 'd:constant definitions',
-        \ 'f:functions',
-        \ 'j:javascript functions:1',
-        \ 'v:variables:1'
-    \ ]
-\ }
+    let g:tagbar_width = 30
+    let g:tagbar_indent = 1
+    let g:tagbar_autoshowtag = 2
+    let g:tagbar_singleclick = 1
+    let g:tagbar_sort = 1
+    let g:tagbar_type_php  = {
+        \ 'kinds'     : [
+            \ 'i:interfaces',
+            \ 'c:classes',
+            \ 'd:constant definitions',
+            \ 'f:functions',
+            \ 'j:javascript functions:1',
+            \ 'v:variables:1'
+        \ ]
+    \ }
+endif
 " Browser to open the devdocs
 let g:devdocs_open_cmd = 'firefox'
 " Trigger a highlight only when pressing f and F.
@@ -424,7 +445,7 @@ nmap <expr> <2-LeftMouse> 'za'
 " Search in the project files
 nmap <leader>f :Rg<space>
 " Object view
-nmap <C-t> :TagbarToggle<CR>
+nmap <C-t> :Vista nvim_lsp<CR>
 " File list with fzf
 nmap <leader>x :Files<CR>
 " Emmett

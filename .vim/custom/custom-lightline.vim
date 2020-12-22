@@ -179,14 +179,15 @@ function! LightlineFileencoding() abort
     return ''
 endfunction
 
-function! WDIFileType()
-  return winwidth(0) > 70 ? (strlen(&filetype) ? &filetype . ' ' . WebDevIconsGetFileTypeSymbol() : 'no ft') : ''
+" https://github.com/skbolton/titan/blob/4c306d82697cedc0952d1c36f7174076abf81c4d/nvim/nvim/status-line.vim
+function! FileNameWithIcon() abort
+  return winwidth(0) > 70  ? luaeval("require'nvim-web-devicons'.get_icon(_A[1], _A[2], { default = true })", [expand('%:t'), expand('%:e')]) . ' ' . expand('%:e') : '' 
 endfunction
 
 let g:lightline = {
-    \ 'colorscheme': 'tender',
+    \ 'colorscheme': 'breezy',
     \ 'active': {
-    \   'left': [['mode', 'paste'], ['filename', 'modified'], ['tagbar', 'gitbranch']],
+    \   'left': [['mode', 'paste'], ['filename', 'modified'], ['gitbranch']],
     \   'right': [['filetype', 'readonly'], ['nofixme', 'gitstatus'], [ 'lsp_errors', 'lsp_warnings', 'lsp_ok', 'linter_errors', 'linter_warnings', 'linter_ok' ]]
     \ },
     \ 'inactive': {
@@ -194,14 +195,13 @@ let g:lightline = {
     \   'right': [['filetype']]
     \ },
     \ 'component': {
-    \   'tagbar': '%{tagbar#currenttag("[%s]", "", "f")}',
     \   'gitstatus': '%<%{lightline_gitdiff#get_status()}',
     \ },
     \ 'component_visible_condition': {
     \   'gitstatus': 'lightline_gitdiff#get_status() !=# ""',
     \ },
     \ 'component_function': {
-    \   'filetype':  'WDIFileType',
+    \   'filetype':  'FileNameWithIcon',
     \   'mode':      'LightlineModeAndClipboard',
     \   'readonly': 'LightlineReadonly',
     \   'filename':  'LightlineFilename',
