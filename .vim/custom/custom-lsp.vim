@@ -81,3 +81,9 @@ au User lsp_setup call lsp#register_server({
      \ 'cmd': '/home/mte90/.composer/vendor/bin/psalm-language-server',
      \ 'whitelist': ['php'],
      \ })
+
+au User lsp_setup call lsp#register_server({
+     \ 'name': 'kite',
+     \ 'cmd': '~/.local/share/kite/current/kite-lsp --editor=vim',
+     \ 'whitelist': ["php", "javascript", "python", "bash"],
+     \ })

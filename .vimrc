@@ -90,7 +90,7 @@ set list
 set listchars=tab:»·,trail:·,nbsp:·,precedes:«,extends:»
 set wildmenu " Command line completion help
 " Set color
-set guifont=Droid\ Sans\ Mono\ Nerd\ Font:h10
+set guifont=DroidSansMono\ Nerd\ Font:h10
 set background=light
 " exclusions from the autocomplete menu
 set wildoptions=tagfile
@@ -115,120 +115,113 @@ set tags+=/home/mte90/.vim/tags
 " if a file is changed outside Vim, automatically re-read it
 set autoread
 
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
-    " Package manager
-    Plugin 'VundleVim/Vundle.vim'
+call plug#begin('~/.vim/plugged')
     " KDE style theme
-    Plugin 'fneu/breezy'
+    Plug 'fneu/breezy'
     " LSP 
-    Plugin 'neovim/nvim-lspconfig'
-    Plugin 'halkn/lightline-lsp'
+    Plug 'neovim/nvim-lspconfig'
+    Plug 'halkn/lightline-lsp'
     " Tree-Sitter
-    Plugin 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-    Plugin 'nvim-lua/completion-nvim'
-    Plugin 'nvim-treesitter/completion-treesitter'
+    Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+    Plug 'nvim-lua/completion-nvim'
+    Plug 'nvim-treesitter/completion-treesitter'
+    Plug 'romgrk/nvim-treesitter-context'
     " Auto cwd
-    Plugin 'airblade/vim-rooter'
+    Plug 'airblade/vim-rooter'
     if !exists('wordpress_mode')
         " startify for a cool home page
-        Plugin 'mhinz/vim-startify'
+        Plug 'mhinz/vim-startify'
     endif
     " Show "Match 123 of 456 /search term/" in Vim searches
-    Plugin 'henrik/vim-indexed-search'
+    Plug 'henrik/vim-indexed-search'
     " wrapper for git
-    Plugin 'tpope/vim-fugitive'
-    Plugin 'f-person/git-blame.nvim'
+    Plug 'tpope/vim-fugitive'
+    Plug 'f-person/git-blame.nvim'
     " display git diff in the left gutter
-    Plugin 'airblade/vim-gitgutter'
+    Plug 'airblade/vim-gitgutter'
     " Always highlight enclosing tags
-    Plugin 'andymass/vim-matchup'
+    Plug 'andymass/vim-matchup'
     " close tags on </
-    Plugin 'docunext/closetag.vim'
+    Plug 'docunext/closetag.vim'
     if !exists('g:GuiLoaded')
         " Better terminal detection
-        Plugin 'wincent/terminus'
+        Plug 'wincent/terminus'
     endif
     " Indentation is very helpful
-    Plugin 'Yggdroot/indentLine'
+    Plug 'Yggdroot/indentLine'
     " Rainbow Parentheses Improved
-    Plugin 'luochen1990/rainbow'
+    Plug 'luochen1990/rainbow'
     " Folding fast is important
-    Plugin 'Konfekt/FastFold'
+    Plug 'Konfekt/FastFold'
     " Move block of code
-    Plugin 'matze/vim-move'
+    Plug 'matze/vim-move'
     " Improve scrolloff area
-    Plugin 'drzel/vim-scroll-off-fraction'
+    Plug 'drzel/vim-scroll-off-fraction'
     " Underlines the words under your cursor
-    Plugin 'itchyny/vim-cursorword'
+    Plug 'itchyny/vim-cursorword'
     " Snippets engine and... snippets!
-    Plugin 'SirVer/ultisnips'
-    Plugin 'honza/vim-snippets'
-    Plugin 'sniphpets/sniphpets'
-    Plugin 'sniphpets/sniphpets-phpunit'
-    Plugin 'sniphpets/sniphpets-common'
-    Plugin 'sudar/vim-wordpress-snippets'
+    Plug 'SirVer/ultisnips'
+    Plug 'honza/vim-snippets'
+    Plug 'sniphpets/sniphpets', { 'for' : ['php'] }
+    Plug 'sniphpets/sniphpets-phpunit', { 'for' : ['php'] }
+    Plug 'sniphpets/sniphpets-common', { 'for' : ['php'] }
     " Autocomplete system in real time
-    Plugin 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
-    Plugin 'Shougo/deoplete-lsp'
-    Plugin 'mte90/deoplete-wp-hooks'
+    Plug 'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }
+    Plug 'Shougo/deoplete-lsp'
+    Plug 'mte90/deoplete-wp-hooks'
     if !exists('wordpress_mode')
         " markdown
-        Plugin 'godlygeek/tabular'
-        Plugin 'plasticboy/vim-markdown'
+        Plug 'godlygeek/tabular', { 'for' : ['markdown'] }
+        Plug 'plasticboy/vim-markdown', { 'for' : ['markdown'] }
     endif
     " highlights which characters to target
-    Plugin 'unblevable/quick-scope'
+    Plug 'unblevable/quick-scope'
     " Search pulse
-    Plugin 'inside/vim-search-pulse'
+    Plug 'inside/vim-search-pulse'
     " Split one-liner into multiple
-    Plugin 'AndrewRadev/splitjoin.vim'
+    Plug 'AndrewRadev/splitjoin.vim'
     " chadtree
-    Plugin 'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}
+    Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}
     " Status bar
-    Plugin 'itchyny/lightline.vim'
-    Plugin 'macthecadillac/lightline-gitdiff'
-    Plugin 'itchyny/vim-gitbranch'
-    Plugin 'fisle/vim-no-fixme'
+    Plug 'itchyny/lightline.vim'
+    Plug 'macthecadillac/lightline-gitdiff'
+    Plug 'itchyny/vim-gitbranch'
+    Plug 'mte90/vim-no-fixme'
     " object view
-    Plugin 'liuchengxu/vista.vim'
+    Plug 'liuchengxu/vista.vim'
     " fzf - poweful search
-    Plugin 'junegunn/fzf'
-    Plugin 'junegunn/fzf.vim' 
+    Plug 'junegunn/fzf'
+    Plug 'junegunn/fzf.vim' 
     " Wrapper for sd
-    Plugin 'SirJson/sd.vim'
+    Plug 'SirJson/sd.vim'
     " display the hexadecimal colors - useful for css and color config
-    Plugin 'RRethy/vim-hexokinase'
+    Plug 'RRethy/vim-hexokinase'
     " Cool icons
-    if !has('nvim')
-        Plugin 'ryanoasis/vim-devicons'
-    else
-        Plugin 'kyazdani42/nvim-web-devicons'
-    endif
+    Plug 'kyazdani42/nvim-web-devicons'
     " Report lint errors
-    Plugin 'dense-analysis/ale'
-    Plugin 'maximbaz/lightline-ale'
+    Plug 'dense-analysis/ale'
+    Plug 'maximbaz/lightline-ale'
     " Wakatime
-    Plugin 'wakatime/vim-wakatime'
+    Plug 'wakatime/vim-wakatime'
     " EditorConfig support
-    Plugin 'editorconfig/editorconfig-vim'
+    Plug 'editorconfig/editorconfig-vim'
     " xDebug support
-    Plugin 'vim-vdebug/vdebug'
+    Plug 'vim-vdebug/vdebug', { 'for' : ['php'] }
     " Comments
-    Plugin 'scrooloose/nerdcommenter'
+    Plug 'scrooloose/nerdcommenter'
     " Web
-    Plugin 'mattn/emmet-vim'
-    Plugin 'mklabs/grunt.vim'
+    Plug 'mattn/emmet-vim'
+    Plug 'mklabs/grunt.vim', { 'for' : ['javascript'] }
     if !exists('wordpress_mode')
-        Plugin 'moll/vim-node'
+        Plug 'moll/vim-node', { 'for' : ['javascript'] }
         " Syntax highlighting for webapi
-        Plugin 'mattn/webapi-vim'
+        Plug 'mattn/webapi-vim', { 'for' : ['javascript'] }
     endif
     " Open docs on K
-    Plugin 'rhysd/devdocs.vim'
-call vundle#end()
+    Plug 'rhysd/devdocs.vim'
+call plug#end()
 
-colorscheme breezy
+colorscheme valloric
 
 if !exists('wordpress_mode')
     source /home/mte90/.vim/custom/custom-startify.vim
