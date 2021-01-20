@@ -143,6 +143,8 @@ call plug#begin('~/.vim/plugged')
     Plug 'andymass/vim-matchup'
     " close tags on </
     Plug 'docunext/closetag.vim'
+    " jump to definition
+    Plug 'pechorin/any-jump.vim'
     if !exists('g:GuiLoaded')
         " Better terminal detection
         Plug 'wincent/terminus'
@@ -186,7 +188,7 @@ call plug#begin('~/.vim/plugged')
     Plug 'itchyny/lightline.vim'
     Plug 'macthecadillac/lightline-gitdiff'
     Plug 'itchyny/vim-gitbranch'
-    Plug 'mte90/vim-no-fixme'
+    Plug 'mte90/vim-no-fixme', {'branch': 'patch-1'}
     " object view
     Plug 'liuchengxu/vista.vim'
     " fzf - poweful search
@@ -210,15 +212,12 @@ call plug#begin('~/.vim/plugged')
     " Comments
     Plug 'scrooloose/nerdcommenter'
     " Web
-    Plug 'mattn/emmet-vim'
     Plug 'mklabs/grunt.vim', { 'for' : ['javascript'] }
     if !exists('wordpress_mode')
         Plug 'moll/vim-node', { 'for' : ['javascript'] }
         " Syntax highlighting for webapi
         Plug 'mattn/webapi-vim', { 'for' : ['javascript'] }
     endif
-    " Open docs on K
-    Plug 'rhysd/devdocs.vim'
 call plug#end()
 
 colorscheme valloric
@@ -268,8 +267,6 @@ let g:rainbow_active = 1
 let g:rooter_patterns = ['.git/', 'package.json', 'composer.json']
 let g:rooter_resolve_links = 1
 let g:rooter_silent_chdir  = 1
-" Emmett
-let g:user_emmet_install_global = 1
 " Editorconfig
 let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 " Ultisnip
@@ -285,21 +282,18 @@ let g:NERDCommentEmptyLines = 1
 let g:NERDTrimTrailingWhitespace = 1
 let g:NERDCreateDefaultMappings = 0
 let g:NERDToggleCheckAllLines = 1
-
-" Browser to open the devdocs
-let g:devdocs_open_cmd = 'firefox'
 " Trigger a highlight only when pressing f and F.
 let g:qs_highlight_on_keys = ['f']
 let g:qs_max_chars=80
 " Markdown
 let g:vim_markdown_folding_disabled = 1
-
+" Vdebug
 let g:vdebug_options = {
     \    'break_on_open' : 0,
     \    'ide_key' : 'VVVDEBUG'
     \}
 let g:vdebug_options.path_maps = {"/srv/www/": "/var/www/VVV/www/"}
-
+"Chadtree
 lua vim.api.nvim_set_var("chadtree_ignores", { name = {".*", ".git", "vendor", "node_modules"} })
 let g:chadtree_settings = {"keymap": { "tertiary": ["t"], 'trash': ['a'] }}
 let g:splitjoin_join_mapping = ''
@@ -341,10 +335,7 @@ cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W')
 " correct :Q to :q typo
 cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline() is# 'Q')?('q'):('Q'))
 
-" Replace all
-nnoremap <leader>r :exec "Rgi ".expand("<cword>")<cr>
 " Plugins custom mapping
-nmap K <Plug>(devdocs-under-cursor)
 " Open Folder tab current directory
 nmap <leader>n <cmd>CHADopen<cr>
 " Fold code open/close with click
@@ -355,8 +346,6 @@ nmap <leader>f :Rg<space>
 nmap <C-t> :Vista nvim_lsp<CR>
 " File list with fzf
 nmap <leader>x :Files<CR>
-" Emmett
-let g:user_emmet_leader_key=',' " ,,
 " navigate between errors
 nmap <silent> <C-k> <Plug>(ale_previous_wrap)
 nmap <silent> <C-j> <Plug>(ale_next_wrap)
