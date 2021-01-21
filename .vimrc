@@ -295,7 +295,7 @@ let g:vdebug_options = {
 let g:vdebug_options.path_maps = {"/srv/www/": "/var/www/VVV/www/"}
 "Chadtree
 lua vim.api.nvim_set_var("chadtree_ignores", { name = {".*", ".git", "vendor", "node_modules"} })
-let g:chadtree_settings = {"keymap": { "tertiary": ["t"], 'trash': ['a'] }}
+let g:chadtree_settings = {"keymap": { "tertiary": ["t"], 'trash': ['a'] }, "theme": {"text_colour_set": "solarized_dark"}}
 let g:splitjoin_join_mapping = ''
 
 " Internals mapping
