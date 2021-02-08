@@ -90,7 +90,6 @@ set list
 set listchars=tab:»·,trail:·,nbsp:·,precedes:«,extends:»
 set wildmenu " Command line completion help
 " Set color
-set guifont=DroidSansMono\ Nerd\ Font:h10
 set background=light
 " exclusions from the autocomplete menu
 set wildoptions=tagfile
@@ -176,12 +175,13 @@ call plug#begin('~/.vim/plugged')
         Plug 'godlygeek/tabular', { 'for' : ['markdown'] }
         Plug 'plasticboy/vim-markdown', { 'for' : ['markdown'] }
     endif
+    "Plug 'brooth/far.vim'
     " highlights which characters to target
     Plug 'unblevable/quick-scope'
     " Search pulse
     Plug 'inside/vim-search-pulse'
     " Split one-liner into multiple
-    Plug 'AndrewRadev/splitjoin.vim'
+    Plug 'AndrewRadev/splitjoin.vim', { 'branch': 'main' }
     " chadtree
     Plug 'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}
     " Status bar
