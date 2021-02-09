@@ -1,9 +1,9 @@
-lua << EOF
 -- composer global require php-stubs/wordpress-globals
 -- composer global require php-stubs/wordpress-stubs
 -- composer global require php-stubs/woocommerce-stubs
 local nvim_lsp = require'lspconfig'
-local util = require 'lspconfig/util'
+local configs  = require'lspconfig/configs'
+local util     = require'lspconfig/util'
 nvim_lsp.intelephense.setup({
     settings = {
         intelephense = {
@@ -71,12 +71,12 @@ nvim_lsp.intelephense.setup({
     }; 
 });
 
-require'lspconfig'.cssls.setup{}
-require'lspconfig'.html.setup{}
-require'lspconfig'.bashls.setup{}
-EOF
+nvim_lsp.cssls.setup{}
+nvim_lsp.html.setup{}
+nvim_lsp.bashls.setup{}
 
-au User lsp_setup call lsp#register_server({
+vim.api.nvim_command([[
+    au User lsp_setup call lsp#register_server({
      \ 'name': 'psalm-language-server',
      \ 'cmd': '/home/mte90/.composer/vendor/bin/psalm-language-server',
      \ 'whitelist': ['php'],
@@ -86,4 +86,5 @@ au User lsp_setup call lsp#register_server({
      \ 'name': 'kite',
      \ 'cmd': '~/.local/share/kite/current/kite-lsp --editor=vim',
      \ 'whitelist': ["php", "javascript", "python", "bash"],
-     \ })
+     \ })                   
+]]);

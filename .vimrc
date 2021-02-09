@@ -19,9 +19,12 @@ source /home/mte90/.vim/custom/custom-lightline.vim
 source /home/mte90/.vim/custom/custom-deoplete.vim
 source /home/mte90/.vim/custom/custom-ale.vim
 source /home/mte90/.vim/custom/custom-fzf.vim
-source /home/mte90/.vim/custom/custom-lsp.vim
-source /home/mte90/.vim/custom/custom-ts.vim
-source /home/mte90/.vim/custom/custom-vista.vim
+
+lua << EOF
+require('plugin.ts')
+require('plugin.lsp')
+require('plugin.vista')
+EOF
 
 " https://www.reddit.com/r/neovim/comments/gofplz/neovim_has_added_the_ability_to_highlight_yanked/
 augroup highlight_yank
