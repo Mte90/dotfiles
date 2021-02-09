@@ -12,6 +12,8 @@ plugins = {
     "'nvim-lua/completion-nvim'",
     "'nvim-treesitter/completion-treesitter'",
     "'romgrk/nvim-treesitter-context'", 
+    -- https://github.com/neovim/neovim/pull/13823
+    "'tjdevries/astronauta.nvim'",
     -- Auto cwd
     "'airblade/vim-rooter'",
     -- Show --Match 123 of 456 /search term/-- in Vim searches
@@ -103,7 +105,6 @@ vim.cmd[[call plug#begin('~/.vim/plugged')]]
     -- Better terminal detection
     vim.cmd("Plug 'wincent/terminus'")
   end
-    
   if vim.fn.exists("wordpress_mode") == 0 then
     -- markdown
     vim.cmd("Plug 'godlygeek/tabular', { 'for' : ['markdown'] }")
