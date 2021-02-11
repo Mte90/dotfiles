@@ -22,6 +22,7 @@ alias wpp='cd ./public_html/wp-content/plugins 2>/dev/null;cd ./public_html/buil
 alias wpt='cd ./public_html/wp-content/themes 2>/dev/null;cd ./public_html/build/wp-content/themes 2>/dev/null;cd ./wp-content/themes 2>/dev/null'
 # Misc
 alias biggest-10-files='BLOCKSIZE=1048576; du -x -h | sort -nr | head -10'
+#youtube-dl --extract-audio --audio-format mp3
 alias yt2mp3='youtube-dl -l -x --audio-format=mp3 -w -c'
 alias changedfiles="find . -type f -print0 | xargs -0 stat --format '%Z :%z %n' | sort -nr | cut -d: -f2- | head -n 20"
 alias kate='kate -b'
