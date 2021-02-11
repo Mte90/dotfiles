@@ -66,8 +66,10 @@ let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 let g:UltiSnipsEditSplit = 'vertical'
 let g:UltiSnipsExpandTrigger='<tab>'
 " Indent lines
-let g:indentLine_fileTypeExclude = ['help', 'chadtree', 'startify', 'fzf', 'tagbar']
-let g:indentLine_char = '┊'
+let g:indent_guides_exclude_filetypes = ['help', 'chadtree', 'startify', 'fzf', 'tagbar', 'vista']
+let g:indent_guides_enable_on_vim_startup = 1
+let g:indent_guides_guide_size = 1
+let g:indent_guides_color_change_percent = 3
 " Nerdcommenter for... better comments
 let g:NERDSpaceDelims = 1
 let g:NERDCompactSexyComs = 1

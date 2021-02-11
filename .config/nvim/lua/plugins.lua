@@ -30,7 +30,7 @@ plugins = {
     -- jump to definition
     "'pechorin/any-jump.vim'",
     -- Indentation is very helpful
-    "'Yggdroot/indentLine'",
+    "'nathanaelkane/vim-indent-guides'",
     -- Rainbow Parentheses Improved
     "'luochen1990/rainbow'",
     -- Folding fast is important

@@ -48,7 +48,7 @@ vim.api.nvim_command("cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline(
 
 -- Plugins custom mapping
 -- Open Folder tab current directory
-nmap { '<leader>n', ' <cmd>CHADopen<cr>' }
+nmap { '<leader>n', ' :CHADopen<CR>' }
 -- Fold code open/close with click
 nmap { '<expr> <2-LeftMouse>', 'za' }
 -- Search in the project files
