@@ -7,6 +7,7 @@ plugins = {
     -- LSP 
     "'neovim/nvim-lspconfig'",
     "'halkn/lightline-lsp'",
+    "'alexaandru/nvim-lspupdate'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'nvim-lua/completion-nvim'",

@@ -48,7 +48,7 @@ vim.api.nvim_command("cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline(
 
 -- Plugins custom mapping
 -- Open Folder tab current directory
-nmap { '<leader>n', ' :CHADopen<CR>' }
+nmap { '<leader>n', ':CHADopen<CR>' }
 -- Fold code open/close with click
 nmap { '<expr> <2-LeftMouse>', 'za' }
 -- Search in the project files
@@ -56,7 +56,7 @@ nmap { '<leader>f', ':Rg<space>' }
 -- Object view
 nmap { '<C-t>', ':Vista nvim_lsp<CR>' }
 -- File list with fzf
-nmap { '<leader>x', ' :Files<CR>' }
+nmap { '<leader>x', ':Files<CR>' }
 -- navigate between errors
 nmap { '<silent> <C-k>', '<Plug>(ale_previous_wrap)' }
 nmap { '<silent> <C-j>', '<Plug>(ale_next_wrap)' }
