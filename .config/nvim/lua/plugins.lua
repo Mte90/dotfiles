@@ -81,6 +81,8 @@ plugins = {
     "'maximbaz/lightline-ale'",
     -- Wakatime
     "'wakatime/vim-wakatime'",
+    -- Discord
+    "'andweeb/presence.nvim'",
     -- EditorConfig support
     "'editorconfig/editorconfig-vim'",
     -- xDebug support
