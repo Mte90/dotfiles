@@ -13,6 +13,9 @@ plugins = {
     "'nvim-lua/completion-nvim'",
     "'nvim-treesitter/completion-treesitter'",
     "'romgrk/nvim-treesitter-context'", 
+    -- xDebug support
+    "'mfussenegger/nvim-dap'",
+    "'theHamsta/nvim-dap-virtual-text'",
     -- https://github.com/neovim/neovim/pull/13823
     "'tjdevries/astronauta.nvim'",
     -- Auto cwd
@@ -79,14 +82,13 @@ plugins = {
     -- Report lint errors
     "'dense-analysis/ale'",
     "'maximbaz/lightline-ale'",
+    "'nathunsmitty/nvim-ale-diagnostic'",
     -- Wakatime
     "'wakatime/vim-wakatime'",
     -- Discord
     "'andweeb/presence.nvim'",
     -- EditorConfig support
     "'editorconfig/editorconfig-vim'",
-    -- xDebug support
-    "'vim-vdebug/vdebug', { 'for' : ['php'] }",
     -- Comments
     "'scrooloose/nerdcommenter'",
     -- Web

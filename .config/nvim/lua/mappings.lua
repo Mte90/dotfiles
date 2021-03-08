@@ -66,6 +66,12 @@ nmap { '<C-d>', '<plug>NERDCommenterToggle<CR>' }
 vmap { '<C-d>', '<plug>NERDCommenterToggle<CR>' }
 -- Append ; to the end of the line -> Leader+B
 map { '<leader>b', ":call setline('.', getline('.') . ';')<CR>" }
+-- DAP
+nnoremap { '<F5>', ":lua require'dap'.toggle_breakpoint()<CR>" }
+nnoremap { '<F6>', ":lua require'dap'.continue()<CR>" }
+nnoremap { '<F10>', ":lua require'dap'.step_over()<CR>" }
+nnoremap { '<F11>', ":lua require'dap'.step_into()<CR>" }
+nnoremap { '<F12>', ":lua require'dap'.step_out()<CR>" }
 -- https://www.cyberciti.biz/faq/how-to-reload-vimrc-file-without-restarting-vim-on-linux-unix/
 -- Edit vimrc configuration file
 nnoremap { 'confe', ':e $MYVIMRC<CR>' }
