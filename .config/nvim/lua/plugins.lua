@@ -7,7 +7,8 @@ plugins = {
     -- LSP 
     "'neovim/nvim-lspconfig'",
     "'halkn/lightline-lsp'",
-    "'alexaandru/nvim-lspupdate'",
+    "'kabouzeid/nvim-lspinstall'",
+    "'onsails/lspkind-nvim'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'nvim-lua/completion-nvim'",
@@ -20,13 +21,14 @@ plugins = {
     "'tjdevries/astronauta.nvim'",
     -- Auto cwd
     "'airblade/vim-rooter'",
+    "'nvim-lua/plenary.nvim'",
     -- Show --Match 123 of 456 /search term/-- in Vim searches
     "'henrik/vim-indexed-search'",
     -- wrapper for git
     "'tpope/vim-fugitive'",
     "'f-person/git-blame.nvim'",
     -- display git diff in the left gutter
-    "'airblade/vim-gitgutter'",
+    "'lewis6991/gitsigns.nvim'",
     -- Always highlight enclosing tags
     "'andymass/vim-matchup'",
     -- close tags on </

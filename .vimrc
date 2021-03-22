@@ -25,6 +25,7 @@ require('plugin.ts')
 require('plugin.lsp')
 require('plugin.vista')
 require('plugin.dap')
+require('plugin.gitsigns')
 EOF
 
 " https://www.reddit.com/r/neovim/comments/gofplz/neovim_has_added_the_ability_to_highlight_yanked/

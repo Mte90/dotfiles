@@ -1,4 +1,4 @@
-vim.g.dap_virtual_text = true
+
 -- https://github.com/xdebug/vscode-php-debug/releases
 -- Extract the vsix content
 local dap = require'dap'
@@ -13,11 +13,11 @@ dap.configurations.php = {
         type = 'php',
         request = 'launch',
         name = 'Listen for xdebug',
-        hostname = '0.0.0.0',
         port = '9003',
-        log = '/tmp/xdebug.log',
-        stopOnEntry = false,
+        log = true,
         serverSourceRoot = '/srv/www/',
-        localSourceRoot = '/var/www/VVV/www/',
+        localSourceRoot = '/home/www/VVV/www/',
     },
 }
+
+vim.g.dap_virtual_text = true
