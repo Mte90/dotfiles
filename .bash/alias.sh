@@ -22,8 +22,8 @@ alias wpp='cd ./public_html/wp-content/plugins 2>/dev/null;cd ./public_html/buil
 alias wpt='cd ./public_html/wp-content/themes 2>/dev/null;cd ./public_html/build/wp-content/themes 2>/dev/null;cd ./wp-content/themes 2>/dev/null'
 # Misc
 alias biggest-10-files='BLOCKSIZE=1048576; du -x -h | sort -nr | head -10'
-#youtube-dl --extract-audio --audio-format mp3
-alias yt2mp3='youtube-dl -l -x --audio-format=mp3 -w -c'
+#youtube-dl as mp3
+alias yt2mp3='youtube-dl -x --audio-format=mp3 -w -c -o "%(title)s-%(id)s.%(ext)s"'
 alias changedfiles="find . -type f -print0 | xargs -0 stat --format '%Z :%z %n' | sort -nr | cut -d: -f2- | head -n 20"
 alias kate='kate -b'
 
@@ -47,6 +47,8 @@ alias dotfiles="/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
 function git-merge-last-commits() { git reset --soft HEAD~$1 && git commit; }
 function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 # https://github.com/therealklanni/gdex, git-diff-branch
+
+alias nvim-qt="/home/mte90/Desktop/Prog/My-Scripts/misc/nvim-qt.py"
 
 # https://github.com/cykerway/complete-alias
 complete -F _complete_alias fzf
