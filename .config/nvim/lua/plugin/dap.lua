@@ -21,3 +21,4 @@ dap.configurations.php = {
 }
 
 vim.g.dap_virtual_text = true
+require("dapui").setup()

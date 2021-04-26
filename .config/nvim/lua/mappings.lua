@@ -54,9 +54,11 @@ nmap { '<expr> <2-LeftMouse>', 'za' }
 -- Search in the project files
 nmap { '<leader>f', ':Rg<space>' }
 -- Object view
-nmap { '<C-t>', ':Vista nvim_lsp<CR>' }
+nmap { '<C-t>', ':SymbolsOutline<CR>' }
 -- File list with fzf
 nmap { '<leader>x', ':Files<CR>' }
+-- Jump to definition under cursor
+nmap { '<leader>j', ':AnyJump<CR>' }
 -- navigate between errors
 nmap { '<silent> <C-k>', '<Plug>(ale_previous_wrap)' }
 nmap { '<silent> <C-j>', '<Plug>(ale_next_wrap)' }

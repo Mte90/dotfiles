@@ -4,3 +4,10 @@ require'nvim-treesitter.configs'.setup {
     enable = { "php", "javascript", "python", "bash", "yaml", "json", "html", "vue" },
   },
 } 
+
+local opts = {
+    highlight_hovered_item = true,
+    show_guides = true,
+}
+
+require('symbols-outline').setup(opts)

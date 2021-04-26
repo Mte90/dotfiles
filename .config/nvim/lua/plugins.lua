@@ -8,14 +8,20 @@ plugins = {
     "'neovim/nvim-lspconfig'",
     "'halkn/lightline-lsp'",
     "'kabouzeid/nvim-lspinstall'",
+    "'folke/lsp-colors.nvim'",
+    "'folke/lsp-trouble.nvim'",
+    "'onsails/lspkind-nvim'",
     "'onsails/lspkind-nvim'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'nvim-lua/completion-nvim'",
     "'nvim-treesitter/completion-treesitter'",
-    "'romgrk/nvim-treesitter-context'", 
+    "'haringsrob/nvim_context_vt'", 
+    -- object view
+    "'simrat39/symbols-outline.nvim'",
     -- xDebug support
     "'mfussenegger/nvim-dap'",
+    "'rcarriga/nvim-dap-ui'",
     "'theHamsta/nvim-dap-virtual-text'",
     -- https://github.com/neovim/neovim/pull/13823
     "'tjdevries/astronauta.nvim'",
@@ -70,8 +76,6 @@ plugins = {
     "'macthecadillac/lightline-gitdiff'",
     "'itchyny/vim-gitbranch'",
     "'mte90/vim-no-fixme', {'branch': 'patch-1'}",
-    -- object view
-    "'liuchengxu/vista.vim'",
     -- fzf - poweful search
     "'junegunn/fzf'",
     "'junegunn/fzf.vim'", 
