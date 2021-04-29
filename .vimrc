@@ -25,7 +25,6 @@ require('plugin.ts')
 require('plugin.lsp')
 require('plugin.dap')
 require('plugin.gitsigns')
-require('plugin.symbols-outline')
 require('plugin.nvim-comment')
 EOF
 
