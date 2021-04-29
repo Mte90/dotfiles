@@ -25,6 +25,8 @@ require('plugin.ts')
 require('plugin.lsp')
 require('plugin.dap')
 require('plugin.gitsigns')
+require('plugin.symbols-outline')
+require('plugin.nvim-comment')
 EOF
 
 " https://www.reddit.com/r/neovim/comments/gofplz/neovim_has_added_the_ability_to_highlight_yanked/
@@ -83,12 +85,6 @@ let g:qs_highlight_on_keys = ['f']
 let g:qs_max_chars=80
 " Markdown
 let g:vim_markdown_folding_disabled = 1
-" Vdebug
-let g:vdebug_options = {
-    \    'break_on_open' : 0,
-    \    'ide_key' : 'VVVDEBUG'
-    \}
-let g:vdebug_options.path_maps = {"/srv/www/": "/var/www/VVV/www/"}
 "Chadtree
 lua vim.api.nvim_set_var("chadtree_ignores", { name = {".*", ".git", "vendor", "node_modules"} })
 let g:chadtree_settings = {"keymap": { "tertiary": ["t"], 'trash': ['a'] }, "theme": {"text_colour_set": "solarized_dark"}}

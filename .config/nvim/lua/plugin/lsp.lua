@@ -4,6 +4,10 @@
 local nvim_lsp = require'lspconfig'
 local configs  = require'lspconfig/configs'
 local util     = require'lspconfig/util'
+local on_attach = function(client, bufnr)
+    require 'illuminate'.on_attach(client)
+end
+
 nvim_lsp.intelephense.setup({
     settings = {
         intelephense = {
@@ -68,12 +72,19 @@ nvim_lsp.intelephense.setup({
                 maxSize = 5000000;
             };
         };
-    }; 
+    },
+    on_attach = on_attach
 });
 
-nvim_lsp.cssls.setup{}
-nvim_lsp.html.setup{}
-nvim_lsp.bashls.setup{}
+nvim_lsp.cssls.setup{
+    on_attach = on_attach
+}
+nvim_lsp.html.setup{
+    on_attach = on_attach
+}
+nvim_lsp.bashls.setup{
+    on_attach = on_attach
+}
 
 vim.api.nvim_command([[
     au User lsp_setup call lsp#register_server({

@@ -18,8 +18,8 @@ plugins = {
     "'haringsrob/nvim_context_vt'", 
     -- object view
     "'simrat39/symbols-outline.nvim'",
-    -- close html tags
-    "'windwp/nvim-ts-autotag'",
+    -- Rainbow Parentheses
+    "'p00f/nvim-ts-rainbow'",
     -- xDebug support
     "'mfussenegger/nvim-dap'",
     "'rcarriga/nvim-dap-ui'",
@@ -36,14 +36,10 @@ plugins = {
     "'f-person/git-blame.nvim'",
     -- display git diff in the left gutter
     "'lewis6991/gitsigns.nvim'",
-    -- Always highlight enclosing tags
-    "'andymass/vim-matchup'",
-    -- jump to definition
-    "'pechorin/any-jump.vim'",
+    -- close html tags
+    "'windwp/nvim-ts-autotag'",
     -- Indentation is very helpful
     "'nathanaelkane/vim-indent-guides'",
-    -- Rainbow Parentheses Improved
-    "'luochen1990/rainbow'",
     -- Folding fast is important
     "'Konfekt/FastFold'",
     -- Move block of code
@@ -51,7 +47,7 @@ plugins = {
     -- Improve scrolloff area
     "'drzel/vim-scroll-off-fraction'",
     -- Underlines the words under your cursor
-    "'itchyny/vim-cursorword'",
+    "'RRethy/vim-illuminate'",
     -- Snippets engine and... snippets!
     "'SirVer/ultisnips'",
     "'honza/vim-snippets'",
@@ -81,7 +77,7 @@ plugins = {
     -- Wrapper for sd
     "'SirJson/sd.vim'",
     -- display the hexadecimal colors - useful for css and color config
-    "'RRethy/vim-hexokinase'",
+    "'norcalli/nvim-colorizer.lua'",
     -- Cool icons
     "'kyazdani42/nvim-web-devicons'",
     -- Report lint errors
@@ -95,7 +91,7 @@ plugins = {
     -- EditorConfig support
     "'editorconfig/editorconfig-vim'",
     -- Comments
-    "'scrooloose/nerdcommenter'",
+    "'terrortylor/nvim-comment'",
     -- Web
     "'mklabs/grunt.vim', { 'for' : ['javascript'] }"
     --Plug 'brooth/far.vim'

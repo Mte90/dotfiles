@@ -58,14 +58,11 @@ nmap { '<C-t>', ':SymbolsOutline<CR>' }
 -- File list with fzf
 nmap { '<leader>x', ':Files<CR>' }
 -- Jump to definition under cursor
-nmap { '<leader>j', ':AnyJump<CR>' }
+nmap { '<leader>j', '<cmd>lua vim.lsp.buf.definition()<cr>' }
 -- navigate between errors
 nmap { '<silent> <C-k>', '<Plug>(ale_previous_wrap)' }
 nmap { '<silent> <C-j>', '<Plug>(ale_next_wrap)' }
 nmap { '<silent> <C-q>', '<Plug>(ale_fix)' }
--- Toggle comments
-nmap { '<C-d>', '<plug>NERDCommenterToggle<CR>' }
-vmap { '<C-d>', '<plug>NERDCommenterToggle<CR>' }
 -- Append ; to the end of the line -> Leader+B
 map { '<leader>b', ":call setline('.', getline('.') . ';')<CR>" }
 -- DAP
