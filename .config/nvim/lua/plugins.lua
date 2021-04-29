@@ -11,6 +11,7 @@ plugins = {
     "'folke/lsp-colors.nvim'",
     "'folke/lsp-trouble.nvim'",
     "'onsails/lspkind-nvim'",
+    "'ray-x/lsp_signature.nvim'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'nvim-lua/completion-nvim'",

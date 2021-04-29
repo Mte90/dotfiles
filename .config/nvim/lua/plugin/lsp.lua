@@ -6,6 +6,12 @@ local configs  = require'lspconfig/configs'
 local util     = require'lspconfig/util'
 local on_attach = function(client, bufnr)
     require 'illuminate'.on_attach(client)
+    require 'lsp_signature'.on_attach({
+      bind = true,
+      handler_opts = {
+        border = "single"
+      }
+    })
 end
 
 nvim_lsp.intelephense.setup({
