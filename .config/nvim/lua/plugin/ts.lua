@@ -11,3 +11,4 @@ local opts = {
 }
 
 require('symbols-outline').setup(opts)
+require('nvim-ts-autotag').setup()

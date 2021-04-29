@@ -11,7 +11,6 @@ plugins = {
     "'folke/lsp-colors.nvim'",
     "'folke/lsp-trouble.nvim'",
     "'onsails/lspkind-nvim'",
-    "'onsails/lspkind-nvim'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'nvim-lua/completion-nvim'",
@@ -19,6 +18,8 @@ plugins = {
     "'haringsrob/nvim_context_vt'", 
     -- object view
     "'simrat39/symbols-outline.nvim'",
+    -- close html tags
+    "'windwp/nvim-ts-autotag'",
     -- xDebug support
     "'mfussenegger/nvim-dap'",
     "'rcarriga/nvim-dap-ui'",
@@ -37,8 +38,6 @@ plugins = {
     "'lewis6991/gitsigns.nvim'",
     -- Always highlight enclosing tags
     "'andymass/vim-matchup'",
-    -- close tags on </
-    "'docunext/closetag.vim'",
     -- jump to definition
     "'pechorin/any-jump.vim'",
     -- Indentation is very helpful
