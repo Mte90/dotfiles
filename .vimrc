@@ -14,7 +14,6 @@ EOF
 if !exists('wordpress_mode')
     source /home/mte90/.vim/custom/custom-startify.vim
 endif
-source /home/mte90/.vim/custom/custom-lightline.vim
 source /home/mte90/.vim/custom/custom-deoplete.vim
 source /home/mte90/.vim/custom/custom-ale.vim
 source /home/mte90/.vim/custom/custom-fzf.vim
@@ -25,6 +24,7 @@ require('plugin.lsp')
 require('plugin.dap')
 require('plugin.gitsigns')
 require('plugin.nvim-comment')
+require('plugin.lualine')
 EOF
 
 " Find root
@@ -36,11 +36,6 @@ let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 " Ultisnip
 let g:UltiSnipsEditSplit = 'vertical'
 let g:UltiSnipsExpandTrigger='<tab>'
-" Indent lines
-let g:indent_guides_exclude_filetypes = ['help', 'chadtree', 'startify', 'fzf', 'tagbar', 'vista']
-let g:indent_guides_enable_on_vim_startup = 1
-let g:indent_guides_guide_size = 1
-let g:indent_guides_color_change_percent = 3
 " Trigger a highlight only when pressing f and F. - quickscope
 let g:qs_highlight_on_keys = ['f']
 let g:qs_max_chars=80

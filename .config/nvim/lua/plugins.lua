@@ -6,7 +6,6 @@ plugins = {
     "'fneu/breezy'", -- not yet ready
     -- LSP 
     "'neovim/nvim-lspconfig'",
-    "'halkn/lightline-lsp'",
     "'kabouzeid/nvim-lspinstall'",
     "'folke/lsp-colors.nvim'",
     "'folke/lsp-trouble.nvim'",
@@ -40,7 +39,7 @@ plugins = {
     -- close html tags
     "'windwp/nvim-ts-autotag'",
     -- Indentation is very helpful
-    "'nathanaelkane/vim-indent-guides'",
+    "'lukas-reineke/indent-blankline.nvim', { 'branch': 'lua' }",
     -- Folding fast is important
     "'Konfekt/FastFold'",
     -- Move block of code
@@ -66,9 +65,7 @@ plugins = {
     -- chadtree
     "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}",
     -- Status bar
-    "'itchyny/lightline.vim'",
-    "'macthecadillac/lightline-gitdiff'",
-    "'itchyny/vim-gitbranch'",
+    "'hoob3rt/lualine.nvim'",
     "'mte90/vim-no-fixme', {'branch': 'patch-1'}",
     -- fzf - poweful search
     "'junegunn/fzf'",
@@ -81,7 +78,6 @@ plugins = {
     "'kyazdani42/nvim-web-devicons'",
     -- Report lint errors
     "'dense-analysis/ale'",
-    "'maximbaz/lightline-ale'",
     "'nathunsmitty/nvim-ale-diagnostic'",
     -- Wakatime
     "'wakatime/vim-wakatime'",
