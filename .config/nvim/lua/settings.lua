@@ -89,3 +89,47 @@ bo.textwidth       = 100         -- Line wrap (number of cols)
 bo.autoindent      = true        -- Uses indent from previous line
 bo.smartindent     = true        -- Like cindent except lil' more clever
 bo.copyindent      = true        -- Copy the structure of existing line's indent when autoin
+
+vim.api.nvim_command('colorscheme valloric')
+
+-- From https://github.com/nimaipatel/dotfiles/blob/master/.config/nvim/lua/nimai/utils.lua
+
+local globalListenerName = 'globallistenername'
+local autocmdhandlers = {}
+
+_G[globalListenerName] = function (name)
+	autocmdhandlers[name]()
+end
+
+function AddEventListener (name, events, cb)
+	autocmdhandlers[name] = cb
+	vim.cmd('augroup ' .. name)
+	vim.cmd('autocmd!')
+	for _, v in ipairs(events) do
+		local cmd = 'lua ' .. globalListenerName .. '("' .. name ..'")'
+		vim.cmd('au ' .. v .. ' ' .. cmd)
+	end
+	vim.cmd('augroup end')
+end
+
+function RemoveEventListener (name)
+	vim.cmd('augroup ' .. name)
+	vim.cmd('autocmd!')
+	vim.cmd('augroup end')
+	autocmdhandlers[name] = nil
+end
+
+-- Duplicate of the above
+-- Helper function because no native API exists yet
+-- Ref https://github.com/norcalli/nvim_utils/blob/master/lua/nvim_utils.lua#L554-L567
+function nvim_create_augroups(definitions)
+  for group_name, definition in pairs(definitions) do
+    vim.api.nvim_command('augroup '..group_name)
+    vim.api.nvim_command('autocmd!')
+    for _, def in ipairs(definition) do
+      local command = table.concat(vim.tbl_flatten{'autocmd', def}, ' ')
+      vim.api.nvim_command(command)
+    end
+    vim.api.nvim_command('augroup END')
+  end
+end

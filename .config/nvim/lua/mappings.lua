@@ -40,10 +40,17 @@ nmap { '<silent> <C-Right>', ':wincmd l<CR>' }
 -- Move between tabs with Alt
 nmap { '<M-Right>', ':tabnext<CR>' }
 nmap { '<M-Left>', ':tabprevious<CR>' }
+-- Move code blocks
+-- nnoremap{'<A-k>', '<cmd> move-2<CR>==' }
+-- nnoremap{'<A-j>', '<cmd> move+<CR>==' }
+-- vnoremap{'<A-k>', "<cmd> '<,'>move-2<CR>==" }
+-- vnoremap{'<A-j>', "<cmd> '<,'>move+<CR>==" }
 -- correct :W to :w typo
 vim.api.nvim_command("cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))")
 -- correct :Q to :q typo
 vim.api.nvim_command("cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline() is# 'Q')?('q'):('Q'))")
+-- save buffer with control + w
+nnoremap { '<c-s>', ':w<cr>' }
 
 
 -- Plugins custom mapping

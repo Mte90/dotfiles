@@ -8,9 +8,8 @@ lua << EOF
 require('settings')
 require('plugins')
 require('mappings')
+require('misc')
 EOF
-
-colorscheme valloric
 
 if !exists('wordpress_mode')
     source /home/mte90/.vim/custom/custom-startify.vim
@@ -28,36 +27,6 @@ require('plugin.gitsigns')
 require('plugin.nvim-comment')
 EOF
 
-" https://www.reddit.com/r/neovim/comments/gofplz/neovim_has_added_the_ability_to_highlight_yanked/
-augroup highlight_yank
-    autocmd!
-    autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank("IncSearch", 1000)
-augroup END
-augroup default
-    autocmd!
-    " Add support of stuff on different files
-    autocmd BufReadPost * if line("'\"") && line("'\"") <= line("$") | exe "normal `\"" | endif
-    autocmd BufRead,BufNewFile jquery.*.js set ft=javascript syntax=jquery
-    autocmd FileType php set tabstop=4 
-    autocmd FileType php.wordpress set tabstop=4
-    autocmd FileType javascript set tabstop=2 shiftwidth=2
-    autocmd FileType php let b:surround_45 = "<?php \r ?>"
-augroup END 
-augroup fmt
-  autocmd!
-  " Autoformat in tabs
-  autocmd BufWritePre *.js :normal =G
-  autocmd BufWritePre *.css :normal =G
-  autocmd BufWritePre *.sass :normal =G
-augroup END
-
-au FileType qf call AdjustWindowHeight(3, 5)
-function! AdjustWindowHeight(minheight, maxheight)
-  exe max([min([line("$"), a:maxheight]), a:minheight]) . "wincmd _"
-endfunction
-
-" Enable Rainbow Parenthesis
-let g:rainbow_active = 1
 " Find root
 let g:rooter_patterns = ['.git/', 'package.json', 'composer.json']
 let g:rooter_resolve_links = 1
@@ -72,14 +41,7 @@ let g:indent_guides_exclude_filetypes = ['help', 'chadtree', 'startify', 'fzf', 
 let g:indent_guides_enable_on_vim_startup = 1
 let g:indent_guides_guide_size = 1
 let g:indent_guides_color_change_percent = 3
-" Nerdcommenter for... better comments
-let g:NERDSpaceDelims = 1
-let g:NERDCompactSexyComs = 1
-let g:NERDCommentEmptyLines = 1
-let g:NERDTrimTrailingWhitespace = 1
-let g:NERDCreateDefaultMappings = 0
-let g:NERDToggleCheckAllLines = 1
-" Trigger a highlight only when pressing f and F.
+" Trigger a highlight only when pressing f and F. - quickscope
 let g:qs_highlight_on_keys = ['f']
 let g:qs_max_chars=80
 " Markdown

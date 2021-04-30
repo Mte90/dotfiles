@@ -45,8 +45,6 @@ plugins = {
     "'Konfekt/FastFold'",
     -- Move block of code
     "'matze/vim-move'",
-    -- Improve scrolloff area
-    "'drzel/vim-scroll-off-fraction'",
     -- Underlines the words under your cursor
     "'RRethy/vim-illuminate'",
     -- Snippets engine and... snippets!
