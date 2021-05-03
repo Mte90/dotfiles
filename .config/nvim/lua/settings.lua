@@ -21,6 +21,7 @@ o.backspace        = 'indent,eol,start'  -- Intuitive backspacing in insert mode
 o.encoding         = 'utf-8'    -- The encoding displayed
 o.fileencoding     = 'utf-8'    -- The encoding written to file
 o.shortmess        = 'aoOTI'    -- Shorten messages and don't show intro
+o.shortmess:gsub('S', '')
 o.mouse            = 'a'        -- enable mouse in all modes
 o.mousemodel       = 'popup'    -- set the behaviour of mouse
 o.fileformats      = 'unix,dos' -- File type preferences

@@ -1,8 +1,10 @@
 -- Based on https://github.com/nimaipatel/dotfiles/blob/master/.config/nvim/lua/nimai/misc.lua
 
 AddEventListener('ScrolloffFraction', { 'BufEnter,WinEnter,WinNew,VimResized *,*.*' }, function ()
-	local vis_lines = vim.api.nvim_win_get_height(vim.fn.win_getid())
-	vim.o.scrolloff = math.floor(vis_lines * 0.25)
+	if (vim.bo.filetype ~= 'qf' or vim.bo.filetype ~= 'startify') then
+		local vis_lines = vim.api.nvim_win_get_height(vim.fn.win_getid())
+		vim.o.scrolloff = math.floor(vis_lines * 0.25)
+	end
 end)
 
 AddEventListener('LuaHighlight', { 'TextYankPost *' }, function()

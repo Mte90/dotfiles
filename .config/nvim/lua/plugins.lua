@@ -29,8 +29,6 @@ plugins = {
     -- Auto cwd
     "'airblade/vim-rooter'",
     "'nvim-lua/plenary.nvim'",
-    -- Show --Match 123 of 456 /search term/-- in Vim searches
-    "'henrik/vim-indexed-search'",
     -- wrapper for git
     "'tpope/vim-fugitive'",
     "'f-person/git-blame.nvim'",
@@ -101,10 +99,6 @@ vim.cmd[[call plug#begin('~/.vim/plugged')]]
   if vim.fn.exists("wordpress_mode") == 0 then
     -- startify for a cool home page
     vim.cmd("Plug 'mhinz/vim-startify'")
-  end
-  if vim.fn.exists("g:GuiLoaded") == 0 then
-    -- Better terminal detection
-    vim.cmd("Plug 'wincent/terminus'")
   end
   if vim.fn.exists("wordpress_mode") == 0 then
     -- markdown
