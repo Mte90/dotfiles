@@ -31,12 +31,12 @@ nnoremap { '<del>', '<C-G>"_x' }
 -- Move between panes/split with Ctrl
 map { '<silent> <C-Up> ', ':wincmd k<CR>' }
 map { '<silent> <C-Down>', ':wincmd j<CR>' }
-map { '<silent> <C-Left>', ':wincmd h<CR>' }
-map { '<silent> <C-Right>', ':wincmd l<CR>' }
+map { '<silent> <C-Left>', ':BufferLineCyclePrev<CR>' }
+map { '<silent> <C-Right>', ':BufferLineCycleNext<CR>' }
 nmap { '<silent> <C-Up>', ':wincmd k<CR>' }
 nmap { '<silent> <C-Down>', ':wincmd j<CR>' }
-nmap { '<silent> <C-Left>', ':wincmd h<CR>' }
-nmap { '<silent> <C-Right>', ':wincmd l<CR>' }
+map { '<silent> <C-Left>', ':BufferLineCyclePrev<CR>' }
+map { '<silent> <C-Right>', ':BufferLineCycleNext<CR>' }
 -- Move between tabs with Alt
 nmap { '<M-Right>', ':tabnext<CR>' }
 nmap { '<M-Left>', ':tabprevious<CR>' }

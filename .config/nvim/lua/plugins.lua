@@ -18,6 +18,8 @@ plugins = {
     "'haringsrob/nvim_context_vt'", 
     -- object view
     "'simrat39/symbols-outline.nvim'",
+    -- Cool icons
+    "'kyazdani42/nvim-web-devicons'",
     -- Rainbow Parentheses
     "'p00f/nvim-ts-rainbow'",
     -- xDebug support
@@ -64,6 +66,7 @@ plugins = {
     "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}",
     -- Status bar
     "'hoob3rt/lualine.nvim'",
+    "'akinsho/nvim-bufferline.lua'",
     "'mte90/vim-no-fixme', {'branch': 'patch-1'}",
     -- fzf - poweful search
     "'junegunn/fzf'",
@@ -72,8 +75,6 @@ plugins = {
     "'SirJson/sd.vim'",
     -- display the hexadecimal colors - useful for css and color config
     "'norcalli/nvim-colorizer.lua'",
-    -- Cool icons
-    "'kyazdani42/nvim-web-devicons'",
     -- Report lint errors
     "'dense-analysis/ale'",
     "'nathunsmitty/nvim-ale-diagnostic'",

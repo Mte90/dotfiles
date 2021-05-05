@@ -13,13 +13,10 @@ require('lualine').setup{
         lualine_y = { { 'nofixme#amount'} },
         lualine_z = { { 'diagnostics', sources = {'nvim_lsp', 'ale'}, sections = {'error', 'warn', 'info'}, symbols = {error = 'E:', warn = 'W:', info = 'I:'} } }
     },
-    extensions = { 'fzf', 'chadtree', 'fugitive' },
-    tabline = {
-        lualine_a = {},
-        lualine_b = {},
-        lualine_c = {'filename'},
-        lualine_x = {},
-        lualine_y = {},
-        lualine_z = {}
-    }
+    extensions = { 'fzf', 'chadtree', 'fugitive' }
 } 
+
+require'bufferline'.setup{
+    diagnostics = "nvim_lsp",
+    close_icon = 'x',
+}
