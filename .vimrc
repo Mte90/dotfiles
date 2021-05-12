@@ -25,6 +25,7 @@ require('plugin.dap')
 require('plugin.gitsigns')
 require('plugin.nvim-comment')
 require('plugin.lualine')
+require('plugin.blankline')
 EOF
 
 " Find root

@@ -55,8 +55,4 @@ vim.api.nvim_exec([[
     function! AdjustWindowHeight(minheight, maxheight)
     exe max([min([line("$"), a:maxheight]), a:minheight]) . "wincmd _"
     endfunction
-    
-    " Indent lines
-    let g:indent_blankline_filetype_exclude = ['help', 'chadtree', 'startify', 'fzf', 'tagbar', 'vista']
-    let b:indent_blankline_enabled = v:false
 ]],true)
