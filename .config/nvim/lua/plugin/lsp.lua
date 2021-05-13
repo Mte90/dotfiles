@@ -105,3 +105,9 @@ au User lsp_setup call lsp#register_server({
      \ 'whitelist': ["php", "javascript", "python", "bash"],
      \ })                   
 ]]);
+
+require("trouble").setup {
+    mode = "quickfix", 
+    auto_open = true,
+    auto_close = true
+}

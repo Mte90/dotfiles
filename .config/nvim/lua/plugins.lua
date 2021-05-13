@@ -29,10 +29,10 @@ plugins = {
     -- https://github.com/neovim/neovim/pull/13823
     "'tjdevries/astronauta.nvim'",
     -- Auto cwd
-    "'airblade/vim-rooter'",
+    "'airblade/vim-rooter'", -- VimL
     "'nvim-lua/plenary.nvim'",
     -- wrapper for git
-    "'tpope/vim-fugitive'",
+    "'tpope/vim-fugitive'", -- VimL
     "'f-person/git-blame.nvim'",
     -- display git diff in the left gutter
     "'lewis6991/gitsigns.nvim'",
@@ -41,36 +41,37 @@ plugins = {
     -- Indentation is very helpful
     "'lukas-reineke/indent-blankline.nvim', { 'branch': 'lua' }",
     -- Folding fast is important
-    "'Konfekt/FastFold'",
+    "'Konfekt/FastFold'", -- VimL
     -- Move block of code
-    "'matze/vim-move'",
+    "'matze/vim-move'", -- VimL
     -- Underlines the words under your cursor
     "'RRethy/vim-illuminate'",
     -- Snippets engine and... snippets!
-    "'SirVer/ultisnips'",
-    "'honza/vim-snippets'",
-    "'sniphpets/sniphpets', { 'for' : ['php'] }",
-    "'sniphpets/sniphpets-phpunit', { 'for' : ['php'] }",
-    "'sniphpets/sniphpets-common', { 'for' : ['php'] }",
+    "'SirVer/ultisnips'", -- VimL
+    "'honza/vim-snippets'", -- VimL
+    "'sniphpets/sniphpets', { 'for' : ['php'] }", -- VimL
+    "'sniphpets/sniphpets-phpunit', { 'for' : ['php'] }", -- VimL
+    "'sniphpets/sniphpets-common', { 'for' : ['php'] }", -- VimL
     -- Autocomplete system in real time
     "'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }",
     "'Shougo/deoplete-lsp'",
     "'mte90/deoplete-wp-hooks'",
     -- highlights which characters to target
-    "'unblevable/quick-scope'",
+    "'unblevable/quick-scope'", -- VimL
     -- Search pulse
-    "'inside/vim-search-pulse'",
+    "'inside/vim-search-pulse'", -- VimL
     -- Split one-liner into multiple
-    "'AndrewRadev/splitjoin.vim', { 'branch': 'main' }",
+    "'AndrewRadev/splitjoin.vim', { 'branch': 'main' }", -- VimL
     -- chadtree
-    "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}",
+    "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}", -- VimL
     -- Status bar
     "'hoob3rt/lualine.nvim'",
     "'akinsho/nvim-bufferline.lua'",
-    "'mte90/vim-no-fixme', {'branch': 'patch-1'}",
+    "'mte90/vim-no-fixme', {'branch': 'patch-1'}", -- VimL
+    "'folke/todo-comments.nvim'",
     -- fzf - poweful search
     "'junegunn/fzf'",
-    "'junegunn/fzf.vim'", 
+    "'junegunn/fzf.vim'",  -- VimL
     -- Wrapper for sd
     "'SirJson/sd.vim'",
     -- display the hexadecimal colors - useful for css and color config
@@ -85,10 +86,7 @@ plugins = {
     -- EditorConfig support
     "'editorconfig/editorconfig-vim'",
     -- Comments
-    "'terrortylor/nvim-comment'",
-    -- Web
-    "'mklabs/grunt.vim', { 'for' : ['javascript'] }"
-    --Plug 'brooth/far.vim'
+    "'terrortylor/nvim-comment'"
 }
 
 

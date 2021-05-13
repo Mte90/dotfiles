@@ -56,3 +56,5 @@ vim.api.nvim_exec([[
     exe max([min([line("$"), a:maxheight]), a:minheight]) . "wincmd _"
     endfunction
 ]],true)
+
+require("todo-comments").setup{}
