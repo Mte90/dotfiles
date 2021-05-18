@@ -29,7 +29,7 @@ plugins = {
     -- https://github.com/neovim/neovim/pull/13823
     "'tjdevries/astronauta.nvim'",
     -- Auto cwd
-    "'airblade/vim-rooter'", -- VimL
+    "'ygm2/rooter.nvim'",
     "'nvim-lua/plenary.nvim'",
     -- wrapper for git
     "'tpope/vim-fugitive'", -- VimL
@@ -97,15 +97,15 @@ vim.cmd[[call plug#begin('~/.vim/plugged')]]
 
   if vim.fn.exists("wordpress_mode") == 0 then
     -- startify for a cool home page
-    vim.cmd("Plug 'mhinz/vim-startify'")
+    vim.cmd("Plug 'mhinz/vim-startify'") -- VimL
   end
   if vim.fn.exists("wordpress_mode") == 0 then
     -- markdown
-    vim.cmd("Plug 'godlygeek/tabular', { 'for' : ['markdown'] }")
-    vim.cmd("Plug 'plasticboy/vim-markdown', { 'for' : ['markdown'] }")
-    vim.cmd("Plug 'moll/vim-node', { 'for' : ['javascript'] }")
+    vim.cmd("Plug 'godlygeek/tabular', { 'for' : ['markdown'] }") -- VimL
+    vim.cmd("Plug 'plasticboy/vim-markdown', { 'for' : ['markdown'] }") -- VimL
+    vim.cmd("Plug 'moll/vim-node', { 'for' : ['javascript'] }") -- VimL
     -- Syntax highlighting for webapi
-    vim.cmd("Plug 'mattn/webapi-vim', { 'for' : ['javascript'] }")
+    vim.cmd("Plug 'mattn/webapi-vim', { 'for' : ['javascript'] }") -- VimL
   end
 vim.cmd[[call plug#end()]]
 

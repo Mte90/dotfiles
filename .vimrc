@@ -28,10 +28,6 @@ require('plugin.lualine')
 require('plugin.blankline')
 EOF
 
-" Find root
-let g:rooter_patterns = ['.git/', 'package.json', 'composer.json']
-let g:rooter_resolve_links = 1
-let g:rooter_silent_chdir  = 1
 " Editorconfig
 let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 " Ultisnip

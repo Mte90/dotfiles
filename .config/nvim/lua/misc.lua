@@ -58,3 +58,6 @@ vim.api.nvim_exec([[
 ]],true)
 
 require("todo-comments").setup{}
+
+vim.g.rooter_pattern = {'.git', 'package.json', 'composer.json', '.svn', 'node_modules'} 
+vim.g.outermost_root = true
