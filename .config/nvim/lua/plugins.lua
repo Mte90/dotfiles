@@ -42,8 +42,6 @@ plugins = {
     "'lukas-reineke/indent-blankline.nvim', { 'branch': 'lua' }",
     -- Folding fast is important
     "'Konfekt/FastFold'", -- VimL
-    -- Move block of code
-    "'matze/vim-move'", -- VimL
     -- Underlines the words under your cursor
     "'RRethy/vim-illuminate'",
     -- Snippets engine and... snippets!

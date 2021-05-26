@@ -41,10 +41,8 @@ map { '<silent> <C-Right>', ':BufferLineCycleNext<CR>' }
 nmap { '<M-Right>', ':tabnext<CR>' }
 nmap { '<M-Left>', ':tabprevious<CR>' }
 -- Move code blocks
--- nnoremap{'<A-k>', '<cmd> move-2<CR>==' }
--- nnoremap{'<A-j>', '<cmd> move+<CR>==' }
--- vnoremap{'<A-k>', "<cmd> '<,'>move-2<CR>==" }
--- vnoremap{'<A-j>', "<cmd> '<,'>move+<CR>==" }
+vnoremap{'<A-j>', ':m \'>+1<CR>==gv'}
+vnoremap{'<A-k>', ':m \'<-2<CR>==gv'}
 -- correct :W to :w typo
 vim.api.nvim_command("cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))")
 -- correct :Q to :q typo
