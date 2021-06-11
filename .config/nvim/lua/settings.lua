@@ -2,19 +2,12 @@ local o = vim.o
 local wo = vim.wo
 local bo = vim.bo
 
-vim.api.nvim_command('syntax on')
-vim.api.nvim_command('filetype indent on')
-vim.api.nvim_command('filetype plugin on')
-
 -- global options
-vim.api.nvim_set_option('clipboard', 'unnamedplus') -- Allow use of system clipboard
-vim.api.nvim_command('set guioptions-=e')           -- Don't use GUI tabline
-vim.api.nvim_command('set guioptions+=a')
-vim.api.nvim_command('set completeopt-=preview')
-vim.api.nvim_command('set completeopt+=longest,menuone,noselect')
-o.pumheight = 15
-o.pumblend  = 20
-vim.api.nvim_command('set wildoptions+=pum')
+o.pumheight        = 15
+o.pumblend         = 20
+o.clipboard        = 'unnamedplus' -- Allow use of system clipboard
+o.wildoptions      = 'pum'         -- Don't use GUI tabline
+o.completeopt      = 'longest,menuone,noselect'
 o.whichwrap        = 'h,l,<,>,[,],~'
 o.listchars        = 'tab:»·,trail:·,nbsp:·,precedes:«,extends:»'
 o.backspace        = 'indent,eol,start'  -- Intuitive backspacing in insert mode
@@ -67,15 +60,14 @@ o.gdefault         = true       -- Set searching to global by default
 o.wildmenu         = true       -- Command line completion help
 o.wildignorecase   = true       -- Ignore case when completing file names and directories.
 --   A list of file patterns to ignore when performing expansion and completion.
-vim.api.nvim_command('set wildignore+=*.so,/min/*')
-vim.api.nvim_command('set wildignore+=.git,.hg,.svn,.stversions,*.pyc,*.spl,*.o,*.out,*~,%*')
-vim.api.nvim_command('set wildignore+=*.jpg,*.jpeg,*.png,*.gif,*.log,**/tmp/**')
-vim.api.nvim_command('set wildignore+=**/node_modules/**,**/bower_modules/**,*/.sass-cache/*')
-vim.api.nvim_command('set wildignore+=__pycache__,*.egg-info')
-vim.api.nvim_command('set wildignore+=*.out,*.obj,*.gem,*.pyc,*DS_Store*')
-vim.api.nvim_command('set wildignore+=*.zip,*.tar.gz,*.tar.bz2,*.rar,*.tar.xz')
-vim.api.nvim_command('set wildignore+=*.swp,*~,._*,*/vendor/cache/*')
-vim.api.nvim_command('set wildignore+=*.zip,*.tar.gz,*.tar.bz2,*.rar,*.tar.xz')
+o.wildignore       = o.wildignore .. '*.so,/min/*'
+o.wildignore       = o.wildignore .. '.git,.hg,.svn,.stversions,*.pyc,*.spl,*.o,*.out,*~,%*'
+o.wildignore       = o.wildignore .. '*.jpg,*.jpeg,*.png,*.gif,*.log,**/tmp/**'
+o.wildignore       = o.wildignore .. '**/node_modules/**,**/bower_modules/**,*/.sass-cache/*'
+o.wildignore       = o.wildignore .. '__pycache__,*.egg-info'
+o.wildignore       = o.wildignore .. '*.out,*.obj,*.gem,*.pyc,*DS_Store*'
+o.wildignore       = o.wildignore .. '*.zip,*.tar.gz,*.tar.bz2,*.rar,*.tar.xz'
+o.wildignore       = o.wildignore .. '*.swp,*~,._*,*/vendor/cache/*'
 
 -- window-local options
 wo.number          = true       -- Show line numbers

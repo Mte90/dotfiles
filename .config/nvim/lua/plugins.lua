@@ -52,7 +52,7 @@ plugins = {
     "'sniphpets/sniphpets-common', { 'for' : ['php'] }", -- VimL
     -- Autocomplete system in real time
     "'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }",
-    "'Shougo/deoplete-lsp'",
+    "'deoplete-plugins/deoplete-lsp'",
     "'mte90/deoplete-wp-hooks'",
     -- highlights which characters to target
     "'unblevable/quick-scope'", -- VimL
