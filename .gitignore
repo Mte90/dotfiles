@@ -10,3 +10,4 @@
 .pki/
 .xfce4-session.*
 .xsession-errors
+.config/nvim/pack/
