@@ -16,6 +16,8 @@ plugins = {
     "'nvim-lua/completion-nvim'",
     "'nvim-treesitter/completion-treesitter'",
     "'haringsrob/nvim_context_vt'", 
+    -- close html tags
+    "'windwp/nvim-ts-autotag'",
     -- object view
     "'simrat39/symbols-outline.nvim'",
     -- Cool icons
@@ -36,8 +38,6 @@ plugins = {
     "'f-person/git-blame.nvim'",
     -- display git diff in the left gutter
     "'lewis6991/gitsigns.nvim'",
-    -- close html tags
-    "'windwp/nvim-ts-autotag'",
     -- Indentation is very helpful
     "'lukas-reineke/indent-blankline.nvim', { 'branch': 'lua' }",
     -- Folding fast is important
@@ -70,6 +70,7 @@ plugins = {
     -- fzf - poweful search
     "'junegunn/fzf'",
     "'junegunn/fzf.vim'",  -- VimL
+    "'kevinhwang91/nvim-bqf'", -- quickfix
     -- Wrapper for sd
     "'SirJson/sd.vim'",
     -- display the hexadecimal colors - useful for css and color config
@@ -106,4 +107,3 @@ vim.cmd[[call plug#begin('~/.vim/plugged')]]
     vim.cmd("Plug 'mattn/webapi-vim', { 'for' : ['javascript'] }") -- VimL
   end
 vim.cmd[[call plug#end()]]
-

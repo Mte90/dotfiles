@@ -50,7 +50,7 @@ vim.api.nvim_exec([[
         autocmd!
         autocmd BufReadPost * if line("'\"") && line("'\"") <= line("$") | exe "normal `\"" | endif
     augroup END 
-
+    
     au FileType qf call AdjustWindowHeight(3, 5)
     function! AdjustWindowHeight(minheight, maxheight)
     exe max([min([line("$"), a:maxheight]), a:minheight]) . "wincmd _"

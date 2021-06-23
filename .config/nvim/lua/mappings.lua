@@ -56,18 +56,20 @@ nnoremap { '<c-s>', ':w<cr>' }
 nmap { '<leader>n', ':CHADopen<CR>' }
 -- Fold code open/close with click
 nmap { '<expr> <2-LeftMouse>', 'za' }
--- Search in the project files
-nmap { '<leader>f', ':Rg<space>' }
 -- Object view
 nmap { '<C-t>', ':SymbolsOutline<CR>' }
+-- Search in the project files
+nmap { '<leader>f', ':Rg<space>' }
 -- File list with fzf
 nmap { '<leader>x', ':Files<CR>' }
+-- Search on file with fzf
+nmap { '<leader>g', ':Lines<CR>' }
 -- Jump to definition under cursor
 nmap { '<leader>j', '<cmd>lua vim.lsp.buf.definition()<cr>' }
 -- navigate between errors
-nmap { '<silent> <C-k>', '<Plug>(ale_previous_wrap)' }
-nmap { '<silent> <C-j>', '<Plug>(ale_next_wrap)' }
-nmap { '<silent> <C-q>', '<Plug>(ale_fix)' }
+nmap { '<C-k>', ':ALEPreviousWrap' }
+nmap { '<C-j>', ':ALENextWrap' }
+nmap { '<C-q>', ':ALEFix' }
 -- Append ; to the end of the line -> Leader+B
 map { '<leader>b', ":call setline('.', getline('.') . ';')<CR>" }
 -- DAP
@@ -81,4 +83,5 @@ nnoremap { '<F12>', ":lua require'dap'.step_out()<CR>" }
 nnoremap { 'confe', ':e $MYVIMRC<CR>' }
 -- Reload vims configuration file
 nnoremap { 'confr', ':source $MYVIMRC<CR>' }
-nmap { '<Leader>s', ':SplitjoinSplit<cr>' }
+-- Split code in line to different lines
+nmap { '<leader>s', ':SplitjoinSplit<cr>' }

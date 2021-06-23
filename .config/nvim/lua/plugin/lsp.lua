@@ -8,11 +8,17 @@ local on_attach = function(client, bufnr)
     require 'illuminate'.on_attach(client)
     require 'lsp_signature'.on_attach({
       bind = true,
+      hint_prefix = "! ",
       handler_opts = {
         border = "single"
       }
     })
 end
+require("trouble").setup {
+    mode = "quickfix", 
+    auto_open = true,
+    auto_close = true
+}
 
 nvim_lsp.intelephense.setup({
     settings = {
@@ -105,9 +111,3 @@ au User lsp_setup call lsp#register_server({
      \ 'whitelist': ["php", "javascript", "python", "bash"],
      \ })                   
 ]]);
-
-require("trouble").setup {
-    mode = "quickfix", 
-    auto_open = true,
-    auto_close = true
-}
