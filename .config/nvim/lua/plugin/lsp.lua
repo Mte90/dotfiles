@@ -29,10 +29,6 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
   }
 }
 
-require'lspconfig'.rust_analyzer.setup {
-  capabilities = capabilities,
-}
-
 nvim_lsp.intelephense.setup({
     settings = {
         intelephense = {
@@ -101,7 +97,7 @@ nvim_lsp.intelephense.setup({
     capabilities = capabilities,
     on_attach = on_attach
 });
-
+nvim_lsp.phpactor.setup{}
 nvim_lsp.cssls.setup{
     capabilities = capabilities,
     on_attach = on_attach

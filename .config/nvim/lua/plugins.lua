@@ -6,15 +6,12 @@ plugins = {
     "'fneu/breezy'", -- not yet ready
     -- LSP 
     "'neovim/nvim-lspconfig'",
-    "'kabouzeid/nvim-lspinstall'",
     "'folke/lsp-colors.nvim'",
     "'folke/lsp-trouble.nvim'",
     "'onsails/lspkind-nvim'",
     "'ray-x/lsp_signature.nvim'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
-    "'nvim-lua/completion-nvim'",
-    "'nvim-treesitter/completion-treesitter'",
     "'haringsrob/nvim_context_vt'", 
     --"'nvim-treesitter/nvim-tree-docs'",
     -- close html tags
@@ -64,7 +61,7 @@ plugins = {
     -- Split one-liner into multiple
     "'AndrewRadev/splitjoin.vim', { 'branch': 'main' }", -- VimL
     -- chadtree
-    "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}", -- VimL
+    "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':CHADdeps'}",
     -- Status bar
     "'hoob3rt/lualine.nvim', { 'commit': '5c20f5f4b8b3318913ed5a9b00cd5610b7295bd4'}",
     "'akinsho/nvim-bufferline.lua'",
@@ -91,7 +88,6 @@ plugins = {
     "'terrortylor/nvim-comment'"
 }
 
-
 vim.cmd[[call plug#begin('~/.vim/plugged')]]
   for i, p in pairs(plugins) do
       vim.cmd(string.format("Plug %s", p))
@@ -102,11 +98,18 @@ vim.cmd[[call plug#begin('~/.vim/plugged')]]
     vim.cmd("Plug 'mhinz/vim-startify'") -- VimL
   end
   if vim.fn.exists("wordpress_mode") == 0 then
-    -- markdown
-    vim.cmd("Plug 'godlygeek/tabular', { 'for' : ['markdown'] }") -- VimL
-    vim.cmd("Plug 'plasticboy/vim-markdown', { 'for' : ['markdown'] }") -- VimL
-    vim.cmd("Plug 'moll/vim-node', { 'for' : ['javascript'] }") -- VimL
     -- Syntax highlighting for webapi
     vim.cmd("Plug 'mattn/webapi-vim', { 'for' : ['javascript'] }") -- VimL
   end
 vim.cmd[[call plug#end()]]
+
+
+require('plugin.ts')
+require('plugin.lsp')
+require('plugin.dap')
+require('plugin.gitsigns')
+require('plugin.nvim-comment')
+require('plugin.lualine')
+require('plugin.blankline')
+require('plugin.compe')
+require('plugin.chadtree')

@@ -61,3 +61,15 @@ require("todo-comments").setup{}
 
 vim.g.rooter_pattern = {'.git', 'package.json', 'composer.json', '.svn', 'node_modules'} 
 vim.g.outermost_root = true
+
+vim.api.nvim_exec([[
+" Editorconfig
+let g:EditorConfig_exclude_patterns = ['fugitive://.*']
+" Ultisnip
+let g:UltiSnipsEditSplit = 'vertical'
+let g:UltiSnipsExpandTrigger='ctrl-l'
+" Trigger a highlight only when pressing f and F. - quickscope
+let g:qs_highlight_on_keys = ['f']
+let g:qs_max_chars=80
+let g:splitjoin_join_mapping = '' 
+]],true)

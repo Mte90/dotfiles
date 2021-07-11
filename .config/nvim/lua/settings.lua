@@ -1,3 +1,8 @@
+vim.api.nvim_exec([[
+" Note: Skip initialization for vim-tiny or vim-small.
+if !1 | finish | endif
+]],true)
+
 local o = vim.o
 local wo = vim.wo
 local bo = vim.bo
