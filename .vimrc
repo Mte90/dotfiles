@@ -14,7 +14,6 @@ EOF
 if !exists('wordpress_mode')
     source /home/mte90/.vim/custom/custom-startify.vim
 endif
-source /home/mte90/.vim/custom/custom-deoplete.vim
 source /home/mte90/.vim/custom/custom-ale.vim
 source /home/mte90/.vim/custom/custom-fzf.vim
 
@@ -26,13 +25,14 @@ require('plugin.gitsigns')
 require('plugin.nvim-comment')
 require('plugin.lualine')
 require('plugin.blankline')
+require('plugin.compe')
 EOF
 
 " Editorconfig
 let g:EditorConfig_exclude_patterns = ['fugitive://.*']
 " Ultisnip
 let g:UltiSnipsEditSplit = 'vertical'
-let g:UltiSnipsExpandTrigger='<tab>'
+let g:UltiSnipsExpandTrigger='ctrl-l'
 " Trigger a highlight only when pressing f and F. - quickscope
 let g:qs_highlight_on_keys = ['f']
 let g:qs_max_chars=80

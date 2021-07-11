@@ -16,6 +16,7 @@ plugins = {
     "'nvim-lua/completion-nvim'",
     "'nvim-treesitter/completion-treesitter'",
     "'haringsrob/nvim_context_vt'", 
+    --"'nvim-treesitter/nvim-tree-docs'",
     -- close html tags
     "'windwp/nvim-ts-autotag'",
     -- object view
@@ -39,21 +40,23 @@ plugins = {
     -- display git diff in the left gutter
     "'lewis6991/gitsigns.nvim'",
     -- Indentation is very helpful
-    "'lukas-reineke/indent-blankline.nvim', { 'branch': 'lua' }",
+    "'lukas-reineke/indent-blankline.nvim'",
     -- Folding fast is important
     "'Konfekt/FastFold'", -- VimL
     -- Underlines the words under your cursor
-    "'RRethy/vim-illuminate'",
+    "'yamatsum/nvim-cursorline'",
     -- Snippets engine and... snippets!
     "'SirVer/ultisnips'", -- VimL
     "'honza/vim-snippets'", -- VimL
     "'sniphpets/sniphpets', { 'for' : ['php'] }", -- VimL
     "'sniphpets/sniphpets-phpunit', { 'for' : ['php'] }", -- VimL
     "'sniphpets/sniphpets-common', { 'for' : ['php'] }", -- VimL
-    -- Autocomplete system in real time
-    "'Shougo/deoplete.nvim', { 'do': ':UpdateRemotePlugins' }",
-    "'deoplete-plugins/deoplete-lsp'",
-    "'mte90/deoplete-wp-hooks'",
+    -- Emmett support
+    "'mattn/emmet-vim'",
+    -- Autocomplete 
+    "'hrsh7th/nvim-compe'",
+    "'FateXii/emmet-compe'",
+    "'tzachar/compe-tabnine', { 'do': './install.sh' }",
     -- highlights which characters to target
     "'unblevable/quick-scope'", -- VimL
     -- Search pulse
@@ -63,7 +66,7 @@ plugins = {
     -- chadtree
     "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':UpdateRemotePlugins'}", -- VimL
     -- Status bar
-    "'hoob3rt/lualine.nvim'",
+    "'hoob3rt/lualine.nvim', { 'commit': '5c20f5f4b8b3318913ed5a9b00cd5610b7295bd4'}",
     "'akinsho/nvim-bufferline.lua'",
     "'mte90/vim-no-fixme', {'branch': 'patch-1'}", -- VimL
     "'folke/todo-comments.nvim'",

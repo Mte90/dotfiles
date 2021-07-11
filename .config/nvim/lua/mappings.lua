@@ -1,4 +1,4 @@
-package.path = package.path .. ";/home/mte90/.vim/plugged/astronauta.nvim/lua/astronauta/"
+-- package.path = package.path .. ";/home/mte90/.vim/plugged/astronauta.nvim/lua/astronauta/"
 local k = require"astronauta.keymap"
 local nnoremap = k.nnoremap
 local inoremap = k.inoremap

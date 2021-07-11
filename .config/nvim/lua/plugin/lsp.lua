@@ -5,7 +5,6 @@ local nvim_lsp = require'lspconfig'
 local configs  = require'lspconfig/configs'
 local util     = require'lspconfig/util'
 local on_attach = function(client, bufnr)
-    require 'illuminate'.on_attach(client)
     require 'lsp_signature'.on_attach({
       bind = true,
       hint_prefix = "! ",
@@ -18,6 +17,20 @@ require("trouble").setup {
     mode = "quickfix", 
     auto_open = true,
     auto_close = true
+}
+
+local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.completion.completionItem.snippetSupport = true
+capabilities.textDocument.completion.completionItem.resolveSupport = {
+  properties = {
+    'documentation',
+    'detail',
+    'additionalTextEdits',
+  }
+}
+
+require'lspconfig'.rust_analyzer.setup {
+  capabilities = capabilities,
 }
 
 nvim_lsp.intelephense.setup({
@@ -85,16 +98,20 @@ nvim_lsp.intelephense.setup({
             };
         };
     },
+    capabilities = capabilities,
     on_attach = on_attach
 });
 
 nvim_lsp.cssls.setup{
+    capabilities = capabilities,
     on_attach = on_attach
 }
 nvim_lsp.html.setup{
+    capabilities = capabilities,
     on_attach = on_attach
 }
 nvim_lsp.bashls.setup{
+    capabilities = capabilities,
     on_attach = on_attach
 }
 
@@ -111,3 +128,30 @@ au User lsp_setup call lsp#register_server({
      \ 'whitelist': ["php", "javascript", "python", "bash"],
      \ })                   
 ]]);
+
+-- define global function
+_G.lsp_import_on_completion = function()
+    local completed_item = vim.v.completed_item
+    if not (completed_item and completed_item.user_data and
+        completed_item.user_data.nvim and completed_item.user_data.nvim.lsp and
+        completed_item.user_data.nvim.lsp.completion_item) then return end
+
+    local item = completed_item.user_data.nvim.lsp.completion_item
+    local bufnr = vim.api.nvim_get_current_buf()
+    vim.lsp.buf_request(bufnr, "completionItem/resolve", item,
+                    function(_, _, result)
+        if result and result.additionalTextEdits then
+            vim.lsp.util.apply_text_edits(result.additionalTextEdits, bufnr)
+        end
+    end)
+end
+
+-- define autocmd to listen for CompleteDone
+vim.api.nvim_exec([[
+augroup LSPImportOnCompletion
+    autocmd!
+    autocmd CompleteDone * lua lsp_import_on_completion()
+augroup END
+]], false)
+
+
