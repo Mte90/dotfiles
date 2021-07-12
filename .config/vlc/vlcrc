@@ -1,5 +1,5 @@
 ﻿###
-###  vlc 3.0.8
+###  vlc 3.0.12
 ###
 
 ###
@@ -289,6 +289,26 @@
 # Use NIT for scanning services (boolean)
 #dvb-scan-nit=1
 
+[xcb_screen] # Screen capture (with X11/XCB)
+
+# Frame rate (float)
+#screen-fps=2.000000
+
+# Region left column (integer)
+#screen-left=0
+
+# Region top row (integer)
+#screen-top=0
+
+# Capture region width (integer)
+#screen-width=0
+
+# Capture region height (integer)
+#screen-height=0
+
+# Follow the mouse (boolean)
+#screen-follow-mouse=0
+
 [dtv] # Digital Television and Radio
 
 # DVB adapter (integer)
@@ -467,6 +487,35 @@
 # Maximum bitrate (integer)
 #mms-maxbitrate=0
 
+[rist] # RIST input
+
+# RIST maximum packet size (bytes) (integer)
+#packet-size=1472
+
+# RIST demux/decode maximum jitter (default is 5ms) (integer)
+#maximum-jitter=5
+
+# RIST latency (ms) (integer)
+#latency=1000
+
+# RIST nack retry interval (ms) (integer)
+#retry-interval=132
+
+# RIST reorder buffer (ms) (integer)
+#reorder-buffer=70
+
+# RIST maximum retry count (integer)
+#max-retries=10
+
+# RIST nack type, 0 = range, 1 = bitmask. Default is range (integer)
+#nack-type=0
+
+# Disable NACK output packets (boolean)
+#disable-nacks=0
+
+# Do not check for a valid rtcp message from the encoder (boolean)
+#mcast-blind-nacks=0
+
 [http] # HTTP input
 
 # Auto re-connect (boolean)
@@ -502,6 +551,38 @@
 
 # FTP account (string)
 #ftp-account=anonymous
+
+[vnc] # VNC client access
+
+# Username (string)
+#rfb-user=
+
+# Password (string)
+#rfb-password=
+
+# X.509 Certificate Authority (string)
+#rfb-x509-ca=
+
+# X.509 Certificate Revocation List (string)
+#rfb-x509-crl=
+
+# X.509 Client certificate (string)
+#rfb-x509-client-cert=
+
+# X.509 Client private key (string)
+#rfb-x509-client-key=
+
+# Frame rate (float)
+#rfb-fps=5.000000
+
+# Frame buffer depth (string)
+#rfb-chroma=RV32
+
+# Compression level (integer)
+#rfb-compress-level=0
+
+# Image quality (integer)
+#rfb-quality-level=9
 
 [dvdnav] # DVDnav Input
 
@@ -540,38 +621,6 @@
 
 # Password (string)
 #sftp-pwd=
-
-[live555] # RTP/RTSP/SDP demuxer (using Live555)
-
-# Use RTP over RTSP (TCP) (boolean)
-#rtsp-tcp=0
-
-# Client port (integer)
-#rtp-client-port=-1
-
-# Force multicast RTP via RTSP (boolean)
-#rtsp-mcast=0
-
-# Tunnel RTSP and RTP over HTTP (boolean)
-#rtsp-http=0
-
-# HTTP tunnel port (integer)
-#rtsp-http-port=80
-
-# Kasenna RTSP dialect (boolean)
-#rtsp-kasenna=0
-
-# WMServer RTSP dialect (boolean)
-#rtsp-wmserver=0
-
-# Username (string)
-#rtsp-user=
-
-# Password (string)
-#rtsp-pwd=
-
-# RTSP frame buffer size (integer)
-#rtsp-frame-buffer-size=250000
 
 [imem] # Memory input
 
@@ -885,7 +934,7 @@
 #qt-fs-controller=1
 
 # Save the recently played items in the menu (boolean)
-#qt-recentplay=1
+qt-recentplay=0
 
 # List of words separated by | to filter (string)
 #qt-recentplay-filter=
@@ -1002,6 +1051,23 @@ qt-privacy-ask=0
 
 # Denoise strength (0-2) (float)
 #denoise-sigma=1.000000
+
+[access_output_rist] # RIST stream output
+
+# RIST target packet size (bytes) (integer)
+#sout-rist-packet-size=1328
+
+# RIST data output caching size (ms) (integer)
+#sout-rist-caching=50
+
+# RIST retry-buffer queue size (ms) (integer)
+#sout-rist-buffer-size=0
+
+# SSRC used in RTP output (default is random, i.e. 0) (integer)
+#sout-rist-ssrc=0
+
+# Stream name (string)
+#sout-rist-stream-name=
 
 [http] # HTTP stream output
 
@@ -1303,6 +1369,15 @@ qt-privacy-ask=0
 
 # Use regular HTTP modules (boolean)
 #adaptive-use-access=0
+
+# Live Playback delay (ms) (integer)
+#adaptive-livedelay=15000
+
+# Max buffering (ms) (integer)
+#adaptive-maxbuffer=30000
+
+# Low latency (integer)
+#adaptive-lowlatency=-1
 
 [vc1] # VC1 video demuxer
 
@@ -2234,6 +2309,14 @@ sout-x264-tune=film
 # x264 advanced options (string)
 #sout-x264-options=
 
+[dav1d] # Dav1d video decoder
+
+# Frames Threads (integer)
+#dav1d-thread-frames=0
+
+# Tiles Threads (integer)
+#dav1d-thread-tiles=0
+
 [lua] # Lua interpreter
 
 # Lua interface (string)
@@ -2658,9 +2741,6 @@ sout-x264-tune=film
 # Tone-mapping parameter (float)
 #tone-mapping-param=0.000000
 
-# Tone-mapping desaturation coefficient (float)
-#tone-mapping-desat=0.500000
-
 # Highlight clipped pixels (boolean)
 #tone-mapping-warn=0
 
@@ -2669,6 +2749,18 @@ sout-x264-tune=film
 
 # Dither depth override (0 = framebuffer depth) (integer)
 #dither-depth=0
+
+# Desaturation strength (float)
+#desat-strength=0.750000
+
+# Desaturation exponent (float)
+#desat-exponent=1.500000
+
+# Desaturation base (float)
+#desat-base=0.180000
+
+# Maximum brightness boost (float)
+#max-boost=0.000000
 
 [xcb_x11] # X11 video output (XCB)
 
@@ -2714,9 +2806,6 @@ sout-x264-tune=film
 # Tone-mapping parameter (float)
 #tone-mapping-param=0.000000
 
-# Tone-mapping desaturation coefficient (float)
-#tone-mapping-desat=0.500000
-
 # Highlight clipped pixels (boolean)
 #tone-mapping-warn=0
 
@@ -2725,6 +2814,18 @@ sout-x264-tune=film
 
 # Dither depth override (0 = framebuffer depth) (integer)
 #dither-depth=0
+
+# Desaturation strength (float)
+#desat-strength=0.750000
+
+# Desaturation exponent (float)
+#desat-exponent=1.500000
+
+# Desaturation base (float)
+#desat-base=0.180000
+
+# Maximum brightness boost (float)
+#max-boost=0.000000
 
 [flaschen] # Flaschen-Taschen video output
 
@@ -2798,7 +2899,7 @@ sout-x264-tune=film
 #sout-avi-subject=
 
 # Encoder (string)
-#sout-avi-encoder=VLC Media Player - 3.0.8 Vetinari
+#sout-avi-encoder=VLC Media Player - 3.0.12 Vetinari
 
 # Keywords (string)
 #sout-avi-keywords=
@@ -3881,7 +3982,7 @@ text-renderer=any
 #meta-url=
 
 # File caching (ms) (integer)
-#file-caching=300
+#file-caching=1000
 
 # Live capture caching (ms) (integer)
 #live-caching=300
@@ -3989,7 +4090,7 @@ text-renderer=any
 #packetizer=
 
 # VoD server module (string)
-#vod-server=
+vod-server=any
 
 # Use a plugins cache (boolean)
 #plugins-cache=1

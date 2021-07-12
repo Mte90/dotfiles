@@ -67,9 +67,9 @@ nmap { '<leader>g', ':Lines<CR>' }
 -- Jump to definition under cursor
 nmap { '<leader>j', '<cmd>lua vim.lsp.buf.definition()<cr>' }
 -- navigate between errors
-nmap { '<C-k>', ':ALEPreviousWrap' }
-nmap { '<C-j>', ':ALENextWrap' }
-nmap { '<C-q>', ':ALEFix' }
+nmap { '<C-k>', ':ALEPreviousWrap<CR>' }
+nmap { '<C-j>', ':ALENextWrap<CR>' }
+nmap { '<C-q>', ':ALEFix<CR>' }
 -- Append ; to the end of the line -> Leader+B
 map { '<leader>b', ":call setline('.', getline('.') . ';')<CR>" }
 -- DAP
@@ -85,3 +85,4 @@ nnoremap { 'confe', ':e $MYVIMRC<CR>' }
 nnoremap { 'confr', ':source $MYVIMRC<CR>' }
 -- Split code in line to different lines
 nmap { '<leader>s', ':SplitjoinSplit<cr>' }
+nmap ( '<leader>q', ':TroubleToggle<cr>')

@@ -7,7 +7,8 @@ local util     = require'lspconfig/util'
 local on_attach = function(client, bufnr)
     require 'lsp_signature'.on_attach({
       bind = true,
-      hint_prefix = "! ",
+      log_path = "/tmp/lsp.log",
+      debug = true,
       handler_opts = {
         border = "single"
       }
