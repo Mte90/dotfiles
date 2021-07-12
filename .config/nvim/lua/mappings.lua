@@ -85,4 +85,4 @@ nnoremap { 'confe', ':e $MYVIMRC<CR>' }
 nnoremap { 'confr', ':source $MYVIMRC<CR>' }
 -- Split code in line to different lines
 nmap { '<leader>s', ':SplitjoinSplit<cr>' }
-nmap ( '<leader>q', ':TroubleToggle<cr>')
+nmap { '<leader>q', ':TroubleToggle<cr>' }
