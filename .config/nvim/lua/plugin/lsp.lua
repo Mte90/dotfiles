@@ -1,6 +1,4 @@
--- composer global require php-stubs/wordpress-globals
--- composer global require php-stubs/wordpress-stubs
--- composer global require php-stubs/woocommerce-stubs
+-- composer global require php-stubs/wordpress-globals php-stubs/wordpress-stubs php-stubs/woocommerce-stubs php-stubs/acf-pro-stubs wpsyntex/polylang-stubs php-stubs/genesis-stubs php-stubs/wp-cli-stubs
 local nvim_lsp = require'lspconfig'
 local configs  = require'lspconfig/configs'
 local util     = require'lspconfig/util'
@@ -88,7 +86,12 @@ nvim_lsp.intelephense.setup({
                 "zip",
                 "zlib",
                 "wordpress",
-                "woocommerce"
+                "woocommerce",
+                "acf-pro",
+                "wordpress-globals",
+                "wp-cli",
+                "genesis",
+                "polylang"
             },
             files = {
                 maxSize = 5000000;

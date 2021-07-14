@@ -31,6 +31,7 @@ require'compe'.setup {
     ultisnips = true;
     luasnip = false;
     tabnine = true;
+    wphooks = true;
   };
 }
 

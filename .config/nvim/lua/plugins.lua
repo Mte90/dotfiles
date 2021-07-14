@@ -13,7 +13,8 @@ plugins = {
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'haringsrob/nvim_context_vt'", 
-    --"'nvim-treesitter/nvim-tree-docs'",
+    "'Olical/aniseed', { 'tag': 'v3.19.0' }",
+    "'nvim-treesitter/nvim-tree-docs'",
     -- close html tags
     "'windwp/nvim-ts-autotag'",
     -- object view
