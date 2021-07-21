@@ -27,6 +27,7 @@ endfunction
 augroup PHP
   autocmd!
   autocmd BufReadPost,BufNewFile *.php call LoadNewPHPStan()
+  autocmd BufWritePost * silent! !$HOME'/.vim/custom/indent-comment.sh' <afile>
 augroup END
 
 if !exists('wordpress_mode')
@@ -49,7 +50,7 @@ if !exists('wordpress_mode')
     \   'javascript': ['eslint', 'prettier'],
     \   'markdown': ['remark-lint'],
     \   'sass': ['sass-lint'],
-    \   'php': ['phpcbf', 'php_cs_fixer'],
+    \   'php': ['php_cs_fixer', 'phpcbf'],
     \}
 else
     let g:ale_linters = {

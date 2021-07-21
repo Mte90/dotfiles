@@ -54,7 +54,7 @@ plugins = {
     -- Autocomplete 
     "'hrsh7th/nvim-compe'",
     "'FateXii/emmet-compe'",
-    "'tzachar/compe-tabnine', { 'do': './install.sh' }",
+--     "'tzachar/compe-tabnine', { 'do': './install.sh' }",
     -- highlights which characters to target
     "'unblevable/quick-scope'", -- VimL
     -- Search pulse
@@ -97,20 +97,7 @@ vim.cmd[[call plug#begin('~/.vim/plugged')]]
   if vim.fn.exists("wordpress_mode") == 0 then
     -- startify for a cool home page
     vim.cmd("Plug 'mhinz/vim-startify'") -- VimL
-  end
-  if vim.fn.exists("wordpress_mode") == 0 then
     -- Syntax highlighting for webapi
     vim.cmd("Plug 'mattn/webapi-vim', { 'for' : ['javascript'] }") -- VimL
   end
 vim.cmd[[call plug#end()]]
-
-
-require('plugin.ts')
-require('plugin.lsp')
-require('plugin.dap')
-require('plugin.gitsigns')
-require('plugin.nvim-comment')
-require('plugin.lualine')
-require('plugin.blankline')
-require('plugin.compe')
-require('plugin.chadtree')

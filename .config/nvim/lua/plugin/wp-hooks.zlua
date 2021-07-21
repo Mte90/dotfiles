@@ -1,0 +1,56 @@
+local compe = require 'compe'
+local Source = {}
+
+--vim.fn.json_decode
+
+function Source.get_metadata(self)
+	return {
+		priority = 100,
+		dup = 1,
+		menu = '[wp-hooks]',
+        filetypes = { 'php' }
+	}
+end
+
+function Source.determine(self, context)
+    print(vim.inspect(context))
+	local start = context.before_line:find('add_action(\'%S*$')
+	if start ~= nil then
+		return {
+			keyword_pattern_offset = start,
+			trigger_character_offset = start,
+		}
+	end
+	return {}
+end
+
+function Source.complete(self, args)
+	local input = args.input
+	if input == nil or input == "" then
+		return
+	end
+
+	local first_letter = input:sub(2, 2)
+	if first_letter == "" then
+		args.callback { items = symbols_all }
+		return
+	end
+
+	local items = {}
+	for code, symbol in pairs(symbols_1l[first_letter]) do
+		if code:sub(1, #input):lower() == input:lower() then
+			if vim.b.compe_latex_insert_code then
+				local symbol_rev = vim.deepcopy(symbol)
+				symbol_rev.word = symbol_rev.menu
+				table.insert(items, symbol_rev)
+			else
+				table.insert(items, symbol)
+			end
+		end
+	end
+
+	args.callback { items = items }
+end
+
+require'compe'.register_source('wphooks', Source)
+return Source 
