@@ -13,6 +13,7 @@ plugins = {
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'haringsrob/nvim_context_vt'", 
+    "'nvim-ts-context-commentstring'",
     "'Olical/aniseed', { 'tag': 'v3.19.0' }",
     "'nvim-treesitter/nvim-tree-docs'",
     -- close html tags
@@ -64,7 +65,7 @@ plugins = {
     -- chadtree
     "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':CHADdeps'}",
     -- Status bar
-    "'hoob3rt/lualine.nvim', { 'commit': '5c20f5f4b8b3318913ed5a9b00cd5610b7295bd4'}",
+    "'shadmansaleh/lualine.nvim'", -- This fork is updated!
     "'akinsho/nvim-bufferline.lua'",
     "'mte90/vim-no-fixme', {'branch': 'patch-1'}", -- VimL
     "'folke/todo-comments.nvim'",
@@ -101,3 +102,38 @@ vim.cmd[[call plug#begin('~/.vim/plugged')]]
     vim.cmd("Plug 'mattn/webapi-vim', { 'for' : ['javascript'] }") -- VimL
   end
 vim.cmd[[call plug#end()]]
+
+-- https://www.reddit.com/r/neovim/comments/opipij/guide_tips_and_tricks_to_reduce_startup_and/
+local disabled_built_ins = {
+    "netrw",
+    "netrwPlugin",
+    "netrwSettings",
+    "netrwFileHandlers",
+    "gzip",
+    "zip",
+    "zipPlugin",
+    "tar",
+    "tarPlugin",
+    "getscript",
+    "getscriptPlugin",
+    "vimball",
+    "vimballPlugin",
+    "2html_plugin",
+    "logipat",
+    "rrhelper",
+    "spellfile_plugin"
+}
+
+for _, plugin in pairs(disabled_built_ins) do
+    vim.g["loaded_" .. plugin] = 1
+end
+
+require('plugin.blankline')
+require('plugin.chadtree')
+require('plugin.compe')
+require('plugin.dap')
+require('plugin.gitsigns')
+require('plugin.lsp')
+require('plugin.lualine')
+require('plugin.nvim-comment')
+require('plugin.ts')
