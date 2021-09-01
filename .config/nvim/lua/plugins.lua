@@ -4,6 +4,7 @@
 plugins = {
     -- KDE style theme
     "'fneu/breezy'", -- not yet ready
+    "'lewis6991/impatient.nvim'",
     -- LSP 
     "'neovim/nvim-lspconfig'",
     "'folke/lsp-colors.nvim'",
@@ -13,7 +14,7 @@ plugins = {
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'haringsrob/nvim_context_vt'", 
-    "'nvim-ts-context-commentstring'",
+    "'JoosepAlviste/nvim-ts-context-commentstring'",
     "'Olical/aniseed', { 'tag': 'v3.19.0' }",
     "'nvim-treesitter/nvim-tree-docs'",
     -- close html tags

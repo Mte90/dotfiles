@@ -1,5 +1,6 @@
 " Ale linting
 let g:ale_php_phpcbf_executable = $HOME.'/.vim/custom/phpcbf-helper.sh'
+let g:ale_php_phpcbf_use_global = 1
 if !exists('wordpress_mode')
     let g:ale_php_phpcs_standard  = 'CodeatCodingStandard'
     let g:ale_php_phpcbf_standard  = 'CodeatCodingStandard'
@@ -14,6 +15,9 @@ endif
 let g:ale_scss_sasslint_executable = '/usr/bin/sass-lint'
 let g:ale_php_phpcs_use_global = 1
 let g:ale_php_cs_fixer_use_global = 1
+let g:ale_disable_lsp = 1
+let g:ale_completion_enabled = 0
+
 
 function LoadNewPHPStan()
     " Wait Rooter that set the path
