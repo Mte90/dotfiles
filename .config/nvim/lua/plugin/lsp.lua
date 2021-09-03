@@ -2,6 +2,9 @@
 local nvim_lsp = require'lspconfig'
 local configs  = require'lspconfig/configs'
 local util     = require'lspconfig/util'
+
+require("lspinstall").setup()
+
 local on_attach = function(client, bufnr)
     require 'lsp_signature'.on_attach({
       bind = true,

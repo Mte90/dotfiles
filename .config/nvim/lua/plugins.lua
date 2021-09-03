@@ -11,6 +11,7 @@ plugins = {
     "'folke/lsp-trouble.nvim'",
     "'onsails/lspkind-nvim'",
     "'ray-x/lsp_signature.nvim'",
+    "'kabouzeid/nvim-lspinstall'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'haringsrob/nvim_context_vt'", 
@@ -45,18 +46,15 @@ plugins = {
     "'Konfekt/FastFold'", -- VimL
     -- Underlines the words under your cursor
     "'yamatsum/nvim-cursorline'",
+    -- Autopair added
+    "'windwp/nvim-autopairs'",
     -- Snippets engine and... snippets!
     "'SirVer/ultisnips'", -- VimL
-    "'honza/vim-snippets'", -- VimL
-    "'sniphpets/sniphpets', { 'for' : ['php'] }", -- VimL
-    "'sniphpets/sniphpets-phpunit', { 'for' : ['php'] }", -- VimL
-    "'sniphpets/sniphpets-common', { 'for' : ['php'] }", -- VimL
     -- Emmett support
     "'mattn/emmet-vim'",
     -- Autocomplete 
-    "'hrsh7th/nvim-compe'",
-    "'FateXii/emmet-compe'",
---     "'tzachar/compe-tabnine', { 'do': './install.sh' }",
+    "'ms-jpq/coq_nvim', {'do': ':COQdeps'}",
+    "'ms-jpq/coq.artifacts', {'branch': 'artifacts'}",
     -- highlights which characters to target
     "'unblevable/quick-scope'", -- VimL
     -- Search pulse
@@ -131,10 +129,11 @@ end
 
 require('plugin.blankline')
 require('plugin.chadtree')
-require('plugin.compe')
 require('plugin.dap')
 require('plugin.gitsigns')
 require('plugin.lsp')
 require('plugin.lualine')
 require('plugin.nvim-comment')
 require('plugin.ts')
+require('plugin.coq')
+require('plugin.autopairs')

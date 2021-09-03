@@ -3,6 +3,7 @@ local k = require"astronauta.keymap"
 local nnoremap = k.nnoremap
 local inoremap = k.inoremap
 local vnoremap = k.vnoremap
+local xnoremap = k.xnoremap
 local map      = k.map
 local nmap     = k.nmap
 local vmap     = k.vmap
@@ -28,6 +29,7 @@ nnoremap { 'd', '"_d' }
 nnoremap { 'D', '"_D' }
 vnoremap { 'd', '"_d' }
 nnoremap { '<del>', '<C-G>"_x' }
+xnoremap { 'p', 'pgvy' }
 -- Move between panes/split with Ctrl
 map { '<silent> <C-Up> ', ':wincmd k<CR>' }
 map { '<silent> <C-Down>', ':wincmd j<CR>' }

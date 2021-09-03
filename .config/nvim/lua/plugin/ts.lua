@@ -10,8 +10,9 @@ require'nvim-treesitter.configs'.setup {
   },
   context_commentstring = {
     enable = true
-  }
-  tree_docs = {enable = true}
+  },
+  tree_docs = {enable = true},
+  autopairs = {enable = true}
 } 
 
 local opts = {

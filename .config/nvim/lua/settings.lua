@@ -90,6 +90,11 @@ bo.copyindent      = true        -- Copy the structure of existing line's indent
 
 vim.api.nvim_command('colorscheme valloric')
 
+vim.opt.listchars = {
+    eol = "↴",
+    space = " ",
+}
+
 -- From https://github.com/nimaipatel/dotfiles/blob/master/.config/nvim/lua/nimai/utils.lua
 
 local globalListenerName = 'globallistenername'
