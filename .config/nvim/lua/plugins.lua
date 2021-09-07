@@ -12,6 +12,7 @@ plugins = {
     "'onsails/lspkind-nvim'",
     "'ray-x/lsp_signature.nvim'",
     "'kabouzeid/nvim-lspinstall'",
+    "'kosayoda/nvim-lightbulb'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'haringsrob/nvim_context_vt'", 
@@ -48,8 +49,6 @@ plugins = {
     "'yamatsum/nvim-cursorline'",
     -- Autopair added
     "'windwp/nvim-autopairs'",
-    -- Snippets engine and... snippets!
-    "'SirVer/ultisnips'", -- VimL
     -- Emmett support
     "'mattn/emmet-vim'",
     -- Autocomplete 

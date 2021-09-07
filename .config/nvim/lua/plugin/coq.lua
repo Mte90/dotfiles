@@ -6,11 +6,16 @@ vim.g.coq_settings = {
         },
         tree_sitter = {
           enabled = true,
+          weight_adjust = 1.0
         },
-        tabnine =  {
+        tabnine = {
           enabled = true,
-        }
-    }
+        },
+        snippets = {
+          user_path = '/home/mte90/.config/nvim/lua/coq-user-snippets',
+          weight_adjust = 1.4
+        },
+    },
 }
 
 local coq = require("coq")
