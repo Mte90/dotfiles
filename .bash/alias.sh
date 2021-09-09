@@ -33,20 +33,14 @@ alias codeatcscbf='phpcbf -p -d memory_limit=512M --ignore=*vendor*,index.php,*t
 
 # For Git
 alias git='/home/mte90/Desktop/Prog/gitapper/gitapper.sh'
-alias git-commit-rename='git commit --amend'
-alias git-remove-last-commit='git reset --soft HEAD~1'
 #  To remember the SSH password for 36000 minutes
 alias git-pass='ssh-add -t 36000'
 alias gpm="git push origin master"
-alias git-restage="git update-index --again"
-alias git-rename-branch="git rename-branch"
 alias git-remove-deleted-branch-remotely="git remote prune origin"
 #  Add and remove new/deleted files from git index automatically
 alias git-remove-file-not-exist-anymore-history="git ls-files -d -m -o -z --exclude-standard | xargs -0 git update-index --add --remove"
 alias dotfiles="/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
-function git-merge-last-commits() { git reset --soft HEAD~$1 && git commit; }
 function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
-# https://github.com/therealklanni/gdex, git-diff-branch
 
 alias nvim-qt="/home/mte90/Desktop/Prog/My-Scripts/misc/nvim-qt.py"
 
