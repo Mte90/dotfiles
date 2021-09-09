@@ -22,9 +22,7 @@ My setup includes various plugin with various settings, so to work better on Wor
 
 ## Git tools
 
-* [Validate-Commit.py](https://github.com/Mte90/My-Scripts/blob/master/dev/validate-commit.py) for [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
-* [Forgit](https://github.com/wfxr/forgit), A utility tool powered by fzf for using git interactively. 
-* [hub](https://github.com/github/hub), A command-line tool that makes git easier to use with GitHub
+* [Gitapper](https://github.com/Mte90/gitapper), a `git` wrapper with a lot of stuff
 
 ## Other tools installed
 
@@ -40,7 +38,6 @@ My setup includes various plugin with various settings, so to work better on Wor
 * [DL-Telegram-by-file-attachment](https://github.com/Mte90/DL-Telegram-by-file-attachment/), Download documents by terms looking in a Telegram channel
 * [pydal](https://github.com/Mte90/pydal), Remap your specific keyboard to execute custom scripts!
 * [SyntaxAutoFix](https://github.com/Mte90/SyntaxAutoFix), Autofix your typos on Linux easily!
-* [gitapper](https://github.com/Mte90/gitapper), Extend git commands with your scripts
 * [ExtStoreStats](https://github.com/Mte90/ExtStoreStats), Get the stats of your browser extension on different marketplace
 * [CSVEmaiLVerifier](https://github.com/CodeAtCode/CSVEmailVerifier), Automatic validation if email exist by CSV file
 * [My-Scripts](https://github.com/Mte90/My-Scripts), Archive of my own scripts
