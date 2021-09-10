@@ -11,3 +11,5 @@
 .xfce4-session.*
 .xsession-errors
 .config/nvim/pack/
+*.katesession
+.config/nvim/alpha_bookmark.lua

@@ -1,7 +1,7 @@
 -- Based on https://github.com/nimaipatel/dotfiles/blob/master/.config/nvim/lua/nimai/misc.lua
 
 AddEventListener('ScrolloffFraction', { 'BufEnter,WinEnter,WinNew,VimResized *,*.*' }, function ()
-	if (vim.bo.filetype ~= 'qf' or vim.bo.filetype ~= 'startify') then
+	if (vim.bo.filetype ~= 'qf' or vim.bo.filetype ~= 'alpha') then
 		local vis_lines = vim.api.nvim_win_get_height(vim.fn.win_getid())
 		vim.o.scrolloff = math.floor(vis_lines * 0.25)
 	end
@@ -65,11 +65,13 @@ vim.g.outermost_root = true
 vim.api.nvim_exec([[
 " Editorconfig
 let g:EditorConfig_exclude_patterns = ['fugitive://.*']
-" Ultisnip
-let g:UltiSnipsEditSplit = 'vertical'
-let g:UltiSnipsExpandTrigger='ctrl-l'
 " Trigger a highlight only when pressing f and F. - quickscope
 let g:qs_highlight_on_keys = ['f']
 let g:qs_max_chars=80
 let g:splitjoin_join_mapping = '' 
+
+let g:loaded_python_provider = 0
+let g:loaded_node_provider = 0
+let g:loaded_ruby_provider = 0
+let g:loaded_perl_provider = 0
 ]],true)

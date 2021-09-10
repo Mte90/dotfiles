@@ -8,8 +8,6 @@ require("lspinstall").setup()
 local on_attach = function(client, bufnr)
     require 'lsp_signature'.on_attach({
       bind = true,
-      log_path = "/tmp/lsp.log",
-      debug = true,
       handler_opts = {
         border = "single"
       }

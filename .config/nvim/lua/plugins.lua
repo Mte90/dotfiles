@@ -83,7 +83,7 @@ plugins = {
     -- Discord
     "'andweeb/presence.nvim'",
     -- EditorConfig support
-    "'editorconfig/editorconfig-vim'",
+    "'editorconfig/editorconfig-vim'", -- Viml
     -- Comments
     "'terrortylor/nvim-comment'"
 }
@@ -94,8 +94,8 @@ vim.cmd[[call plug#begin('~/.vim/plugged')]]
   end
 
   if vim.fn.exists("wordpress_mode") == 0 then
-    -- startify for a cool home page
-    vim.cmd("Plug 'mhinz/vim-startify'") -- VimL
+    -- alpha for a cool home page
+    vim.cmd("Plug 'goolord/alpha-nvim'") -- VimL
     -- Syntax highlighting for webapi
     vim.cmd("Plug 'mattn/webapi-vim', { 'for' : ['javascript'] }") -- VimL
   end
@@ -136,3 +136,6 @@ require('plugin.nvim-comment')
 require('plugin.ts')
 require('plugin.coq')
 require('plugin.autopairs')
+if vim.fn.exists("wordpress_mode") == 0 then
+    require('plugin.alpha')
+end

@@ -3,7 +3,7 @@ require('lualine').setup{
         theme = 'papercolor_light',
         icons_enabled = true,
         condition = exclude_statusline,
-        disabled_filetypes = {'startify', 'Outline', 'plugins'},
+        disabled_filetypes = {'alpha', 'Outline', 'plugins','CHADtree'},
     },
     sections = {
         lualine_a = { { 'mode', upper = true } },
@@ -13,9 +13,26 @@ require('lualine').setup{
         lualine_y = { { 'nofixme#amount'} },
         lualine_z = { { 'diagnostics', sources = {'nvim_lsp', 'ale'}, sections = {'error', 'warn', 'info'} } }
     },
-    extensions = { 'fzf', 'chadtree', 'fugitive' }
+    extensions = { 'fzf', 'chadtree', 'fugitive', 'quickfix' }
 } 
 
 require'bufferline'.setup{
-    diagnostics = "nvim_lsp"
+    options = {
+        diagnostics = "nvim_lsp",
+        diagnostics_indicator = function(count, level, diagnostics_dict, context)
+            if context.buffer:current() then
+                return ''
+            end
+
+            return ''
+        end,
+        offsets = {
+            {
+                filetype = "CHADtree",
+                text = "File Explorer",
+                highlight = "Directory",
+                text_align = "left"
+            }
+        }
+    }
 }
