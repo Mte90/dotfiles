@@ -6,7 +6,7 @@ require('lualine').setup{
         disabled_filetypes = {'alpha', 'Outline', 'plugins','CHADtree'},
     },
     sections = {
-        lualine_a = { { 'mode', upper = true } },
+        lualine_a = { { 'mode', fmt = string.upper } },
         lualine_b = { { 'branch', icon = '' } },
         lualine_c = { { 'diff', icon = ''}, {'filename'} },
         lualine_x = { { 'filetype', 'fileformat'} },

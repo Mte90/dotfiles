@@ -54,6 +54,7 @@ plugins = {
     -- Autocomplete 
     "'ms-jpq/coq_nvim', {'do': ':COQdeps'}",
     "'ms-jpq/coq.artifacts', {'branch': 'artifacts'}",
+    "'mte90/coq_wordpress', {'do': './install.sh'}",
     -- highlights which characters to target
     "'unblevable/quick-scope'", -- VimL
     -- Search pulse
@@ -76,7 +77,7 @@ plugins = {
     -- display the hexadecimal colors - useful for css and color config
     "'norcalli/nvim-colorizer.lua'",
     -- Report lint errors
-    "'dense-analysis/ale'",
+    "'dense-analysis/ale'", -- Viml
     "'nathunsmitty/nvim-ale-diagnostic'",
     -- Wakatime
     "'wakatime/vim-wakatime'",

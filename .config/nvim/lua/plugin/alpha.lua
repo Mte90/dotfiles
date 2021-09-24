@@ -24,8 +24,12 @@ startify.section.header.val = {
 -- disable sections
 startify.section.top_buttons.val = {}
 -- custom sections rewritten
-startify.section.mru.val = { { type = "text", val = "> Recent Files", opts = { position = 'center' } }, {type = "padding", val = 1}, {type = "group", val = function() return { startify.mru(1, vim.fn.getcwd, 3) } end, opts = { position = 'center' }} }
-startify.section.mru_cwd.val = { { type = "padding", val = 1 }, { type = "text", val = "> Bookmark", opts = { position = 'center' } } }
+startify.section.mru.val = {
+                            {type = "text", val = " Recent Files", opts = { position = 'center', hl = "SpecialComment" } },
+                            {type = "padding", val = 1},
+                            {type = "group", val = function() return { startify.mru(1, vim.fn.getcwd(), 3) } end, opts = { position = 'center' } }
+                           }
+startify.section.mru_cwd.val = { { type = "padding", val = 1 }, { type = "text", val = " Bookmark", opts = { position = 'center', hl = "SpecialComment" } } }
 -- custom bookmarks that are not on GitHub
 dofile('/home/mte90/.config/nvim/alpha_bookmark.lua')
 
