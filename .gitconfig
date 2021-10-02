@@ -49,7 +49,7 @@
 [color]
 	ui = auto
 [init]
-	templatedir = /home/mte90/.gh-license/git-templates
+	templatedir = /home/mte90/.git-templates
 [github]
 	user = Mte90
 [url "https://github"]
