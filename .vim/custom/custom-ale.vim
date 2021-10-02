@@ -80,16 +80,4 @@ let g:ale_sign_warning = ''
 let g:ale_change_sign_column_color = 1
 let g:ale_completion_enabled = 0
 let g:ale_set_loclist = 0
-let g:ale_set_quickfix = 1 
-
-lua << EOF
-require("nvim-ale-diagnostic")
-vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-  vim.lsp.diagnostic.on_publish_diagnostics, {
-    underline = false,
-    virtual_text = true,
-    signs = true,
-    update_in_insert = false,
-  }
-)
-EOF
+let g:ale_set_quickfix = 1

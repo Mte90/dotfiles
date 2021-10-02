@@ -4,7 +4,8 @@ A list of external tools that is repo use (or extend) or that I use on daily usa
 
 ## NeoVim
 
-My setup includes various plugin with various settings, so to work better on WordPress contributions I created an alias `nvim-wp` that run nvim with less plugins and different [ALE settings](.vim/custom/custom-ale.vim).
+My setup includes various plugins, so to work better on WordPress contributions I created an alias `nvim-wp` that run nvim with less plugins and different [ALE settings](.vim/custom/custom-ale.vim).  
+Also I have a Python script that let me to have only one running instance of `nvim-qt`.
 
 ## Bash tools
 
@@ -15,21 +16,20 @@ My setup includes various plugin with various settings, so to work better on Wor
 * [bat](https://github.com/sharkdp/bat), A cat(1) clone with wings
 * [sd](https://github.com/chmln/sd), A sed alternative more simple
 * [fdfind](https://github.com/sharkdp/fd), A simple, fast and user-friendly alternative to 'find'
-* [ripgrep](https://github.com/BurntSushi/ripgrep), ripgrep recursively searches directories for a regex pattern 
-* [colordiff](https://www.colordiff.org/), diff with syntax highlighting
+* [ripgrep](https://github.com/BurntSushi/ripgrep), ripgrep recursively searches directories for a regex pattern
 * [FZF](https://github.com/junegunn/fzf) with [custom settings](https://github.com/Mte90/dotfiles/tree/master/.bash/fzf)
 * [complete-alias](https://github.com/cykerway/complete-alias), automagical shell alias completion
 
 ## Git tools
 
 * [Gitapper](https://github.com/Mte90/gitapper), a `git` wrapper with a lot of stuff
+* [delta](https://github.com/dandavison/delta), A syntax-highlighting pager for git 
 
 ## Other tools installed
 
 * [Multitail](https://www.vanheusden.com/multitail/) with support for PHP
 * [Klogg](https://github.com/variar/klogg/), Log viewer with GUI alternative to Multitail
-* [youtube-dl](https://youtube-dl.org/)
-* [slack-message](https://daniele.tech/2017/08/to-send-message-to-slack-with-bash/)
+* [youtube-dlp](https://github.com/yt-dlp/yt-dlp)
 
 ### My own tools
 

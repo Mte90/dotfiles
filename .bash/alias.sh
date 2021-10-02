@@ -27,10 +27,6 @@ alias yt2mp3='youtube-dl -x --audio-format=mp3 -w -c -o "%(title)s-%(id)s.%(ext)
 alias changedfiles="find . -type f -print0 | xargs -0 stat --format '%Z :%z %n' | sort -nr | cut -d: -f2- | head -n 20"
 alias kate='kate -b'
 
-# dev
-alias codeatcs='phpcs -p -s -d memory_limit=512M --ignore=*vendor*,index.php,*tests* --standard=CodeatCodingStandard '
-alias codeatcscbf='phpcbf -p -d memory_limit=512M --ignore=*vendor*,index.php,*tests* --standard=CodeatCodingStandard '
-
 # For Git
 alias git='/home/mte90/Desktop/Prog/gitapper/gitapper.sh'
 #  To remember the SSH password for 36000 minutes
