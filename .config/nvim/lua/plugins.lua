@@ -69,8 +69,8 @@ plugins = {
     "'mte90/vim-no-fixme', {'branch': 'patch-1'}", -- VimL
     "'folke/todo-comments.nvim'",
     -- fzf - poweful search
-    "'junegunn/fzf'",
-    "'junegunn/fzf.vim'",  -- VimL
+    "'vijaymarupudi/nvim-fzf'",
+    "'ibhagwan/fzf-lua'",
     "'kevinhwang91/nvim-bqf'", -- quickfix
     -- Wrapper for sd
     "'SirJson/sd.vim'",
@@ -127,16 +127,16 @@ for _, plugin in pairs(disabled_built_ins) do
     vim.g["loaded_" .. plugin] = 1
 end
 
+require('plugin.autopairs')
 require('plugin.blankline')
 require('plugin.chadtree')
+require('plugin.coq')
 require('plugin.dap')
 require('plugin.gitsigns')
 require('plugin.lsp')
 require('plugin.lualine')
 require('plugin.nvim-comment')
 require('plugin.ts')
-require('plugin.coq')
-require('plugin.autopairs')
 if vim.fn.exists("wordpress_mode") == 0 then
     require('plugin.alpha')
 end

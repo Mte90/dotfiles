@@ -63,9 +63,9 @@ nmap { '<C-t>', ':SymbolsOutline<CR>' }
 -- Search in the project files
 nmap { '<leader>f', ':Rg<space>' }
 -- File list with fzf
-nmap { '<leader>x', ':Files<CR>' }
+nmap { '<leader>x', ':FzfLua files<CR>' }
 -- Search on file with fzf
-nmap { '<leader>g', ':Lines<CR>' }
+nmap { '<leader>g', ':FzfLua lines<CR>' }
 -- Jump to definition under cursor
 nmap { '<leader>j', '<cmd>lua vim.lsp.buf.definition()<cr>' }
 -- navigate between errors

@@ -130,29 +130,13 @@ au User lsp_setup call lsp#register_server({
      \ })                   
 ]]);
 
--- define global function
-_G.lsp_import_on_completion = function()
-    local completed_item = vim.v.completed_item
-    if not (completed_item and completed_item.user_data and
-        completed_item.user_data.nvim and completed_item.user_data.nvim.lsp and
-        completed_item.user_data.nvim.lsp.completion_item) then return end
-
-    local item = completed_item.user_data.nvim.lsp.completion_item
-    local bufnr = vim.api.nvim_get_current_buf()
-    vim.lsp.buf_request(bufnr, "completionItem/resolve", item,
-                    function(_, _, result)
-        if result and result.additionalTextEdits then
-            vim.lsp.util.apply_text_edits(result.additionalTextEdits, bufnr)
-        end
-    end)
-end
-
--- define autocmd to listen for CompleteDone
-vim.api.nvim_exec([[
-augroup LSPImportOnCompletion
-    autocmd!
-    autocmd CompleteDone * lua lsp_import_on_completion()
-augroup END
-]], false)
-
 vim.cmd [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
+
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
+  vim.lsp.diagnostic.on_publish_diagnostics, {
+    underline = false,
+    virtual_text = true,
+    signs = true,
+    update_in_insert = false,
+  }
+)
