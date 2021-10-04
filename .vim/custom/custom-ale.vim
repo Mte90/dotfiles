@@ -1,5 +1,5 @@
 " Ale linting
-let g:ale_php_phpcbf_executable = $HOME.'/.vim/custom/phpcbf-helper.sh'
+let g:ale_php_phpcbf_executable = $HOME.'/.vim/custom/php-cbf-helper.sh'
 let g:ale_php_phpcbf_use_global = 1
 if !exists('wordpress_mode')
     let g:ale_php_phpcs_standard  = 'CodeatCodingStandard'

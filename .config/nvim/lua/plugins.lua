@@ -21,6 +21,8 @@ plugins = {
     "'nvim-treesitter/nvim-tree-docs'",
     -- close html tags
     "'windwp/nvim-ts-autotag'",
+    -- Autorename closing HTML tags
+    "'AndrewRadev/tagalong.vim'", -- Viml
     -- object view
     "'simrat39/symbols-outline.nvim'",
     -- Cool icons
