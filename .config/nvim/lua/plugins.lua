@@ -5,6 +5,7 @@ plugins = {
     -- KDE style theme
     "'fneu/breezy'", -- not yet ready
     "'lewis6991/impatient.nvim'",
+    "'nathom/filetype.nvim'",
     -- LSP 
     "'neovim/nvim-lspconfig'",
     "'folke/lsp-colors.nvim'",
@@ -53,6 +54,8 @@ plugins = {
     "'windwp/nvim-autopairs'",
     -- Emmett support
     "'mattn/emmet-vim'",
+    -- Move code blocks
+    "'fedepujol/move.nvim'",
     -- Autocomplete 
     "'ms-jpq/coq_nvim', {'do': ':COQdeps'}",
     "'ms-jpq/coq.artifacts', {'branch': 'artifacts'}",
@@ -86,7 +89,7 @@ plugins = {
     -- Discord
     "'andweeb/presence.nvim'",
     -- EditorConfig support
-    "'editorconfig/editorconfig-vim'", -- Viml
+    "'gpanders/editorconfig.nvim'",
     -- Comments
     "'terrortylor/nvim-comment'"
 }
