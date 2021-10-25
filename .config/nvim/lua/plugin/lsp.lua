@@ -3,7 +3,7 @@ local nvim_lsp = require'lspconfig'
 local configs  = require'lspconfig/configs'
 local util     = require'lspconfig/util'
 
-require("lspinstall").setup()
+local lsp_installer = require("nvim-lsp-installer")
 
 local on_attach = function(client, bufnr)
     require 'lsp_signature'.on_attach({
@@ -140,3 +140,6 @@ vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
     update_in_insert = true,
   }
 )
+
+vim.ui.select = require"popui.ui-overrider"
+vim.api.nvim_command([[autocmd CursorHold <cmd>lua vim.lsp.buf.code_action()<CR>]])

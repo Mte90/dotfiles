@@ -12,8 +12,10 @@ plugins = {
     "'folke/lsp-trouble.nvim'",
     "'onsails/lspkind-nvim'",
     "'ray-x/lsp_signature.nvim'",
-    "'kabouzeid/nvim-lspinstall'",
+    "'williamboman/nvim-lsp-installer'",
     "'kosayoda/nvim-lightbulb'",
+    "'hood/popui.nvim'",
+    "'RishabhRD/popfix'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'haringsrob/nvim_context_vt'", 
@@ -69,7 +71,7 @@ plugins = {
     -- chadtree
     "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':CHADdeps'}",
     -- Status bar
-    "'shadmansaleh/lualine.nvim'", -- This fork is updated!
+    "'nvim-lualine/lualine.nvim'",
     "'akinsho/nvim-bufferline.lua'",
     "'mte90/vim-no-fixme', {'branch': 'patch-1'}", -- VimL
     "'folke/todo-comments.nvim'",
