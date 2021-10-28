@@ -6,6 +6,7 @@ plugins = {
     "'fneu/breezy'", -- not yet ready
     "'lewis6991/impatient.nvim'",
     "'nathom/filetype.nvim'",
+    "'rcarriga/nvim-notify'",
     -- LSP 
     "'neovim/nvim-lspconfig'",
     "'folke/lsp-colors.nvim'",
@@ -14,14 +15,14 @@ plugins = {
     "'ray-x/lsp_signature.nvim'",
     "'williamboman/nvim-lsp-installer'",
     "'kosayoda/nvim-lightbulb'",
-    "'hood/popui.nvim'",
     "'RishabhRD/popfix'",
+    "'hood/popui.nvim'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'haringsrob/nvim_context_vt'", 
     "'JoosepAlviste/nvim-ts-context-commentstring'",
-    "'Olical/aniseed', { 'tag': 'v3.19.0' }",
-    "'nvim-treesitter/nvim-tree-docs'",
+--     "'Olical/aniseed', { 'tag': 'v3.19.0' }",
+--     "'nvim-treesitter/nvim-tree-docs'",
     -- close html tags
     "'windwp/nvim-ts-autotag'",
     -- Autorename closing HTML tags
@@ -61,7 +62,7 @@ plugins = {
     -- Autocomplete 
     "'ms-jpq/coq_nvim', {'do': ':COQdeps'}",
     "'ms-jpq/coq.artifacts', {'branch': 'artifacts'}",
-    "'mte90/coq_wordpress', {'do': './install.sh'}",
+--     "'mte90/coq_wordpress', {'do': './install.sh'}",
     -- highlights which characters to target
     "'unblevable/quick-scope'", -- VimL
     -- Search pulse
@@ -72,9 +73,9 @@ plugins = {
     "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':CHADdeps'}",
     -- Status bar
     "'nvim-lualine/lualine.nvim'",
+--     "'clason/lualine-lsp-progress'", -- not works with latest nvim
     "'akinsho/nvim-bufferline.lua'",
     "'mte90/vim-no-fixme', {'branch': 'patch-1'}", -- VimL
-    "'folke/todo-comments.nvim'",
     -- fzf - poweful search
     "'vijaymarupudi/nvim-fzf'",
     "'ibhagwan/fzf-lua'",
@@ -93,7 +94,8 @@ plugins = {
     -- EditorConfig support
     "'gpanders/editorconfig.nvim'",
     -- Comments
-    "'terrortylor/nvim-comment'"
+    "'terrortylor/nvim-comment'",
+    "'folke/todo-comments.nvim'"
 }
 
 vim.cmd[[call plug#begin('~/.vim/plugged')]]

@@ -18,7 +18,7 @@ require("trouble").setup {
     auto_open = true,
     auto_close = true
 }
-
+require('lspkind').init()
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.completion.completionItem.resolveSupport = {

@@ -8,7 +8,16 @@ require('lualine').setup{
     sections = {
         lualine_a = { { 'mode', fmt = string.upper } },
         lualine_b = { { 'branch', icon = '' } },
-        lualine_c = { { 'diff', icon = ''}, {'filename'} },
+        lualine_c = { { 'diff', icon = ''}, {
+            'lsp_progress',
+            display_components = {'lsp_client_name', { 'percentage' }, 'spinner'},
+            separators = {
+              title = { pre = '', post = ': ' },
+            },
+            spinner_symbols = {'⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'},
+            padding = 1,
+          }
+        },
         lualine_x = { { 'filetype', 'fileformat'} },
         lualine_y = { { 'nofixme#amount'} },
         lualine_z = { { 'diagnostics', sources = {'nvim_lsp', 'ale'}, sections = {'error', 'warn', 'info'} } }
