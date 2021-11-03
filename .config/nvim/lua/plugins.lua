@@ -73,7 +73,7 @@ plugins = {
     "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':CHADdeps'}",
     -- Status bar
     "'nvim-lualine/lualine.nvim'",
---     "'clason/lualine-lsp-progress'", -- not works with latest nvim
+    "'arkav/lualine-lsp-progress'",
     "'akinsho/nvim-bufferline.lua'",
     "'mte90/vim-no-fixme', {'branch': 'patch-1'}", -- VimL
     -- fzf - poweful search

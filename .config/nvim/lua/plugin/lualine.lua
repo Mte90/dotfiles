@@ -2,7 +2,6 @@ require('lualine').setup{
     options = {
         theme = 'papercolor_light',
         icons_enabled = true,
-        condition = exclude_statusline,
         disabled_filetypes = {'alpha', 'Outline', 'plugins','CHADtree'},
     },
     sections = {
@@ -10,12 +9,8 @@ require('lualine').setup{
         lualine_b = { { 'branch', icon = '' } },
         lualine_c = { { 'diff', icon = ''}, {
             'lsp_progress',
-            display_components = {'lsp_client_name', { 'percentage' }, 'spinner'},
-            separators = {
-              title = { pre = '', post = ': ' },
-            },
+            display_components = {'lsp_client_name', 'spinner', { 'title', 'percentage', 'message' }},
             spinner_symbols = {'⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'},
-            padding = 1,
           }
         },
         lualine_x = { { 'filetype', 'fileformat'} },
