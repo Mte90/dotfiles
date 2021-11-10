@@ -21,8 +21,7 @@ plugins = {
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'haringsrob/nvim_context_vt'", 
     "'JoosepAlviste/nvim-ts-context-commentstring'",
---     "'Olical/aniseed', { 'tag': 'v3.19.0' }",
---     "'nvim-treesitter/nvim-tree-docs'",
+    "'nvim-treesitter/nvim-tree-docs'",
     -- close html tags
     "'windwp/nvim-ts-autotag'",
     -- Autorename closing HTML tags
