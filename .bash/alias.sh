@@ -31,7 +31,7 @@ alias kate='kate -b'
 alias git='/home/mte90/Desktop/Prog/gitapper/gitapper.sh'
 #  To remember the SSH password for 36000 minutes
 alias git-pass='ssh-add -t 36000'
-alias gpm="git push origin master"
+alias gpm="git push origin $(git rev-parse --abbrev-ref HEAD)"
 alias git-remove-deleted-branch-remotely="git remote prune origin"
 #  Add and remove new/deleted files from git index automatically
 alias git-remove-file-not-exist-anymore-history="git ls-files -d -m -o -z --exclude-standard | xargs -0 git update-index --add --remove"
@@ -39,6 +39,8 @@ alias dotfiles="/usr/bin/git --git-dir=$HOME/.dotfiles.git/ --work-tree=$HOME"
 function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 
 alias nvim-qt="/home/mte90/Desktop/Prog/My-Scripts/misc/nvim-qt.py"
+alias vim.tiny="nvim -u NONE"
+alias nvim.tiny="nvim -u NONE"
 
 # https://github.com/cykerway/complete-alias
 complete -F _complete_alias fzf
