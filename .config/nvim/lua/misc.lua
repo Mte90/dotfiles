@@ -76,6 +76,3 @@ let g:loaded_perl_provider = 0
 
 -- Do not source the default filetype.vim
 vim.g.did_load_filetypes = 1
-
--- set default notification thing to nvim-notify
-vim.notify = require("notify")

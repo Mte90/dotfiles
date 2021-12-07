@@ -7,6 +7,11 @@ plugins = {
     "'lewis6991/impatient.nvim'",
     "'nathom/filetype.nvim'",
     "'rcarriga/nvim-notify'",
+    -- Wildmenu superpower
+    "'gelguy/wilder.nvim', {'do': ':UpdateRemotePlugins'}",
+    "'romgrk/fzy-lua-native'",
+    -- UI improvements
+    "'stevearc/dressing.nvim'",
     -- LSP 
     "'neovim/nvim-lspconfig'",
     "'folke/lsp-colors.nvim'",
@@ -73,7 +78,6 @@ plugins = {
     -- Status bar
     "'nvim-lualine/lualine.nvim'",
     "'arkav/lualine-lsp-progress'",
-    "'akinsho/nvim-bufferline.lua'",
     "'mte90/vim-no-fixme', {'branch': 'patch-1'}", -- VimL
     -- fzf - poweful search
     "'vijaymarupudi/nvim-fzf'",
@@ -140,11 +144,13 @@ require('plugin.blankline')
 require('plugin.chadtree')
 require('plugin.coq')
 require('plugin.dap')
+require('plugin.dressing')
 require('plugin.gitsigns')
 require('plugin.lsp')
 require('plugin.lualine')
 require('plugin.nvim-comment')
 require('plugin.ts')
+require('plugin.wilder')
 if vim.fn.exists("wordpress_mode") == 0 then
     require('plugin.alpha')
 end
