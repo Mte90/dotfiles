@@ -10,6 +10,8 @@ plugins = {
     -- Wildmenu superpower
     "'gelguy/wilder.nvim', {'do': ':UpdateRemotePlugins'}",
     "'romgrk/fzy-lua-native'",
+    -- Just delete no yank too
+    "'gbprod/cutlass.nvim'",
     -- UI improvements
     "'stevearc/dressing.nvim'",
     -- LSP 

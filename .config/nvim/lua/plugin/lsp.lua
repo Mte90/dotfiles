@@ -9,7 +9,7 @@ local on_attach = function(client, bufnr)
     require 'lsp_signature'.on_attach({
       bind = true,
       handler_opts = {
-        border = "single"
+        border = "rounded"
       }
     })
 end
@@ -115,14 +115,12 @@ nvim_lsp.bashls.setup{
     capabilities = capabilities,
     on_attach = on_attach
 }
+nvim_lsp.psalm.setup{
+    capabilities = capabilities,
+    on_attach = on_attach
+}
 
 vim.api.nvim_command([[
-    au User lsp_setup call lsp#register_server({
-     \ 'name': 'psalm-language-server',
-     \ 'cmd': '/home/mte90/.composer/vendor/bin/psalm-language-server',
-     \ 'whitelist': ['php'],
-     \ })
-
 au User lsp_setup call lsp#register_server({
      \ 'name': 'kite',
      \ 'cmd': '~/.local/share/kite/current/kite-lsp --editor=vim',

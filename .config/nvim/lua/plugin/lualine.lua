@@ -25,7 +25,7 @@ require('lualine').setup{
         },
         lualine_x = {},
         lualine_y = {  },
-        lualine_z = { { 'diagnostics', sources = {'nvim_lsp', 'ale'}, sections = {'error', 'warn', 'info'} } }
+        lualine_z = { { 'diagnostics', sources = {'nvim_diagnostic', 'ale'}, sections = {'error', 'warn', 'info'} } }
     },
     tabline = {
         lualine_a = {{'tabs',
