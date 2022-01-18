@@ -5,8 +5,8 @@ plugins = {
     -- KDE style theme
     "'fneu/breezy'", -- not yet ready
     "'lewis6991/impatient.nvim'",
-    "'nathom/filetype.nvim'",
     "'rcarriga/nvim-notify'",
+    "'petertriho/nvim-scrollbar'",
     -- Wildmenu superpower
     "'gelguy/wilder.nvim', {'do': ':UpdateRemotePlugins'}",
     "'romgrk/fzy-lua-native'",
@@ -43,8 +43,6 @@ plugins = {
     "'mfussenegger/nvim-dap'",
     "'rcarriga/nvim-dap-ui'",
     "'theHamsta/nvim-dap-virtual-text'",
-    -- https://github.com/neovim/neovim/pull/13823
-    "'tjdevries/astronauta.nvim'",
     -- Auto cwd
     "'ygm2/rooter.nvim'",
     "'nvim-lua/plenary.nvim'",

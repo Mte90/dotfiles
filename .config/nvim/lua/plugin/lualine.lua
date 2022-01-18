@@ -17,7 +17,7 @@ require('lualine').setup{
     sections = {
         lualine_a = { { 'mode', fmt = string.upper } },
         lualine_b = {  },
-        lualine_c = { { 'diff', icon = ''}, {
+        lualine_c = { { 'b:gitsigns_head', icon = '' }, { 'diff', icon = ''}, {
             'lsp_progress',
             display_components = {'lsp_client_name', 'spinner', { 'title', 'percentage', 'message' }},
             spinner_symbols = {'⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'},
@@ -41,3 +41,4 @@ require('lualine').setup{
     extensions = { 'fzf', 'chadtree', 'fugitive', 'quickfix' }
 } 
 
+require("scrollbar").setup()

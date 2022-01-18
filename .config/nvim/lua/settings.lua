@@ -136,3 +136,6 @@ function nvim_create_augroups(definitions)
     vim.api.nvim_command('augroup END')
   end
 end
+
+vim.g.did_load_filetypes = 1
+vim.g.do_filetype_lua = 1
