@@ -31,10 +31,12 @@ plugins = {
     "'nvim-treesitter/nvim-tree-docs'",
     -- close html tags
     "'windwp/nvim-ts-autotag'",
+    -- Autopair added
+    "'windwp/nvim-autopairs'",
     -- Autorename closing HTML tags
     "'AndrewRadev/tagalong.vim'", -- Viml
     -- object view
-    "'simrat39/symbols-outline.nvim'",
+    "'zeertzjq/symbols-outline.nvim', {'branch': 'patch-1'}", -- simrat39/symbols-outline.nvim
     -- Cool icons
     "'kyazdani42/nvim-web-devicons'",
     -- Rainbow Parentheses
@@ -57,8 +59,6 @@ plugins = {
     "'Konfekt/FastFold'", -- VimL
     -- Underlines the words under your cursor
     "'yamatsum/nvim-cursorline'",
-    -- Autopair added
-    "'windwp/nvim-autopairs'",
     -- Emmett support
     "'mattn/emmet-vim'",
     -- Move code blocks

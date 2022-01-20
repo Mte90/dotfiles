@@ -115,13 +115,6 @@ nvim_lsp.bashls.setup{
     capabilities = capabilities,
     on_attach = on_attach
 }
-nvim_lsp.psalm.setup{
-    default_config = {
-        cmd = { '/home/mte90/.composer/vendor/bin/psalm' },
-    },
-    capabilities = capabilities,
-    on_attach = on_attach
-}
 
 vim.api.nvim_command([[
 au User lsp_setup call lsp#register_server({
