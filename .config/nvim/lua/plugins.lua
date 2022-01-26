@@ -76,6 +76,7 @@ plugins = {
     -- chadtree
     "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':CHADdeps'}",
     -- Status bar
+    "'kdheepak/tabline.nvim'",
     "'nvim-lualine/lualine.nvim'",
     "'arkav/lualine-lsp-progress'",
     "'mte90/vim-no-fixme', {'branch': 'patch-1'}", -- VimL
