@@ -23,7 +23,7 @@ plugins = {
     "'williamboman/nvim-lsp-installer'",
     "'kosayoda/nvim-lightbulb'",
     "'RishabhRD/popfix'",
-    "'hood/popui.nvim'",
+    "''",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'haringsrob/nvim_context_vt'", 
@@ -89,8 +89,8 @@ plugins = {
     -- display the hexadecimal colors - useful for css and color config
     "'norcalli/nvim-colorizer.lua'",
     -- Report lint errors
-    "'dense-analysis/ale'", -- Viml
-    "'nathunsmitty/nvim-ale-diagnostic'",
+    "'mfussenegger/nvim-lint'",
+    "'sbdchd/neoformat'",
     -- Wakatime
     "'wakatime/vim-wakatime'",
     -- Discord
@@ -147,6 +147,7 @@ require('plugin.coq')
 require('plugin.dap')
 require('plugin.dressing')
 require('plugin.gitsigns')
+require('plugin.lint')
 require('plugin.lsp')
 require('plugin.lualine')
 require('plugin.nvim-comment')

@@ -8,10 +8,20 @@ local lsp_installer = require("nvim-lsp-installer")
 local on_attach = function(client, bufnr)
     require 'lsp_signature'.on_attach({
       bind = true,
+      floating_window = true,
       handler_opts = {
         border = "rounded"
       }
     })
+    if client.resolved_capabilities.document_highlight then
+        vim.cmd [[
+        augroup lsp_document_highlight
+            autocmd! * <buffer>
+            autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
+            autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
+        augroup END
+        ]]
+    end
 end
 require("trouble").setup {
     mode = "quickfix", 
@@ -116,24 +126,22 @@ nvim_lsp.bashls.setup{
     on_attach = on_attach
 }
 
-vim.api.nvim_command([[
-au User lsp_setup call lsp#register_server({
-     \ 'name': 'kite',
-     \ 'cmd': '~/.local/share/kite/current/kite-lsp --editor=vim',
-     \ 'whitelist': ["php", "javascript", "python", "bash"],
-     \ })                   
-]]);
-
-vim.cmd [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
-
-vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(
-  vim.lsp.diagnostic.on_publish_diagnostics, {
-    underline = false,
-    virtual_text = true,
-    signs = true,
-    update_in_insert = true,
-  }
-)
-
 vim.ui.select = require"popui.ui-overrider"
-vim.api.nvim_command([[autocmd CursorHold <cmd>lua vim.lsp.buf.code_action()<CR>]])
+
+require'nvim-lightbulb'.update_lightbulb({
+  sign = {
+    enabled = true,
+    priority = 10,
+  },
+  float = {
+    enabled = true,
+  },
+  virtual_text = {
+    enabled = true,
+    hl_mode = "combine",
+  },
+  status_text = {
+    enabled = true,
+  }
+})
+vim.cmd [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]

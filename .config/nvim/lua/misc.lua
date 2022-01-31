@@ -74,6 +74,18 @@ let g:loaded_ruby_provider = 0
 let g:loaded_perl_provider = 0
 ]],true)
 
+local signs = {
+    Error = " ",
+    Warn = " ",
+    Hint = " ",
+    Info = " "
+}
+
+for type, icon in pairs(signs) do
+    local hl = "DiagnosticSign" .. type
+    vim.fn.sign_define(hl, {text = icon, texthl = hl, numhl = hl})
+end
+
 -- Do not source the default filetype.vim
 vim.g.did_load_filetypes = 1
 

@@ -8,5 +8,4 @@ require('mappings')
 require('misc')
 EOF
 
-source /home/mte90/.vim/custom/custom-ale.vim
 source /home/mte90/.vim/custom/custom-fzf.vim
