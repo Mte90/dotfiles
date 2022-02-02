@@ -23,7 +23,7 @@ plugins = {
     "'williamboman/nvim-lsp-installer'",
     "'kosayoda/nvim-lightbulb'",
     "'RishabhRD/popfix'",
-    "''",
+    "'hood/popui.nvim'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
     "'haringsrob/nvim_context_vt'", 

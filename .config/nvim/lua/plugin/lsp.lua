@@ -112,7 +112,12 @@ nvim_lsp.intelephense.setup({
     capabilities = capabilities,
     on_attach = on_attach
 });
-nvim_lsp.phpactor.setup{}
+local phpactor_capabilities = vim.lsp.protocol.make_client_capabilities()
+-- phpactor_capabilities['textDocument']['codeAction'] = false
+nvim_lsp.phpactor.setup{
+     capabilities = phpactor_capabilities,
+     on_attach = on_attach
+}
 nvim_lsp.cssls.setup{
     capabilities = capabilities,
     on_attach = on_attach

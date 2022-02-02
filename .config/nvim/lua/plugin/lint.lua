@@ -1,3 +1,20 @@
+local phpcs = require('lint.linters.phpcs')
+if not vim.g.wordpress_mode then
+    phpcs.args = {
+        '-q',
+        '--standard=CodeatCodingStandard',
+        '--report=json',
+        '-'
+    }
+else
+    phpcs.args = {
+        '-q',
+        '--standard=WordPress-Core',
+        '--report=json',
+        '-'
+    }
+end
+
 require('lint').linters_by_ft = {
   sh = { 'shellcheck' },
   yaml = { 'yamlint' },
@@ -27,7 +44,15 @@ if exists('wordpress_mode')
 
     let g:neoformat_enabled_php = ['wordpress-phpcbf']
 else
-    let g:neoformat_enabled_php = ['php-cs-fixer', 'phpcbf']
+    function! neoformat#formatters#php#codeatphpcbf() abort
+    return {
+            \ 'exe': 'phpcbf',
+            \ 'args': ['--standard=CodeatCodingStandard'],
+            \ 'stdin': 1,
+            \ 'valid_exit_codes': [0, 1]
+            \ }
+    endfunction
+    let g:neoformat_enabled_php = ['php-cs-fixer', 'codeatphpcbf']
     let g:neoformat_enabled_css = ['stylelint']
     let g:neoformat_enabled_sass = ['stylelint']
     let g:neoformat_enabled_html = ['prettier']

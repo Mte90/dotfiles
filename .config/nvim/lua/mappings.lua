@@ -77,4 +77,4 @@ vim.keymap.set('n', 'confe', ':e $MYVIMRC<CR>')
 vim.keymap.set('n', 'confr', ':source $MYVIMRC<CR>')
 -- Split code in line to different lines
 vim.keymap.set('n', '<leader>s', ':SplitjoinSplit<cr>')
-vim.keymap.set('n', '<leader>q', ':TroubleToggle<cr>')
+vim.keymap.set('n', '<leader>q', ':TroubleToggle document_diagnostics<cr>')
