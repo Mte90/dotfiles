@@ -9,6 +9,10 @@ require'tabline'.setup {
             show_filename_only = true,
         }
 }
+vim.cmd[[
+      set guioptions-=e " Use showtabline in gui vim
+      set sessionoptions+=tabpages,globals " store tabpages and globals in session
+]]
 local function diff_source()
   local gitsigns = vim.b.gitsigns_status_dict
   if gitsigns then
