@@ -51,7 +51,7 @@ vim.keymap.set('n', '<leader>n', ':CHADopen<CR>')
 -- Fold code open/close with click
 vim.keymap.set('n', '<expr> <2-LeftMouse>', 'za')
 -- Object view
-vim.keymap.set('n', '<C-t>', ':SymbolsOutline<CR>')
+vim.keymap.set('n', '<C-t>', ':AerialToggle right<CR>')
 -- Search in the project files
 vim.keymap.set('n', '<leader>f', ':Rg<space>')
 -- File list with fzf
@@ -67,6 +67,7 @@ vim.keymap.set('n', '<C-q>', ':ALEFix<CR>')
 -- Append ; to the end of the line -> Leader+B
 vim.keymap.set('n', '<leader>b', ":call setline('.', getline('.') . ';')<CR>")
 -- DAP
+vim.keymap.set('n', '<F4>', ":lua require'dapui'.toggle()<CR>")
 vim.keymap.set('n', '<F5>', ":lua require'dap'.toggle_breakpoint()<CR>")
 vim.keymap.set('n', '<F6>', ":lua require'dap'.continue()<CR>")
 vim.keymap.set('n', '<F10>', ":lua require'dap'.step_over()<CR>")

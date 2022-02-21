@@ -29,6 +29,7 @@ plugins = {
     "'haringsrob/nvim_context_vt'", 
     "'JoosepAlviste/nvim-ts-context-commentstring'",
     "'nvim-treesitter/nvim-tree-docs'",
+    "'m-demare/hlargs.nvim'",
     -- close html tags
     "'windwp/nvim-ts-autotag'",
     -- Autopair added
@@ -36,7 +37,8 @@ plugins = {
     -- Autorename closing HTML tags
     "'AndrewRadev/tagalong.vim'", -- Viml
     -- object view
-    "'zeertzjq/symbols-outline.nvim', {'branch': 'patch-1'}", -- simrat39/symbols-outline.nvim
+    "'stevearc/aerial.nvim'",
+    "'stevearc/stickybuf.nvim'",
     -- Cool icons
     "'kyazdani42/nvim-web-devicons'",
     -- Rainbow Parentheses
@@ -46,7 +48,7 @@ plugins = {
     "'rcarriga/nvim-dap-ui'",
     "'theHamsta/nvim-dap-virtual-text'",
     -- Auto cwd
-    "'ygm2/rooter.nvim'",
+    "'jedi2610/nvim-rooter.lua'",
     "'nvim-lua/plenary.nvim'",
     -- wrapper for git
     "'tpope/vim-fugitive'", -- VimL

@@ -57,7 +57,7 @@ vim.api.nvim_exec([[
     endfunction
 ]],true)
 
-vim.g.rooter_pattern = {'.git', 'package.json', 'composer.json', '.svn', 'node_modules'} 
+require'nvim-rooter'.setup()
 vim.g.outermost_root = true
 
 vim.api.nvim_exec([[
@@ -92,3 +92,4 @@ vim.g.did_load_filetypes = 1
 require("cutlass").setup({
     cut_key = "c"
 })
+require("stickybuf").setup()

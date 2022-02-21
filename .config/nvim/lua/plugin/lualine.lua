@@ -58,7 +58,7 @@ require('lualine').setup{
         lualine_b = {},
         lualine_c = {},
         lualine_x = {},
-        lualine_y = {'filetype'},
+        lualine_y = {{'aerial', sep=' | '}, 'filetype'},
         lualine_z = {'progress'}
     },
     extensions = { 'fzf', 'chadtree', 'fugitive', 'quickfix' }

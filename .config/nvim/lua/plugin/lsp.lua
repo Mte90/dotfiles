@@ -2,7 +2,6 @@
 local nvim_lsp = require'lspconfig'
 local configs  = require'lspconfig/configs'
 local util     = require'lspconfig/util'
-
 local lsp_installer = require("nvim-lsp-installer")
 
 local on_attach = function(client, bufnr)
@@ -13,6 +12,7 @@ local on_attach = function(client, bufnr)
         border = "rounded"
       }
     })
+    require("aerial").on_attach(client, bufnr)
     if client.resolved_capabilities.document_highlight then
         vim.cmd [[
         augroup lsp_document_highlight
@@ -38,7 +38,23 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
     'additionalTextEdits',
   }
 }
-
+local notify = require 'notify'
+vim.lsp.handlers['window/showMessage'] = function(_, result, ctx)
+  local client = vim.lsp.get_client_by_id(ctx.client_id)
+  local lvl = ({
+    'ERROR',
+    'WARN',
+    'INFO',
+    'DEBUG',
+  })[result.type]
+  notify({ result.message }, lvl, {
+    title = 'LSP | ' .. client.name,
+    timeout = 10000,
+    keep = function()
+      return lvl == 'ERROR' or lvl == 'WARN'
+    end,
+  })
+end
 nvim_lsp.intelephense.setup({
     settings = {
         intelephense = {
@@ -113,7 +129,7 @@ nvim_lsp.intelephense.setup({
     on_attach = on_attach
 });
 local phpactor_capabilities = vim.lsp.protocol.make_client_capabilities()
--- phpactor_capabilities['textDocument']['codeAction'] = false
+phpactor_capabilities['textDocument']['codeAction'] = {}
 nvim_lsp.phpactor.setup{
      capabilities = phpactor_capabilities,
      on_attach = on_attach
