@@ -156,6 +156,12 @@ require('plugin.lualine')
 require('plugin.nvim-comment')
 require('plugin.ts')
 require('plugin.wilder')
-if vim.fn.exists("wordpress_mode") == 0 then
+
+-- Check if WordPress mode
+v, message = pcall(function()
+    return vim.api.nvim_get_var("wordpress_mode")
+  end)
+
+if v == false then
     require('plugin.alpha')
 end
