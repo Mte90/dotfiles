@@ -4,6 +4,11 @@ local configs  = require'lspconfig/configs'
 local util     = require'lspconfig/util'
 local lsp_installer = require("nvim-lsp-installer")
 
+-- Check if WordPress mode
+is_wp, message = pcall(function()
+    return vim.api.nvim_get_var("wordpress_mode")
+  end)
+
 local on_attach = function(client, bufnr)
     require 'lsp_signature'.on_attach({
       bind = true,
@@ -128,12 +133,14 @@ nvim_lsp.intelephense.setup({
     capabilities = capabilities,
     on_attach = on_attach
 });
-local phpactor_capabilities = vim.lsp.protocol.make_client_capabilities()
-phpactor_capabilities['textDocument']['codeAction'] = {}
-nvim_lsp.phpactor.setup{
-     capabilities = phpactor_capabilities,
-     on_attach = on_attach
-}
+if is_wp == false then
+  local phpactor_capabilities = vim.lsp.protocol.make_client_capabilities()
+  phpactor_capabilities['textDocument']['codeAction'] = {}
+  nvim_lsp.phpactor.setup{
+      capabilities = phpactor_capabilities,
+      on_attach = on_attach
+  }
+end
 nvim_lsp.cssls.setup{
     capabilities = capabilities,
     on_attach = on_attach

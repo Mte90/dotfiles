@@ -1,6 +1,11 @@
 -- Install vim-plug before running this script
 -- https://github.com/gnituy18/config/blob/105a65084489720be58c44e479d20c30a4ea31e7/nvim/lua/plugins.lua
 
+-- Check if WordPress mode
+is_wp, message = pcall(function()
+    return vim.api.nvim_get_var("wordpress_mode")
+  end)
+
 plugins = {
     -- KDE style theme
     "'fneu/breezy'", -- not yet ready
@@ -110,7 +115,7 @@ vim.cmd[[call plug#begin('~/.vim/plugged')]]
       vim.cmd(string.format("Plug %s", p))
   end
 
-  if vim.fn.exists("wordpress_mode") == 0 then
+  if is_wp == false then
     -- alpha for a cool home page
     vim.cmd("Plug 'goolord/alpha-nvim'") -- VimL
     -- Syntax highlighting for webapi
@@ -157,11 +162,7 @@ require('plugin.nvim-comment')
 require('plugin.ts')
 require('plugin.wilder')
 
--- Check if WordPress mode
-v, message = pcall(function()
-    return vim.api.nvim_get_var("wordpress_mode")
-  end)
 
-if v == false then
+if is_wp == false then
     require('plugin.alpha')
 end

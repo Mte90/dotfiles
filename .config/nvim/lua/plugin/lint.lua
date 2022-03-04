@@ -1,5 +1,9 @@
 local phpcs = require('lint.linters.phpcs')
-if not vim.g.wordpress_mode then
+-- Check if WordPress mode
+is_wp, message = pcall(function()
+    return vim.api.nvim_get_var("wordpress_mode")
+  end)
+if is_wp == false then
     phpcs.args = {
         '-q',
         '--standard=CodeatCodingStandard',
