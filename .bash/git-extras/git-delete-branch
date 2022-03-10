@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# reset environment variables that could interfere with normal usage
+unset GREP_OPTIONS
+# put all utility functions here
+
+# make a temporary file
+git_extra_mktemp() {
+    mktemp -t "$(basename "$0")".XXXXXXX
+}
+
+#
+# check whether current directory is inside a git repository
+#
+
+is_git_repo() {
+  git rev-parse --show-toplevel > /dev/null 2>&1
+  result=$?
+  if test $result != 0; then
+    >&2 echo 'Not a git repo!'
+    exit $result
+  fi
+}
+
+is_git_repo
+set -e
+
+# Assert there is at least one branch provided
+test -z $1 && echo "branch required." 1>&2 && exit 1
+
+for branch in "$@"
+do
+  remote=$(git config branch.$branch.remote || echo "origin")
+  ref=$(git config branch.$branch.merge || echo "refs/heads/$branch")
+
+  git branch -D $branch || true
+  # Avoid deleting local upstream
+  [ "$remote" == "." ] && continue
+  git branch -d -r $remote/$branch || continue
+  git push $remote :$ref
+done

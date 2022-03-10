@@ -1,5 +1,8 @@
 " Disable some plugin to have a wordpress core contributing experience
-" vim --cmd "let wordpress_mode=1"
+" nvim --cmd "let g:wordpress_mode=1"
+" nvim-qt -- --cmd "let g:wordpress_mode=1"
+
+set termguicolors
 
 lua << EOF
     require('settings')

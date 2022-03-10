@@ -41,6 +41,7 @@ function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 alias nvim-qt="/home/mte90/Desktop/Prog/My-Scripts/misc/nvim-qt.py"
 alias vim.tiny="nvim -u NONE"
 alias nvim.tiny="nvim -u NONE"
+alias nvim-qt-wp="nvim-qt /var/www/VVV/www/wordpress-develop/ -- --cmd \"let wordpress_mode=1\""
 
 # https://github.com/cykerway/complete-alias
 complete -F _complete_alias fzf

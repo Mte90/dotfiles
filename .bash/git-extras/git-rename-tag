@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# reset environment variables that could interfere with normal usage
+unset GREP_OPTIONS
+# put all utility functions here
+
+# make a temporary file
+git_extra_mktemp() {
+    mktemp -t "$(basename "$0")".XXXXXXX
+}
+
+#
+# check whether current directory is inside a git repository
+#
+
+is_git_repo() {
+  git rev-parse --show-toplevel > /dev/null 2>&1
+  result=$?
+  if test $result != 0; then
+    >&2 echo 'Not a git repo!'
+    exit $result
+  fi
+}
+
+is_git_repo
+
+old=$1
+new=$2
+
+test -z $old && echo "old tag name required." 1>&2 && exit 1
+test -z $new && echo "new tag name required." 1>&2 && exit 1
+
+git tag $new $old
+git tag -d $old
+git push origin $new
+git push origin :refs/tags/$old

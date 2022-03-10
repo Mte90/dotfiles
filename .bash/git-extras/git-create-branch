@@ -1,0 +1,81 @@
+#!/usr/bin/env bash
+# reset environment variables that could interfere with normal usage
+unset GREP_OPTIONS
+# put all utility functions here
+
+# make a temporary file
+git_extra_mktemp() {
+    mktemp -t "$(basename "$0")".XXXXXXX
+}
+
+#
+# check whether current directory is inside a git repository
+#
+
+is_git_repo() {
+  git rev-parse --show-toplevel > /dev/null 2>&1
+  result=$?
+  if test $result != 0; then
+    >&2 echo 'Not a git repo!'
+    exit $result
+  fi
+}
+
+is_git_repo
+
+test $# -eq 0 && echo "branch argument required." 1>&2 && exit 1
+
+# preference takes lowest priority; look for remote from prefs first
+REMOTE_PREF=`git config git-extras.create-branch.remote`
+if [ -n "$REMOTE_PREF" ]; then
+	REMOTE=$REMOTE_PREF
+fi
+
+while test $# != 0
+do
+	case $1 in
+		-r|--remote)
+			if [[ -n $2 ]]
+			then
+				REMOTE=$2
+				shift
+			else
+				REMOTE=origin
+			fi
+			;;
+		*)
+			BRANCH=$1
+	esac
+	shift
+done
+
+# handle ambiguous `-r` option argument by shift
+if [[ -z $BRANCH ]] && [[ -n $REMOTE ]]
+then
+	BRANCH=$REMOTE
+	REMOTE=origin
+fi
+
+test -z $BRANCH && echo "branch argument required." 1>&2 && exit 1
+
+if [[ -n $REMOTE ]]
+then
+	git ls-remote --exit-code $REMOTE 1>/dev/null 2>/tmp/ls-remote-error
+	REMOTE_EXIT=$?
+	REMOTE_ERROR=$(</tmp/ls-remote-error)
+	rm -f /tmp/ls-remote-error
+	if [ $REMOTE_EXIT -eq 0 ]
+	then
+		git push $REMOTE HEAD:refs/heads/$BRANCH
+		git fetch $REMOTE
+		git checkout --track -b $BRANCH $REMOTE/$BRANCH
+		exit $?
+	else
+		echo
+		echo "    Error connecting to remote '$REMOTE': $REMOTE_ERROR"
+		echo
+		exit $REMOTE_EXIT
+	fi
+fi
+
+git checkout -b $BRANCH
