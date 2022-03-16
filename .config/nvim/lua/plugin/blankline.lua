@@ -5,7 +5,7 @@ vim.cmd [[highlight IndentEven guifg=NONE guibg=#1a1a1a gui=nocombine]]
 require("indent_blankline").setup {
     show_end_of_line = true,
     use_treesitter = true,
-    filetype_exclude = {'help', 'chadtree', 'alpha', 'fzf',  "markdown", "json", "txt", "undotree", "git"},
+    filetype_exclude = {'help', 'chadtree', 'alpha', 'fzf',  "markdown", "json", "txt", "undotree", "git", "lspinfo"},
     buftype_exclude = {'terminal', 'nofile'},
 
 -- and then use the highlight groups

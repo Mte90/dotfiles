@@ -93,3 +93,5 @@ require("cutlass").setup({
     cut_key = "c"
 })
 require("stickybuf").setup()
+
+vim.g.cursorword_disabled_filetypes = {"dapui_breakpoints", "dapui_scopes", "dapui_stacks", "dapui_watches", "dapui-repl"}

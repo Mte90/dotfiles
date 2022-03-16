@@ -60,19 +60,15 @@ vim.keymap.set('n', '<leader>x', ':FzfLua files<CR>')
 vim.keymap.set('n', '<leader>g', ':FzfLua lines<CR>')
 -- Jump to definition under cursor
 vim.keymap.set('n', '<leader>j', '<cmd>lua vim.lsp.buf.definition()<cr>')
--- navigate between errors
-vim.keymap.set('n', '<C-k>', ':ALEPreviousWrap<CR>')
-vim.keymap.set('n', '<C-j>', ':ALENextWrap<CR>')
-vim.keymap.set('n', '<C-q>', ':ALEFix<CR>')
 -- Append ; to the end of the line -> Leader+B
 vim.keymap.set('n', '<leader>b', ":call setline('.', getline('.') . ';')<CR>")
 -- DAP
 vim.keymap.set('n', '<F4>', ":lua require'dapui'.toggle()<CR>")
 vim.keymap.set('n', '<F5>', ":lua require'dap'.toggle_breakpoint()<CR>")
 vim.keymap.set('n', '<F6>', ":lua require'dap'.continue()<CR>")
-vim.keymap.set('n', '<F10>', ":lua require'dap'.step_over()<CR>")
-vim.keymap.set('n', '<F11>', ":lua require'dap'.step_into()<CR>")
-vim.keymap.set('n', '<F12>', ":lua require'dap'.step_out()<CR>")
+vim.keymap.set('n', '<F9>', ":lua require'dap'.step_over()<CR>")
+vim.keymap.set('n', '<F10>', ":lua require'dap'.step_into()<CR>")
+vim.keymap.set('n', '<F11>', ":lua require'dap'.step_out()<CR>")
 -- https://www.cyberciti.biz/faq/how-to-reload-vimrc-file-without-restarting-vim-on-linux-unix/
 -- Edit vimrc configuration file
 vim.keymap.set('n', 'confe', ':e $MYVIMRC<CR>')

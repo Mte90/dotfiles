@@ -7,8 +7,6 @@ is_wp, message = pcall(function()
   end)
 
 plugins = {
-    -- KDE style theme
-    "'fneu/breezy'", -- not yet ready
     "'lewis6991/impatient.nvim'",
     "'rcarriga/nvim-notify'",
     "'petertriho/nvim-scrollbar'",
@@ -65,7 +63,7 @@ plugins = {
     -- Folding fast is important
     "'Konfekt/FastFold'", -- VimL
     -- Underlines the words under your cursor
-    "'yamatsum/nvim-cursorline'",
+    "'Hrle97/nvim-cursorline', {'branch': 'feature/disable-conditionally'}",
     -- Emmett support
     "'mattn/emmet-vim'",
     -- Move code blocks
