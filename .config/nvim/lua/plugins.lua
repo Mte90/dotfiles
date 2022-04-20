@@ -17,6 +17,7 @@ plugins = {
     "'gbprod/cutlass.nvim'",
     -- UI improvements
     "'stevearc/dressing.nvim'",
+    "'rainbowhxch/beacon.nvim'",
     -- LSP 
     "'neovim/nvim-lspconfig'",
     "'folke/lsp-colors.nvim'",
@@ -68,7 +69,7 @@ plugins = {
     "'mattn/emmet-vim'",
     -- Move code blocks
     "'fedepujol/move.nvim'",
-    -- Autocomplete 
+    -- Autocomplete
     "'ms-jpq/coq_nvim', {'do': ':COQdeps'}",
     "'ms-jpq/coq.artifacts', {'branch': 'artifacts'}",
 --     "'mte90/coq_wordpress', {'do': './install.sh'}",
@@ -85,7 +86,6 @@ plugins = {
     "'moll/vim-bbye'", --Viml
     "'nvim-lualine/lualine.nvim'",
     "'arkav/lualine-lsp-progress'",
-    "'mte90/vim-no-fixme', {'branch': 'patch-1'}", -- VimL
     -- fzf - poweful search
     "'vijaymarupudi/nvim-fzf'",
     "'ibhagwan/fzf-lua'",

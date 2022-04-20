@@ -104,24 +104,6 @@ _G[globalListenerName] = function (name)
 	autocmdhandlers[name]()
 end
 
-function AddEventListener (name, events, cb)
-	autocmdhandlers[name] = cb
-	vim.cmd('augroup ' .. name)
-	vim.cmd('autocmd!')
-	for _, v in ipairs(events) do
-		local cmd = 'lua ' .. globalListenerName .. '("' .. name ..'")'
-		vim.cmd('au ' .. v .. ' ' .. cmd)
-	end
-	vim.cmd('augroup end')
-end
-
-function RemoveEventListener (name)
-	vim.cmd('augroup ' .. name)
-	vim.cmd('autocmd!')
-	vim.cmd('augroup end')
-	autocmdhandlers[name] = nil
-end
-
 -- Duplicate of the above
 -- Helper function because no native API exists yet
 -- Ref https://github.com/norcalli/nvim_utils/blob/master/lua/nvim_utils.lua#L554-L567

@@ -1,28 +1,53 @@
 -- Based on https://github.com/nimaipatel/dotfiles/blob/master/.config/nvim/lua/nimai/misc.lua
 
-AddEventListener('ScrolloffFraction', { 'BufEnter,WinEnter,WinNew,VimResized *,*.*' }, function ()
-	if (vim.bo.filetype ~= 'qf' or vim.bo.filetype ~= 'alpha') then
-		local vis_lines = vim.api.nvim_win_get_height(vim.fn.win_getid())
-		vim.o.scrolloff = math.floor(vis_lines * 0.25)
-	end
-end)
+vim.api.nvim_create_autocmd(
+  'BufEnter,WinEnter,WinNew,VimResized *,*.*',
+  {
+    callback = function ()
+      if (vim.bo.filetype ~= 'qf' or vim.bo.filetype ~= 'alpha') then
+          local vis_lines = vim.api.nvim_win_get_height(vim.fn.win_getid())
+          vim.o.scrolloff = math.floor(vis_lines * 0.25)
+      end
+    end
+  }
+)
 
-AddEventListener('LuaHighlight', { 'TextYankPost *' }, function()
-	require'vim.highlight'.on_yank()
-end)
+vim.api.nvim_create_autocmd(
+  'TextYankPost *',
+  {
+    callback = function()
+      require'vim.highlight'.on_yank()
+  end
+  }
+)
 
-AddEventListener('DisableHighLight', { 'InsertEnter *' }, function ()
-	vim.o.hlsearch = false
-end)
+vim.api.nvim_create_autocmd(
+  'InsertEnter *',
+  {
+    callback = function ()
+      vim.o.hlsearch = false
+  end
+  }
+)
 
-AddEventListener('EnableHighLight', { 'InsertLeave *' }, function ()
-	vim.o.hlsearch = true
-end) 
+vim.api.nvim_create_autocmd(
+  'InsertLeave *',
+  {
+    callback = function ()
+      vim.o.hlsearch = true
+  end
+  }
+)
 
-AddEventListener('TextYankPost', { 'BufEnter,WinEnter,WinNew,VimResized *,*.*' }, function ()
-	local vis_lines = vim.api.nvim_win_get_height(vim.fn.win_getid())
-	vim.o.scrolloff = math.floor(vis_lines * 0.25)
-end)
+vim.api.nvim_create_autocmd(
+  'BufEnter,WinEnter,WinNew,VimResized *,*.*',
+  {
+    callback = function ()
+      local vis_lines = vim.api.nvim_win_get_height(vim.fn.win_getid())
+      vim.o.scrolloff = math.floor(vis_lines * 0.25)
+  end
+  }
+)
 
 -- Add support of stuff on different files   
 local autocmds = {
@@ -57,8 +82,7 @@ vim.api.nvim_exec([[
     endfunction
 ]],true)
 
-require'nvim-rooter'.setup()
-vim.g.outermost_root = true
+require'nvim-rooter'.setup { manual = true }
 
 vim.api.nvim_exec([[
 " Editorconfig
@@ -87,7 +111,8 @@ for type, icon in pairs(signs) do
 end
 
 -- Do not source the default filetype.vim
-vim.g.did_load_filetypes = 1
+vim.g.did_load_filetypes = 0
+vim.g.do_filetype_lua = 1
 
 require("cutlass").setup({
     cut_key = "c"

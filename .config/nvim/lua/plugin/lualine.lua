@@ -29,6 +29,7 @@ require('lualine').setup{
         theme = 'papercolor_light',
         icons_enabled = true,
         disabled_filetypes = {'alpha', 'Outline', 'plugins','CHADTree', '[No Name]', 'OUTLINE', 'vim-plug'},
+        globalstatus = true
     },
     sections = {
         lualine_a = { { 'mode', fmt = string.upper } },
@@ -51,7 +52,7 @@ require('lualine').setup{
                 info = {fg = get_color("DiagnosticSignInfo", "fg")},
                 hint = {fg = get_color("DiagnosticSignHint", "fg")},
                 },
-            }, {'nofixme#amount'} }
+            } }
     },
     tabline = {
         lualine_a = {require'tabline'.tabline_buffers},
@@ -62,6 +63,6 @@ require('lualine').setup{
         lualine_z = {'progress'}
     },
     extensions = { 'fzf', 'chadtree', 'fugitive', 'quickfix' }
-} 
+}
 
 require("scrollbar").setup()
