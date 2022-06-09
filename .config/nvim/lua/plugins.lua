@@ -72,7 +72,7 @@ plugins = {
     -- Autocomplete
     "'ms-jpq/coq_nvim', {'do': ':COQdeps'}",
     "'ms-jpq/coq.artifacts', {'branch': 'artifacts'}",
---     "'mte90/coq_wordpress', {'do': './install.sh'}",
+    "'mte90/coq_wordpress', {'do': './install.sh'}",
     -- highlights which characters to target
     "'unblevable/quick-scope'", -- VimL
     -- Search pulse

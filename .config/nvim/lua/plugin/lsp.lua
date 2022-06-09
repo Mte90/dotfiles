@@ -18,7 +18,7 @@ local on_attach = function(client, bufnr)
       }
     })
     require("aerial").on_attach(client, bufnr)
-    if client.resolved_capabilities.document_highlight then
+    if client.server_capabilities.document_highlight then
         vim.cmd [[
         augroup lsp_document_highlight
             autocmd! * <buffer>
@@ -124,6 +124,9 @@ nvim_lsp.intelephense.setup({
                 "wp-cli",
                 "genesis",
                 "polylang"
+            },
+            environment = {
+              includePaths = '/home/mte90/.composer/vendor/php-stubs/'
             },
             files = {
                 maxSize = 5000000;
