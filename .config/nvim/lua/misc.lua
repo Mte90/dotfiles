@@ -82,7 +82,10 @@ vim.api.nvim_exec([[
     endfunction
 ]],true)
 
-require'nvim-rooter'.setup { manual = true }
+require("project_nvim").setup {
+  patterns = { ".git", "README.txt", "node_modules", "composer.json", "vendor", "package.json" },
+  silent_chdir = false,
+}
 
 vim.api.nvim_exec([[
 " Editorconfig

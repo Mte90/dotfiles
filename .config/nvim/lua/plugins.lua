@@ -52,7 +52,7 @@ plugins = {
     "'rcarriga/nvim-dap-ui'",
     "'theHamsta/nvim-dap-virtual-text'",
     -- Auto cwd
-    "'jedi2610/nvim-rooter.lua'",
+    "'ahmedkhalf/project.nvim'",
     "'nvim-lua/plenary.nvim'",
     -- wrapper for git
     "'tpope/vim-fugitive'", -- VimL
@@ -96,7 +96,7 @@ plugins = {
     "'norcalli/nvim-colorizer.lua'",
     -- Report lint errors
     "'mfussenegger/nvim-lint'",
-    "'sbdchd/neoformat'",
+    "'mhartington/formatter.nvim'",
     -- Wakatime
     "'wakatime/vim-wakatime'",
     -- Discord

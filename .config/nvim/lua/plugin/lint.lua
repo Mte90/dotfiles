@@ -3,6 +3,7 @@ local phpcs = require('lint.linters.phpcs')
 is_wp, message = pcall(function()
     return vim.api.nvim_get_var("wordpress_mode")
   end)
+local util = require("formatter.util")
 if is_wp == false then
     phpcs.args = {
         '-q',
@@ -10,12 +11,20 @@ if is_wp == false then
         '--report=json',
         '-'
     }
+    phpformatter = {
+      args = {'--standard=CodeatCodingStandard', util.escape_path(util.get_current_buffer_file_path())},
+      stdin = false,
+    }
 else
     phpcs.args = {
         '-q',
         '--standard=WordPress-Core',
         '--report=json',
         '-'
+    }
+    phpformatter = {
+      args = {'--standard=WordPress-Core', util.escape_path(util.get_current_buffer_file_path())},
+      stdin = false,
     }
 end
 
@@ -29,46 +38,27 @@ require('lint').linters_by_ft = {
   js = { 'eslint' },
 }
 
-vim.api.nvim_command([[
-autocmd BufWritePost <buffer> lua require('lint').try_lint()
-autocmd BufRead <buffer> lua require('lint').try_lint()
-autocmd InsertLeave <buffer> lua require('lint').try_lint()
-autocmd TextChanged <buffer> lua require('lint').try_lint()
-let g:neoformat_run_all_formatters = 1
+require('formatter').setup {
+  filetype = {
+    javascript = {eslint_fmt, prettier},
+    css = prettier,
+    scss = prettier,
+    json = prettier,
+    html = prettier,
+    php = {
+      function ()
+        phpformatter.exe = vim.fn.getcwd() .. '/vendor/bin/phpcbf'
+        return phpformatter
+      end
+    }
+  }
+}
 
-if exists('wordpress_mode')
-    function! neoformat#formatters#php#wordpressphpcbf() abort
-    return {
-            \ 'exe': 'phpcbf',
-            \ 'args': ['--standard=WordPress-Core'],
-            \ 'stdin': 1,
-            \ 'valid_exit_codes': [0, 1]
-            \ }
-    endfunction
-
-    let g:neoformat_enabled_php = ['wordpress-phpcbf']
-else
-    function! neoformat#formatters#php#codeatphpcbf() abort
-    return {
-            \ 'exe': 'phpcbf',
-            \ 'args': ['--standard=CodeatCodingStandard'],
-            \ 'stdin': 1,
-            \ 'valid_exit_codes': [0, 1]
-            \ }
-    endfunction
-    let g:neoformat_enabled_php = ['php-cs-fixer', 'codeatphpcbf']
-    let g:neoformat_enabled_css = ['stylelint']
-    let g:neoformat_enabled_sass = ['stylelint']
-    let g:neoformat_enabled_html = ['prettier']
-    let g:neoformat_enabled_js = ['prettier', 'eslint']
-    let g:neoformat_enabled_markdown = ['remark']
-endif
-
-augroup fmt
-  autocmd!
-  autocmd BufWritePre * undojoin | Neoformat
-augroup END
-]]);
+vim.api.nvim_create_autocmd('BufWritePost', {
+  group = group,
+  pattern = '*',
+  command = 'silent! FormatWrite',
+})
 
 vim.diagnostic.config({
   virtual_text = {

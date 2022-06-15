@@ -39,8 +39,8 @@ vim.api.nvim_set_keymap('n', '<A-k>', ":MoveLine(-1)<CR>", { noremap = true, sil
 vim.api.nvim_command("cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))")
 -- correct :Q to :q typo
 vim.api.nvim_command("cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline() is# 'Q')?('q'):('Q'))")
--- Close buffer with no window changes
-vim.api.nvim_command("cnoreabbrev <expr> q getcmdtype() == ':' && getcmdline() == 'q' ? 'Bdelete' : 'q'")
+-- Close buffer with no window changes, it is executed also on empty buffers
+-- vim.api.nvim_command("cnoreabbrev <expr> q getcmdtype() == ':' && getcmdline() == 'q' ? 'Bdelete' : 'q'")
 -- save buffer with control + w
 vim.keymap.set('n', '<c-s>', ':w<cr>')
 
