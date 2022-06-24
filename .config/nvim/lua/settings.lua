@@ -76,9 +76,12 @@ o.wildignore       = o.wildignore .. '*.swp,*~,._*,*/vendor/cache/*'
 
 -- window-local options
 wo.number          = true       -- Show line numbers
+wo.foldcolumn      = '1'
+wo.foldenable      = true
 wo.foldmethod      = 'marker'   -- Autofolding
 wo.foldmarker      = '/*,*/'
 wo.foldnestmax     = 10
+wo.foldlevel       = 0
 wo.breakindent     = true       -- Make every wrapped line visually indented.
 
 -- buffer-local options

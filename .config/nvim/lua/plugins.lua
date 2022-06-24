@@ -62,7 +62,8 @@ plugins = {
     -- Indentation is very helpful
     "'lukas-reineke/indent-blankline.nvim'",
     -- Folding fast is important
-    "'Konfekt/FastFold'", -- VimL
+    "'kevinhwang91/promise-async'",
+    "'kevinhwang91/nvim-ufo'",
     -- Underlines the words under your cursor
     "'Hrle97/nvim-cursorline', {'branch': 'feature/disable-conditionally'}",
     -- Emmett support

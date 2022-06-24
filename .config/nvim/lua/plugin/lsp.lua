@@ -35,6 +35,10 @@ require("trouble").setup {
 }
 require('lspkind').init()
 local capabilities = vim.lsp.protocol.make_client_capabilities()
+capabilities.textDocument.foldingRange = {
+    dynamicRegistration = false,
+    lineFoldingOnly = true
+}
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 capabilities.textDocument.completion.completionItem.resolveSupport = {
   properties = {
@@ -43,23 +47,6 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
     'additionalTextEdits',
   }
 }
-local notify = require 'notify'
-vim.lsp.handlers['window/showMessage'] = function(_, result, ctx)
-  local client = vim.lsp.get_client_by_id(ctx.client_id)
-  local lvl = ({
-    'ERROR',
-    'WARN',
-    'INFO',
-    'DEBUG',
-  })[result.type]
-  notify({ result.message }, lvl, {
-    title = 'LSP | ' .. client.name,
-    timeout = 10000,
-    keep = function()
-      return lvl == 'ERROR' or lvl == 'WARN'
-    end,
-  })
-end
 nvim_lsp.intelephense.setup({
     settings = {
         intelephense = {
@@ -138,6 +125,10 @@ nvim_lsp.intelephense.setup({
 });
 if is_wp == false then
   local phpactor_capabilities = vim.lsp.protocol.make_client_capabilities()
+  phpactor_capabilities.textDocument.foldingRange = {
+      dynamicRegistration = false,
+      lineFoldingOnly = true
+  }
   phpactor_capabilities['textDocument']['codeAction'] = {}
   nvim_lsp.phpactor.setup{
       capabilities = phpactor_capabilities,
@@ -176,3 +167,21 @@ require'nvim-lightbulb'.update_lightbulb({
   }
 })
 vim.cmd [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
+
+local notify = require 'notify'
+vim.lsp.handlers['window/showMessage'] = function(_, result, ctx)
+  local client = vim.lsp.get_client_by_id(ctx.client_id)
+  local lvl = ({
+    'ERROR',
+    'WARN',
+    'INFO',
+    'DEBUG',
+  })[result.type]
+  notify({ result.message }, lvl, {
+    title = 'LSP | ' .. client.name,
+    timeout = 10000,
+    keep = function()
+      return lvl == 'ERROR' or lvl == 'WARN'
+    end,
+  })
+end

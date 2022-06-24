@@ -39,6 +39,8 @@ require('lint').linters_by_ft = {
 }
 
 require('formatter').setup {
+  logging = true,
+  log_level = 2,
   filetype = {
     javascript = {eslint_fmt, prettier},
     css = prettier,
