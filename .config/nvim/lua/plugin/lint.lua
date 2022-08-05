@@ -63,9 +63,7 @@ vim.api.nvim_create_autocmd('BufWritePost', {
 })
 
 vim.diagnostic.config({
-  virtual_text = {
-    source = "always",
-  },
+  virtual_text = false,
   float = {
     source = "always",
   },

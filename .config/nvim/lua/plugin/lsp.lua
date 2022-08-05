@@ -28,11 +28,6 @@ local on_attach = function(client, bufnr)
         ]]
     end
 end
-require("trouble").setup {
-    mode = "quickfix", 
-    auto_open = true,
-    auto_close = true
-}
 require('lspkind').init()
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.foldingRange = {
@@ -50,7 +45,7 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
 nvim_lsp.intelephense.setup({
     settings = {
         intelephense = {
-            stubs = { 
+            stubs = {
                 "bcmath",
                 "bz2",
                 "calendar",
@@ -167,6 +162,8 @@ require'nvim-lightbulb'.update_lightbulb({
   }
 })
 vim.cmd [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
+
+require("lsp_lines").setup()
 
 local notify = require 'notify'
 vim.lsp.handlers['window/showMessage'] = function(_, result, ctx)
