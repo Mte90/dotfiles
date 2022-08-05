@@ -21,8 +21,8 @@ plugins = {
     -- LSP 
     "'neovim/nvim-lspconfig'",
     "'folke/lsp-colors.nvim'",
-    "'folke/lsp-trouble.nvim'",
     "'onsails/lspkind-nvim'",
+    "'https://git.sr.ht/~whynothugo/lsp_lines.nvim'",
     "'ray-x/lsp_signature.nvim'",
     "'williamboman/nvim-lsp-installer'",
     "'kosayoda/nvim-lightbulb'",
