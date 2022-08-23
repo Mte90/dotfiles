@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Service
+Encoding=UTF-8
+Actions=OpenWithCVLC
+ServiceTypes=KonqPopupMenu/Plugin,inode/directory
+ExcludeServiceTypes=kdedevice/*
+X-KDE-Priority=TopLevel
+
+[Desktop Action OpenWithCVLC]
+Name=Open with CVLC
+Exec=bash -c 'killall vlc; cvlc %u'
