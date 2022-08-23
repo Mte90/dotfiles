@@ -22,3 +22,14 @@ local opts = {
 require("aerial").setup(opts)
 require('nvim-ts-autotag').setup()
 require('hlargs').setup()
+require("debugprint").setup(
+  {
+    filetypes = {
+      ['php'] = {
+        left = 'error_log(print_r(',
+        right = ', true));',
+        mid_var = "$",
+      }
+    }
+  }
+)

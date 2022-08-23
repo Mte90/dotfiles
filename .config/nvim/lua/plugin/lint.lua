@@ -12,7 +12,7 @@ if is_wp == false then
         '-'
     }
     phpformatter = {
-      args = {'--standard=CodeatCodingStandard', util.escape_path(util.get_current_buffer_file_path())},
+      args = {'--standard=CodeatCodingStandard'},
       stdin = false,
     }
 else
@@ -23,7 +23,7 @@ else
         '-'
     }
     phpformatter = {
-      args = {'--standard=WordPress-Core', util.escape_path(util.get_current_buffer_file_path())},
+      args = {'--standard=WordPress-Core'},
       stdin = false,
     }
 end
@@ -38,9 +38,17 @@ require('lint').linters_by_ft = {
   js = { 'eslint' },
 }
 
+vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+  callback = function()
+    if is_wp == false then
+      phpcs.cmd = vim.fn.getcwd() .. '/vendor/bin/phpcs'
+    end
+    require("lint").try_lint()
+  end,
+})
+
 require('formatter').setup {
-  logging = true,
-  log_level = 2,
+  tempfile_dir = '/tmp/',
   filetype = {
     javascript = {eslint_fmt, prettier},
     css = prettier,
@@ -49,7 +57,10 @@ require('formatter').setup {
     html = prettier,
     php = {
       function ()
-        phpformatter.exe = vim.fn.getcwd() .. '/vendor/bin/phpcbf'
+        if is_wp == false then
+          phpformatter.exe = vim.fn.getcwd() .. '/vendor/bin/phpcbf'
+        end
+        table.insert(phpformatter.args, util.escape_path(util.get_current_buffer_file_path()))
         return phpformatter
       end
     }
@@ -57,9 +68,14 @@ require('formatter').setup {
 }
 
 vim.api.nvim_create_autocmd('BufWritePost', {
-  group = group,
+  group = vim.api.nvim_create_augroup("Format", { clear = true }),
   pattern = '*',
-  command = 'silent! FormatWrite',
+  command = 'FormatWrite',
+})
+
+vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGained" }, {
+  command = "if mode() != 'c' | checktime | endif",
+  pattern = { "*" },
 })
 
 vim.diagnostic.config({
@@ -73,4 +89,8 @@ vim.diagnostic.config({
   severity_sort = true,
 })
 
-vim.cmd [[autocmd CursorHold,CursorHoldI * lua vim.diagnostic.open_float(nil, {focus=false})]]
+vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
+  callback = function()
+    vim.diagnostic.open_float(nil, {focus=false})
+  end,
+})

@@ -51,6 +51,7 @@ plugins = {
     "'mfussenegger/nvim-dap'",
     "'rcarriga/nvim-dap-ui'",
     "'theHamsta/nvim-dap-virtual-text'",
+    "'andrewferrier/debugprint.nvim'",
     -- Auto cwd
     "'ahmedkhalf/project.nvim'",
     "'nvim-lua/plenary.nvim'",
@@ -106,7 +107,7 @@ plugins = {
     "'gpanders/editorconfig.nvim'",
     -- Comments
     "'terrortylor/nvim-comment'",
-    "'folke/todo-comments.nvim'"
+    "'B4mbus/todo-comments.nvim'" --folke's fork
 }
 
 vim.cmd[[call plug#begin('~/.vim/plugged')]]
