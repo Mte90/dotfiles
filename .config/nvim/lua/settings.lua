@@ -30,6 +30,7 @@ o.undolevels       = 2000       -- Number of undo levels
 o.laststatus       = 2          -- Always show the status line
 o.showtabline      = 2          -- Show tabline
 o.updatetime       = 250        -- Frequency update
+o.autoread         = true
 o.scrolloff        = 2          -- Keep at least 2 lines above/below
 o.sidescrolloff    = 5          -- Keep at least 5 lines left/right
 o.showmatch        = true       -- Highlight matching brace
@@ -107,20 +108,29 @@ _G[globalListenerName] = function (name)
 	autocmdhandlers[name]()
 end
 
--- Duplicate of the above
--- Helper function because no native API exists yet
--- Ref https://github.com/norcalli/nvim_utils/blob/master/lua/nvim_utils.lua#L554-L567
-function nvim_create_augroups(definitions)
-  for group_name, definition in pairs(definitions) do
-    vim.api.nvim_command('augroup '..group_name)
-    vim.api.nvim_command('autocmd!')
-    for _, def in ipairs(definition) do
-      local command = table.concat(vim.tbl_flatten{'autocmd', def}, ' ')
-      vim.api.nvim_command(command)
-    end
-    vim.api.nvim_command('augroup END')
-  end
-end
-
 vim.g.did_load_filetypes = 1
 vim.g.do_filetype_lua = 1
+vim.g.loaded_python_provider = 0
+vim.g.loaded_node_provider = 0
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_tutor_mode_plugin = 1
+vim.g.loaded_man               = 1
+vim.g.loaded_gzip = 1
+vim.g.loaded_tar = 1
+vim.g.loaded_tarPlugin = 1
+vim.g.loaded_zip = 1
+vim.g.loaded_zipPlugin = 1
+vim.g.loaded_getscript = 1
+vim.g.loaded_getscriptPlugin = 1
+vim.g.loaded_vimball = 1
+vim.g.loaded_vimballPlugin = 1
+vim.g.loaded_vimball = 1
+vim.g.loaded_vimballPlugin = 1
+vim.g.loaded_2html_plugin = 1
+vim.g.loaded_logiPat = 1
+vim.g.loaded_rrhelper = 1
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+vim.g.loaded_netrwSettings = 1
+vim.g.loaded_netrwFileHandlers = 1

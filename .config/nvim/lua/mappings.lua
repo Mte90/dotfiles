@@ -69,11 +69,13 @@ vim.keymap.set('n', '<F6>', ":lua require'dap'.continue()<CR>")
 vim.keymap.set('n', '<F9>', ":lua require'dap'.step_over()<CR>")
 vim.keymap.set('n', '<F10>', ":lua require'dap'.step_into()<CR>")
 vim.keymap.set('n', '<F11>', ":lua require'dap'.step_out()<CR>")
+-- Split code in line to different lines
+vim.keymap.set('n', '<leader>s', ':SplitjoinSplit<cr>')
+vim.keymap.set("n", "<Leader>p", function()
+    require('debugprint').debugprint( { variable = true } )
+end)
 -- https://www.cyberciti.biz/faq/how-to-reload-vimrc-file-without-restarting-vim-on-linux-unix/
 -- Edit vimrc configuration file
 vim.keymap.set('n', 'confe', ':e $MYVIMRC<CR>')
 -- Reload vims configuration file
 vim.keymap.set('n', 'confr', ':source $MYVIMRC<CR>')
--- Split code in line to different lines
-vim.keymap.set('n', '<leader>s', ':SplitjoinSplit<cr>')
-vim.keymap.set('n', '<leader>q', ':TroubleToggle document_diagnostics<cr>')

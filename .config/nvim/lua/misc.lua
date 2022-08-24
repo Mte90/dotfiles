@@ -1,3 +1,8 @@
+function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then io.close(f) return true else return false end
+end
+
 -- Based on https://github.com/nimaipatel/dotfiles/blob/master/.config/nvim/lua/nimai/misc.lua
 
 vim.api.nvim_create_autocmd(
@@ -40,42 +45,37 @@ vim.api.nvim_create_autocmd(
 )
 
 vim.api.nvim_create_autocmd(
-  'BufEnter,WinEnter,WinNew,VimResized *,*.*',
+  {'FileType'},
   {
+    pattern = 'php',
     callback = function ()
-      local vis_lines = vim.api.nvim_win_get_height(vim.fn.win_getid())
-      vim.o.scrolloff = math.floor(vis_lines * 0.25)
-  end
+      vim.o.tabstop = 4
+    end
   }
 )
 
--- Add support of stuff on different files   
-local autocmds = {
-  jquery = {
-    { 'BufRead,BufNewFile', 'jquery.*.js', 'set ft=javascript syntax=jquery' };
-  };
-  php = {
-    { 'FileType', 'php', 'set tabstop=4' };
-  };
-  php_wordpress = {
-    { 'FileType', 'php.wordpress', 'set tabstop=4' };
-  };
-  js = {
-    { 'FileType', 'javascript', 'set tabstop=2 shiftwidth=2' };
-  };
-  php_surround = {
-    { 'FileType', 'php', 'let b:surround_45 = "<?php \r ?>"' };
-  };
-}
+vim.api.nvim_create_autocmd(
+  {'FileType'},
+  {
+    pattern = 'php.wordpress',
+    callback = function ()
+      vim.o.tabstop = 4
+    end
+  }
+)
 
-nvim_create_augroups(autocmds)
-    
+vim.api.nvim_create_autocmd(
+  {'FileType'},
+  {
+    pattern = 'javascript',
+    callback = function ()
+      vim.o.tabstop = 2
+      vim.o.shiftwidth = 2
+    end
+  }
+)
+
 vim.api.nvim_exec([[
-    augroup default
-        autocmd!
-        autocmd BufReadPost * if line("'\"") && line("'\"") <= line("$") | exe "normal `\"" | endif
-    augroup END 
-    
     au FileType qf call AdjustWindowHeight(3, 5)
     function! AdjustWindowHeight(minheight, maxheight)
     exe max([min([line("$"), a:maxheight]), a:minheight]) . "wincmd _"
@@ -87,19 +87,7 @@ require("project_nvim").setup {
   silent_chdir = false,
 }
 
-vim.api.nvim_exec([[
-" Editorconfig
-let g:EditorConfig_exclude_patterns = ['fugitive://.*']
-" Trigger a highlight only when pressing f and F. - quickscope
-let g:qs_highlight_on_keys = ['f']
-let g:qs_max_chars=80
-let g:splitjoin_join_mapping = '' 
-
-let g:loaded_python_provider = 0
-let g:loaded_node_provider = 0
-let g:loaded_ruby_provider = 0
-let g:loaded_perl_provider = 0
-]],true)
+vim.g.splitjoin_join_mapping = ''
 
 local signs = {
     Error = " ",
@@ -124,6 +112,7 @@ require("stickybuf").setup()
 
 vim.g.cursorword_disabled_filetypes = {"dapui_breakpoints", "dapui_scopes", "dapui_stacks", "dapui_watches", "dapui-repl"}
 
+-- https://github.com/kevinhwang91/nvim-ufo custom fold text
 local handler = function(virtText, lnum, endLnum, width, truncate)
     local newVirtText = {}
     local suffix = ('  %d '):format(endLnum - lnum)
