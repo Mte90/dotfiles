@@ -107,7 +107,8 @@ plugins = {
     "'gpanders/editorconfig.nvim'",
     -- Comments
     "'terrortylor/nvim-comment'",
-    "'B4mbus/todo-comments.nvim'" --folke's fork
+    "'B4mbus/todo-comments.nvim'", --folke's fork
+    "'Djancyp/better-comments.nvim'"
 }
 
 vim.cmd[[call plug#begin('~/.vim/plugged')]]
@@ -136,7 +137,6 @@ require('plugin.lualine')
 require('plugin.nvim-comment')
 require('plugin.ts')
 require('plugin.wilder')
-
 
 if is_wp == false then
     require('plugin.alpha')

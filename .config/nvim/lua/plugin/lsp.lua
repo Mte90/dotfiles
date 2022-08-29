@@ -19,13 +19,23 @@ local on_attach = function(client, bufnr)
     })
     require("aerial").on_attach(client, bufnr)
     if client.server_capabilities.document_highlight then
-        vim.cmd [[
-        augroup lsp_document_highlight
-            autocmd! * <buffer>
-            autocmd CursorHold <buffer> lua vim.lsp.buf.document_highlight()
-            autocmd CursorMoved <buffer> lua vim.lsp.buf.clear_references()
-        augroup END
-        ]]
+      vim.api.nvim_create_augroup('lsp_document_highlight', {
+        clear = false
+      })
+      vim.api.nvim_clear_autocmds({
+        buffer = bufnr,
+        group = 'lsp_document_highlight',
+      })
+      vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
+        group = 'lsp_document_highlight',
+        buffer = bufnr,
+        callback = vim.lsp.buf.document_highlight,
+      })
+      vim.api.nvim_create_autocmd('CursorMoved', {
+        group = 'lsp_document_highlight',
+        buffer = bufnr,
+        callback = vim.lsp.buf.clear_references,
+      })
     end
 end
 require('lspkind').init()
@@ -48,16 +58,12 @@ nvim_lsp.intelephense.setup({
             stubs = {
                 "bcmath",
                 "bz2",
-                "calendar",
                 "Core",
                 "curl",
                 "date",
-                "dba",
                 "dom",
-                "enchant",
                 "fileinfo",
                 "filter",
-                "ftp",
                 "gd",
                 "gettext",
                 "hash",
@@ -65,7 +71,6 @@ nvim_lsp.intelephense.setup({
                 "imap",
                 "intl",
                 "json",
-                "ldap",
                 "libxml",
                 "mbstring",
                 "mcrypt",
@@ -78,19 +83,13 @@ nvim_lsp.intelephense.setup({
                 "pdo_mysql",
                 "Phar",
                 "readline",
-                "recode",
-                "Reflection",
                 "regex",
                 "session",
                 "SimpleXML",
-                "soap",
                 "sockets",
                 "sodium",
-                "SPL",
                 "standard",
                 "superglobals",
-                "sysvsem",
-                "sysvshm",
                 "tokenizer",
                 "xml",
                 "xdebug",
@@ -99,16 +98,16 @@ nvim_lsp.intelephense.setup({
                 "yaml",
                 "zip",
                 "zlib",
-                "wordpress",
-                "woocommerce",
-                "acf-pro",
+                "wordpress-stubs",
+                "woocommerce-stubs",
+                "acf-pro-stubs",
                 "wordpress-globals",
-                "wp-cli",
-                "genesis",
-                "polylang"
+                "wp-cli-stubs",
+                "genesis-stubs",
+                "polylang-stubs"
             },
             environment = {
-              includePaths = '/home/mte90/.composer/vendor/php-stubs/'
+              includePaths = {'/home/mte90/.composer/vendor/php-stubs/', '/home/mte90/.composer/vendor/wpsyntex/'}
             },
             files = {
                 maxSize = 5000000;
@@ -161,7 +160,13 @@ require'nvim-lightbulb'.update_lightbulb({
     enabled = true,
   }
 })
-vim.cmd [[autocmd CursorHold,CursorHoldI * lua require'nvim-lightbulb'.update_lightbulb()]]
+
+vim.api.nvim_create_autocmd({'CursorHoldI', 'CursorHold'}, {
+  pattern = '*',
+  callback = function()
+    require'nvim-lightbulb'.update_lightbulb()
+  end,
+})
 
 require("lsp_lines").setup()
 

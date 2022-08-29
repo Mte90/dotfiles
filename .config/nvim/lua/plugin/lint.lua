@@ -12,6 +12,7 @@ if is_wp == false then
         '-'
     }
     phpformatter = {
+      tempfile_dir = '/tmp/',
       args = {'--standard=CodeatCodingStandard'},
       stdin = false,
     }
@@ -23,6 +24,7 @@ else
         '-'
     }
     phpformatter = {
+      tempfile_dir = '/tmp/',
       args = {'--standard=WordPress-Core'},
       stdin = false,
     }
@@ -38,7 +40,7 @@ require('lint').linters_by_ft = {
   js = { 'eslint' },
 }
 
-vim.api.nvim_create_autocmd({ "BufWritePost" }, {
+vim.api.nvim_create_autocmd({ "BufWritePost", "TextChanged" }, {
   callback = function()
     if is_wp == false then
       path = vim.fn.getcwd() .. '/vendor/bin/phpcs'
@@ -51,7 +53,6 @@ vim.api.nvim_create_autocmd({ "BufWritePost" }, {
 })
 
 require('formatter').setup {
-  tempfile_dir = '/tmp/',
   filetype = {
     javascript = {eslint_fmt, prettier},
     css = prettier,
