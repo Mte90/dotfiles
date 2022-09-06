@@ -148,5 +148,3 @@ require('ufo').setup({
 
 local bufnr = vim.api.nvim_get_current_buf()
 require('ufo').setFoldVirtTextHandler(bufnr, handler)
-
-require('better-comment').Setup()

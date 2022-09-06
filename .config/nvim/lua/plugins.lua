@@ -95,7 +95,7 @@ plugins = {
     -- Wrapper for sd
     "'SirJson/sd.vim'",
     -- display the hexadecimal colors - useful for css and color config
-    "'norcalli/nvim-colorizer.lua'",
+    "'NvChad/nvim-colorizer.lua'",
     -- Report lint errors
     "'mfussenegger/nvim-lint'",
     "'mhartington/formatter.nvim'",
@@ -107,8 +107,7 @@ plugins = {
     "'gpanders/editorconfig.nvim'",
     -- Comments
     "'terrortylor/nvim-comment'",
-    "'B4mbus/todo-comments.nvim'", --folke's fork
-    "'Djancyp/better-comments.nvim'"
+    "'B4mbus/todo-comments.nvim'" --folke's fork
 }
 
 vim.cmd[[call plug#begin('~/.vim/plugged')]]

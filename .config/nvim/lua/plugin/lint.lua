@@ -93,9 +93,3 @@ vim.diagnostic.config({
   update_in_insert = false,
   severity_sort = true,
 })
-
-vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
-  callback = function()
-    vim.diagnostic.open_float(nil, {focus=false})
-  end,
-})
