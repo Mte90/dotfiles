@@ -18,7 +18,7 @@ local on_attach = function(client, bufnr)
       }
     })
     require("aerial").on_attach(client, bufnr)
-    if client.server_capabilities.document_highlight then
+    if client.server_capabilities.documentHighlightProvider then
       vim.api.nvim_create_augroup('lsp_document_highlight', {
         clear = false
       })

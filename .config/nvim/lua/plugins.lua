@@ -30,6 +30,7 @@ plugins = {
     "'hood/popui.nvim'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
+    "'gbprod/php-enhanced-treesitter.nvim'",
     "'haringsrob/nvim_context_vt'", 
     "'JoosepAlviste/nvim-ts-context-commentstring'",
     "'nvim-treesitter/nvim-tree-docs'",
@@ -107,7 +108,7 @@ plugins = {
     "'gpanders/editorconfig.nvim'",
     -- Comments
     "'terrortylor/nvim-comment'",
-    "'B4mbus/todo-comments.nvim'" --folke's fork
+    "'folke/todo-comments.nvim'"
 }
 
 vim.cmd[[call plug#begin('~/.vim/plugged')]]

@@ -8,6 +8,7 @@ if is_wp == false then
     phpcs.args = {
         '-q',
         '--standard=CodeatCodingStandard',
+        '--exclude=Generic.Commenting.Todo,Squiz.PHP.CommentedOutCode',
         '--report=json',
         '-'
     }
@@ -76,6 +77,12 @@ vim.api.nvim_create_autocmd('BufWritePost', {
   group = vim.api.nvim_create_augroup("Format", { clear = true }),
   pattern = '*',
   command = 'FormatWrite',
+})
+
+vim.api.nvim_create_autocmd({ 'InsertLeave','FocusLost' }, {
+  group = vim.api.nvim_create_augroup("Format", { clear = true }),
+  pattern = '*',
+  command = 'Format',
 })
 
 vim.api.nvim_create_autocmd({ "BufEnter", "CursorHold", "CursorHoldI", "FocusGained" }, {
