@@ -74,6 +74,7 @@ vim.keymap.set('n', '<leader>s', ':SplitjoinSplit<cr>')
 vim.keymap.set("n", "<Leader>p", function()
     require('debugprint').debugprint( { variable = true } )
 end)
+vim.keymap.set('n', '<C-r>', ':SearchReplaceSingleBufferVisualSelection<cr>')
 -- https://www.cyberciti.biz/faq/how-to-reload-vimrc-file-without-restarting-vim-on-linux-unix/
 -- Edit vimrc configuration file
 vim.keymap.set('n', 'confe', ':e $MYVIMRC<CR>')

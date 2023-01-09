@@ -48,6 +48,8 @@ plugins = {
     "'kyazdani42/nvim-web-devicons'",
     -- Rainbow Parentheses
     "'p00f/nvim-ts-rainbow'",
+    -- Search Replace
+    "'roobert/search-replace.nvim'",
     -- xDebug support
     "'mfussenegger/nvim-dap'",
     "'rcarriga/nvim-dap-ui'",
@@ -76,8 +78,8 @@ plugins = {
     "'ms-jpq/coq_nvim', {'do': ':COQdeps'}",
     "'ms-jpq/coq.artifacts', {'branch': 'artifacts'}",
     "'mte90/coq_wordpress', {'do': './install.sh'}",
-    -- highlights which characters to target
-    "'unblevable/quick-scope'", -- VimL
+    -- highlights which characters to target with F/f
+    "'jinh0/eyeliner.nvim'",
     -- Search pulse
     "'inside/vim-search-pulse'", -- VimL
     -- Split one-liner into multiple
@@ -104,8 +106,6 @@ plugins = {
     "'wakatime/vim-wakatime'",
     -- Discord
     "'andweeb/presence.nvim'",
-    -- EditorConfig support
-    "'gpanders/editorconfig.nvim'",
     -- Comments
     "'terrortylor/nvim-comment'",
     "'folke/todo-comments.nvim'"

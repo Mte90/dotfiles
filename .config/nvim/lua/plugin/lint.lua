@@ -4,7 +4,20 @@ is_wp, message = pcall(function()
     return vim.api.nvim_get_var("wordpress_mode")
   end)
 local util = require("formatter.util")
+
+phpcs.args = {
+  '-q',
+  '--exclude=Generic.Commenting.Todo,Squiz.PHP.CommentedOutCode',
+  '--report=json',
+  '-'
+}
+phpformatter = {
+  tempfile_dir = '/tmp/',
+  args = {},
+  stdin = false,
+}
 if is_wp == false then
+  if not vim.fn.exists('artisan') then
     phpcs.args = {
         '-q',
         '--standard=CodeatCodingStandard',
@@ -17,6 +30,7 @@ if is_wp == false then
       args = {'--standard=CodeatCodingStandard'},
       stdin = false,
     }
+  end
 else
     phpcs.args = {
         '-q',
