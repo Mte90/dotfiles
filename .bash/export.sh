@@ -25,3 +25,7 @@ export PATH=/home/mte90/.composer/vendor/bin/:$PATH
 export GEM_PATH=/usr/lib/ruby/vendor_ruby/:$GEM_PATH
 
 FCEDIT=vim
+export DJANGO_DEBUG=True
+
+# https://www.reddit.com/r/programming/comments/109rjuj/how_setting_the_tz_environment_variable_avoids/
+export TZ=$(readlink -f /etc/localtime | cut -d/ -f 5-)

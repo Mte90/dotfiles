@@ -31,7 +31,7 @@ alias kate='kate -b'
 alias git='/home/mte90/Desktop/Prog/gitapper/gitapper.sh'
 #  To remember the SSH password for 36000 minutes
 alias git-pass='ssh-add -t 36000'
-alias gpm="git push origin $(git rev-parse --abbrev-ref HEAD)"
+alias gpm="/usr/bin/git push origin $(/usr/bin/git rev-parse --abbrev-ref HEAD)"
 alias git-remove-deleted-branch-remotely="git remote prune origin"
 #  Add and remove new/deleted files from git index automatically
 alias git-remove-file-not-exist-anymore-history="git ls-files -d -m -o -z --exclude-standard | xargs -0 git update-index --add --remove"
@@ -50,3 +50,6 @@ complete -F _complete_alias git
 
 # WordPress vim mode
 alias nvim-wp="nvim-qt /var/www/VVV/www/wordpress-develop/public_html -- --cmd 'let wordpress_mode=1' "
+
+# https://github.com/flyingrhinonz/nccm
+alias nccm="/home/mte90/Desktop/kde/nccm/nccm/nccm"
