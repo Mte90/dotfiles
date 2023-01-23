@@ -45,9 +45,9 @@ plugins = {
     "'stevearc/aerial.nvim'",
     "'stevearc/stickybuf.nvim'",
     -- Cool icons
-    "'kyazdani42/nvim-web-devicons'",
+    "'nvim-tree/nvim-web-devicons'",
     -- Rainbow Parentheses
-    "'p00f/nvim-ts-rainbow'",
+    "'mrjones2014/nvim-ts-rainbow'",
     -- Search Replace
     "'roobert/search-replace.nvim'",
     -- xDebug support
@@ -69,11 +69,11 @@ plugins = {
     "'kevinhwang91/promise-async'",
     "'kevinhwang91/nvim-ufo'",
     -- Underlines the words under your cursor
-    "'Hrle97/nvim-cursorline', {'branch': 'feature/disable-conditionally'}",
+    "'bennypowers/nvim-cursorline', {'branch': 'feat/disable-filetype'}",
     -- Emmett support
     "'mattn/emmet-vim'",
     -- Move code blocks
-    "'fedepujol/move.nvim'",
+    "'hinell/move.nvim'",
     -- Autocomplete
     "'ms-jpq/coq_nvim', {'do': ':COQdeps'}",
     "'ms-jpq/coq.artifacts', {'branch': 'artifacts'}",
@@ -84,8 +84,9 @@ plugins = {
     "'inside/vim-search-pulse'", -- VimL
     -- Split one-liner into multiple
     "'AndrewRadev/splitjoin.vim', { 'branch': 'main' }", -- VimL
-    -- chadtree
-    "'ms-jpq/chadtree', {'branch': 'chad', 'do': ':CHADdeps'}",
+    -- neo-tree
+    "'MunifTanjim/nui.nvim'",
+    "'nvim-neo-tree/neo-tree.nvim'",
     -- Status bar
     "'kdheepak/tabline.nvim'",
     "'moll/vim-bbye'", --Viml
@@ -126,7 +127,7 @@ vim.cmd[[call plug#end()]]
 
 require('plugin.autopairs')
 require('plugin.blankline')
-require('plugin.chadtree')
+require('plugin.neotree')
 require('plugin.coq')
 require('plugin.dap')
 require('plugin.dressing')

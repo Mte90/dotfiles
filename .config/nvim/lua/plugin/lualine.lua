@@ -28,7 +28,7 @@ require('lualine').setup{
     options = {
         theme = 'papercolor_light',
         icons_enabled = true,
-        disabled_filetypes = {'alpha', 'Outline', 'plugins','CHADTree', '[No Name]', 'OUTLINE', 'vim-plug'},
+        disabled_filetypes = {'alpha', 'plugins', '[No Name]', 'vim-plug'},
         globalstatus = true
     },
     sections = {
@@ -62,7 +62,7 @@ require('lualine').setup{
         lualine_y = {{'aerial', sep=' | '}, 'filetype'},
         lualine_z = {'progress'}
     },
-    extensions = { 'fzf', 'chadtree', 'fugitive', 'quickfix' }
+    extensions = { 'fzf', 'neo-tree', 'fugitive', 'quickfix' }
 }
 
 require("scrollbar").setup()

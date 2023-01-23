@@ -17,20 +17,19 @@ phpformatter = {
   stdin = false,
 }
 if is_wp == false then
-  if not vim.fn.exists('artisan') then
-    phpcs.args = {
-        '-q',
-        '--standard=CodeatCodingStandard',
-        '--exclude=Generic.Commenting.Todo,Squiz.PHP.CommentedOutCode',
-        '--report=json',
-        '-'
-    }
-    phpformatter = {
-      tempfile_dir = '/tmp/',
-      args = {'--standard=CodeatCodingStandard'},
-      stdin = false,
-    }
-  end
+  -- TODO search for artisan to load a different standard
+  phpcs.args = {
+      '-q',
+      '--standard=CodeatCodingStandard',
+      '--exclude=Generic.Commenting.Todo,Squiz.PHP.CommentedOutCode',
+      '--report=json',
+      '-'
+  }
+  phpformatter = {
+    tempfile_dir = '/tmp/',
+    args = {'--standard=CodeatCodingStandard'},
+    stdin = false,
+  }
 else
     phpcs.args = {
         '-q',

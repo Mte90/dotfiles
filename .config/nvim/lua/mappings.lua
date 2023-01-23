@@ -47,7 +47,9 @@ vim.keymap.set('n', '<c-s>', ':w<cr>')
 
 -- Plugins custom mapping
 -- Open Folder tab current directory
-vim.keymap.set('n', '<leader>n', ':CHADopen<CR>')
+vim.keymap.set('n', '<leader>n', function()
+		pcall(vim.cmd.Neotree, "toggle")
+	end)
 -- Fold code open/close with click
 vim.keymap.set('n', '<expr> <2-LeftMouse>', 'za')
 -- Object view
