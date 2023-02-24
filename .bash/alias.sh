@@ -31,7 +31,7 @@ alias kate='kate -b'
 alias git='/home/mte90/Desktop/Prog/gitapper/gitapper.sh'
 #  To remember the SSH password for 36000 minutes
 alias git-pass='ssh-add -t 36000'
-alias gpm="/usr/bin/git push origin $(/usr/bin/git rev-parse --abbrev-ref HEAD)"
+function gpm(){ /usr/bin/git push origin $(/usr/bin/git rev-parse --abbrev-ref HEAD); }
 alias git-remove-deleted-branch-remotely="git remote prune origin"
 #  Add and remove new/deleted files from git index automatically
 alias git-remove-file-not-exist-anymore-history="git ls-files -d -m -o -z --exclude-standard | xargs -0 git update-index --add --remove"

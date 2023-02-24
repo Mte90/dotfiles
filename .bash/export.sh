@@ -23,6 +23,7 @@ export PATH=~/.config/vendor/bin:$PATH
 export PATH=~/.cargo/bin:$PATH 
 export PATH=/home/mte90/.composer/vendor/bin/:$PATH
 export GEM_PATH=/usr/lib/ruby/vendor_ruby/:$GEM_PATH
+export PATH=/home/mte90/.local/bin/:$PATH
 
 FCEDIT=vim
 export DJANGO_DEBUG=True
