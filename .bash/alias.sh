@@ -1,5 +1,4 @@
 alias grep='rg'
-alias hh='hstr'
 # https://altbox.dev/
 # https://github.com/sharkdp/bat
 alias cat='batcat --paging=never'
@@ -53,3 +52,29 @@ alias nvim-wp="nvim-qt /var/www/VVV/www/wordpress-develop/public_html -- --cmd '
 
 # https://github.com/flyingrhinonz/nccm
 alias nccm="/home/mte90/Desktop/kde/nccm/nccm/nccm"
+
+# Temporary patch for hstr https://github.com/dvorka/hstr/issues/478
+bind '"\C-r": "\C-x1\e^\er"'
+bind -x '"\C-x1": __hstr';
+
+__hstr ()
+{
+	hstr 2> ~/.hstr.tmp
+	hstr_tmp=$(< ~/.hstr.tmp)
+	__ehc "$hstr_tmp"
+}
+
+__ehc()
+{
+if
+        [[ -n $1 ]]
+then
+        bind '"\er": redraw-current-line'
+        bind '"\e^": magic-space'
+        READLINE_LINE=${READLINE_LINE:+${READLINE_LINE:0:READLINE_POINT}}${1}${READLINE_LINE:+${READLINE_LINE:READLINE_POINT}}
+        READLINE_POINT=$(( READLINE_POINT + ${#1} ))
+else
+        bind '"\er":'
+        bind '"\e^":'
+fi
+}

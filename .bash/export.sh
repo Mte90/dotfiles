@@ -30,3 +30,8 @@ export DJANGO_DEBUG=True
 
 # https://www.reddit.com/r/programming/comments/109rjuj/how_setting_the_tz_environment_variable_avoids/
 export TZ=$(readlink -f /etc/localtime | cut -d/ -f 5-)
+
+
+# https://github.com/dvorka/hstr
+export HH_CONFIG=hicolor         # get more colors
+export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"   # mem/file sync
