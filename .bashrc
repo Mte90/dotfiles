@@ -136,9 +136,3 @@ done
 
 # https://github.com/wting/autojump
 source /usr/share/autojump/autojump.sh
-
-# https://github.com/dvorka/hstr
-export HH_CONFIG=hicolor         # get more colors
-export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"   # mem/file sync
-# if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)
-if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hh -- \C-j"'; fi

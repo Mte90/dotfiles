@@ -24,7 +24,7 @@ alias biggest-10-files='BLOCKSIZE=1048576; du -x -h | sort -nr | head -10'
 #youtube-dl as mp3
 alias yt2mp3='youtube-dl -x --audio-format=mp3 -w -c -o "%(title)s-%(id)s.%(ext)s"'
 alias changedfiles="find . -type f -print0 | xargs -0 stat --format '%Z :%z %n' | sort -nr | cut -d: -f2- | head -n 20"
-alias kate='kate -b'
+alias kate='kate -b -s default'
 
 # For Git
 alias git='/home/mte90/Desktop/Prog/gitapper/gitapper.sh'
@@ -52,29 +52,3 @@ alias nvim-wp="nvim-qt /var/www/VVV/www/wordpress-develop/public_html -- --cmd '
 
 # https://github.com/flyingrhinonz/nccm
 alias nccm="/home/mte90/Desktop/kde/nccm/nccm/nccm"
-
-# Temporary patch for hstr https://github.com/dvorka/hstr/issues/478
-bind '"\C-r": "\C-x1\e^\er"'
-bind -x '"\C-x1": __hstr';
-
-__hstr ()
-{
-	hstr 2> ~/.hstr.tmp
-	hstr_tmp=$(< ~/.hstr.tmp)
-	__ehc "$hstr_tmp"
-}
-
-__ehc()
-{
-if
-        [[ -n $1 ]]
-then
-        bind '"\er": redraw-current-line'
-        bind '"\e^": magic-space'
-        READLINE_LINE=${READLINE_LINE:+${READLINE_LINE:0:READLINE_POINT}}${1}${READLINE_LINE:+${READLINE_LINE:READLINE_POINT}}
-        READLINE_POINT=$(( READLINE_POINT + ${#1} ))
-else
-        bind '"\er":'
-        bind '"\e^":'
-fi
-}
