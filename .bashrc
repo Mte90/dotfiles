@@ -14,22 +14,22 @@ export HISTCONTROL="erasedups:ignoreboth:ignorespace"
 export HISTFILESIZE=2000        # increase history file size (default is 500)
 # Show datetime on every command
 export HISTTIMEFORMAT="%h %d %H:%M:%S "
-
-# append to the history file, don't overwrite it
-shopt -s histappend
+export HH_CONFIG=hicolor         # get more colors
+export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"   # mem/file sync
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 export HISTSIZE=1000
-
-# check the window size after each command and, if necessary,
-# update the values of LINES and COLUMNS.
-shopt -s checkwinsize
-
-# Auto fix filenames with spell checker
-shopt -s dirspell
-shopt -s cdspell
-# Case-insensitive globbing (used in pathname expansion)
-shopt -s nocaseglob
+#  - autocd - change directory without entering the 'cd' command
+#  - cdspell - automatically fix directory typos when changing directory
+#  - direxpand - automatically expand directory globs when completing
+#  - dirspell - automatically fix directory typos when completing
+#  - globstar - ** recursive glob
+#  - histappend - append to history, don't overwrite
+#  - histverify - expand, but don't automatically execute, history expansions
+#  - nocaseglob - case-insensitive globbing
+#  - no_empty_cmd_completion - do not TAB expand empty lines
+shopt -s autocd cdspell direxpand dirspell globstar histappend histverify \
+    nocaseglob no_empty_cmd_completion
 
 # set variable identifying the chroot you work in (used in the prompt below)
 if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
