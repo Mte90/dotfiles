@@ -1,0 +1,43 @@
+# TAB cycles forward and Shift-TAB cycles backward through completion choices.
+TAB: menu-complete
+"\e[Z": menu-complete-backward
+
+# Substring history search using UP and DOWN arrow keys.
+"\e[A": history-substring-search-backward
+"\e[B": history-substring-search-forward
+
+# Launch $EDITOR on the current command and execute when finished editing.
+"\ee": edit-and-execute-command
+
+# Enable completion coloring.
+set colored-completion-prefix on
+set colored-stats on
+
+# Ignore case when completing.
+set completion-ignore-case on
+
+# Treat hypen and underscores as equivalent.
+set completion-map-case on
+
+# The number of completions to display without prompt; when exceeded a
+# prompt-to-display will appear.
+set completion-query-items 200
+
+# Automatically add slash to the end of symlinked directories when completing.
+set mark-symlinked-directories on
+
+# Don't automatically match files beginning with dot.
+set match-hidden-files off
+
+# Display the common prefix choices on the first completion then cycle the
+# available choices on the next completion.
+set menu-complete-display-prefix on
+
+# Turn off the completions pager.
+set page-completions off
+
+# Immediately display completion matches.
+set show-all-if-ambiguous on
+
+# Smartly complete items when the cursor is not at the end of the line.
+set skip-completed-text on
