@@ -9,16 +9,16 @@ case $- in
 esac
 
 # don't put duplicate lines or lines starting with space in the history.
-# See bash(1) for more options
 export HISTCONTROL="erasedups:ignoreboth:ignorespace"
 export HISTFILESIZE=2000        # increase history file size (default is 500)
 # Show datetime on every command
 export HISTTIMEFORMAT="%h %d %H:%M:%S "
+HISTIGNORE=?:??                  # Ignore one and two letter commands
 export HH_CONFIG=hicolor         # get more colors
 export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"   # mem/file sync
-
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 export HISTSIZE=1000
+
 #  - autocd - change directory without entering the 'cd' command
 #  - cdspell - automatically fix directory typos when changing directory
 #  - direxpand - automatically expand directory globs when completing
