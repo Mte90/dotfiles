@@ -3,7 +3,7 @@ alias grep='rg'
 # https://github.com/sharkdp/bat
 alias cat='batcat --paging=never'
 # https://the.exa.website/
-alias ls='exa --group-directories-first --git-ignore --git -abghlS'
+alias ls='exa --group-directories-first --git-ignore --icons --git -abghl'
 alias ln='ln -sf'
 # Create all the parent directories with children
 alias mkdir='mkdir -p'
