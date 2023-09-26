@@ -42,6 +42,3 @@ debugger() {
   done
   echo
 }
-
-# https://github.com/wting/autojump
-source /usr/share/autojump/autojump.sh

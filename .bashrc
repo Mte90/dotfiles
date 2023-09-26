@@ -134,5 +134,5 @@ for i in ${HOME}/.bash/*/*.sh
     fi
 done
 
-# https://github.com/wting/autojump
-source /usr/share/autojump/autojump.sh
+#https://github.com/ajeetdsouza/zoxide
+eval "$(zoxide init bash)"
