@@ -10,7 +10,7 @@ Also I have a Python script that let me to have only one running instance of `nv
 ## Bash tools
 
 * [Custom bash line](https://github.com/petobens/trueline), Fast and extensible bash powerline prompt with true color and fancy icon support
-* [Autojump](https://github.com/wting/autojump), a faster way to navigate your filesystem
+* [Zoxide](https://github.com/ajeetdsouza/zoxide), a smarter cd command, inspired by z and autojump
 * [hstr](https://github.com/dvorka/hstr), shell history suggest box
 * [exa](https://the.exa.website/), A modern replacement for ls
 * [bat](https://github.com/sharkdp/bat), A cat(1) clone with wings
@@ -37,7 +37,7 @@ Also I have a Python script that let me to have only one running instance of `nv
 * [Delete song file playing in VLC and move to next](https://github.com/Mte90/My-Scripts/blob/master/misc/delete_song_by_dbus.py)
 * [DL-Telegram-by-file-attachment](https://github.com/Mte90/DL-Telegram-by-file-attachment/), Download documents by terms looking in a Telegram channel
 * [pydal](https://github.com/Mte90/pydal), Remap your specific keyboard to execute custom scripts!
-* [SyntaxAutoFix](https://github.com/Mte90/SyntaxAutoFix), Autofix your typos on Linux easily!
+* [Espanso-Autofixer](https://github.com/Mte90/espanso-typofixer), fix typos automatically for you 
 * [ExtStoreStats](https://github.com/Mte90/ExtStoreStats), Get the stats of your browser extension on different marketplace
 * [CSVEmaiLVerifier](https://github.com/CodeAtCode/CSVEmailVerifier), Automatic validation if email exist by CSV file
 * [My-Scripts](https://github.com/Mte90/My-Scripts), Archive of my own scripts
