@@ -47,7 +47,7 @@ plugins = {
     -- Cool icons
     "'nvim-tree/nvim-web-devicons'",
     -- Rainbow Parentheses
-    "'HiPhish/nvim-ts-rainbow2'",
+    "'HiPhish/rainbow-delimiters.nvim'",
     -- Search Replace
     "'roobert/search-replace.nvim'",
     -- xDebug support

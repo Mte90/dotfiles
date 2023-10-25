@@ -1,25 +1,59 @@
--- define the highlight groups with only background colors (or leave odd empty to just show the normal background)
-vim.cmd [[highlight IndentOdd guifg=NONE guibg=NONE gui=nocombine]]
-vim.cmd [[highlight IndentEven guifg=NONE guibg=#1a1a1a gui=nocombine]]
+local highlight = {
+    "RainbowRed",
+    "RainbowYellow",
+    "RainbowBlue",
+    "RainbowOrange",
+    "RainbowGreen",
+    "RainbowViolet",
+    "RainbowCyan",
+}
 
-require("indent_blankline").setup {
-    show_end_of_line = true,
-    use_treesitter = true,
-    filetype_exclude = {'help', 'alpha', 'fzf',  "markdown", "json", "txt", "undotree", "git", "lspinfo"},
-    buftype_exclude = {'terminal', 'nofile'},
+local hooks = require "ibl.hooks"
+-- create the highlight groups in the highlight setup hook, so they are reset
+-- every time the colorscheme changes
+hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
+    vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#E06C75" })
+    vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#E5C07B" })
+    vim.api.nvim_set_hl(0, "RainbowBlue", { fg = "#61AFEF" })
+    vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#D19A66" })
+    vim.api.nvim_set_hl(0, "RainbowGreen", { fg = "#98C379" })
+    vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#C678DD" })
+    vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#56B6C2" })
+end)
 
--- and then use the highlight groups
-    char_highlight_list = {"IndentOdd", "IndentEven"},
-    space_char_highlight_list = {"IndentOdd", "IndentEven"},
-    context_patterns = {
-        "class", "function", "method", "block", "list_literal", "selector",
-        "^if", "^table", "if_statement", "while", "for"
+local highlight = {
+    "CursorColumn",
+    "Whitespace",
+}
+vim.g.rainbow_delimiters = { highlight = highlight }
+require("ibl").setup {
+    indent = { highlight = highlight, char = "" },
+    whitespace = {
+        highlight = highlight,
+        remove_blankline_trail = false,
     },
+    scope = { enabled = false },
+}
 
--- don't show any characters
-    char = "|",
-    space_char = " ",
+hooks.register(hooks.type.SCOPE_HIGHLIGHT, hooks.builtin.scope_highlight_from_extmark)
+local rainbow_delimiters = require 'rainbow-delimiters'
 
--- when using background, the trailing indent is not needed / looks wrong
-    show_trailing_blankline_indent = false
+vim.g.rainbow_delimiters = {
+    strategy = {
+        [''] = rainbow_delimiters.strategy['global'],
+        vim = rainbow_delimiters.strategy['local'],
+    },
+    query = {
+        [''] = 'rainbow-delimiters',
+        lua = 'rainbow-blocks',
+    },
+    highlight = {
+        'RainbowDelimiterRed',
+        'RainbowDelimiterYellow',
+        'RainbowDelimiterBlue',
+        'RainbowDelimiterOrange',
+        'RainbowDelimiterGreen',
+        'RainbowDelimiterViolet',
+        'RainbowDelimiterCyan',
+    },
 }

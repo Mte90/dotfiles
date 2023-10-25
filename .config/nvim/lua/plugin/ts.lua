@@ -3,11 +3,6 @@ require'nvim-treesitter.configs'.setup {
   highlight = {
     enable = { "php", "javascript", "python", "bash", "yaml", "json", "html", "vue" },
   },
-  rainbow = {
-    enable = true,
-    extended_mode = true,
-    max_file_lines = 1000,
-  },
   context_commentstring = {
     enable = true
   },

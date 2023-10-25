@@ -6,8 +6,9 @@ end
 -- Based on https://github.com/nimaipatel/dotfiles/blob/master/.config/nvim/lua/nimai/misc.lua
 
 vim.api.nvim_create_autocmd(
-  'BufEnter,WinEnter,WinNew,VimResized *,*.*',
+  {'BufEnter','WinEnter','WinNew','VimResized'},
   {
+    pattern = ' *,*.*',
     callback = function ()
       if (vim.bo.filetype ~= 'qf' or vim.bo.filetype ~= 'alpha') then
           local vis_lines = vim.api.nvim_win_get_height(vim.fn.win_getid())
@@ -18,8 +19,9 @@ vim.api.nvim_create_autocmd(
 )
 
 vim.api.nvim_create_autocmd(
-  'TextYankPost *',
+  'TextYankPost',
   {
+    pattern = '*',
     callback = function()
       require'vim.highlight'.on_yank()
   end
@@ -27,8 +29,9 @@ vim.api.nvim_create_autocmd(
 )
 
 vim.api.nvim_create_autocmd(
-  'InsertEnter *',
+  'InsertEnter',
   {
+    pattern = '*',
     callback = function ()
       vim.o.hlsearch = false
   end
@@ -36,8 +39,9 @@ vim.api.nvim_create_autocmd(
 )
 
 vim.api.nvim_create_autocmd(
-  'InsertLeave *',
+  'InsertLeave',
   {
+    pattern = '*',
     callback = function ()
       vim.o.hlsearch = true
   end
