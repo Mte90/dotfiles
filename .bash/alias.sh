@@ -5,8 +5,6 @@ alias cat='batcat --paging=never'
 # https://the.exa.website/
 alias ls='exa --group-directories-first --git-ignore --icons --git -abghl'
 alias ln='ln -sf'
-#https://github.com/ajeetdsouza/zoxide
-alias cd='z'
 # Create all the parent directories with children
 alias mkdir='mkdir -p'
 alias diff='colordiff'
