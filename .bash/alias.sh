@@ -3,7 +3,7 @@ alias grep='rg'
 # https://github.com/sharkdp/bat
 alias cat='batcat --paging=never'
 # https://the.exa.website/
-alias ls='exa --group-directories-first --git-ignore --icons --git -abghl'
+alias ls='eza --group-directories-first --git-ignore --icons --git -abghl'
 alias ln='ln -sf'
 # Create all the parent directories with children
 alias mkdir='mkdir -p'
@@ -41,6 +41,8 @@ alias nvim-qt="/home/mte90/Desktop/Prog/My-Scripts/misc/nvim-qt.py"
 alias vim.tiny="nvim -u NONE"
 alias nvim.tiny="nvim -u NONE"
 alias nvim-qt-wp="nvim-qt /var/www/VVV/www/wordpress-develop/ -- --cmd \"let wordpress_mode=1\""
+
+alias poetry-run="poetry run python manage.py"
 
 # https://github.com/cykerway/complete-alias
 complete -F _complete_alias fzf
