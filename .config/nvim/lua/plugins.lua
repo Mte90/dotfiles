@@ -30,7 +30,10 @@ plugins = {
     "'hood/popui.nvim'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
+    "'JoosepAlviste/nvim-ts-context-commentstring'",
     "'gbprod/php-enhanced-treesitter.nvim'",
+    "'tweekmonster/django-plus.vim'",
+    "'karloskar/poetry-nvim'",
     "'haringsrob/nvim_context_vt'", 
     "'JoosepAlviste/nvim-ts-context-commentstring'",
     "'nvim-treesitter/nvim-tree-docs'",

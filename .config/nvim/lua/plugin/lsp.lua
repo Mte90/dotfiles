@@ -140,6 +140,23 @@ nvim_lsp.bashls.setup{
     capabilities = capabilities,
     on_attach = on_attach
 }
+nvim_lsp.pylsp.setup {
+  on_attach = on_attach,
+  settings = {
+      pylsp = {
+        plugins = {
+            autopep8 = { enabled = true },
+            pyls_mypy = { enabled = true },
+            pyls_isort = { enabled = true },
+            flake8 = { enabled = true },
+        },
+      },
+  },
+  flags = {
+      debounce_text_changes = 200,
+  },
+  capabilities = capabilities,
+}
 
 vim.ui.select = require"popui.ui-overrider"
 
@@ -186,3 +203,5 @@ vim.lsp.handlers['window/showMessage'] = function(_, result, ctx)
     end,
   })
 end
+
+require("poetry-nvim").setup()

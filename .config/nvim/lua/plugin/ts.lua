@@ -1,10 +1,7 @@
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = { "php", "javascript", "css", "python", "bash", "yaml", "json", "html", "vue" },
+  ensure_installed = { "php", "javascript", "css", "python", "bash", "yaml", "json", "html", "htmldjango", "vue" },
   highlight = {
-    enable = { "php", "javascript", "python", "bash", "yaml", "json", "html", "vue" },
-  },
-  context_commentstring = {
-    enable = true
+    enable = { "php", "javascript", "python", "bash", "yaml", "json", "html", "htmldjango", "vue" },
   },
   tree_docs = {enable = true},
   autopairs = {enable = true}
@@ -17,6 +14,8 @@ local opts = {
 require("aerial").setup(opts)
 require('nvim-ts-autotag').setup()
 require('hlargs').setup()
+require('ts_context_commentstring').setup()
+
 require("debugprint").setup(
   {
     filetypes = {
