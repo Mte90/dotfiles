@@ -22,9 +22,8 @@ plugins = {
     "'neovim/nvim-lspconfig'",
     "'folke/lsp-colors.nvim'",
     "'onsails/lspkind-nvim'",
-    "'https://git.sr.ht/~whynothugo/lsp_lines.nvim'",
+    "'ErichDonGubler/lsp_lines.nvim'",
     "'ray-x/lsp_signature.nvim'",
-    "'williamboman/nvim-lsp-installer'",
     "'kosayoda/nvim-lightbulb'",
     "'RishabhRD/popfix'",
     "'hood/popui.nvim'",
@@ -107,8 +106,6 @@ plugins = {
     -- Report lint errors
     "'mfussenegger/nvim-lint'",
     "'mhartington/formatter.nvim'",
-    -- Wakatime
-    "'wakatime/vim-wakatime'",
     -- Discord
     "'andweeb/presence.nvim'",
     -- Comments

@@ -2,7 +2,6 @@
 local nvim_lsp = require'lspconfig'
 local configs  = require'lspconfig/configs'
 local util     = require'lspconfig/util'
-local lsp_installer = require("nvim-lsp-installer")
 
 vim.lsp.set_log_level("off")
 
@@ -53,6 +52,8 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
     'additionalTextEdits',
   }
 }
+local coq = require("coq")
+capabilities = coq.lsp_ensure_capabilities(capabilities)
 nvim_lsp.intelephense.setup({
     settings = {
         intelephense = {
@@ -142,24 +143,17 @@ nvim_lsp.bashls.setup{
     capabilities = capabilities,
     on_attach = on_attach
 }
-local path = util.path
-local function get_python_path(workspace)
-  require("poetry-nvim").setup()
 
-  -- Use activated virtualenv.
-  if vim.env.VIRTUAL_ENV then
-    return path.join(vim.env.VIRTUAL_ENV, 'bin', 'python')
-  end
-
-  -- Fallback to system Python.
-  return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
-end
+require("poetry-nvim").setup()
 
 nvim_lsp.pylsp.setup {
+  on_init = function(_, config)
+      require("notify")(util.path.join(vim.env.VIRTUAL_ENV, "bin", "python"))
+  end,
   on_attach = on_attach,
   settings = {
       python = {
-        pythonPath = ''
+        pythonPath = util.path.join(vim.env.VIRTUAL_ENV, "bin", "python")
       },
       pylsp = {
         plugins = {
@@ -170,14 +164,6 @@ nvim_lsp.pylsp.setup {
         },
       },
   },
-  on_init = function(client)
-    require("project_nvim").setup {
-      patterns = { ".git", "README.txt", "node_modules", "composer.json", "vendor", "package.json" },
-      silent_chdir = false,
-    }
-    require('notify')(get_python_path(vim.fn.getcwd()))
-    client.config.settings.python.pythonPath = get_python_path(vim.fn.getcwd())
-    end,
   flags = {
       debounce_text_changes = 200,
   },

@@ -57,7 +57,7 @@ require('lint').linters_by_ft = {
 vim.api.nvim_create_autocmd({ "BufWritePost", "TextChanged" }, {
   callback = function()
     if is_wp == false then
-      path = vim.fn.getcwd() .. '/vendor/bin/phpcs'
+      local path = vim.fn.getcwd() .. '/vendor/bin/phpcs'
       if file_exists(path) then
         phpcs.cmd = path
       end
@@ -75,7 +75,7 @@ require('formatter').setup {
     html = prettier,
     php = {
       function ()
-        path = vim.fn.getcwd() .. '/vendor/bin/phpcbf'
+        local path = vim.fn.getcwd() .. '/vendor/bin/phpcbf'
         if is_wp == false and file_exists(path) then
           phpformatter.exe = path
         end
