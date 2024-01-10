@@ -147,14 +147,14 @@ nvim_lsp.bashls.setup{
 require("poetry-nvim").setup()
 
 nvim_lsp.pylsp.setup {
-  on_init = function(_, config)
-      require("notify")(util.path.join(vim.env.VIRTUAL_ENV, "bin", "python"))
+  before_init = function(_, config)
+    local python_path = util.path.join(vim.env.VIRTUAL_ENV, "bin", "python")
+    config.settings.python.pythonPath = python_path
+    vim.g.python_host_prog = python_path
+    vim.g.python3_host_prog = python_path
   end,
   on_attach = on_attach,
   settings = {
-      python = {
-        pythonPath = util.path.join(vim.env.VIRTUAL_ENV, "bin", "python")
-      },
       pylsp = {
         plugins = {
             autopep8 = { enabled = true },
