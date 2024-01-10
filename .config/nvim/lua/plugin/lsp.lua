@@ -4,6 +4,8 @@ local configs  = require'lspconfig/configs'
 local util     = require'lspconfig/util'
 local lsp_installer = require("nvim-lsp-installer")
 
+vim.lsp.set_log_level("off")
+
 -- Check if WordPress mode
 is_wp, message = pcall(function()
     return vim.api.nvim_get_var("wordpress_mode")
@@ -140,9 +142,25 @@ nvim_lsp.bashls.setup{
     capabilities = capabilities,
     on_attach = on_attach
 }
+local path = util.path
+local function get_python_path(workspace)
+  require("poetry-nvim").setup()
+
+  -- Use activated virtualenv.
+  if vim.env.VIRTUAL_ENV then
+    return path.join(vim.env.VIRTUAL_ENV, 'bin', 'python')
+  end
+
+  -- Fallback to system Python.
+  return vim.fn.exepath('python3') or vim.fn.exepath('python') or 'python'
+end
+
 nvim_lsp.pylsp.setup {
   on_attach = on_attach,
   settings = {
+      python = {
+        pythonPath = ''
+      },
       pylsp = {
         plugins = {
             autopep8 = { enabled = true },
@@ -152,6 +170,14 @@ nvim_lsp.pylsp.setup {
         },
       },
   },
+  on_init = function(client)
+    require("project_nvim").setup {
+      patterns = { ".git", "README.txt", "node_modules", "composer.json", "vendor", "package.json" },
+      silent_chdir = false,
+    }
+    require('notify')(get_python_path(vim.fn.getcwd()))
+    client.config.settings.python.pythonPath = get_python_path(vim.fn.getcwd())
+    end,
   flags = {
       debounce_text_changes = 200,
   },
@@ -203,5 +229,3 @@ vim.lsp.handlers['window/showMessage'] = function(_, result, ctx)
     end,
   })
 end
-
-require("poetry-nvim").setup()

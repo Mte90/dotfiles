@@ -58,6 +58,7 @@ plugins = {
     "'rcarriga/nvim-dap-ui'",
     "'theHamsta/nvim-dap-virtual-text'",
     "'andrewferrier/debugprint.nvim'",
+    "'mfussenegger/nvim-dap-python'",
     -- Auto cwd
     "'ahmedkhalf/project.nvim'",
     "'nvim-lua/plenary.nvim'",
