@@ -25,6 +25,7 @@ plugins = {
     "'ErichDonGubler/lsp_lines.nvim'",
     "'ray-x/lsp_signature.nvim'",
     "'kosayoda/nvim-lightbulb'",
+    "'HallerPatrick/py_lsp.nvim'",
     "'RishabhRD/popfix'",
     "'hood/popui.nvim'",
     -- Tree-Sitter
@@ -32,7 +33,6 @@ plugins = {
     "'JoosepAlviste/nvim-ts-context-commentstring'",
     "'gbprod/php-enhanced-treesitter.nvim'",
     "'tweekmonster/django-plus.vim'",
-    "'karloskar/poetry-nvim'",
     "'haringsrob/nvim_context_vt'", 
     "'JoosepAlviste/nvim-ts-context-commentstring'",
     "'nvim-treesitter/nvim-tree-docs'",

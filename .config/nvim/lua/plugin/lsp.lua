@@ -3,7 +3,7 @@ local nvim_lsp = require'lspconfig'
 local configs  = require'lspconfig/configs'
 local util     = require'lspconfig/util'
 
-vim.lsp.set_log_level("off")
+-- vim.lsp.set_log_level("off")
 
 -- Check if WordPress mode
 is_wp, message = pcall(function()
@@ -144,30 +144,11 @@ nvim_lsp.bashls.setup{
     on_attach = on_attach
 }
 
-require("poetry-nvim").setup()
-
-nvim_lsp.pylsp.setup {
-  before_init = function(_, config)
-    local python_path = util.path.join(vim.env.VIRTUAL_ENV, "bin", "python")
-    config.settings.python.pythonPath = python_path
-    vim.g.python_host_prog = python_path
-    vim.g.python3_host_prog = python_path
-  end,
-  on_attach = on_attach,
-  settings = {
-      pylsp = {
-        plugins = {
-            autopep8 = { enabled = true },
-            pyls_mypy = { enabled = true },
-            pyls_isort = { enabled = true },
-            flake8 = { enabled = true },
-        },
-      },
-  },
-  flags = {
-      debounce_text_changes = 200,
-  },
+require'py_lsp'.setup {
+  language_server = "pylsp",
+  source_strategies = {"poetry", "default", "system"},
   capabilities = capabilities,
+  on_attach = on_attach,
 }
 
 vim.ui.select = require"popui.ui-overrider"
