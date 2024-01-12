@@ -7,7 +7,6 @@ is_wp, message = pcall(function()
   end)
 
 plugins = {
-    "'lewis6991/impatient.nvim'",
     "'rcarriga/nvim-notify'",
     "'petertriho/nvim-scrollbar'",
     -- Wildmenu superpower
@@ -20,7 +19,6 @@ plugins = {
     "'rainbowhxch/beacon.nvim'",
     -- LSP 
     "'neovim/nvim-lspconfig'",
-    "'folke/lsp-colors.nvim'",
     "'onsails/lspkind-nvim'",
     "'ErichDonGubler/lsp_lines.nvim'",
     "'ray-x/lsp_signature.nvim'",
@@ -30,7 +28,6 @@ plugins = {
     "'hood/popui.nvim'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
-    "'JoosepAlviste/nvim-ts-context-commentstring'",
     "'gbprod/php-enhanced-treesitter.nvim'",
     "'tweekmonster/django-plus.vim'",
     "'haringsrob/nvim_context_vt'", 

@@ -3,7 +3,7 @@ local nvim_lsp = require'lspconfig'
 local configs  = require'lspconfig/configs'
 local util     = require'lspconfig/util'
 
--- vim.lsp.set_log_level("off")
+vim.lsp.set_log_level("off")
 
 -- Check if WordPress mode
 is_wp, message = pcall(function()
@@ -149,6 +149,12 @@ require'py_lsp'.setup {
   source_strategies = {"poetry", "default", "system"},
   capabilities = capabilities,
   on_attach = on_attach,
+  pylsp_plugins = {
+    autopep8 = { enabled = true },
+    pyls_mypy = { enabled = true },
+    pyls_isort = { enabled = true },
+    flake8 = { enabled = true, executable = ".venv/bin/flake8", },
+  },
 }
 
 vim.ui.select = require"popui.ui-overrider"
