@@ -43,6 +43,7 @@ alias nvim.tiny="nvim -u NONE"
 alias nvim-qt-wp="nvim-qt /var/www/VVV/www/wordpress-develop/ -- --cmd \"let wordpress_mode=1\""
 
 alias poetry-run="poetry run python manage.py"
+alias runserver="poetry run python -m debugpy --listen 5678 --wait-for-client manage.py runserver"
 
 # https://github.com/cykerway/complete-alias
 complete -F _complete_alias fzf

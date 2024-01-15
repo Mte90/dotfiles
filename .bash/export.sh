@@ -15,9 +15,3 @@ export DJANGO_DEBUG=True
 
 # https://www.reddit.com/r/programming/comments/109rjuj/how_setting_the_tz_environment_variable_avoids/
 export TZ=$(readlink -f /etc/localtime | cut -d/ -f 5-)
-
-# https://github.com/dvorka/hstr
-# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
-if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hstr -- \C-j"'; fi
-# if this is interactive shell, then bind 'kill last command' to Ctrl-x k
-if [[ $- =~ .*i.* ]]; then bind '"\C-xk": "\C-a hstr -k \C-j"'; fi

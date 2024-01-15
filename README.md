@@ -11,7 +11,6 @@ Also I have a Python script that let me to have only one running instance of `nv
 
 * [Custom bash line](https://github.com/petobens/trueline), Fast and extensible bash powerline prompt with true color and fancy icon support
 * [Zoxide](https://github.com/ajeetdsouza/zoxide), a smarter cd command, inspired by z and autojump
-* [hstr](https://github.com/dvorka/hstr), shell history suggest box
 * [exa](https://the.exa.website/), A modern replacement for ls
 * [bat](https://github.com/sharkdp/bat), A cat(1) clone with wings
 * [sd](https://github.com/chmln/sd), A sed alternative more simple
