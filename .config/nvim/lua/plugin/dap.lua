@@ -31,15 +31,6 @@ dap.configurations.php = {
     },
 }
 
-local pythonPath = function()
-    local cwd = vim.loop.cwd()
-    if vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
-        return cwd .. '/.venv/bin/python'
-    else
-        return '/usr/bin/python'
-    end
-end
-
 local set_python_dap = function()
     require('dap-python').setup() -- earlier so setup the various defaults ready to be replaced
     dap.configurations.python = {
@@ -48,7 +39,7 @@ local set_python_dap = function()
             request = 'launch';
             name = "Launch file";
             program = "${file}";
-            pythonPath = pythonPath()
+            pythonPath = venv_python_path()
         },
         {
             type = 'python',
@@ -81,13 +72,13 @@ local set_python_dap = function()
                 return vim.split(args_string, " +")
             end;
             console = "integratedTerminal",
-            pythonPath = pythonPath()
+            pythonPath = venv_python_path()
         }
     }
 
     dap.adapters.python = {
         type = 'executable',
-        command = pythonPath(),
+        command = venv_python_path(),
         args = {'-m', 'debugpy.adapter'}
     }
 end

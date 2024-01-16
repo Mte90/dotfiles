@@ -1,9 +1,12 @@
 local nvim_lsp = require'lspconfig' -- composer global require php-stubs/wordpress-globals php-stubs/wordpress-stubs php-stubs/woocommerce-stubs php-stubs/acf-pro-stubs wpsyntex/polylang-stubs php-stubs/genesis-stubs php-stubs/wp-cli-stubs
 local configs = require'lspconfig/configs'
 local util = require'lspconfig/util'
+
 vim.lsp.set_log_level("off")
+
 require('lspkind').init()
 require("lsp_lines").setup()
+
 local on_attach = function(client, bufnr)
     require'lsp_signature'.on_attach({
         bind = true,
@@ -99,9 +102,6 @@ require'py_lsp'.setup{
     capabilities = capabilities,
     on_attach = on_attach,
     pylsp_plugins = {
-        autopep8 = {
-            enabled = true
-        },
         pyls_mypy = {
             enabled = true
         },
@@ -110,7 +110,7 @@ require'py_lsp'.setup{
         },
         flake8 = {
             enabled = true,
-            executable = ".venv/bin/flake8",
+            executable = venv_bin_detection("flake8"),
         },
     },
 }

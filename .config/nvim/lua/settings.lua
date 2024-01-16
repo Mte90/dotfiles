@@ -134,3 +134,20 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 vim.g.loaded_netrwSettings = 1
 vim.g.loaded_netrwFileHandlers = 1
+
+-- Do not source the default filetype.vim
+vim.g.did_load_filetypes = 0
+vim.g.do_filetype_lua = 1
+
+vim.loader.enable()
+
+vim.diagnostic.config({
+    virtual_text = false,
+    float = {
+        source = "always",
+    },
+    signs = true,
+    underline = true,
+    update_in_insert = false,
+    severity_sort = true,
+})

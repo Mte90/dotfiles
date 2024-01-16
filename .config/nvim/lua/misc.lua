@@ -1,18 +1,9 @@
 vim.ui.select = require"popui.ui-overrider"
 
--- Do not source the default filetype.vim
-vim.g.did_load_filetypes = 0
-vim.g.do_filetype_lua = 1
-
 require("cutlass").setup({
     cut_key = "c"
 })
 require("stickybuf").setup()
-
-function file_exists(name)
-   local f=io.open(name,"r")
-   if f~=nil then io.close(f) return true else return false end
-end
 
 -- Based on https://github.com/nimaipatel/dotfiles/blob/master/.config/nvim/lua/nimai/misc.lua
 
@@ -158,4 +149,3 @@ require('ufo').setFoldVirtTextHandler(bufnr, handler)
 
 require("search-replace").setup()
 require('beacon').setup()
-vim.loader.enable()

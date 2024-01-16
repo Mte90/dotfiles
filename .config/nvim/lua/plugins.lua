@@ -98,8 +98,6 @@ plugins = {
     -- Report lint errors
     "'mfussenegger/nvim-lint'",
     "'mhartington/formatter.nvim'",
-    -- Discord
-    "'andweeb/presence.nvim'",
     -- Comments
     "'terrortylor/nvim-comment'",
     "'folke/todo-comments.nvim'"
