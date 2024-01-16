@@ -1,8 +1,8 @@
-alias grep='rg'
 # https://altbox.dev/
+alias grep='rg'
 # https://github.com/sharkdp/bat
 alias cat='batcat --paging=never'
-# https://the.exa.website/
+# eza
 alias ls='eza --group-directories-first --git-ignore --icons --git -abghl'
 alias ln='ln -sf'
 # Create all the parent directories with children
@@ -42,7 +42,7 @@ alias vim.tiny="nvim -u NONE"
 alias nvim.tiny="nvim -u NONE"
 
 alias poetry-run="poetry run python manage.py"
-alias runserver="poetry run python -m debugpy --listen 5678 --wait-for-client manage.py runserver"
+alias runserver="poetry run python manage.py runserver"
 
 # https://github.com/cykerway/complete-alias
 complete -F _complete_alias fzf

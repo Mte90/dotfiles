@@ -99,6 +99,7 @@ vim.api.nvim_exec([[
 
 require("project_nvim").setup {
   patterns = { ".git", "README.txt", "node_modules", "composer.json", "vendor", "package.json", "manage.py" },
+  exclude_dirs = {'~/.cache/*'},
   silent_chdir = false,
 }
 
