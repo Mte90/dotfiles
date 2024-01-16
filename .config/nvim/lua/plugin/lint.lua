@@ -1,8 +1,4 @@
 local phpcs = require('lint.linters.phpcs')
--- Check if WordPress mode
-is_wp, message = pcall(function()
-    return vim.api.nvim_get_var("wordpress_mode")
-  end)
 local util = require("formatter.util")
 
 phpcs.args = {
@@ -16,33 +12,20 @@ phpformatter = {
   args = {},
   stdin = false,
 }
-if is_wp == false then
-  -- TODO search for artisan to load a different standard
-  phpcs.args = {
-      '-q',
-      '--standard=CodeatCodingStandard',
-      '--exclude=Generic.Commenting.Todo,Squiz.PHP.CommentedOutCode',
-      '--report=json',
-      '-'
-  }
-  phpformatter = {
-    tempfile_dir = '/tmp/',
-    args = {'--standard=CodeatCodingStandard'},
-    stdin = false,
-  }
-else
-    phpcs.args = {
-        '-q',
-        '--standard=WordPress-Core',
-        '--report=json',
-        '-'
-    }
-    phpformatter = {
-      tempfile_dir = '/tmp/',
-      args = {'--standard=WordPress-Core'},
-      stdin = false,
-    }
-end
+
+-- TODO search for artisan to load a different standard
+phpcs.args = {
+    '-q',
+    '--standard=CodeatCodingStandard',
+    '--exclude=Generic.Commenting.Todo,Squiz.PHP.CommentedOutCode',
+    '--report=json',
+    '-'
+}
+phpformatter = {
+  tempfile_dir = '/tmp/',
+  args = {'--standard=CodeatCodingStandard'},
+  stdin = false,
+}
 
 require('lint').linters_by_ft = {
   sh = { 'shellcheck' },
@@ -56,11 +39,9 @@ require('lint').linters_by_ft = {
 
 vim.api.nvim_create_autocmd({ "BufWritePost", "TextChanged" }, {
   callback = function()
-    if is_wp == false then
-      local path = vim.fn.getcwd() .. '/vendor/bin/phpcs'
-      if file_exists(path) then
-        phpcs.cmd = path
-      end
+    local path = vim.fn.getcwd() .. '/vendor/bin/phpcs'
+    if file_exists(path) then
+      phpcs.cmd = path
     end
     require("lint").try_lint()
   end,
@@ -76,7 +57,7 @@ require('formatter').setup {
     php = {
       function ()
         local path = vim.fn.getcwd() .. '/vendor/bin/phpcbf'
-        if is_wp == false and file_exists(path) then
+        if file_exists(path) then
           phpformatter.exe = path
         end
         table.insert(phpformatter.args, util.escape_path(util.get_current_buffer_file_path()))

@@ -40,7 +40,6 @@ function git-stat-months() { git diff --shortstat "@{$1 month ago}"; }
 alias nvim-qt="/home/mte90/Desktop/Prog/My-Scripts/misc/nvim-qt.py"
 alias vim.tiny="nvim -u NONE"
 alias nvim.tiny="nvim -u NONE"
-alias nvim-qt-wp="nvim-qt /var/www/VVV/www/wordpress-develop/ -- --cmd \"let wordpress_mode=1\""
 
 alias poetry-run="poetry run python manage.py"
 alias runserver="poetry run python -m debugpy --listen 5678 --wait-for-client manage.py runserver"
@@ -49,9 +48,6 @@ alias runserver="poetry run python -m debugpy --listen 5678 --wait-for-client ma
 complete -F _complete_alias fzf
 complete -F _complete_alias dotfiles
 complete -F _complete_alias git
-
-# WordPress vim mode
-alias nvim-wp="nvim-qt /var/www/VVV/www/wordpress-develop/public_html -- --cmd 'let wordpress_mode=1' "
 
 # https://github.com/flyingrhinonz/nccm
 alias nccm="/home/mte90/Desktop/kde/nccm/nccm/nccm"

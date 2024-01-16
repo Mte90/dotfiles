@@ -135,4 +135,4 @@ for i in ${HOME}/.bash/*/*.sh
 done
 
 #https://github.com/ajeetdsouza/zoxide
-eval "$(zoxide init bash)"
+eval "$(zoxide init bash --hook pwd)"

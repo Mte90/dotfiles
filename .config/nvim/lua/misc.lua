@@ -1,3 +1,14 @@
+vim.ui.select = require"popui.ui-overrider"
+
+-- Do not source the default filetype.vim
+vim.g.did_load_filetypes = 0
+vim.g.do_filetype_lua = 1
+
+require("cutlass").setup({
+    cut_key = "c"
+})
+require("stickybuf").setup()
+
 function file_exists(name)
    local f=io.open(name,"r")
    if f~=nil then io.close(f) return true else return false end
@@ -87,7 +98,7 @@ vim.api.nvim_exec([[
 ]],true)
 
 require("project_nvim").setup {
-  patterns = { ".git", "README.txt", "node_modules", "composer.json", "vendor", "package.json" },
+  patterns = { ".git", "README.txt", "node_modules", "composer.json", "vendor", "package.json", "manage.py" },
   silent_chdir = false,
 }
 
@@ -104,15 +115,6 @@ for type, icon in pairs(signs) do
     local hl = "DiagnosticSign" .. type
     vim.fn.sign_define(hl, {text = icon, texthl = hl, numhl = hl})
 end
-
--- Do not source the default filetype.vim
-vim.g.did_load_filetypes = 0
-vim.g.do_filetype_lua = 1
-
-require("cutlass").setup({
-    cut_key = "c"
-})
-require("stickybuf").setup()
 
 vim.g.cursorword_disabled_filetypes = {"dapui_breakpoints", "dapui_scopes", "dapui_stacks", "dapui_watches", "dapui-repl"}
 

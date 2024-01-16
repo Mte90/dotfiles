@@ -5,10 +5,8 @@ local util     = require'lspconfig/util'
 
 vim.lsp.set_log_level("off")
 
--- Check if WordPress mode
-is_wp, message = pcall(function()
-    return vim.api.nvim_get_var("wordpress_mode")
-  end)
+require('lspkind').init()
+require("lsp_lines").setup()
 
 local on_attach = function(client, bufnr)
     require 'lsp_signature'.on_attach({
@@ -38,7 +36,7 @@ local on_attach = function(client, bufnr)
       })
     end
 end
-require('lspkind').init()
+
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.foldingRange = {
     dynamicRegistration = false,
@@ -54,6 +52,7 @@ capabilities.textDocument.completion.completionItem.resolveSupport = {
 }
 local coq = require("coq")
 capabilities = coq.lsp_ensure_capabilities(capabilities)
+
 nvim_lsp.intelephense.setup({
     settings = {
         intelephense = {
@@ -119,18 +118,17 @@ nvim_lsp.intelephense.setup({
     capabilities = capabilities,
     on_attach = on_attach
 });
-if is_wp == false then
-  local phpactor_capabilities = vim.lsp.protocol.make_client_capabilities()
-  phpactor_capabilities.textDocument.foldingRange = {
-      dynamicRegistration = false,
-      lineFoldingOnly = true
-  }
-  phpactor_capabilities['textDocument']['codeAction'] = {}
-  nvim_lsp.phpactor.setup{
-      capabilities = phpactor_capabilities,
-      on_attach = on_attach
-  }
-end
+
+local phpactor_capabilities = vim.lsp.protocol.make_client_capabilities()
+phpactor_capabilities.textDocument.foldingRange = {
+    dynamicRegistration = false,
+    lineFoldingOnly = true
+}
+phpactor_capabilities['textDocument']['codeAction'] = {}
+nvim_lsp.phpactor.setup{
+    capabilities = phpactor_capabilities,
+    on_attach = on_attach
+}
 nvim_lsp.cssls.setup{
     capabilities = capabilities,
     on_attach = on_attach
@@ -157,8 +155,6 @@ require'py_lsp'.setup {
   },
 }
 
-vim.ui.select = require"popui.ui-overrider"
-
 require'nvim-lightbulb'.update_lightbulb({
   sign = {
     enabled = true,
@@ -183,7 +179,6 @@ vim.api.nvim_create_autocmd({'CursorHoldI', 'CursorHold'}, {
   end,
 })
 
-require("lsp_lines").setup()
 
 local notify = require 'notify'
 vim.lsp.handlers['window/showMessage'] = function(_, result, ctx)

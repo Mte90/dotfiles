@@ -1,10 +1,4 @@
 -- Install vim-plug before running this script
--- https://github.com/gnituy18/config/blob/105a65084489720be58c44e479d20c30a4ea31e7/nvim/lua/plugins.lua
-
--- Check if WordPress mode
-is_wp, message = pcall(function()
-    return vim.api.nvim_get_var("wordpress_mode")
-  end)
 
 plugins = {
     "'rcarriga/nvim-notify'",
@@ -24,6 +18,7 @@ plugins = {
     "'ray-x/lsp_signature.nvim'",
     "'kosayoda/nvim-lightbulb'",
     "'HallerPatrick/py_lsp.nvim'",
+    -- Popup
     "'RishabhRD/popfix'",
     "'hood/popui.nvim'",
     -- Tree-Sitter
@@ -115,12 +110,10 @@ vim.cmd[[call plug#begin('~/.vim/plugged')]]
       vim.cmd(string.format("Plug %s", p))
   end
 
-  if is_wp == false then
-    -- alpha for a cool home page
-    vim.cmd("Plug 'goolord/alpha-nvim'") -- VimL
-    -- Syntax highlighting for webapi
-    vim.cmd("Plug 'mattn/webapi-vim', { 'for' : ['javascript'] }") -- VimL
-  end
+  -- alpha for a cool home page
+  vim.cmd("Plug 'goolord/alpha-nvim'") -- VimL
+  -- Syntax highlighting for webapi
+  vim.cmd("Plug 'mattn/webapi-vim', { 'for' : ['javascript'] }") -- VimL
 vim.cmd[[call plug#end()]]
 
 require('plugin.autopairs')
@@ -136,7 +129,4 @@ require('plugin.lualine')
 require('plugin.nvim-comment')
 require('plugin.ts')
 require('plugin.wilder')
-
-if is_wp == false then
-    require('plugin.alpha')
-end
+require('plugin.alpha')
