@@ -18,3 +18,10 @@ vim.g.coq_settings = {
     },
 }
 
+require("coq_3p") {
+  { src = "dap" },
+  { src = "builtin/js"      },
+  { src = "builtin/php"     },
+  { src = "builtin/html"    },
+  { src = "builtin/css"     },
+}

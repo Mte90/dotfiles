@@ -1,15 +1,3 @@
-require'tabline'.setup{
-    enable = false,
-    options = {
-        section_separators = {'', ''},
-        component_separators = {'', ''},
-        max_bufferline_percent = 66,
-        show_tabs_always = true,
-        show_devicons = true,
-        show_filename_only = true,
-    }
-}
-
 vim.cmd[[
       set guioptions-=e " Use showtabline in gui vim
       set sessionoptions+=tabpages,globals " store tabpages and globals in session
@@ -87,7 +75,7 @@ require('lualine').setup{
         }
     },
     tabline = {
-        lualine_a = {require'tabline'.tabline_buffers},
+        lualine_a = {'buffers'},
         lualine_b = {},
         lualine_c = {},
         lualine_x = {},
@@ -98,9 +86,9 @@ require('lualine').setup{
             },
             'filetype'
         },
-        lualine_z = {'progress'}
+        lualine_z = {'location'}
     },
-    extensions = {'fzf', 'neo-tree', 'fugitive', 'quickfix'}
+    extensions = {'fzf', 'neo-tree', 'fugitive', 'quickfix', 'nvim-dap-ui'}
 }
 
 require("scrollbar").setup()

@@ -46,10 +46,13 @@ local set_python_dap = function()
             request = 'launch',
             name = 'DAP Django',
             program = vim.loop.cwd() .. '/manage.py',
-            args = {'runserver', '--noreload'},
+            args = {
+                'runserver', --'--nothreading',
+                '--noreload'
+            },
             justMyCode = true,
             django = true,
-            console = "integratedTerminal",
+            console = "integratedTerminal", --             subProcess = true, trying to understand if nvim-dap support it
         },
         {
             type = 'python';
@@ -89,4 +92,35 @@ vim.api.nvim_create_autocmd({"DirChanged"}, {
 })
 
 require("nvim-dap-virtual-text").setup()
-require("dapui").setup()
+require("dapui").setup({
+    layouts = {
+        {
+            elements = {
+                {
+                    id = "scopes",
+                    size = 0.70
+                },
+                {
+                    id = "breakpoints",
+                    size = 0.10
+                },
+                {
+                    id = "stacks",
+                    size = 0.20
+                }
+            },
+            position = "left",
+            size = 50
+        },
+        {
+            elements = {
+                {
+                    id = "repl",
+                    size = 1
+                }
+            },
+            position = "bottom",
+            size = 10
+        }
+    },
+})

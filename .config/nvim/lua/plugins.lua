@@ -72,18 +72,15 @@ plugins = {
     -- Autocomplete
     "'ms-jpq/coq_nvim', {'do': ':COQdeps'}",
     "'ms-jpq/coq.artifacts', {'branch': 'artifacts'}",
-    "'mte90/coq_wordpress', {'do': './install.sh'}",
+    "'Mte90/coq_wordpress', {'do': './install.sh'}",
     -- highlights which characters to target with F/f
     "'jinh0/eyeliner.nvim'",
-    -- Search pulse
-    "'inside/vim-search-pulse'", -- VimL
     -- Split one-liner into multiple
     "'AndrewRadev/splitjoin.vim', { 'branch': 'main' }", -- VimL
     -- neo-tree
     "'MunifTanjim/nui.nvim'",
     "'nvim-neo-tree/neo-tree.nvim'",
     -- Status bar
-    "'kdheepak/tabline.nvim'",
     "'moll/vim-bbye'", --Viml
     "'nvim-lualine/lualine.nvim'",
     "'arkav/lualine-lsp-progress'",
@@ -91,8 +88,6 @@ plugins = {
     "'vijaymarupudi/nvim-fzf'",
     "'ibhagwan/fzf-lua'",
     "'kevinhwang91/nvim-bqf'", -- quickfix
-    -- Wrapper for sd
-    "'SirJson/sd.vim'",
     -- display the hexadecimal colors - useful for css and color config
     "'NvChad/nvim-colorizer.lua'",
     -- Report lint errors
