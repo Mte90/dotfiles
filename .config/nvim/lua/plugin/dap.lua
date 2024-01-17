@@ -25,7 +25,7 @@ dap.configurations.php = {
         request = 'launch',
         name = 'Listen for xdebug',
         port = '9003',
-        log = true,
+        log = false,
         serverSourceRoot = '/srv/www/',
         localSourceRoot = '/home/www/VVV/www/',
     },

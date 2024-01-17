@@ -3,6 +3,7 @@
 plugins = {
     "'rcarriga/nvim-notify'",
     "'petertriho/nvim-scrollbar'",
+    "'m4xshen/hardtime.nvim'",
     -- Wildmenu superpower
     "'gelguy/wilder.nvim', {'do': ':UpdateRemotePlugins'}",
     "'romgrk/fzy-lua-native'",
@@ -17,14 +18,11 @@ plugins = {
     "'ErichDonGubler/lsp_lines.nvim'",
     "'ray-x/lsp_signature.nvim'",
     "'kosayoda/nvim-lightbulb'",
-    "'HallerPatrick/py_lsp.nvim'",
     -- Popup
     "'RishabhRD/popfix'",
     "'hood/popui.nvim'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
-    "'gbprod/php-enhanced-treesitter.nvim'",
-    "'tweekmonster/django-plus.vim'",
     "'haringsrob/nvim_context_vt'", 
     "'JoosepAlviste/nvim-ts-context-commentstring'",
     "'nvim-treesitter/nvim-tree-docs'",
@@ -49,7 +47,6 @@ plugins = {
     "'rcarriga/nvim-dap-ui'",
     "'theHamsta/nvim-dap-virtual-text'",
     "'andrewferrier/debugprint.nvim'",
-    "'mfussenegger/nvim-dap-python'",
     -- Auto cwd
     "'ahmedkhalf/project.nvim'",
     "'nvim-lua/plenary.nvim'",
@@ -71,6 +68,7 @@ plugins = {
     "'hinell/move.nvim'",
     -- Autocomplete
     "'ms-jpq/coq_nvim', {'do': ':COQdeps'}",
+    "'ms-jpq/coq.thirdparty'",
     "'ms-jpq/coq.artifacts', {'branch': 'artifacts'}",
     "'Mte90/coq_wordpress', {'do': './install.sh'}",
     -- highlights which characters to target with F/f
@@ -95,7 +93,13 @@ plugins = {
     "'mhartington/formatter.nvim'",
     -- Comments
     "'terrortylor/nvim-comment'",
-    "'folke/todo-comments.nvim'"
+    "'folke/todo-comments.nvim'",
+    -- Language specific
+    "'MaximilianLloyd/tw-values.nvim'",
+    "'tweekmonster/django-plus.vim'",
+    "'gbprod/php-enhanced-treesitter.nvim'",
+    "'mfussenegger/nvim-dap-python'",
+    "'HallerPatrick/py_lsp.nvim'",
 }
 
 vim.cmd[[call plug#begin('~/.vim/plugged')]]

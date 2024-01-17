@@ -18,7 +18,13 @@ require('lualine').setup{
     options = {
         theme = 'papercolor_light',
         icons_enabled = true,
-        disabled_filetypes = {'alpha', 'plugins', '[No Name]', 'vim-plug'},
+        disabled_filetypes = {'alpha', 'plugins', '[No Name]', 'vim-plug', 'neo-tree',"dapui*",
+			"dapui_scopes",
+			"dapui_watches",
+			"dapui_console",
+			"dapui_breakpoints",
+			"dapui_stacks",
+			"dap-repl",},
         globalstatus = true
     },
     sections = {

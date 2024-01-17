@@ -1,7 +1,7 @@
 require'nvim-treesitter.configs'.setup {
-  ensure_installed = { "php", "javascript", "css", "python", "bash", "yaml", "json", "html", "htmldjango", "vue" },
+  ensure_installed = { "php", "javascript", "css", "python", "bash", "yaml", "json", "html", "htmldjango" },
   highlight = {
-    enable = { "php", "javascript", "python", "bash", "yaml", "json", "html", "htmldjango", "vue" },
+    enable = { "php", "javascript", "python", "bash", "css", "yaml", "json", "html", "htmldjango" },
   },
   tree_docs = {enable = true},
   autopairs = {enable = true}

@@ -149,3 +149,4 @@ require('ufo').setFoldVirtTextHandler(bufnr, handler)
 
 require("search-replace").setup()
 require('beacon').setup()
+require("hardtime").setup()

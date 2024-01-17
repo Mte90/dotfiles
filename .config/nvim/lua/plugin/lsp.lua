@@ -96,6 +96,11 @@ nvim_lsp.bashls.setup{
     on_attach = on_attach
 }
 
+nvim_lsp.tailwindcss.setup{
+    capabilities = capabilities,
+    on_attach = on_attach
+}
+
 require'py_lsp'.setup{
     language_server = "pylsp",
     source_strategies = {"poetry", "default", "system"},
@@ -147,3 +152,7 @@ vim.lsp.handlers['window/showMessage'] = function(_, result, ctx)
         keep = function() return lvl == 'ERROR' or lvl == 'WARN' end,
     })
 end
+
+require('tw-values').setup({
+    show_unknown_classes = true,
+})

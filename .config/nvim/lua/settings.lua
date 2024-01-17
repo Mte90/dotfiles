@@ -135,10 +135,6 @@ vim.g.loaded_netrwPlugin = 1
 vim.g.loaded_netrwSettings = 1
 vim.g.loaded_netrwFileHandlers = 1
 
--- Do not source the default filetype.vim
-vim.g.did_load_filetypes = 0
-vim.g.do_filetype_lua = 1
-
 vim.loader.enable()
 
 vim.diagnostic.config({
