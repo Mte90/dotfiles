@@ -43,7 +43,12 @@ vim.api.nvim_command("cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline(
 vim.api.nvim_command("cnoreabbrev <expr> q getcmdtype() == ':' && getcmdline() == 'q' ? 'Bdelete' : 'q'")
 -- save buffer with control + w
 vim.keymap.set('n', '<c-s>', ':w<cr>')
-
+vim.keymap.set('x', '<C-S-X>', '"+d')
+vim.keymap.set('v', '<C-S-c>', '"+y')         -- Copy
+vim.keymap.set('n', '<C-S-v>', '"+P')         -- Paste normal mode
+vim.keymap.set('v', '<C-S-v>', '"+P')         -- Paste visual mode
+vim.keymap.set('c', '<C-S-v>', '<C-R>+')      -- Paste command mode
+vim.keymap.set('i', '<C-S-v>', '<C-R><C-O>+') -- Paste insert mode
 
 -- Plugins custom mapping
 -- Open Folder tab current directory
