@@ -78,8 +78,10 @@ vim.keymap.set('n', '<F11>', ":lua require'dap'.step_out()<CR>")
 -- Split code in line to different lines
 vim.keymap.set('n', '<leader>s', ':SplitjoinSplit<cr>')
 vim.keymap.set("n", "<Leader>p", function()
-    require('debugprint').debugprint( { above = true, variable = true } )
-end)
+    return require('debugprint').debugprint( { above = true, variable = true } )
+end, {
+    expr = true,
+})
 vim.keymap.set('v', '<C-r>', ':SearchReplaceSingleBufferOpen<cr>')
 -- https://www.cyberciti.biz/faq/how-to-reload-vimrc-file-without-restarting-vim-on-linux-unix/
 -- Edit vimrc configuration file

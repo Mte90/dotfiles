@@ -149,4 +149,12 @@ require('ufo').setFoldVirtTextHandler(bufnr, handler)
 
 require("search-replace").setup()
 require('beacon').setup()
-require("hardtime").setup()
+require("hardtime").setup({
+  disable_mouse = false,
+  disabled_keys = {
+   ["<Up>"] = {},
+   ["<Down>"] = {},
+   ["<Left>"] = {},
+   ["<Right>"] = {},
+  },
+})
