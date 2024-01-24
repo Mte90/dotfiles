@@ -113,6 +113,9 @@ require'py_lsp'.setup{
         pyls_isort = {
             enabled = true
         },
+        pycodestyle = {
+            enabled = false,
+        },
         flake8 = {
             enabled = true,
             executable = venv_bin_detection("flake8"),

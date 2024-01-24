@@ -68,7 +68,7 @@ require('formatter').setup{
                 exe = venv_bin_detection("isort"), -- Get isort global or from venv
                 args = { "-q", "--filename", util.escape_path(util.get_current_buffer_file_path()), "-" },
                 stdin = true,
-            }
+            },
         }
     }
 }

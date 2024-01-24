@@ -11,6 +11,7 @@ export GEM_PATH=/usr/lib/ruby/vendor_ruby/:$GEM_PATH
 export PATH=/home/mte90/.local/bin/:$PATH
 
 FCEDIT=vim
+export EDITOR="vim.tiny"
 export DJANGO_DEBUG=True
 
 # https://www.reddit.com/r/programming/comments/109rjuj/how_setting_the_tz_environment_variable_avoids/

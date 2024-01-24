@@ -1,4 +1,5 @@
 local dap = require'dap' -- https://github.com/xdebug/vscode-php-debug/releases -- Extract the vsix content
+-- require('dap').set_log_level('TRACE')
 vim.fn.sign_define('DapBreakpoint', {
     text = '⬤',
     texthl = 'ErrorMsg',
@@ -44,7 +45,7 @@ local set_python_dap = function()
         {
             type = 'python',
             request = 'launch',
-            name = 'DAP Django',
+            name = 'Django',
             program = vim.loop.cwd() .. '/manage.py',
             args = {
                 'runserver', --'--nothreading',
@@ -52,7 +53,7 @@ local set_python_dap = function()
             },
             justMyCode = true,
             django = true,
-            console = "integratedTerminal", --             subProcess = true, trying to understand if nvim-dap support it
+            console = "integratedTerminal",
         },
         {
             type = 'python';
