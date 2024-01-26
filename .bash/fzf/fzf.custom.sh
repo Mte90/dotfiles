@@ -17,3 +17,6 @@ find-in-file() {
   fi
   rg --files-with-matches --no-messages "$1" | fzf --preview "([[ -f {} ]] && (batcat --style=numbers --color=always {} || cat {})) | $FZF_SEARCH --colors 'match:bg:yellow' --ignore-case --pretty --context 10 '$1'"
 }
+
+source /usr/share/fzf-help/fzf-help.bash
+bind -x '"\C-a": fzf-help-widget'
