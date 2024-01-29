@@ -68,7 +68,8 @@ vim.keymap.set('n', '<leader>g', ':FzfLua lines<CR>')
 -- Jump to definition under cursor
 vim.keymap.set('n', '<leader>j', '<cmd>lua vim.lsp.buf.definition()<cr>')
 -- Append ; to the end of the line -> Leader+B
-vim.keymap.set('n', '<leader>b', ":call setline('.', getline('.') . ';')<CR>")
+vim.keymap.set('n', '<leader>;', ":call setline('.', getline('.') . ';')<CR>")
+vim.keymap.set('n', '<leader>}', ":call setline('.', getline('.') . '}')<CR>")
 -- DAP
 vim.keymap.set('n', '<F1>', ":lua require'dap'clear_breakpoints()<CR>")
 vim.keymap.set('n', '<F2>', ":lua require'dapui'.float_element('scopes', {position = 'center',  enter = true })<CR>")
