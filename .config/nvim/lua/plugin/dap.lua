@@ -1,5 +1,5 @@
 local dap = require'dap' -- https://github.com/xdebug/vscode-php-debug/releases -- Extract the vsix content
--- require('dap').set_log_level('TRACE')
+--require('dap').set_log_level('TRACE')
 vim.fn.sign_define('DapBreakpoint', {
     text = '⬤',
     texthl = 'ErrorMsg',
@@ -33,7 +33,10 @@ dap.configurations.php = {
 }
 
 local set_python_dap = function()
-    require('dap-python').setup() -- earlier so setup the various defaults ready to be replaced
+    require('dap-python').setup() -- earlier, so I can setup the various defaults ready to be replaced
+    require('dap-python').resolve_python = function()
+        return venv_python_path()
+    end
     dap.configurations.python = {
         {
             type = 'python';
@@ -43,17 +46,17 @@ local set_python_dap = function()
             pythonPath = venv_python_path()
         },
         {
-            type = 'python',
+            type = 'debugpy',
             request = 'launch',
             name = 'Django',
-            program = vim.loop.cwd() .. '/manage.py',
+            program = '${workspaceFolder}/manage.py',
             args = {
-                'runserver', --'--nothreading',
-                '--noreload'
+                'runserver',
             },
             justMyCode = true,
             django = true,
             console = "integratedTerminal",
+            pythonPath = venv_python_path()
         },
         {
             type = 'python';
@@ -61,7 +64,7 @@ local set_python_dap = function()
             name = 'Attach remote';
             connect = function()
                 return {
-                    host = '127.0.0.1',
+                    host = 'localhost',
                     port = 5678
                 }
             end;
@@ -88,7 +91,7 @@ local set_python_dap = function()
 end
 
 set_python_dap()
-vim.api.nvim_create_autocmd({"DirChanged"}, {
+vim.api.nvim_create_autocmd({"DirChanged", "BufEnter"}, {
     callback = function() set_python_dap() end,
 })
 

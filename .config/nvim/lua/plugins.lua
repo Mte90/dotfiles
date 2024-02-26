@@ -96,10 +96,12 @@ plugins = {
     "'folke/todo-comments.nvim'",
     -- Language specific
     "'MaximilianLloyd/tw-values.nvim'",
-    "'tweekmonster/django-plus.vim'",
+--     "'tweekmonster/django-plus.vim'",
     "'gbprod/php-enhanced-treesitter.nvim'",
     "'mfussenegger/nvim-dap-python'",
     "'HallerPatrick/py_lsp.nvim'",
+    "'HiPhish/debugpy.nvim'",
+    "'wookayin/semshi', { 'do': ':UpdateRemotePlugins', 'tag': '*' }"
 }
 
 vim.cmd[[call plug#begin('~/.vim/plugged')]]
