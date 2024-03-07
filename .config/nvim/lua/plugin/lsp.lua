@@ -101,13 +101,19 @@ nvim_lsp.tailwindcss.setup{
     on_attach = on_attach
 }
 
-require'py_lsp'.setup{
+require'py_lsp'.setup({
     language_server = "pylsp",
     source_strategies = {"poetry", "default", "system"},
     capabilities = capabilities,
     on_attach = on_attach,
     pylsp_plugins = {
         pyls_mypy = {
+            enabled = true
+        },
+        rope_autoimport = {
+            enabled = true
+        },
+        rope_completion = {
             enabled = true
         },
         pyls_isort = {
@@ -119,9 +125,24 @@ require'py_lsp'.setup{
         flake8 = {
             enabled = true,
             executable = venv_bin_detection("flake8"),
-        },
-    },
-}
+        }
+    }
+})
+
+local function filter_diagnostics(diagnostic)
+  if diagnostic.source == 'pycodestyle'then
+    return false
+  end
+  return true
+end
+
+vim.lsp.handlers['textDocument/publishDiagnostics'] = vim.lsp.with(
+  function(_, result, ctx, config)
+    result.diagnostics = vim.tbl_filter(filter_diagnostics, result.diagnostics)
+    vim.lsp.diagnostic.on_publish_diagnostics(_, result, ctx, config)
+  end,
+  {}
+)
 
 require'nvim-lightbulb'.update_lightbulb({
     sign = {

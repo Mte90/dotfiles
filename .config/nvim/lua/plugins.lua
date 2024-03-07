@@ -1,6 +1,7 @@
 -- Install vim-plug before running this script
 
 plugins = {
+    "'goolord/alpha-nvim'",
     "'rcarriga/nvim-notify'",
     "'petertriho/nvim-scrollbar'",
     "'m4xshen/hardtime.nvim'",
@@ -18,6 +19,7 @@ plugins = {
     "'ErichDonGubler/lsp_lines.nvim'",
     "'ray-x/lsp_signature.nvim'",
     "'kosayoda/nvim-lightbulb'",
+    "'Zeioth/garbage-day.nvim'",
     -- Popup
     "'RishabhRD/popfix'",
     "'hood/popui.nvim'",
@@ -27,6 +29,7 @@ plugins = {
     "'JoosepAlviste/nvim-ts-context-commentstring'",
     "'nvim-treesitter/nvim-tree-docs'",
     "'m-demare/hlargs.nvim'",
+    "'code-biscuits/nvim-biscuits', {'do': ':TSUpdate'}",
     -- close html tags
     "'windwp/nvim-ts-autotag'",
     -- Autopair added
@@ -96,23 +99,19 @@ plugins = {
     "'folke/todo-comments.nvim'",
     -- Language specific
     "'MaximilianLloyd/tw-values.nvim'",
---     "'tweekmonster/django-plus.vim'",
     "'gbprod/php-enhanced-treesitter.nvim'",
     "'mfussenegger/nvim-dap-python'",
     "'HallerPatrick/py_lsp.nvim'",
     "'HiPhish/debugpy.nvim'",
-    "'wookayin/semshi', { 'do': ':UpdateRemotePlugins', 'tag': '*' }"
+    "'wookayin/semshi', { 'do': ':UpdateRemotePlugins', 'tag': '*' }",
+    -- LLM
+    "'David-Kunz/gen.nvim'"
 }
 
 vim.cmd[[call plug#begin('~/.vim/plugged')]]
   for i, p in pairs(plugins) do
       vim.cmd(string.format("Plug %s", p))
   end
-
-  -- alpha for a cool home page
-  vim.cmd("Plug 'goolord/alpha-nvim'") -- VimL
-  -- Syntax highlighting for webapi
-  vim.cmd("Plug 'mattn/webapi-vim', { 'for' : ['javascript'] }") -- VimL
 vim.cmd[[call plug#end()]]
 
 require('plugin.autopairs')
@@ -127,5 +126,6 @@ require('plugin.lsp')
 require('plugin.lualine')
 require('plugin.nvim-comment')
 require('plugin.ts')
+require('plugin.gen')
 require('plugin.wilder')
 require('plugin.alpha')

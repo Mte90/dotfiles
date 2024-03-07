@@ -27,3 +27,5 @@ require("debugprint").setup(
     }
   }
 )
+
+require('nvim-biscuits').setup()
