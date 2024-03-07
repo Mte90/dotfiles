@@ -129,6 +129,7 @@ require'py_lsp'.setup({
     }
 })
 
+-- I want to be sure that there isn't any pycodestyle
 local function filter_diagnostics(diagnostic)
   if diagnostic.source == 'pycodestyle'then
     return false
