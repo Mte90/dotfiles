@@ -1,5 +1,5 @@
 require('gen').setup({
-    model = "codellama",
+    model = "mistral",
     host = "localhost",
     port = "11434",
     display_mode = "float",

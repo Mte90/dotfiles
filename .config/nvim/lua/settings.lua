@@ -92,8 +92,6 @@ bo.autoindent      = true        -- Uses indent from previous line
 bo.smartindent     = true        -- Like cindent except lil' more clever
 bo.copyindent      = true        -- Copy the structure of existing line's indent when autoin
 
-vim.api.nvim_command('colorscheme valloric')
-
 vim.opt.listchars = {
     eol = "↴",
     space = " ",

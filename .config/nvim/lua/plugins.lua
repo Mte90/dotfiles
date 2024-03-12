@@ -1,6 +1,7 @@
 -- Install vim-plug before running this script
 
 plugins = {
+    "'samharju/synthweave.nvim'",
     "'goolord/alpha-nvim'",
     "'rcarriga/nvim-notify'",
     "'petertriho/nvim-scrollbar'",

@@ -1,3 +1,4 @@
+vim.cmd.colorscheme("synthweave")
 vim.ui.select = require"popui.ui-overrider"
 
 require("cutlass").setup({
@@ -169,3 +170,19 @@ require("hardtime").setup({
    ["<Right>"] = {},
   },
 })
+
+require('nvim-cursorline').setup {
+  cursorline = {
+    enable = true,
+    timeout = 1000,
+    number = false,
+    disable_filetypes = {
+      'neo-tree'
+    },
+  },
+  cursorword = {
+    enable = true,
+    min_length = 3,
+    hl = { underline = true },
+  }
+}
