@@ -6,6 +6,7 @@ plugins = {
     "'rcarriga/nvim-notify'",
     "'petertriho/nvim-scrollbar'",
     "'m4xshen/hardtime.nvim'",
+    "'nvim-neotest/nvim-nio'",
     -- Wildmenu superpower
     "'gelguy/wilder.nvim', {'do': ':UpdateRemotePlugins'}",
     "'romgrk/fzy-lua-native'",
@@ -85,6 +86,7 @@ plugins = {
     -- Status bar
     "'moll/vim-bbye'", --Viml
     "'nvim-lualine/lualine.nvim'",
+    "'bezhermoso/todos-lualine.nvim'",
     "'arkav/lualine-lsp-progress'",
     -- fzf - poweful search
     "'vijaymarupudi/nvim-fzf'",
@@ -103,6 +105,7 @@ plugins = {
     "'gbprod/php-enhanced-treesitter.nvim'",
     "'mfussenegger/nvim-dap-python'",
     "'HallerPatrick/py_lsp.nvim'",
+    "'luckasRanarison/tailwind-tools.nvim'",
     "'HiPhish/debugpy.nvim'",
     "'wookayin/semshi', { 'do': ':UpdateRemotePlugins', 'tag': '*' }",
     -- LLM

@@ -100,6 +100,8 @@ nvim_lsp.tailwindcss.setup{
     capabilities = capabilities,
     on_attach = on_attach
 }
+require("tailwind-tools").setup({
+})
 
 require'py_lsp'.setup({
     language_server = "pylsp",

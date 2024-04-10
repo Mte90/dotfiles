@@ -39,8 +39,18 @@ vim.api.nvim_set_keymap('v', '<A-k>', ":MoveBlock(-1)<CR>", { noremap = true, si
 vim.api.nvim_command("cnoreabbrev <expr> W ((getcmdtype() is# ':' && getcmdline() is# 'W')?('w'):('W'))")
 -- correct :Q to :q typo
 vim.api.nvim_command("cnoreabbrev <expr> Q ((getcmdtype() is# ':' && getcmdline() is# 'Q')?('q'):('Q'))")
--- Close buffer with no window changes, it is executed also on empty buffers
-vim.api.nvim_command("cnoreabbrev <expr> q getcmdtype() == ':' && getcmdline() == 'q' ? 'Bdelete' : 'q'")
+vim.keymap.set('n', '<C-q>', function()
+  -- close current win if there are more than 1 win
+  -- else close current tab if there are more than 1 tab
+  -- else close current vim
+  if #vim.api.nvim_tabpage_list_wins(0) > 1 then
+    vim.cmd([[close]])
+  elseif #vim.api.nvim_list_tabpages() > 1 then
+    vim.cmd([[tabclose]])
+  else
+    vim.cmd([[qa]])
+  end
+end, { desc = 'Super <C-q>' })
 -- save buffer with control + w
 vim.keymap.set('n', '<c-s>', ':w<cr>')
 vim.keymap.set('x', '<C-S-X>', '"+d')
@@ -60,16 +70,15 @@ vim.keymap.set('n', '<expr> <2-LeftMouse>', 'za')
 -- Object view
 vim.keymap.set('n', '<C-t>', ':AerialToggle right<CR>')
 -- Search in the project files
-vim.keymap.set('n', '<leader>f', ':FzfLua live_grep lsp_inder<CR>')
+vim.keymap.set('n', '<leader>f', ':FzfLua live_grep lsp_finder<CR>')
 -- File list with fzf
 vim.keymap.set('n', '<leader>x', ':FzfLua files<CR>')
 -- Search in file with fzf
 vim.keymap.set('n', '<leader>g', ':FzfLua lines<CR>')
 -- Jump to definition under cursor
 vim.keymap.set('n', '<leader>j', '<cmd>lua vim.lsp.buf.definition()<cr>')
--- Append ; to the end of the line -> Leader+B
-vim.keymap.set('n', '<leader>;', ":call setline('.', getline('.') . ';')<CR>")
-vim.keymap.set('n', '<leader>}', ":call setline('.', getline('.') . '}')<CR>")
+-- Append ; to the end of the line
+vim.keymap.set("i", ";;", "<C-O>A;")
 -- DAP
 vim.keymap.set('n', '<F1>', ":lua require'dap'clear_breakpoints()<CR>")
 vim.keymap.set('n', '<F2>', ":lua require'dapui'.float_element('scopes', {position = 'center',  enter = true })<CR>")
@@ -78,9 +87,9 @@ vim.keymap.set('n', '<F4>', ":lua require'dapui'.toggle()<CR>")
 vim.keymap.set('n', '<F5>', ":lua require'dap'.toggle_breakpoint()<CR>")
 vim.keymap.set('n', '<F6>', ":lua require'dap'.continue()<CR>")
 vim.keymap.set('n', '<F7>', ":lua require'dap'.restart()<CR>")
-vim.keymap.set('n', '<F9>', ":lua require'dap'.step_over()<CR>")
-vim.keymap.set('n', '<F10>', ":lua require'dap'.step_into()<CR>")
-vim.keymap.set('n', '<F11>', ":lua require'dap'.step_out()<CR>")
+vim.keymap.set('n', '<F8>', ":lua require'dap'.step_over()<CR>")
+vim.keymap.set('n', '<F9>', ":lua require'dap'.step_into()<CR>")
+vim.keymap.set('n', '<F10>', ":lua require'dap'.step_out()<CR>")
 -- Gen
 vim.keymap.set({'n', 'v' }, '<leader>r', ':Gen Review_Code<CR>')
 -- Split code in line to different lines

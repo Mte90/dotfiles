@@ -41,6 +41,9 @@ require('lualine').setup{
                 icon = ''
             },
             {
+                require("todos-lualine").component()
+            },
+            {
                 'diff',
                 icon = '',
                 source = diff_source
