@@ -1,3 +1,4 @@
+alias wget=wget --hsts-file="$XDG_DATA_HOME/wget-hsts"
 # https://altbox.dev/
 alias grep='rg'
 # https://github.com/sharkdp/bat

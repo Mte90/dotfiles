@@ -8,6 +8,25 @@ case $- in
     *) return;;
 esac
 
+
+# https://github.com/b3nj5m1n/xdg-ninja
+export XDG_DATA_HOME="$HOME/.local/share"
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_STATE_HOME="$HOME/.local/state"
+export XDG_CACHE_HOME="$HOME/.cache"
+export ANDROID_USER_HOME="$XDG_DATA_HOME"/android
+export CARGO_HOME="$XDG_DATA_HOME"/cargo
+export CUDA_CACHE_PATH="$XDG_CACHE_HOME"/nv
+export DOCKER_CONFIG="$XDG_CONFIG_HOME"/docker
+export GNUPGHOME="$XDG_DATA_HOME"/gnupg
+export CARGO_HOME="$XDG_DATA_HOME"/cargo
+export GOPATH="$XDG_DATA_HOME"/go
+export GTK2_RC_FILES="$XDG_CONFIG_HOME"/gtk-2.0/gtkrc
+export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME"/npm/npmrc
+export PARALLEL_HOME="$XDG_CONFIG_HOME"/parallel
+export INPUTRC="$XDG_CONFIG_HOME"/readline/inputrc
+export MYPY_CACHE_DIR="$XDG_CACHE_HOME"/mypy
+
 # don't put duplicate lines or lines starting with space in the history.
 export HISTCONTROL="erasedups:ignoreboth:ignorespace"
 export HISTFILESIZE=2000        # increase history file size (default is 500)
@@ -18,6 +37,7 @@ export HH_CONFIG=hicolor         # get more colors
 export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"   # mem/file sync
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
 export HISTSIZE=1000
+export HISTFILE="${XDG_STATE_HOME}"/bash/history
 
 #  - autocd - change directory without entering the 'cd' command
 #  - cdspell - automatically fix directory typos when changing directory
