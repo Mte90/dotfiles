@@ -1,4 +1,4 @@
-local nvim_lsp = require'lspconfig' -- composer global require php-stubs/wordpress-globals php-stubs/wordpress-stubs php-stubs/woocommerce-stubs php-stubs/acf-pro-stubs wpsyntex/polylang-stubs php-stubs/genesis-stubs php-stubs/wp-cli-stubs
+local nvim_lsp = nvim_lsp -- composer global require php-stubs/wordpress-globals php-stubs/wordpress-stubs php-stubs/woocommerce-stubs php-stubs/acf-pro-stubs wpsyntex/polylang-stubs php-stubs/genesis-stubs php-stubs/wp-cli-stubs
 local configs = require'lspconfig/configs'
 local util = require'lspconfig/util'
 
@@ -8,6 +8,7 @@ require('lspkind').init()
 require("lsp_lines").setup()
 
 local on_attach = function(client, bufnr)
+    vim.lsp.completion.enable(true, client, bufnr, {autotrigger=true})
     require'lsp_signature'.on_attach({
         bind = true,
         floating_window = true,
@@ -102,6 +103,56 @@ nvim_lsp.tailwindcss.setup{
 }
 require("tailwind-tools").setup({
 })
+nvim_lsp.typos_lsp.setup{
+    capabilities = capabilities,
+    on_attach = on_attach
+}
+nvim_lsp.emmet_language_server.setup{
+    capabilities = capabilities,
+    on_attach = on_attach
+}
+nvim_lsp.gitlab_ci_ls.setup{
+    capabilities = capabilities,
+    on_attach = on_attach
+}
+nvim_lsp.htmx.setup{
+    capabilities = capabilities,
+    on_attach = on_attach
+}
+nvim_lsp.jsonls.setup{}
+nvim_lsp.lua_ls.setup {
+  capabilities = capabilities,
+  on_attach = on_attach,
+  on_init = function(client)
+    local path = client.workspace_folders[1].name
+    if vim.loop.fs_stat(path..'/.luarc.json') or vim.loop.fs_stat(path..'/.luarc.jsonc') then
+      return
+    end
+
+    client.config.settings.Lua = vim.tbl_deep_extend('force', client.config.settings.Lua, {
+      runtime = {
+        version = 'LuaJIT'
+      },
+      workspace = {
+        checkThirdParty = false,
+        library = {
+          vim.env.VIMRUNTIME
+        }
+      }
+    })
+  end,
+  settings = {
+    Lua = {}
+  }
+}
+nvim_lsp.marksman.setup{
+    capabilities = capabilities,
+    on_attach = on_attach
+}
+nvim_lsp.ruby_lsp.setup{
+    capabilities = capabilities,
+    on_attach = on_attach
+}
 
 require'py_lsp'.setup({
     language_server = "pylsp",
