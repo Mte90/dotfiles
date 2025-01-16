@@ -1,4 +1,4 @@
-local nvim_lsp = nvim_lsp -- composer global require php-stubs/wordpress-globals php-stubs/wordpress-stubs php-stubs/woocommerce-stubs php-stubs/acf-pro-stubs wpsyntex/polylang-stubs php-stubs/genesis-stubs php-stubs/wp-cli-stubs
+local nvim_lsp = require('lspconfig') -- composer global require php-stubs/wordpress-globals php-stubs/wordpress-stubs php-stubs/woocommerce-stubs php-stubs/acf-pro-stubs wpsyntex/polylang-stubs php-stubs/genesis-stubs php-stubs/wp-cli-stubs
 local configs = require'lspconfig/configs'
 local util = require'lspconfig/util'
 
@@ -156,7 +156,7 @@ nvim_lsp.ruby_lsp.setup{
 
 require'py_lsp'.setup({
     language_server = "pylsp",
-    source_strategies = {"poetry", "default", "system"},
+    source_strategies = {"poetry", "hatch", "default", "system"},
     capabilities = capabilities,
     on_attach = on_attach,
     pylsp_plugins = {
@@ -234,3 +234,7 @@ end
 require('tw-values').setup({
     show_unknown_classes = true,
 })
+
+vim.g.tabby_agent_start_command = {"npx", "tabby-agent", "--stdio"}
+vim.g.tabby_inline_completion_trigger = "manual"
+vim.g.tabby_inline_completion_keybinding_accept = "<leader>,"

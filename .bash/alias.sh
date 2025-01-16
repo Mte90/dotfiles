@@ -26,6 +26,7 @@ alias biggest-10-files='BLOCKSIZE=1048576; du -x -h | sort -nr | head -10'
 alias yt2mp3='youtube-dl -x --audio-format=mp3 -w -c -o "%(title)s-%(id)s.%(ext)s"'
 alias changedfiles="find . -type f -print0 | xargs -0 stat --format '%Z :%z %n' | sort -nr | cut -d: -f2- | head -n 20"
 alias kate='kate -b -s default'
+alias vim='vim.tiny'
 
 # For Git
 alias git='/home/mte90/Desktop/Prog/gitapper/gitapper.sh'

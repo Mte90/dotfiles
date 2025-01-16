@@ -16,7 +16,7 @@ end
 local get_color = require'lualine.utils.utils'.extract_highlight_colors
 require('lualine').setup{
     options = {
-        theme = 'papercolor_light',
+        theme = 'horizon',
         icons_enabled = true,
         disabled_filetypes = {'alpha', 'plugins', '[No Name]', 'vim-plug', 'neo-tree',"dapui*",
 			"dapui_scopes",
@@ -60,9 +60,9 @@ require('lualine').setup{
             {
                 'diagnostics',
                 symbols = {
-                    error = ' ',
+                    error = '',
                     warn = ' ',
-                    info = ' ',
+                    info = '',
                     hint = ' '
                 },
                 colored = true,

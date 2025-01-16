@@ -5,8 +5,10 @@ plugins = {
     "'goolord/alpha-nvim'",
     "'rcarriga/nvim-notify'",
     "'petertriho/nvim-scrollbar'",
-    "'m4xshen/hardtime.nvim'",
     "'nvim-neotest/nvim-nio'",
+    -- Learn nvim
+    "'m4xshen/hardtime.nvim'",
+    "'tris203/precognition.nvim'",
     -- Wildmenu superpower
     "'gelguy/wilder.nvim', {'do': ':UpdateRemotePlugins'}",
     "'romgrk/fzy-lua-native'",
@@ -27,7 +29,7 @@ plugins = {
     "'hood/popui.nvim'",
     -- Tree-Sitter
     "'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}",
-    "'haringsrob/nvim_context_vt'", 
+    "'haringsrob/nvim_context_vt'",
     "'JoosepAlviste/nvim-ts-context-commentstring'",
     "'nvim-treesitter/nvim-tree-docs'",
     "'m-demare/hlargs.nvim'",
@@ -53,7 +55,7 @@ plugins = {
     "'theHamsta/nvim-dap-virtual-text'",
     "'andrewferrier/debugprint.nvim'",
     -- Auto cwd
-    "'ahmedkhalf/project.nvim'",
+    "'DrKJeff16/project.nvim'",
     "'nvim-lua/plenary.nvim'",
     -- wrapper for git
     "'tpope/vim-fugitive'", -- VimL
@@ -83,6 +85,8 @@ plugins = {
     -- neo-tree
     "'MunifTanjim/nui.nvim'",
     "'nvim-neo-tree/neo-tree.nvim'",
+    "'nvzone/volt'",
+    "'nvzone/menu'",
     -- Status bar
     "'moll/vim-bbye'", --Viml
     "'nvim-lualine/lualine.nvim'",
@@ -104,12 +108,13 @@ plugins = {
     "'MaximilianLloyd/tw-values.nvim'",
     "'gbprod/php-enhanced-treesitter.nvim'",
     "'mfussenegger/nvim-dap-python'",
-    "'HallerPatrick/py_lsp.nvim'",
     "'luckasRanarison/tailwind-tools.nvim'",
+    "'HallerPatrick/py_lsp.nvim'",
+    "'RicardoRamirezR/blade-nav.nvim'",
     "'HiPhish/debugpy.nvim'",
     "'wookayin/semshi', { 'do': ':UpdateRemotePlugins', 'tag': '*' }",
     -- LLM
-    "'David-Kunz/gen.nvim'"
+    "'TabbyML/vim-tabby'"
 }
 
 vim.cmd[[call plug#begin('~/.vim/plugged')]]
@@ -130,6 +135,5 @@ require('plugin.lsp')
 require('plugin.lualine')
 require('plugin.nvim-comment')
 require('plugin.ts')
-require('plugin.gen')
 require('plugin.wilder')
 require('plugin.alpha')

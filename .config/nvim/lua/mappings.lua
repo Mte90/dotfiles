@@ -90,8 +90,7 @@ vim.keymap.set('n', '<F7>', ":lua require'dap'.restart()<CR>")
 vim.keymap.set('n', '<F8>', ":lua require'dap'.step_over()<CR>")
 vim.keymap.set('n', '<F9>', ":lua require'dap'.step_into()<CR>")
 vim.keymap.set('n', '<F10>', ":lua require'dap'.step_out()<CR>")
--- Gen
-vim.keymap.set({'n', 'v' }, '<leader>r', ':Gen Review_Code<CR>')
+
 -- Split code in line to different lines
 vim.keymap.set('n', '<leader>s', ':SplitjoinSplit<cr>')
 vim.keymap.set("n", "<Leader>p", function()

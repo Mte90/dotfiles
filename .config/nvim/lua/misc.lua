@@ -33,16 +33,6 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 })
 
 vim.api.nvim_create_autocmd(
-  'TextYankPost',
-  {
-    pattern = '*',
-    callback = function()
-      require'vim.highlight'.on_yank()
-  end
-  }
-)
-
-vim.api.nvim_create_autocmd(
   'InsertEnter',
   {
     pattern = '*',
@@ -109,9 +99,9 @@ require("project_nvim").setup {
 vim.g.splitjoin_join_mapping = ''
 
 local signs = {
-    Error = " ",
+    Error = "",
     Warn = " ",
-    Hint = " ",
+    Hint = "",
     Info = " "
 }
 
@@ -186,3 +176,4 @@ require('nvim-cursorline').setup {
     hl = { underline = true },
   }
 }
+require("precognition").toggle()
