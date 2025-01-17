@@ -91,6 +91,8 @@ plugins = {
     "'moll/vim-bbye'", --Viml
     "'nvim-lualine/lualine.nvim'",
     "'bezhermoso/todos-lualine.nvim'",
+    "'bwpge/lualine-pretty-path'",
+    "'Isrothy/lualine-diagnostic-message'",
     "'arkav/lualine-lsp-progress'",
     -- fzf - poweful search
     "'vijaymarupudi/nvim-fzf'",

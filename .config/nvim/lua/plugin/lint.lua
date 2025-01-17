@@ -29,10 +29,6 @@ vim.api.nvim_create_autocmd({"DirChanged"}, {
     end,
 })
 
--- Get flake8 global or from venv
-flake8 = require('lint.linters.flake8')
-flake8.cmd = venv_bin_detection("flake8")
-
 require('lint').linters_by_ft = {
     sh = {'shellcheck'},
     yaml = {'yamlint'},
@@ -41,7 +37,6 @@ require('lint').linters_by_ft = {
     css = {'stylelint'},
     php = {'phpcs'},
     js = {'eslint'},
-    python = {'flake8'},
 }
 
 vim.api.nvim_create_autocmd({"BufWritePost", "TextChanged"}, {
@@ -62,13 +57,6 @@ require('formatter').setup{
                 table.insert(phpformatter.args, util.escape_path(util.get_current_buffer_file_path()))
                 return phpformatter
             end
-        },
-        python = {
-            {
-                exe = venv_bin_detection("isort"), -- Get isort global or from venv
-                args = { "-q", "--filename", util.escape_path(util.get_current_buffer_file_path()), "-" },
-                stdin = true,
-            },
         }
     }
 }

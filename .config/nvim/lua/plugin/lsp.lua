@@ -105,7 +105,10 @@ require("tailwind-tools").setup({
 })
 nvim_lsp.typos_lsp.setup{
     capabilities = capabilities,
-    on_attach = on_attach
+    on_attach = on_attach,
+    init_options = {
+        diagnosticSeverity = 'Warning',
+    },
 }
 nvim_lsp.emmet_language_server.setup{
     capabilities = capabilities,
@@ -176,8 +179,7 @@ require'py_lsp'.setup({
             enabled = false,
         },
         flake8 = {
-            enabled = true,
-            executable = venv_bin_detection("flake8"),
+            enabled = false,
         }
     }
 })

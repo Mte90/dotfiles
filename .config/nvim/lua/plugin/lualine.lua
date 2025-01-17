@@ -34,7 +34,7 @@ require('lualine').setup{
                 fmt = string.upper
             }
         },
-        lualine_b = {},
+        lualine_b = {"pretty_path"},
         lualine_c = {
             {
                 'b:gitsigns_head',
@@ -52,6 +52,10 @@ require('lualine').setup{
                 'lsp_progress',
                 display_components = {'lsp_client_name', 'spinner', {'title', 'percentage', 'message'}},
                 spinner_symbols = {'⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'},
+            },
+            {
+                'diagnostic-message'
+
             }
         },
         lualine_x = {},
