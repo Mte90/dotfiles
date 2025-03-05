@@ -101,15 +101,15 @@ nvim_lsp.tailwindcss.setup{
     capabilities = capabilities,
     on_attach = on_attach
 }
-require("tailwind-tools").setup({
-})
-nvim_lsp.typos_lsp.setup{
-    capabilities = capabilities,
-    on_attach = on_attach,
-    init_options = {
-        diagnosticSeverity = 'Warning',
-    },
-}
+require("tailwind-tools").setup()
+-- I am getting an invalid client ID
+-- nvim_lsp.typos_lsp.setup{
+--     capabilities = capabilities,
+--     on_attach = on_attach,
+--     init_options = {
+--         diagnosticSeverity = 'Warning',
+--     },
+-- }
 nvim_lsp.emmet_language_server.setup{
     capabilities = capabilities,
     on_attach = on_attach

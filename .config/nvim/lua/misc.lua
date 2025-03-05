@@ -177,3 +177,5 @@ require('nvim-cursorline').setup {
   }
 }
 require("precognition").toggle()
+
+vim.diagnostic.config({virtual_lines=true})

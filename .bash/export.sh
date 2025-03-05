@@ -22,8 +22,9 @@ export PATH=~/.cargo/bin:$PATH
 export PATH=/home/mte90/.config/composer/vendor/bin/:$PATH
 export GEM_PATH=/usr/lib/ruby/vendor_ruby/:$GEM_PATH
 export PATH=/home/mte90/.local/bin/:$PATH
+export PATH=/home/mte90/.local/share/cargo/bin/:$PATH
 
-FCEDIT=vim
+FCEDIT=vim.tiny
 export EDITOR="vim.tiny"
 export DJANGO_DEBUG=True
 

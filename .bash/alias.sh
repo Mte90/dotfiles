@@ -53,3 +53,24 @@ complete -F _complete_alias git
 
 # https://github.com/flyingrhinonz/nccm
 alias nccm="/home/mte90/Desktop/kde/nccm/nccm/nccm"
+
+# https://gist.github.com/kishannareshpal/342efc4a15e47ea5d338784d3e9a8d98
+function activatevenv() {
+  VIRTUALENV_DIRS=("venv/" "env/" ".env/" ".venv/" "${PWD##*/}")
+
+  for dir in "${VIRTUALENV_DIRS[@]}"; do
+    if [[ -d "${dir}" ]]; then
+      if [[ -e "./${dir}/bin/activate" ]]; then
+        source ./$dir/bin/activate
+        break
+      fi
+    fi
+  done
+
+}
+activatevenv
+
+function cd() {
+  builtin cd $1
+  activatevenv
+}
