@@ -141,5 +141,6 @@ for i in ${HOME}/.bash/*/*.sh
     fi
 done
 
-#https://github.com/ajeetdsouza/zoxide
-eval "$(zoxide init bash --hook pwd)"
+# bun
+export BUN_INSTALL="$HOME/.local/share/reflex/bun"
+export PATH="$BUN_INSTALL/bin:$PATH"

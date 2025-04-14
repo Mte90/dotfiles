@@ -74,3 +74,7 @@ function cd() {
   builtin cd $1
   activatevenv
 }
+
+function z() {
+    cd $(/usr/bin/zoxide query "$1")
+}
