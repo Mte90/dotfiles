@@ -17,6 +17,7 @@ export GTK_USE_PORTAL=1
 
 export PATH=/usr/local/sbin:$PATH
 export PATH=./vendor/bin:$PATH
+export PATH=~/.local/share/npm/bin:$PATH
 export PATH=./config/composer/bin:$PATH
 export PATH=~/.cargo/bin:$PATH 
 export PATH=/home/mte90/.config/composer/vendor/bin/:$PATH

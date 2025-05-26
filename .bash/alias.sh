@@ -71,10 +71,14 @@ function activatevenv() {
 activatevenv
 
 function cd() {
-  builtin cd $1
+  builtin cd "$1"
   activatevenv
 }
 
 function z() {
     cd $(/usr/bin/zoxide query "$1")
+}
+
+silent() {
+    "$@" > /dev/null 2>&1 &
 }
