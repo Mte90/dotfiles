@@ -8,16 +8,16 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
   "toolbar": {
-    "code_actions": true
+    "code_actions": true,
   },
   "agent_ui_font_size": 14.0,
   "agent": {
     "default_profile": "minimal",
     "default_model": {
       "provider": "Regolo.AI",
-      "model": "qwen3-coder-30b"
+      "model": "qwen3-coder-30b",
     },
-    "model_parameters": []
+    "model_parameters": [],
   },
   "language_models": {
     "openai_compatible": {
@@ -33,12 +33,12 @@
               "tools": true,
               "images": false,
               "parallel_tool_calls": false,
-              "prompt_cache_key": false
-            }
-          }
-        ]
-      }
-    }
+              "prompt_cache_key": false,
+            },
+          },
+        ],
+      },
+    },
   },
   "icon_theme": "Catppuccin Macchiato",
   "ui_font_size": 14.0,
@@ -46,94 +46,94 @@
     "detect_venv": {
       "on": {
         "directories": [".env", "env", ".venv", "venv"],
-        "activate_script": "default"
-      }
-    }
+        "activate_script": "default",
+      },
+    },
   },
   "auto_install_extensions": {
     "LOG": true,
     "Python": true,
     "SCSS": true,
-    "XML": true
+    "XML": true,
   },
   "notification_panel": {
     "button": false,
-    "dock": "left"
+    "dock": "left",
   },
   "chat_panel": {
-    "dock": "left"
+    "dock": "left",
   },
   "outline_panel": {
-    "dock": "left"
+    "dock": "left",
   },
   "project_panel": {
-    "dock": "right"
+    "dock": "right",
   },
   "lsp_highlight_debounce": 100,
   "soft_wrap": "editor_width",
   "tabs": {
     "git_status": true,
-    "file_icons": true
+    "file_icons": true,
   },
   "tab_bar": {
-    "show_nav_history_buttons": false
+    "show_nav_history_buttons": false,
   },
   "show_whitespaces": "selection",
   "inlay_hints": {
     "scroll_debounce_ms": 250,
     "enabled": true,
-    "show_parameter_hints": true
+    "show_parameter_hints": true,
   },
   "debugger": {
     "stepping_granularity": "line",
     "save_breakpoints": true,
     "dock": "bottom",
-    "button": false
+    "button": false,
   },
   "indent_guides": {
     "enabled": true,
-    "coloring": "indent_aware"
+    "coloring": "indent_aware",
   },
   "buffer_font_size": 12.0,
   "theme": {
     "mode": "system",
     "light": "JetBrains New Dark",
-    "dark": "One Dark"
+    "dark": "One Dark",
   },
   "scrollbar": {
-    "diagnostics": "information"
+    "diagnostics": "information",
   },
   "languages": {
     "PHP": {
-      "language_servers": ["phptools"]
+      "language_servers": ["phptools"],
     },
     "Django": {
       "language_servers": [
         "django-language-server",
         "django-template-lsp",
-        "..."
-      ]
+        "...",
+      ],
     },
     "Python": {
       "language_servers": ["basedpyright", "ruff", "!pyright"],
       "format_on_save": "on",
       "formatter": [
         {
-          "code_action": "source.organizeImports.ruff"
+          "code_action": "source.organizeImports.ruff",
         },
         {
-          "code_action": "source.fixAll.ruff"
+          "code_action": "source.fixAll.ruff",
         },
         {
           "language_server": {
-            "name": "ruff"
-          }
-        }
-      ]
-    }
+            "name": "ruff",
+          },
+        },
+      ],
+    },
   },
   "file_types": {
-    "Django": ["**/templates/**/*.html"]
+    "Django": ["**/templates/**/*.html"],
   },
   "file_scan_exclusions": [
     "**/.git",
@@ -150,10 +150,10 @@
     "**/.next",
     "**/.nyc_output",
     "**/report",
-    "**/node_modules"
+    "**/node_modules",
   ],
   "collaboration_panel": {
-    "button": false
+    "button": false,
   },
   "ui_font_family": "JetBrains Mono",
   "buffer_font_family": "JetBrains Mono",
@@ -163,16 +163,18 @@
       "settings": {
         "python.analysis": {
           "diagnosticMode": "workspace",
-          "typeCheckingMode": "basic",
+          "typeCheckingMode": "standard",
+          "autoSearchPaths": true,
           "useLibraryCodeForTypes": true,
-          "reportMissingTypeStubs": true,
-          "reportOptionalMemberAccess": true,
-          "reportCallIssue": true
+          "autoImportCompletions": true,
+          "diagnosticSeverityOverrides": {
+            "reportAttributeAccessIssue": "information",
+          },
         },
         "python": {
-          "pythonPath": ".venv/bin/python"
-        }
-      }
+          "pythonPath": ".venv/bin/python",
+        },
+      },
     },
     "ruff": {
       "initialization_options": {
@@ -180,16 +182,16 @@
           "configurationPreference": "filesystemFirst",
           "codeAction": {
             "disableRuleComment": { "enable": false },
-            "fixViolation": { "enable": true }
+            "fixViolation": { "enable": true },
           },
           "fixAll": true,
           "organizeImports": true,
           "showSyntaxErrors": true,
           "format": {
-            "preview": true
-          }
-        }
-      }
-    }
-  }
+            "preview": true,
+          },
+        },
+      },
+    },
+  },
 }
