@@ -23,7 +23,7 @@ alias wpt='cd ./public_html/wp-content/themes 2>/dev/null;cd ./public_html/build
 # Misc
 alias biggest-10-files='BLOCKSIZE=1048576; du -x -h | sort -nr | head -10'
 #youtube-dl as mp3
-alias yt2mp3='youtube-dl -x --audio-format=mp3 -w -c -o "%(title)s-%(id)s.%(ext)s"'
+alias yt2mp3='youtube-dl -x --audio-format=mp3 -w -c -o "%(title)s.%(ext)s"'
 alias changedfiles="find . -type f -print0 | xargs -0 stat --format '%Z :%z %n' | sort -nr | cut -d: -f2- | head -n 20"
 alias kate='kate -b -s default'
 alias vim='vim.tiny'
@@ -47,9 +47,7 @@ alias poetry-run="poetry run python manage.py"
 alias runserver="poetry run python manage.py runserver"
 
 # https://github.com/cykerway/complete-alias
-complete -F _complete_alias fzf
-complete -F _complete_alias dotfiles
-complete -F _complete_alias git
+complete -F _complete_alias "${!BASH_ALIASES[@]}"
 
 # https://github.com/flyingrhinonz/nccm
 alias nccm="/home/mte90/Desktop/kde/nccm/nccm/nccm"

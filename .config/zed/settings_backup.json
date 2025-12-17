@@ -1,0 +1,108 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+  "icon_theme": "JetBrains New UI Icons (Dark)",
+  "ui_font_size": 15,
+  "terminal": {
+    "detect_venv": {
+      "on": {
+        "directories": [".env", "env", ".venv", "venv"],
+        "activate_script": "default"
+      }
+    }
+  },
+  "features": {
+    "edit_prediction_provider": "zed"
+  },
+  "auto_install_extensions": {
+    "LOG": true,
+    "GraphQL": true,
+    "Python": true,
+    "NGINX": true,
+    "SCSS": true,
+    "XML": true
+  },
+  "notification_panel": {
+    "dock": "left"
+  },
+  "chat_panel": {
+    "dock": "left"
+  },
+  "outline_panel": {
+    "dock": "right"
+  },
+  "project_panel": {
+    "dock": "right"
+  },
+  "lsp_highlight_debounce": 100,
+  "soft_wrap": "editor_width",
+  "tabs": {
+    "git_status": true,
+    "file_icons": true
+  },
+  "tab_bar": {
+    "show_nav_history_buttons": false
+  },
+  "show_whitespaces": "selection",
+  "inlay_hints": {
+    "scroll_debounce_ms": 250,
+    "enabled": true,
+    "show_parameter_hints": true
+  },
+  "indent_guides": {
+    "enabled": true,
+    "coloring": "indent_aware"
+  },
+  "buffer_font_size": 15,
+  "theme": {
+    "mode": "system",
+    "light": "JetBrains New Dark",
+    "dark": "One Dark"
+  },
+  "languages": {
+    "PHP": {
+      "language_servers": ["phptools"]
+    },
+    "Python": {
+      "language_servers": ["pyright", "ruff"],
+      "format_on_save": "off",
+      "formatter": [
+        {
+          "code_actions": {
+            "source.organizeImports.ruff": true,
+            "source.fixAll.ruff": true
+          }
+        },
+        {
+          "language_server": { "name": "ruff" }
+        }
+      ]
+    }
+  },
+  "file_scan_exclusions": [
+    "**/.git",
+    "**/.svn",
+    "**/CVS",
+    "**/.DS_Store",
+    "**/Thumbs.db",
+    "**/.classpath",
+    "**/.settings",
+    "**/out",
+    "**/dist",
+    "**/.vscode-test",
+    "**/.vscode",
+    "**/.next",
+    "**/.nyc_output",
+    "**/report",
+    "**/node_modules"
+  ],
+  "ui_font_family": "JetBrains Mono",
+  "buffer_font_family": "JetBrains Mono",
+  "base_keymap": "JetBrains"
+}

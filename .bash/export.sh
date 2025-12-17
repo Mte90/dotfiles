@@ -15,13 +15,13 @@ export MYPY_CACHE_DIR="$XDG_CACHE_HOME"/mypy
 # To use KDE file dialog with firefox https://daniele.tech/2019/02/how-to-execute-firefox-with-support-for-kde-filepicker/
 export GTK_USE_PORTAL=1
 
+export GEM_PATH=/usr/lib/ruby/vendor_ruby/:$GEM_PATH
 export PATH=/usr/local/sbin:$PATH
 export PATH=./vendor/bin:$PATH
 export PATH=~/.local/share/npm/bin:$PATH
 export PATH=./config/composer/bin:$PATH
 export PATH=~/.cargo/bin:$PATH 
 export PATH=/home/mte90/.config/composer/vendor/bin/:$PATH
-export GEM_PATH=/usr/lib/ruby/vendor_ruby/:$GEM_PATH
 export PATH=/home/mte90/.local/bin/:$PATH
 export PATH=/home/mte90/.local/share/cargo/bin/:$PATH
 

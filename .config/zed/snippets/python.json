@@ -1,0 +1,7 @@
+{
+  "Loguru": {
+    "prefix": "logdebug",
+    "body": ["from loguru import logger\nlogger.debug(${1})", "$0"],
+    "description": "Logs to console"
+  }
+}
