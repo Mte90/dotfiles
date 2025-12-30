@@ -20,7 +20,5 @@ fi
 if [ -d "$HOME/bin" ] ; then
     PATH="$HOME/bin:$PATH"
 fi
-XDG_RUNTIME_DIR='/tmp/runtime-mte90'
-
 
 export PATH="$HOME/.cargo/bin:$PATH"
