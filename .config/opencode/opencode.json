@@ -1,0 +1,97 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "theme": "opencode",
+  "model": "regolo/qwen3-coder-next",
+  "small_model": "regolo/qwen3-coder-next",
+  "provider": {
+    "regolo": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Regolo",
+      "options": {
+        "name": "Regolo",
+        "baseURL": "https://api.regolo.ai/v1",
+        "headers": {
+          "Accept": "application/json"
+        }
+      },
+      "models": {
+        "gpt-oss-120b": {
+          "id": "gpt-oss-120b",
+          "name": "gpt-oss-120b",
+          "tools": true,
+          "cost": {
+            "input": 1,
+            "output": 4.20
+          },
+          "limit": {
+            "context": 128000,
+            "output": 16000
+          },
+          "options": {
+            "parallel_tool_calls": true,
+            "tool_choice": "auto",
+            "thinking": true,
+            "temperature": 0.7
+          }
+        },
+        "qwen3-coder-next": {
+          "id": "qwen3-coder-next",
+          "name": "qwen3-coder-next",
+          "reasoning": true,
+          "tool_call": true,
+          "tools": true,
+          "limit": {
+            "context": 128000,
+            "output": 16000
+          },
+          "cost": {
+            "input": 0.5,
+            "output": 2
+          },
+          "options": {
+            "parallel_tool_calls": true,
+            "tool_choice": "auto",
+            "thinking": true,
+            "temperature": 0.5,
+            "top_p": 0.95,
+            "top_k": 40,
+            "repetition_penalty": 1.05
+          }
+        }
+      }
+    }
+  },
+  "permission": {
+    "read": "allow",
+    "grep": "allow",
+    "glob": "allow",
+    "edit": "allow",
+    "write": "allow",
+    "list": "allow",
+    "skill": "allow",
+    "webfetch": "allow",
+    "question": "allow"
+  },
+  "compaction": {
+    "auto": true,
+    "prune": true
+  },
+  "watcher": {
+    "ignore": [
+      "node_modules/",
+      "dist/",
+      ".git/**"
+    ]
+  },
+  "share": "manual",
+  "plugin": [
+    "opencode-agent-memory",
+    "oh-my-opencode@latest",
+    "@franlol/opencode-md-table-formatter@latest"
+  ],
+  "autoupdate": true,
+  "keybinds": {
+      "messages_page_up": "ctrl+alt+b",
+      "messages_page_down": "ctrl+alt+f",
+  }
+}

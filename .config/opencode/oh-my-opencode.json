@@ -1,0 +1,76 @@
+{
+  "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
+  "agents": {
+    "hephaestus": {
+      "model": "regolo/gpt-oss-120b"
+    },
+    "oracle": {
+      "model": "regolo/gpt-oss-120b"
+    },
+    "librarian": {
+      "model": "regolo/qwen3-coder-next"
+    },
+    "explore": {
+      "model": "regolo/qwen3-coder-next"
+    },
+    "multimodal-looker": {
+      "model": "regolo/qwen3-coder-next"
+    },
+    "prometheus": {
+      "model": "regolo/gpt-oss-120b"
+    },
+    "metis": {
+      "model": "regolo/gpt-oss-120b"
+    },
+    "momus": {
+      "model": "regolo/qwen3-coder-next"
+    },
+    "atlas": {
+      "model": "regolo/qwen3-coder-next"
+    }
+  },
+  "categories": {
+    "visual-engineering": {
+      "model": "regolo/qwen3-coder-next"
+    },
+    "ultrabrain": {
+      "model": "regolo/qwen3-coder-next"
+    },
+    "deep": {
+      "model": "regolo/qwen3-coder-next"
+    },
+    "artistry": {
+      "model": "regolo/qwen3-coder-next"
+    },
+    "quick": {
+      "model": "regolo/qwen3-coder-next"
+    },
+    "unspecified-low": {
+      "model": "regolo/qwen3-coder-next"
+    },
+    "unspecified-high": {
+      "model": "regolo/qwen3-coder-next"
+    },
+    "writing": {
+      "model": "regolo/gpt-oss-120b"
+    }
+  },
+  "experimental": {
+    "aggressive_truncation": true,
+    "auto_resume": true,
+    "preemptive_compaction_threshold": 0.75
+  },
+  "disabled_skills": ["playwright", "git-master"],
+    "background_task": {
+    "defaultConcurrency": 10,
+    "staleTimeoutMs": 180000,
+    "modelConcurrency": {
+      "regolo/qwen3-coder-next": 10,
+      "regolo/gpt-oss-120b": 5,
+    }
+  },
+  "notification": {
+    "force_enable": true
+  },
+  "disabled_hooks": ["non-interactive-env"]
+}

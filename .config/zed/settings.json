@@ -12,22 +12,24 @@
   },
   "agent_ui_font_size": 14.0,
   "agent": {
-    "default_profile": "minimal",
+    "play_sound_when_agent_done": true,
+    "default_profile": "write",
+    "always_allow_tool_actions": true,
     "default_model": {
-      "provider": "Regolo.AI",
-      "model": "qwen3-coder-30b",
+      "provider": "RegoloAI",
+      "model": "qwen3-coder-next",
     },
     "model_parameters": [],
   },
   "language_models": {
     "openai_compatible": {
-      "Regolo.AI": {
+      "RegoloAI": {
         "api_url": "https://api.regolo.ai",
         "available_models": [
           {
-            "name": "qwen3-coder-30b",
-            "max_tokens": 200000,
-            "max_output_tokens": 32000,
+            "name": "qwen3-coder-next",
+            "max_tokens": 240000,
+            "max_output_tokens": 120000,
             "max_completion_tokens": 200000,
             "capabilities": {
               "tools": true,
@@ -59,6 +61,11 @@
   "notification_panel": {
     "button": false,
     "dock": "left",
+  },
+  "git": {
+    "inline_blame": {
+      "enabled": false,
+    },
   },
   "chat_panel": {
     "dock": "left",
@@ -96,16 +103,29 @@
   },
   "buffer_font_size": 12.0,
   "theme": {
-    "mode": "system",
+    "mode": "dark",
     "light": "JetBrains New Dark",
-    "dark": "One Dark",
+    "dark": "zedokai-darkest-machine",
   },
   "scrollbar": {
     "diagnostics": "information",
   },
+
+  "format_on_save": "on",
+  "diagnostics": {
+    "inline": {
+      "enabled": true,
+    },
+  },
   "languages": {
+    "CSS": {
+      "language_servers": ["..."],
+    },
+    "JavaScript": {
+      "language_servers": ["..."],
+    },
     "PHP": {
-      "language_servers": ["phptools"],
+      "language_servers": ["phptools", "..."],
     },
     "Django": {
       "language_servers": [
@@ -115,7 +135,13 @@
       ],
     },
     "Python": {
-      "language_servers": ["basedpyright", "ruff", "!pyright"],
+      "language_servers": [
+        "basedpyright",
+        "ruff",
+        "...",
+        "!pyright",
+        "!python-refactoring",
+      ],
       "format_on_save": "on",
       "formatter": [
         {
