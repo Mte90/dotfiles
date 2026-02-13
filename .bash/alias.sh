@@ -80,3 +80,21 @@ function z() {
 silent() {
     "$@" > /dev/null 2>&1 &
 }
+
+om-opencode() {
+  local config_file="$HOME/.config/opencode/opencode.json"
+  local updated_json
+
+  updated_json=$(jq '
+    .plugin = (
+      (.plugin // [])
+      | if any(.[]; test("^oh-my-opencode(@.*)?$")) then
+          .
+        else
+          . + ["oh-my-opencode@latest"]
+        end
+    )
+  ' "$config_file")
+
+  OPENCODE_CONFIG_CONTENT="$updated_json" opencode "$@"
+}

@@ -21,33 +21,3 @@ function npm_run() {
 }
 
 npm_run
-
-# Check if a bower.json file is present
-function bower_run() {
-    REPO=$(readlink -m $(dirname .))
-    if [ -f $REPO/bower.json ]; then
-        bower install
-    fi
-}
-
-bower_run
-
-# Check if a requirements.txt file is present
-function pip_run() {
-    REPO=$(readlink -m $(dirname .))
-    if [ -f $REPO/requirements.txt ]; then
-        pip install -r requirements.txt
-    fi
-}
-
-pip_run
-
-# Check if a Vagrantfile file is present
-function vagrant_run() {
-    REPO=$(readlink -m $(dirname .))
-    if [ -f $REPO/Vagrantfile ]; then
-        vagrant up
-    fi
-}
-
-vagrant_run

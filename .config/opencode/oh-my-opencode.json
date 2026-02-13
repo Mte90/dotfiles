@@ -61,7 +61,7 @@
     "preemptive_compaction_threshold": 0.75
   },
   "disabled_skills": ["playwright", "git-master"],
-    "background_task": {
+  "background_task": {
     "defaultConcurrency": 10,
     "staleTimeoutMs": 180000,
     "modelConcurrency": {
