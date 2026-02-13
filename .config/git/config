@@ -1,0 +1,81 @@
+[user]
+    #check other alias on https://github.com/mte90/dotfiles/blob/master/.bashrc
+	name = Daniele Scasciafratte
+	email = mte90net@gmail.com
+	# This is recommended, as it make easier to recover deleted branches
+    # See http://alblue.bandlem.com/2011/11/git-tip-of-week-gc-and-pruning-this.html
+	logallrefupdates=true
+[core]
+	editor = vi -Nu NONE -c startinsert
+	# Treat spaces before tabs and all kinds of trailing whitespace as an error
+	whitespace=space-before-tab,-indent-with-non-tab,trailing-space
+	# Changes in file permissions will be ignored: please use it!
+	filemode = false
+	autocrlf = input
+[push]
+	default = current
+[credential]
+	helper = cache --timeout=36000
+[alias]
+	undo-commit = reset --soft HEAD^
+	#http://www.mte90.net/en/2016/04/git-clone-auto-download-composer-npm-pip-vagrant-bower/
+	clone = clone --recursive --template=/home/mte90/.git-templates
+	permission-reset = !git diff -p -R --no-color --no-ext-diff  | grep -E \"^(diff|(old|new) mode)\" --color=never | git apply
+	rebase-last-ten = "!b=\"$(git rev-parse --abbrev-ref HEAD)\" ; h=\"$(git rev-parse $b)\" ; echo \"Current branch: $b $h\" ; c=\"$(git rev-parse $b~10)\" ; echo \"Recreating $b branch with initial commit $c ...\" ; git checkout --orphan new-start $c ; git commit -C $c ; git rebase --onto new-start $c $b ; git branch -d new-start ; git reflog expire --expire=now --all; git gc --prune=now"
+[merge]
+    # See here:
+    # http://aaronbonner.io/post/78444674979/only-allow-git-fast-forward-merges-to-avoid-ugly
+    ff = only
+[branch]
+    # Force *all new* branches to automatically use rebase
+    # See here:
+    # http://stevenharman.net/git-pull-with-automatic-rebase
+    autosetuprebase = always
+[branch "master"]
+    #Force *existing* branches to use rebase.
+    #See here:
+    #http://stevenharman.net/git-pull-with-automatic-rebase
+    rebase = true
+[branch "develop"]
+    #Force *existing* branches to use rebase.
+    #See here:
+    #http://stevenharman.net/git-pull-with-automatic-rebase
+    rebase = true
+[rebase]
+    autosquash = true        # auto squash fixups by default
+    autostash = true         # auto git stash ; git stash pop when rebasing
+[http]
+	sslverify = false
+[color]
+	ui = auto
+[init]
+	templatedir = /home/mte90/.git-templates
+	defaultBranch = origin/main
+[github]
+	user = Mte90
+[url "https://github"]
+  insteadOf = git://github
+[help]
+	autocorrect = 1
+[fetch]
+	prune = true
+[pretty]
+	log = %C(240)%h%C(reset) -%C(auto)%d%Creset %s %C(242)(%an %ar)
+	detailed = %C(cyan)%h %C(red)%ad %C(blue)[%an]%C(magenta)%d %C(white)%s
+	shorter = %C(auto)%D %C(240)--%C(242)%gD%N %ad by %C(white)%cn%C(reset)
+[difftool]
+	prompt = false
+[icdiff]
+	options = --highlight --line-numbers
+[pager]
+    diff = delta
+    log = delta
+    reflog = delta
+    show = delta
+[delta]
+    plus-style = "syntax #012800"
+    minus-style = "syntax #340001"
+    syntax-theme = Monokai Extended
+    navigate = true
+[interactive]
+    diffFilter = delta --color-only
