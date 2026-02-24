@@ -13,3 +13,8 @@
 .config/nvim/pack/
 *.katesession
 .config/nvim/alpha_bookmark.lua
+.opencode/
+node_modules/
+bun.lock
+package.json
+memory/
