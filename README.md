@@ -2,6 +2,13 @@
 
 A list of external tools that is repo use (or extend) or that I use on daily usage.
 
+## Other tools installed
+
+* [opencode](https://opencode.ai/)
+* [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode)
+* [youtube-dlp](https://github.com/yt-dlp/yt-dlp)
+* [nccm](https://github.com/flyingrhinonz/nccm)
+
 ## NeoVim
 
 With a Python script, I am able to get only one running instance of [nvim-qt](https://github.com/mte90/my-scripts/blob/master/misc/nvim-qt.py), include also a venv detection.
@@ -22,11 +29,6 @@ With a Python script, I am able to get only one running instance of [nvim-qt](ht
 
 * [Gitapper](https://github.com/Mte90/gitapper), a `git` wrapper with a lot of stuff
 * [delta](https://github.com/dandavison/delta), A syntax-highlighting pager for git 
-
-## Other tools installed
-
-* [youtube-dlp](https://github.com/yt-dlp/yt-dlp)
-* [nccm](https://github.com/flyingrhinonz/nccm)
 
 ### My own tools
 
