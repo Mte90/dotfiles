@@ -2,27 +2,30 @@
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
     "hephaestus": {
-      "model": "regolo/gpt-oss-120b"
+      "model": "zai-coding-plan/glm-4.7"
     },
     "oracle": {
-      "model": "regolo/gpt-oss-120b"
+      "model": "zai-coding-plan/glm-4.7"
     },
     "librarian": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "zai-coding-plan/glm-4.7"
     },
     "explore": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "zai-coding-plan/glm-4.7-flash"
     },
     "multimodal-looker": {
       "model": "regolo/qwen3-coder-next"
     },
     "prometheus": {
-      "model": "regolo/gpt-oss-120b"
+      "model": "zai-coding-plan/glm-4.7"
     },
     "metis": {
-      "model": "regolo/gpt-oss-120b"
+      "model": "zai-coding-plan/glm-4.7"
     },
     "momus": {
+      "model": "regolo/qwen3-coder-next"
+    },
+    "sisyphus": {
       "model": "regolo/qwen3-coder-next"
     },
     "atlas": {
@@ -31,16 +34,16 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "zai-coding-plan/glm-4.7"
     },
     "ultrabrain": {
       "model": "regolo/qwen3-coder-next"
     },
     "deep": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "zai-coding-plan/glm-4.7"
     },
     "artistry": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "zai-coding-plan/glm-4.7"
     },
     "quick": {
       "model": "regolo/qwen3-coder-next"
@@ -49,7 +52,7 @@
       "model": "regolo/qwen3-coder-next"
     },
     "unspecified-high": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "zai-coding-plan/glm-4.7"
     },
     "writing": {
       "model": "regolo/gpt-oss-120b"
@@ -65,6 +68,8 @@
     "defaultConcurrency": 10,
     "staleTimeoutMs": 180000,
     "modelConcurrency": {
+      "zai-coding-plan/glm-4.7": 3,
+      "zai-coding-plan/glm-4.7-flash": 1,
       "regolo/qwen3-coder-next": 10,
       "regolo/gpt-oss-120b": 5,
     }
@@ -72,5 +77,6 @@
   "notification": {
     "force_enable": true
   },
+  "hashline_edit": true,
   "disabled_hooks": ["non-interactive-env"]
 }
