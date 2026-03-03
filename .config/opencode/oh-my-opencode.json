@@ -43,7 +43,7 @@
       "model": "zai-coding-plan/glm-4.7"
     },
     "artistry": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "regolo/gpt-oss-120b"
     },
     "quick": {
       "model": "regolo/qwen3-coder-next"
