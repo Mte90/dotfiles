@@ -66,7 +66,7 @@
       }
     },
     "zai-coding-plan": {
-      "whitelist": ["glm-4.7", "glm-4.7-flash"],
+      "whitelist": ["glm-4.7", "glm-4.7-flash", "glm-5"],
       "npm": "@ai-sdk/anthropic",
       "options": {
         "baseURL": "https://api.z.ai/api/anthropic/v1"
@@ -161,33 +161,56 @@
     "openTelemetry": false
   },
   "mcp": {
-    "router": {
-      "type": "local",
-      "enabled": true,
-      "command": [
-        "python3",
-        "-m",
-        "mcp_tool_router.router_mcp_server"
-      ],
-      "environment": {
-        "PYTHONPATH": "/home/mte90/.cache/npm/_npx/d8a0cbc36732cc37/node_modules/mcpflow-router/mcp-server",
-        "ROUTERD": "node /home/mte90/.cache/npm/_npx/d8a0cbc36732cc37/node_modules/mcpflow-router/dist/daemon/cli.js"
-      }
-    },
     "context7": {
       "type": "remote",
       "url": "https://mcp.context7.com/mcp",
-      "enabled": false
+      "enabled": true
     },
     "grep_app": {
       "type": "remote",
       "url": "https://mcp.grep.app",
-      "enabled": false
+      "enabled": true
     },
     "websearch": {
       "type": "remote",
       "url": "https://mcp.exa.ai/mcp?tools=web_search_exa",
-      "enabled": false
-    }
+      "enabled": true
+    },
+    "sequentialthinking": {
+      "type": "remote",
+      "url": "https://remote.mcpservers.org/sequentialthinking/mcp",
+      "enabled": true
+    },
+    "fetch": {
+      "type": "remote",
+      "url": "https://remote.mcpservers.org/fetch/mcp",
+      "enabled": true
+    },
+    "deepwiki": {
+      "type": "remote",
+      "url": "https://mcp.deepwiki.com/mcp",
+      "enabled": true
+    },
+    "zread": {
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/zread/mcp",
+      "headers": {
+        "Authorization": "Bearer {env:ANTHROPIC_API_KEY}"
+      }
+    },
+    "web-search-prime": {
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/web_search_prime/mcp",
+      "headers": {
+        "Authorization": "Bearer {env:ANTHROPIC_API_KEY}"
+      }
+    },
+    "web-reader": {
+      "type": "remote",
+      "url": "https://api.z.ai/api/mcp/web_reader/mcp",
+      "headers": {
+        "Authorization": "Bearer {env:ANTHROPIC_API_KEY}"
+      }
+    },
   }
 }

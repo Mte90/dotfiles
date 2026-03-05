@@ -26,7 +26,7 @@
       "model": "regolo/qwen3-coder-next"
     },
     "sisyphus": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "regolo/qwen3-coder-next"
     },
     "atlas": {
       "model": "regolo/qwen3-coder-next"
@@ -68,7 +68,7 @@
     "defaultConcurrency": 10,
     "staleTimeoutMs": 180000,
     "modelConcurrency": {
-      "zai-coding-plan/glm-4.7": 3,
+      "zai-coding-plan/glm-4.7": 2,
       "zai-coding-plan/glm-4.7-flash": 1,
       "regolo/qwen3-coder-next": 10,
       "regolo/gpt-oss-120b": 5,
