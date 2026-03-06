@@ -70,6 +70,7 @@
     "modelConcurrency": {
       "zai-coding-plan/glm-4.7": 2,
       "zai-coding-plan/glm-4.7-flash": 1,
+      "regolo/qwen3.5-122b": 5,
       "regolo/qwen3-coder-next": 10,
       "regolo/gpt-oss-120b": 5,
     }
