@@ -2,13 +2,13 @@
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
     "hephaestus": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "zai-coding-plan/glm-4.7"
     },
     "oracle": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "regolo/qwen3.5-122b"
     },
     "librarian": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "regolo/qwen3.5-122b"
     },
     "explore": {
       "model": "zai-coding-plan/glm-4.7-flash"
@@ -20,7 +20,7 @@
       "model": "zai-coding-plan/glm-4.7"
     },
     "metis": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "regolo/qwen3.5-122b"
     },
     "momus": {
       "model": "regolo/qwen3-coder-next"
@@ -29,7 +29,7 @@
       "model": "regolo/qwen3-coder-next"
     },
     "atlas": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "regolo/qwen3.5-122b"
     }
   },
   "categories": {
