@@ -174,7 +174,6 @@
     ]
   },
   "plugin": [
-    "opencode-agent-memory",
     "oh-my-opencode@latest",
     "@franlol/opencode-md-table-formatter@latest"
   ],
