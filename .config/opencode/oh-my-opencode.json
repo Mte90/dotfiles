@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
     "hephaestus": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "zai-coding-plan/glm-5"
     },
     "oracle": {
       "model": "regolo/qwen3.5-122b"
@@ -17,7 +17,7 @@
       "model": "regolo/qwen3-coder-next"
     },
     "prometheus": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "zai-coding-plan/glm-5"
     },
     "metis": {
       "model": "regolo/qwen3.5-122b"
@@ -34,13 +34,13 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "zai-coding-plan/glm-5"
     },
     "ultrabrain": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "regolo/qwen3.5-122b"
     },
     "deep": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "zai-coding-plan/glm-5"
     },
     "artistry": {
       "model": "regolo/gpt-oss-120b"
@@ -48,11 +48,11 @@
     "quick": {
       "model": "regolo/qwen3-coder-next"
     },
-    "unspecified-low": {
+    "git": {
       "model": "regolo/qwen3-coder-next"
     },
-    "unspecified-high": {
-      "model": "zai-coding-plan/glm-4.7"
+    "deep": {
+      "model": "zai-coding-plan/glm-5"
     },
     "writing": {
       "model": "regolo/gpt-oss-120b"
@@ -68,7 +68,7 @@
     "defaultConcurrency": 10,
     "staleTimeoutMs": 180000,
     "modelConcurrency": {
-      "zai-coding-plan/glm-4.7": 2,
+      "zai-coding-plan/glm-5": 2,
       "zai-coding-plan/glm-4.7-flash": 1,
       "regolo/qwen3.5-122b": 5,
       "regolo/qwen3-coder-next": 10,
