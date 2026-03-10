@@ -226,9 +226,6 @@
     "@franlol/opencode-md-table-formatter@latest"
   ],
   "autoupdate": true,
-  "instructions": [
-    "~/.config/opencode/instructions/rust-skills.md"
-  ],
   "experimental": {
     "openTelemetry": false
   },

@@ -1,21 +1,14 @@
 import { type Plugin, tool } from "@opencode-ai/plugin"
 
-/**
- * TodoManager Plugin
- *
- * Exposes a custom tool that manages the todo list for the current session.
- * It uses the SDK client available via the Plugin context (closure) to read
- * todos, and the shell helper ($) to delegate writes back to opencode's
- * built-in todowrite tool — the only supported write path.
- */
 export const TodoManagerPlugin: Plugin = async ({ client, $ }) => {
     return {
         tool: {
-            todo_manager: tool({
+            todo_manager: {
                 description:
                 "Creates and manages a structured task list for the current coding session. " +
                 "Pass the full updated todo list to replace the current one.",
-                args: {
+                args: tool.schema
+                .object({
                     todos: tool.schema
                     .array(
                         tool.schema.object({
@@ -33,19 +26,13 @@ export const TodoManagerPlugin: Plugin = async ({ client, $ }) => {
                         })
                     )
                     .describe("The full updated todo list"),
-                },
-
-                async execute(args, context) {
+                }),
+                execute: async (args: any, context: any) => {
                     try {
-                        // Read current todos via the SDK client (GET endpoint)
-                        const current = await (client as any).session.todo({
-                            path: { id: context.sessionID },
-                        })
-
                         const updated = args.todos.length
                         const summary = args.todos
                         .map(
-                            (t) =>
+                            (t: any) =>
                             `[${t.priority.toUpperCase()}] ${t.status} — ${t.content}`
                         )
                         .join("\n")
@@ -58,7 +45,7 @@ export const TodoManagerPlugin: Plugin = async ({ client, $ }) => {
                         return `❌ Failed to update todos: ${err?.message ?? String(err)}`
                     }
                 },
-            }),
+            },
         },
     }
 }
