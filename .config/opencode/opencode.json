@@ -11,7 +11,8 @@
         "name": "Regolo",
         "baseURL": "https://api.regolo.ai/v1",
         "headers": {
-          "Accept": "application/json"
+          "Accept": "application/json",
+          "Authorization": "Bearer {env:REGOLOAI_OPENCODE_API_KEY}"
         }
       },
       "models": {
@@ -93,7 +94,11 @@
     "zai-coding-plan": {
       "npm": "@ai-sdk/anthropic",
       "options": {
-        "baseURL": "https://api.z.ai/api/anthropic/v1"
+        "baseURL": "https://api.z.ai/api/anthropic/v1",
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer {env:ANTHROPIC_API_KEY}"
+        }
       },
       "models": {
         "glm-4.7": {

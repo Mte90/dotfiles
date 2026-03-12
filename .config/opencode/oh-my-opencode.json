@@ -34,7 +34,7 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "zai-coding-plan/glm-5"
+      "model": "zai-coding-plan/glm-4.7"
     },
     "ultrabrain": {
       "model": "regolo/qwen3.5-122b"
@@ -50,6 +50,12 @@
     },
     "deep": {
       "model": "regolo/qwen3.5-122b"
+    },
+    "unspecified-high": {
+      "model": "regolo/qwen3.5-122b"
+    },
+    "unspecified-low": {
+      "model": "regolo/gpt-oss-120b"
     },
     "writing": {
       "model": "regolo/gpt-oss-120b"
