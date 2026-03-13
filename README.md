@@ -9,6 +9,10 @@ A list of external tools that is repo use (or extend) or that I use on daily usa
 * [youtube-dlp](https://github.com/yt-dlp/yt-dlp)
 * [nccm](https://github.com/flyingrhinonz/nccm)
 
+## Opencode
+
+I am using Oh-my-opencode with my custom [AGENTS.md](https://github.com/Mte90/dotfiles/blob/master/.config/opencode/AGENTS.md) based on [forrestchang/andrej-karpathy-skills/](https://github.com/forrestchang/andrej-karpathy-skills/blob/main/CLAUDE.md) with [CodeAtCode/oss-ai-skills](https://github.com/CodeAtCode/oss-ai-skills).
+
 ## NeoVim
 
 With a Python script, I am able to get only one running instance of [nvim-qt](https://github.com/mte90/my-scripts/blob/master/misc/nvim-qt.py), include also a venv detection.
@@ -38,5 +42,7 @@ With a Python script, I am able to get only one running instance of [nvim-qt](ht
 * [Espanso-Autofixer](https://github.com/Mte90/espanso-typofixer), fix typos automatically for you 
 * [ExtStoreStats](https://github.com/Mte90/ExtStoreStats), Get the stats of your browser extension on different marketplace
 * [Share Backported Firefox extension](https://github.com/Mte90/Share-Backported)
+* [ToneCraft Thunderbird Extension](https://github.com/Mte90/ToneCraft)
 * [My-Scripts](https://github.com/Mte90/My-Scripts), Archive of my own scripts
 * [WP-CLI Scripts](https://github.com/CodeAtCode/WPCli-scripts), Archive of my own wp-cli scripts
+* [Transcribe](https://github.com/Mte90/Transcribe)
