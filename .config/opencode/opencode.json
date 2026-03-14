@@ -95,6 +95,8 @@
       "npm": "@ai-sdk/anthropic",
       "options": {
         "baseURL": "https://api.z.ai/api/anthropic/v1",
+        "timeout": 1200000,
+        "chunkTimeout": 600000,
         "headers": {
           "Accept": "application/json",
           "Authorization": "Bearer {env:ANTHROPIC_API_KEY}"
