@@ -767,82 +767,880 @@ if dialog.exec() == QDialog.Accepted:
 
 ## Threading
 
-### QThread with Worker
+Threading is essential for PyQt applications to keep the UI responsive while performing long-running operations. PyQt provides several approaches to multithreading.
+
+### Thread Safety Rules
+
+**CRITICAL**: Qt/PyQt is NOT thread-safe for UI operations. You must follow these rules:
+
+1. **Never access widgets from worker threads** - Only the main thread can modify UI
+2. **Use signals for cross-thread communication** - Emit signals from worker, connect to slots in main thread
+3. **Use Qt.QueuedConnection for thread-safe signal delivery** - Default AutoConnection handles this automatically
+4. **Never block the main thread** - Long operations will freeze the UI
 
 ```python
-from PySide6.QtCore import QThread, Signal
+# ❌ WRONG: Direct UI access from thread
+class BadWorker(QThread):
+    def run(self):
+        # This will crash or cause undefined behavior!
+        self.label.setText("Done")
 
-class Worker(QThread):
+# ✅ CORRECT: Use signals
+class GoodWorker(QThread):
     finished = Signal(str)
+    
+    def run(self):
+        result = self.process_data()
+        self.finished.emit(result)  # Signal emitted, UI updated in main thread
+```
+
+### QThread with Worker Object (Recommended Pattern)
+
+The most flexible pattern separates the worker logic from thread lifecycle:
+
+```python
+from PySide6.QtCore import QThread, Signal, QObject, Slot
+
+class Worker(QObject):
+    """Worker object that does the actual work."""
+    finished = Signal(object)
     progress = Signal(int)
+    error = Signal(str)
     
     def __init__(self, data):
         super().__init__()
         self.data = data
+        self._is_cancelled = False
     
-    def run(self):
-        for i, item in enumerate(self.data):
-            # Process item
-            result = self.process_item(item)
-            self.progress.emit(int((i + 1) / len(self.data) * 100))
-        self.finished.emit("Done")
+    @Slot()
+    def process(self):
+        """Main processing method called from thread."""
+        try:
+            for i, item in enumerate(self.data):
+                if self._is_cancelled:
+                    return
+                
+                # Simulate heavy work
+                result = self.process_item(item)
+                self.progress.emit(int((i + 1) / len(self.data) * 100))
+            
+            self.finished.emit({"status": "success", "count": len(self.data)})
+        except Exception as e:
+            self.error.emit(str(e))
+    
+    def cancel(self):
+        self._is_cancelled = True
     
     def process_item(self, item):
-        # Heavy work here
-        return item
+        # Override in subclass
+        import time
+        time.sleep(0.1)  # Simulate work
+        return item * 2
 
+class ThreadController(QObject):
+    """Manages worker thread lifecycle."""
+    def __init__(self):
+        super().__init__()
+        self.thread = None
+        self.worker = None
+    
+    def start_work(self, data):
+        # Create thread and worker
+        self.thread = QThread()
+        self.worker = Worker(data)
+        
+        # Move worker to thread
+        self.worker.moveToThread(self.thread)
+        
+        # Connect signals
+        self.worker.finished.connect(self.on_finished)
+        self.worker.progress.connect(self.on_progress)
+        self.worker.error.connect(self.on_error)
+        
+        # Thread lifecycle
+        self.thread.started.connect(self.worker.process)
+        self.thread.finished.connect(self.thread.deleteLater)
+        
+        # Start thread
+        self.thread.start()
+    
+    def cancel_work(self):
+        if self.worker:
+            self.worker.cancel()
+        if self.thread:
+            self.thread.quit()
+            self.thread.wait()
+    
+    @Slot()
+    def on_finished(self, result):
+        print(f"Work completed: {result}")
+        self.cleanup()
+    
+    @Slot()
+    def on_progress(self, percent):
+        print(f"Progress: {percent}%")
+    
+    @Slot()
+    def on_error(self, error):
+        print(f"Error: {error}")
+        self.cleanup()
+    
+    def cleanup(self):
+        self.thread = None
+        self.worker = None
+
+# Usage in MainWindow
 class MainWindow(QMainWindow):
-    def startWork(self):
-        self.worker = Worker(self.data)
-        self.worker.progress.connect(self.updateProgress)
-        self.worker.finished.connect(self.onFinished)
-        self.worker.start()
+    def __init__(self):
+        super().__init__()
+        self.controller = ThreadController()
+        self.setup_ui()
     
-    def updateProgress(self, percent):
-        self.progressBar.setValue(percent)
+    def setup_ui(self):
+        self.button = QPushButton("Start Work")
+        self.progress_bar = QProgressBar()
+        self.cancel_button = QPushButton("Cancel")
+        
+        self.button.clicked.connect(self.start_work)
+        self.cancel_button.clicked.connect(self.controller.cancel_work)
+        
+        # Connect controller signals to UI
+        self.controller.worker.progress.connect(self.progress_bar.setValue)
     
-    def onFinished(self, message):
-        QMessageBox.information(self, "Done", message)
+    def start_work(self):
+        data = list(range(100))
+        self.controller.start_work(data)
+```
+
+### QThread Subclass (Simpler Pattern)
+
+For simpler cases, subclass QThread directly:
+
+```python
+from PySide6.QtCore import QThread, Signal
+
+class DataProcessor(QThread):
+    """Thread that processes data and emits progress."""
+    # Define signals at class level
+    progress = Signal(int)
+    result_ready = Signal(list)
+    error_occurred = Signal(str)
+    finished = Signal()
+    
+    def __init__(self, input_data, parent=None):
+        super().__init__(parent)
+        self.input_data = input_data
+        self._cancelled = False
+    
+    def run(self):
+        """Thread entry point - called by start()."""
+        try:
+            results = []
+            total = len(self.input_data)
+            
+            for i, item in enumerate(self.input_data):
+                # Check for cancellation
+                if self._cancelled:
+                    self.error_occurred.emit("Cancelled")
+                    return
+                
+                # Process item (heavy work here)
+                processed = self.process_item(item)
+                results.append(processed)
+                
+                # Emit progress
+                progress_percent = int((i + 1) / total * 100)
+                self.progress.emit(progress_percent)
+            
+            # Emit results
+            self.result_ready.emit(results)
+            
+        except Exception as e:
+            self.error_occurred.emit(str(e))
+        finally:
+            self.finished.emit()
+    
+    def process_item(self, item):
+        """Override this method for custom processing."""
+        import time
+        time.sleep(0.05)  # Simulate work
+        return item.upper()
+    
+    def cancel(self):
+        """Request thread cancellation."""
+        self._cancelled = True
+
+# Usage
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.processor = None
+        
+        # UI setup
+        self.progress = QProgressBar()
+        self.start_btn = QPushButton("Start")
+        self.cancel_btn = QPushButton("Cancel")
+        
+        self.start_btn.clicked.connect(self.start_processing)
+        self.cancel_btn.clicked.connect(self.cancel_processing)
+    
+    def start_processing(self):
+        data = ["item1", "item2", "item3", "item4", "item5"]
+        
+        self.processor = DataProcessor(data)
+        
+        # Connect signals
+        self.processor.progress.connect(self.progress.setValue)
+        self.processor.result_ready.connect(self.on_results)
+        self.processor.error_occurred.connect(self.on_error)
+        self.processor.finished.connect(self.on_finished)
+        
+        # Start thread
+        self.processor.start()
+        self.start_btn.setEnabled(False)
+    
+    def cancel_processing(self):
+        if self.processor:
+            self.processor.cancel()
+    
+    def on_results(self, results):
+        print(f"Got {len(results)} results")
+    
+    def on_error(self, error):
+        QMessageBox.warning(self, "Error", error)
+    
+    def on_finished(self):
+        self.start_btn.setEnabled(True)
+        self.progress.setValue(0)
+        self.processor = None
 ```
 
 ### QThreadPool with QRunnable
 
+For parallel execution of independent tasks:
+
 ```python
 from PySide6.QtCore import QThreadPool, QRunnable, Signal, QObject
+import time
 
-class WorkerSignals(QObject):
+class TaskSignals(QObject):
+    """Signals for QRunnable (QRunnable cannot have signals directly)."""
     finished = Signal(object)
     error = Signal(str)
+    progress = Signal(int)
 
-class Runnable(QRunnable):
-    def __init__(self, func, *args, **kwargs):
+class ParallelTask(QRunnable):
+    """Runnable task for thread pool."""
+    
+    def __init__(self, task_id, data):
         super().__init__()
-        self.func = func
-        self.args = args
-        self.kwargs = kwargs
-        self.signals = WorkerSignals()
+        self.task_id = task_id
+        self.data = data
+        self.signals = TaskSignals()
+        self._cancelled = False
     
     def run(self):
+        """Executed by thread pool."""
         try:
-            result = self.func(*self.args, **self.kwargs)
+            # Simulate work
+            time.sleep(0.5)
+            
+            if self._cancelled:
+                return
+            
+            result = {
+                "id": self.task_id,
+                "processed": self.data.upper(),
+                "thread": int(QThread.currentThreadId())
+            }
+            
             self.signals.finished.emit(result)
+            
         except Exception as e:
             self.signals.error.emit(str(e))
+    
+    def cancel(self):
+        self._cancelled = True
 
+class ThreadPoolManager(QObject):
+    """Manages parallel task execution."""
+    all_finished = Signal(int)
+    task_progress = Signal(int, int)  # task_id, progress
+    
+    def __init__(self, max_threads=4):
+        super().__init__()
+        self.pool = QThreadPool()
+        self.pool.setMaxThreadCount(max_threads)
+        self.active_tasks = {}
+        self.completed_count = 0
+        self.total_tasks = 0
+    
+    def run_parallel(self, tasks):
+        """Run multiple tasks in parallel."""
+        self.completed_count = 0
+        self.total_tasks = len(tasks)
+        self.active_tasks.clear()
+        
+        for task_id, data in enumerate(tasks):
+            task = ParallelTask(task_id, data)
+            task.signals.finished.connect(
+                lambda result, tid=task_id: self.on_task_finished(result)
+            )
+            task.signals.error.connect(self.on_task_error)
+            self.active_tasks[task_id] = task
+            self.pool.start(task)
+    
+    def on_task_finished(self, result):
+        self.completed_count += 1
+        task_id = result["id"]
+        del self.active_tasks[task_id]
+        
+        if self.completed_count >= self.total_tasks:
+            self.all_finished.emit(self.completed_count)
+    
+    def on_task_error(self, error):
+        print(f"Task error: {error}")
+    
+    def cancel_all(self):
+        for task in self.active_tasks.values():
+            task.cancel()
+        self.active_tasks.clear()
+
+# Usage
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.thread_pool = QThreadPool()
+        self.pool_manager = ThreadPoolManager(max_threads=4)
+        
+        # UI
+        self.run_btn = QPushButton("Run Parallel Tasks")
+        self.status_label = QLabel("Ready")
+        
+        self.run_btn.clicked.connect(self.run_tasks)
+        self.pool_manager.all_finished.connect(self.on_all_done)
     
-    def runAsync(self):
-        runnable = Runnable(self.heavyTask, "data")
-        runnable.signals.finished.connect(self.onFinished)
-        runnable.signals.error.connect(self.onError)
-        self.thread_pool.start(runnable)
+    def run_tasks(self):
+        tasks = [f"data_{i}" for i in range(10)]
+        self.status_label.setText(f"Running {len(tasks)} tasks...")
+        self.pool_manager.run_parallel(tasks)
     
-    def heavyTask(self, data):
-        # Heavy computation
-        return result
+    def on_all_done(self, count):
+        self.status_label.setText(f"Completed {count} tasks")
+```
+
+### QTimer for Periodic Updates
+
+ For polling or periodic checks:
+
+```python
+from PySide6.QtCore import QTimer, Slot
+
+class PollingWidget(QWidget):
+    """Widget that polls for updates periodically."""
+    
+    def __init__(self):
+        super().__init__()
+        
+        # Create timer
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.on_timeout)
+        
+        # UI
+        self.status_label = QLabel("Last update: Never")
+        self.poll_btn = QPushButton("Start Polling")
+        self.poll_btn.setCheckable(True)
+        
+        layout = QVBoxLayout(self)
+        layout.addWidget(self.status_label)
+        layout.addWidget(self.poll_btn)
+        
+        self.poll_btn.toggled.connect(self.toggle_polling)
+    
+    @Slot()
+    def toggle_polling(self, checked):
+        if checked:
+            self.timer.start(1000)  # Poll every second
+            self.poll_btn.setText("Stop Polling")
+        else:
+            self.timer.stop()
+            self.poll_btn.setText("Start Polling")
+    
+    @Slot()
+    def on_timeout(self):
+        """Called every timeout milliseconds."""
+        # Fetch updates (in real app, this might trigger a worker thread)
+        from datetime import datetime
+        self.status_label.setText(f"Last update: {datetime.now().strftime('%H:%M:%S')}")
+```
+
+### Qt Concurrent (QtConcurrent)
+
+For map/filter/reduce operations on collections:
+
+```python
+from PySide6.QtConcurrent import QtConcurrent
+from PySide6.QtCore import QFutureWatcher, QFuture
+
+class ConcurrentProcessor(QObject):
+    """Process data using QtConcurrent."""
+    finished = Signal(list)
+    
+    def process_items(self, items):
+        """Process items concurrently."""
+        # Map function
+        def process_item(item):
+            import time
+            time.sleep(0.1)  # Simulate work
+            return item.upper()
+        
+        # Run concurrent map
+        future = QtConcurrent.mapped(items, process_item)
+        
+        # Watch for completion
+        self.watcher = QFutureWatcher()
+        self.watcher.futureReady.connect(lambda: self.on_future_ready(future))
+        self.watcher.setFuture(future)
+    
+    def on_future_ready(self, future):
+        results = future.result()
+        self.finished.emit(list(results))
+```
+
+### Thread-Safe Data Sharing
+
+For sharing data between threads safely:
+
+```python
+from PySide6.QtCore import QMutex, QMutexLocker, QReadWriteLock
+
+class SharedData:
+    """Thread-safe data container."""
+    
+    def __init__(self):
+        self._data = {}
+        self._mutex = QMutex()
+    
+    def set_value(self, key, value):
+        """Thread-safe write."""
+        locker = QMutexLocker(self._mutex)
+        self._data[key] = value
+    
+    def get_value(self, key, default=None):
+        """Thread-safe read."""
+        locker = QMutexLocker(self._mutex)
+        return self._data.get(key, default)
+    
+    def get_all(self):
+        """Thread-safe copy of all data."""
+        locker = QMutexLocker(self._mutex)
+        return dict(self._data)
+
+class ReadWriteData:
+    """Read-write lock for read-heavy workloads."""
+    
+    def __init__(self):
+        self._data = {}
+        self._lock = QReadWriteLock()
+    
+    def read_value(self, key):
+        """Multiple readers can hold the lock."""
+        self._lock.lockForRead()
+        try:
+            return self._data.get(key)
+        finally:
+            self._lock.unlock()
+    
+    def write_value(self, key, value):
+        """Only one writer at a time."""
+        self._lock.lockForWrite()
+        try:
+            self._data[key] = value
+        finally:
+            self._lock.unlock()
+```
+
+### Best Practices
+
+1. **Always use signals for cross-thread communication**
+2. **Keep worker objects thread-affinity aware** - Don't assume they're in main thread
+3. **Clean up threads properly** - Use deleteLater() and quit() + wait()
+4. **Handle cancellation** - Check flags periodically in long operations
+5. **Use QThreadPool for parallel independent tasks**
+6. **Use QThread.moveToThread() for single long operations**
+7. **Never use time.sleep() in main thread** - Use timers or workers instead
+
+### Common Issues
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| UI freezes | Blocking operation in main thread | Move to worker thread |
+| Crashes on widget access | Accessing UI from worker thread | Use signals instead |
+| Memory leaks | Thread not cleaned up | Use deleteLater() and proper lifecycle |
+| Deadlocks | Multiple mutexes acquired in different order | Always acquire in same order, use timeout |
+| Race conditions | Shared data without locks | Use QMutex or atomic operations |
+
+### Testing Threaded Code
+
+```python
+# test_threading.py
+import pytest
+from pytest_qt import QtBot
+from PySide6.QtCore import QThread, Signal, QTimer
+from unittest.mock import Mock
+
+def test_worker_thread_emits_progress(qtbot):
+    """Test that worker thread emits progress signals."""
+    
+    class TestWorker(QThread):
+        progress = Signal(int)
+        
+        def run(self):
+            for i in range(5):
+                self.progress.emit(i * 20)
+    
+    worker = TestWorker()
+    
+    # Wait for signal
+    with qtbot.waitSignal(worker.progress, timeout=1000):
+        worker.start()
+    
+    # Check multiple signals
+    signals = []
+    worker.progress.connect(signals.append)
+    
+    worker.start()
+    worker.wait()
+    
+    assert len(signals) == 5
+    assert signals == [0, 20, 40, 60, 80]
+
+def test_thread_cancellation(qtbot):
+    """Test thread can be cancelled."""
+    
+    class CancellableWorker(QThread):
+        finished = Signal()
+        
+        def __init__(self):
+            super().__init__()
+            self._cancelled = False
+        
+        def run(self):
+            for i in range(100):
+                if self._cancelled:
+                    return
+                import time
+                time.sleep(0.01)
+            self.finished.emit()
+        
+        def cancel(self):
+            self._cancelled = True
+    
+    worker = CancellableWorker()
+    worker.start()
+    worker.cancel()
+    worker.wait(100)  # Wait with timeout
+    
+    # Should not have emitted finished
+    assert not hasattr(worker, '_finished_emitted')
+```
+
+## Testing with pytest-qt
+
+pytest-qt provides specialized fixtures and utilities for testing Qt applications.
+
+### Installation
+
+```bash
+pip install pytest-qt
+```
+
+### qtbot Fixture
+
+The `qtbot` fixture provides methods for interacting with Qt widgets:
+
+```python
+import pytest
+from pytest_qt import QtBot
+from PySide6.QtWidgets import QApplication, QPushButton, QLabel
+from PySide6.QtCore import Qt
+
+def test_button_click(qtbot):
+    """Test button click updates label."""
+    button = QPushButton("Click Me")
+    label = QLabel("Before")
+    
+    qtbot.addWidget(button)
+    qtbot.addWidget(label)
+    
+    def on_click():
+        label.setText("After")
+    
+    button.clicked.connect(on_click)
+    
+    # Simulate click
+    qtbot.mouseClick(button, Qt.LeftButton)
+    
+    assert label.text() == "After"
+
+def test_key_press(qtbot):
+    """Test keyboard input."""
+    from PySide6.QtWidgets import QLineEdit
+    
+    line_edit = QLineEdit()
+    qtbot.addWidget(line_edit)
+    
+    # Type text
+    qtbot.keyClicks(line_edit, "Hello World")
+    
+    assert line_edit.text() == "Hello World"
+```
+
+### waitSignal Context Manager
+
+Wait for signals to be emitted:
+
+```python
+def test_async_operation(qtbot):
+    """Test async operation completes."""
+    from PySide6.QtCore import QThread, Signal
+    
+    class Worker(QThread):
+        finished = Signal(str)
+        
+        def run(self):
+            import time
+            time.sleep(0.1)
+            self.finished.emit("Done")
+    
+    worker = Worker()
+    
+    # Wait for signal with timeout
+    with qtbot.waitSignal(worker.finished, timeout=1000) as blocker:
+        worker.start()
+    
+    # Check signal argument
+    assert blocker.args == ["Done"]
+
+def test_multiple_signals(qtbot):
+    """Wait for multiple signal emissions."""
+    from PySide6.QtCore import QTimer
+    
+    timer = QTimer()
+    timer.setInterval(100)
+    
+    # Wait for 3 emissions
+    with qtbot.waitSignal(timer.timeout, timeout=500, raising=3):
+        timer.start()
+    
+    timer.stop()
+```
+
+### waitActive and waitExposed
+
+Wait for window activation/exposure:
+
+```python
+def test_window_activation(qtbot, qapp):
+    """Test window becomes active."""
+    from PySide6.QtWidgets import QWidget
+    
+    widget = QWidget()
+    qtbot.addWidget(widget)
+    
+    widget.show()
+    
+    # Wait for window to be active
+    with qtbot.waitActive(widget, timeout=1000):
+        qapp.setActiveWindow(widget)
+
+def test_window_exposed(qtbot):
+    """Test window is exposed (visible on screen)."""
+    from PySide6.QtWidgets import QWidget
+    
+    widget = QWidget()
+    qtbot.addWidget(widget)
+    
+    # Show and wait for exposure
+    with qtbot.waitExposed(widget, timeout=1000):
+        widget.show()
+```
+
+### Testing QDialogs
+
+```python
+def test_dialog_acceptance(qtbot):
+    """Test dialog accepted."""
+    from PySide6.QtWidgets import QDialog, QDialogButtonBox
+    
+    class TestDialog(QDialog):
+        def __init__(self):
+            super().__init__()
+            buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+ self.rejected.connect(self.reject)
+            buttons.accepted.connect(self.accept)
+            
+            layout = QVBoxLayout(self)
+            layout.addWidget(buttons)
+    
+    dialog = TestDialog()
+    
+    # Keep reference to buttons
+    ok_button = dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok)
+    
+    # Click OK in next event loop
+    QTimer.singleShot(100, lambda: qtbot.mouseClick(ok_button, Qt.LeftButton))
+    
+    result = dialog.exec()
+    
+    assert result == QDialog.Accepted
+
+def test_custom_dialog_values(qtbot):
+    """Test custom dialog returns values."""
+    from PySide6.QtWidgets import QDialog, QLineEdit, QVBoxLayout, QDialogButtonBox
+    
+    class InputDialog(QDialog):
+        def __init__(self):
+            super().__init__()
+            
+            self.line_edit = QLineEdit()
+            self.line_edit.setPlaceholder("Enter name")
+            
+            buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+            self.rejected.connect(self.reject)
+            buttons.accepted.connect(self.accept)
+            
+            layout = QVBoxLayout(self)
+            layout.addWidget(self.line_edit)
+            layout.addWidget(buttons)
+        
+        def get_value(self):
+            return self.line_edit.text()
+    
+    dialog = InputDialog()
+    qtbot.addWidget(dialog)
+    
+    # Enter text
+    qtbot.keyClicks(dialog.line_edit, "Test Name")
+    
+    # Accept dialog
+    ok_button = dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Ok)
+    QTimer.singleShot(100, lambda: qtbot.mouseClick(ok_button, Qt.LeftButton))
+    
+    result = dialog.exec()
+    
+    assert result == QDialog.Accepted
+    assert dialog.get_value() == "Test Name"
+```
+
+### Testing Model/View
+
+```python
+def test_list_model(qtbot):
+    """Test QAbstractListModel."""
+    from PySide6.QtCore import QAbstractListModel, Qt
+    
+    class SimpleModel(QAbstractListModel):
+        def __init__(self, data):
+            super().__init__()
+            self._data = data
+        
+        def rowCount(self, parent=None):
+            return len(self._data)
+        
+        def data(self, index, role=Qt.DisplayRole):
+            if 0 <= index < len(self._data):
+                return self._data[index]
+            return None
+    
+    model = SimpleModel(["Item 1", "Item 2", "Item 3"])
+    
+    assert model.rowCount() == 3
+    assert model.data(0, Qt.DisplayRole) == "Item 2"
+
+def test_model_updates(qtbot):
+    """Test model signals data changes."""
+    from PySide6.QtCore import QAbstractListModel, QModelIndex, Qt
+    
+    class MutableModel(QAbstractListModel):
+        def __init__(self):
+            super().__init__()
+            self._items = []
+        
+        def rowCount(self, parent=None):
+            return len(self._items)
+        
+        def data(self, index, role=Qt.DisplayRole):
+            if 1 <= index < len(self._items):
+                return self._items[index]
+            return None
+        
+        def add_item(self, item):
+            self.beginInsertRows(QModelIndex(), len(self._items), len(self._items))
+            self._items.append(item)
+            self.endInsertRows()
+    
+    model = MutableModel()
+    
+    # Track dataChanged signal
+    with qtbot.waitSignal(model.dataChanged, timeout=1000):
+        model.add_item("New Item")
+```
+
+### Best Practices for pytest-qt
+
+1. **Always use qtbot.addWidget()** to ensure proper cleanup
+2. **Use waitSignal for async operations** with appropriate timeouts
+3. **Avoid real delays** - use QTimer.singleShot for timing in tests
+4. **Test signals not implementation** - verify behavior, not internal state
+5. **Use qapp fixture** when you need QApplication instance
+6. **Clean up resources** - qtbot handles widget cleanup automatically
+
+### Common Testing Patterns
+
+```python
+# conftest.py - Shared fixtures
+import pytest
+from pytest_qt import QtBot
+from PySide6.QtWidgets import QApplication
+from PySide6.QtCore import QDir, QSettings
+
+@pytest.fixture
+def app(qapp):
+    """Create application instance."""
+    return qapp
+
+@pytest.fixture
+def temp_dir(tmp_path):
+    """Create temporary directory."""
+    import pathlib
+    d = pathlib.Path(tmp_path) / "test_data"
+    d.mkdir(exist_ok=True)
+    return d
+
+@pytest.fixture
+def main_window(app, qtbot, temp_dir):
+    """Create main window with dependencies."""
+    from myapp.main_window import MainWindow
+    
+    window = MainWindow()
+    qtbot.addWidget(window)
+    window.show()
+    
+    return window
+
+def test_main_window_loads(main_window, qtbot):
+    """Test main window initializes correctly."""
+    assert main_window.windowTitle() == "My App"
+    assert main_window.isVisible()
+
+def test_settings_persistence(main_window, qtbot, temp_dir):
+    """Test settings are persisted."""
+    # Change setting
+    main_window.settings.setValue("test_key", "test_value")
+    
+    # Verify saved
+    settings = QSettings(main_window.settings.organization(), main_window.settings.application())
+    assert settings.value("test_key") == "test_value"
 ```
 
 ## Packaging & Distribution

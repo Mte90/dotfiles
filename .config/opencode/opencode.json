@@ -252,6 +252,104 @@
               }
             }
           }
+        },
+        "glm-5.1": {
+          "reasoning": true,
+          "interleaved": true,
+          "limit": {
+            "context": 200000,
+            "output": 128000
+          },
+          "options": {
+            "temperature": 1,
+            "top_k": 40,
+            "top_p": 0.95,
+            "maxOutputTokens": 128000,
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 64000
+            }
+          },
+          "variants": {
+            "none": {
+              "thinking": {
+                "type": "disabled"
+              }
+            },
+            "low": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 8000
+              }
+            },
+            "medium": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 24000
+              }
+            },
+            "high": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 48000
+              }
+            },
+            "max": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 64000
+              }
+            }
+          }
+        },
+        "glm-5-turbo": {
+          "reasoning": true,
+          "interleaved": true,
+          "limit": {
+            "context": 200000,
+            "output": 128000
+          },
+          "options": {
+            "temperature": 1,
+            "top_k": 40,
+            "top_p": 0.95,
+            "maxOutputTokens": 128000,
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 64000
+            }
+          },
+          "variants": {
+            "none": {
+              "thinking": {
+                "type": "disabled"
+              }
+            },
+            "low": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 8000
+              }
+            },
+            "medium": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 24000
+              }
+            },
+            "high": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 48000
+              }
+            },
+            "max": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 64000
+              }
+            }
+          }
         }
       }
     }
