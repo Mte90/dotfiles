@@ -1,9 +1,9 @@
 ---
 name: pyqt
-description: Comprehensive guide for developing desktop applications with PyQt5, PyQt6, and PySide6, including installation, widgets, signals/slots, layouts, styling, and packaging.
+description: "PyQt/PySide6 overview hub - installation, comparison, project structure. See sub-skills for detailed topics."
 metadata:
   author: OSS AI Skills
-  version: 1.0.0
+  version: 2.0.0
   tags:
     - python
     - qt
@@ -11,24 +11,25 @@ metadata:
     - pyside
     - gui
     - desktop
-    - pyqt6
-    - pyqt5
+    - hub
 ---
 
 # PyQt/PySide Development
 
-Complete reference for building cross-platform desktop applications with Python and Qt.
+PyQt and PySide are Python bindings for the Qt application framework for building cross-platform desktop applications.
 
-## Overview
+## Sub-Skills
 
-PyQt and PySide are Python bindings for the Qt application framework. They enable building professional desktop applications with native look and feel across Windows, macOS, and Linux.
+For detailed information, see the specialized sub-skills:
 
-**Key Characteristics:**
-- Cross-platform (Windows, macOS, Linux)
-- Rich widget library
-- Signal-slot mechanism for event handling
-- QSS styling (CSS-like)
-- Support for OpenGL, multimedia, networking, databases
+| Skill | Description | Path |
+|-------|-------------|------|
+| **pyqt-core** | Signals, slots, timers, settings, file I/O | [core/SKILL.md](core/SKILL.md) |
+| **pyqt-widgets** | All widgets and layouts | [widgets/SKILL.md](widgets/SKILL.md) |
+| **pyqt-threading** | QThread, thread pools, concurrency | [threading/SKILL.md](threading/SKILL.md) |
+| **pyqt-dialogs** | Standard and custom dialogs | [dialogs/SKILL.md](dialogs/SKILL.md) |
+| **pyqt-testing** | pytest-qt testing patterns | [testing/SKILL.md](testing/SKILL.md) |
+| **pyqt-styling** | QSS styling and themes | [styling/SKILL.md](styling/SKILL.md) |
 
 ## PyQt vs PySide Comparison
 
@@ -82,14 +83,13 @@ sudo dnf install mesa-libGL glib2
 sudo pacman -S mesa glib2
 ```
 
-## Application Structure
-
-### Basic Application
+## Basic Application
 
 ```python
 #!/usr/bin/env python3
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QLabel
+from PySide6.QtCore import Qt
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -98,7 +98,7 @@ class MainWindow(QMainWindow):
         self.setGeometry(100, 100, 800, 600)
         
         label = QLabel("Hello, Qt!")
-        label.setAlignment(Qt.AlignCenter)
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setCentralWidget(label)
 
 def main():
@@ -111,7 +111,7 @@ if __name__ == "__main__":
     main()
 ```
 
-### Recommended Project Structure
+## Recommended Project Structure
 
 ```
 my_app/
@@ -121,32 +121,27 @@ my_app/
 │   ├── main_window.py
 │   ├── widgets/
 │   │   ├── __init__.py
-│   │   ├── custom_widget.py
-│   │   └── dialog.py
+│   │   └── custom_widget.py
 │   ├── models/
-│   │   ├── __init__.py
 │   │   └── data_model.py
 │   ├── resources/
 │   │   ├── icons/
-│   │   ├── styles/
-│   │   │   └── style.qss
-│   │   └── resources.qrc
+│   │   └── styles/
+│   │       └── style.qss
 │   └── utils/
-│       ├── __init__.py
 │       └── helpers.py
 ├── tests/
-│   ├── __init__.py
 │   └── test_main.py
 ├── requirements.txt
-├── pyproject.toml
-└── README.md
+└── pyproject.toml
 ```
 
-## Core Modules
+## Quick Reference
 
-### QtWidgets - UI Components
+### Core Imports
 
 ```python
+# QtWidgets - UI Components
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget,
     QLabel, QPushButton, QLineEdit, QTextEdit,
@@ -155,35 +150,79 @@ from PySide6.QtWidgets import (
     QTabWidget, QStackedWidget, QSplitter,
     QListWidget, QTreeWidget, QTableWidget,
     QScrollArea, QToolBar, QStatusBar,
-    QMenuBar, QMenu, QFileDialog, QMessageBox
+    QMenuBar, QMenu
 )
-```
 
-### QtCore - Core Non-GUI
-
-```python
+# QtCore - Core Non-GUI
 from PySide6.QtCore import (
     Qt, QObject, QTimer, QThread,
     Signal, Slot, Property,
     QSize, QPoint, QRect,
     QSettings, QFile, QDir,
     QUrl, QMimeData,
-    QDateTime, QDate, QTime,
-    QAbstractItemModel, QModelIndex
+    QDateTime, QDate, QTime
 )
-```
 
-### QtGui - Graphics
-
-```python
+# QtGui - Graphics
 from PySide6.QtGui import (
     QIcon, QPixmap, QImage,
     QPainter, QPen, QBrush, QColor,
     QFont, QCursor,
-    QKeySequence, QShortcut,
-    QDragEnterEvent, QDropEvent
+    QKeySequence, QShortcut
 )
 ```
+
+### Signal/Slot Basics
+
+```python
+from PySide6.QtCore import QObject, Signal, Slot
+
+class MyObject(QObject):
+    valueChanged = Signal(int)
+    
+    @Slot(int)
+    def setValue(self, value):
+        self._value = value
+        self.valueChanged.emit(value)
+
+# Connect
+button.clicked.connect(self.onButtonClick)
+
+# Emit
+self.valueChanged.emit(42)
+```
+
+### Layout Basics
+
+```python
+from PySide6.QtWidgets import QVBoxLayout, QHBoxLayout, QGridLayout, QFormLayout
+
+# Vertical
+layout = QVBoxLayout()
+layout.addWidget(label)
+layout.addWidget(button)
+
+# Horizontal
+h_layout = QHBoxLayout()
+h_layout.addWidget(left)
+h_layout.addWidget(right)
+
+# Grid
+grid = QGridLayout()
+grid.addWidget(label, 0, 0)
+grid.addWidget(input, 0, 1)
+
+# Form
+form = QFormLayout()
+form.addRow("Name:", nameEdit)
+```
+
+## References
+
+- **Qt for Python Documentation**: https://doc.qt.io/qtforpython-6/
+- **PySide6 GitHub**: https://github.com/pyside/pyside-setup
+- **PyQt6 Documentation**: https://www.riverbankcomputing.com/static/Docs/PyQt6/
+- **pytest-qt**: https://pytest-qt.readthedocs.io/
 
 ## Signals and Slots
 
