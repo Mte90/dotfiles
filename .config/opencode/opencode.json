@@ -10,6 +10,8 @@
       "options": {
         "name": "Regolo",
         "baseURL": "https://api.regolo.ai/v1",
+        "timeout": 1200000,
+        "chunkTimeout": 600000,
         "headers": {
           "Accept": "application/json",
           "Authorization": "Bearer {env:REGOLOAI_OPENCODE_API_KEY}"
@@ -27,6 +29,56 @@
           "limit": {
             "context": 120000,
             "output": 90000
+          },
+          "options": {
+            "reasoningEffort": "high",
+            "textVerbosity": "low",
+            "reasoningSummary": "auto",
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "parallel_tool_calls": true,
+            "tool_choice": "auto",
+            "thinking": true,
+            "temperature": 0.7
+          }
+        },
+        "mistral-small-4-119b": {
+          "id": "mistral-small-4-119b",
+          "name": "mistral-small-4-119b",
+          "tools": true,
+          "cost": {
+            "input": 0.5,
+            "output": 2.1
+          },
+          "limit": {
+            "context": 120000,
+            "output": 120000
+          },
+          "options": {
+            "reasoningEffort": "high",
+            "textVerbosity": "low",
+            "reasoningSummary": "auto",
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "parallel_tool_calls": true,
+            "tool_choice": "auto",
+            "thinking": true,
+            "temperature": 0.7
+          }
+        },
+        "minimax-m2.5": {
+          "id": "minimax-m2.5",
+          "name": "minimax-m2.5",
+          "tools": true,
+          "cost": {
+            "input": 0.6,
+            "output": 3.8
+          },
+          "limit": {
+            "context": 130000,
+            "output": 130000
           },
           "options": {
             "reasoningEffort": "high",
@@ -216,8 +268,8 @@
     "question": "allow"
   },
   "compaction": {
-    "auto": true,
-    "prune": true
+    "auto": false,
+    "prune": false
   },
   "watcher": {
     "ignore": [
@@ -225,12 +277,18 @@
       "dist/",
       ".cargo/",
       "target/",
-      ".git/**"
+      ".git/**",
+      "*cache*/",
+      ".sisyphus/",
+      ".venv/",
+      "venv/"
     ]
   },
   "plugin": [
     "oh-my-opencode@latest",
-    "@franlol/opencode-md-table-formatter@latest"
+    "@franlol/opencode-md-table-formatter@latest",
+    "@cortexkit/aft-opencode@latest",
+    "@cortexkit/opencode-magic-context@latest"
   ],
   "autoupdate": true,
   "experimental": {

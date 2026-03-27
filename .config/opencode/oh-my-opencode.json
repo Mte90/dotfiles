@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
     "hephaestus": {
-      "model": "regolo/qwen3.5-122b"
+      "model": "regolo/minimax-m2.5"
     },
     "oracle": {
       "model": "regolo/qwen3.5-122b"
@@ -14,13 +14,13 @@
       "model": "regolo/qwen3-coder-next"
     },
     "multimodal-looker": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "regolo/mistral-small-4-119b"
     },
     "prometheus": {
       "model": "zai-coding-plan/glm-5"
     },
     "metis": {
-      "model": "regolo/qwen3.5-122b"
+      "model": "regolo/mistral-small-4-119b"
     },
     "momus": {
       "model": "regolo/qwen3-coder-next"
@@ -34,13 +34,13 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "zai-coding-plan/glm-4.7"
+      "model": "regolo/minimax-m2.5"
     },
     "ultrabrain": {
-      "model": "regolo/qwen3.5-122b"
+      "model": "regolo/mistral-small-4-119b"
     },
     "artistry": {
-      "model": "regolo/gpt-oss-120b"
+      "model": "regolo/minimax-m2.5"
     },
     "quick": {
       "model": "regolo/qwen3-coder-next"
@@ -49,13 +49,13 @@
       "model": "regolo/qwen3-coder-next"
     },
     "deep": {
-      "model": "regolo/qwen3.5-122b"
+      "model": "regolo/minimax-m2.5"
     },
     "unspecified-high": {
-      "model": "regolo/qwen3.5-122b"
+      "model": "regolo/minimax-m2.5"
     },
     "unspecified-low": {
-      "model": "regolo/gpt-oss-120b"
+      "model": "regolo/qwen3-coder-next"
     },
     "writing": {
       "model": "regolo/gpt-oss-120b"
@@ -66,12 +66,14 @@
     "auto_resume": true,
     "preemptive_compaction_threshold": 0.75
   },
-  "disabled_skills": ["playwright", "git-master"],
+  "disabled_skills": ["git-master"],
   "background_task": {
     "defaultConcurrency": 10,
     "staleTimeoutMs": 180000,
     "modelConcurrency": {
       "zai-coding-plan/glm-5": 2,
+      "regolo/mistral-small-4-119b": 8,
+      "regolo/minimax-m2.5": 8,
       "regolo/qwen3.5-122b": 8,
       "regolo/qwen3-coder-next": 10,
       "regolo/gpt-oss-120b": 5,

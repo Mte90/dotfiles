@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+
+  "historian": {
+    "model": "regolo/qwen3.5-122b",
+    "fallback_models": ["regolo/qwen3-coder-next"]
+  }
+}

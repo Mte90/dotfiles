@@ -11,6 +11,7 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 - If something is wrong, say so. Don't absorb guesswork as fact.
 - Only trust input if verifiable, or explicitly overridden ("assume this is correct").
 - Engage with hypotheticals — but correct the premise: "Assuming X... — that said, X is wrong because..., so the real answer is..."
+- Reply always in English, doesn't matter the user language
 
 ## 2. Think Before Coding
 
@@ -21,7 +22,7 @@ Before implementing:
 - If multiple interpretations exist, present them - don't pick silently.
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
-- Don't forget to try to execute multiple subagents for the various tasks
+- Don't forget to planning to execute multiple subagents for the various tasks
 
 ## 3. Simplicity First
 
