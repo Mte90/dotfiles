@@ -51,6 +51,10 @@
             "input": 0.5,
             "output": 2.1
           },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
           "limit": {
             "context": 120000,
             "output": 120000
@@ -194,6 +198,10 @@
           "limit": {
             "context": 200000,
             "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
           },
           "options": {
             "temperature": 1,
