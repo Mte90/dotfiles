@@ -101,6 +101,39 @@
             "input": 1,
             "output": 4.2
           },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
+          "limit": {
+            "context": 120000,
+            "output": 120000
+          },
+          "options": {
+            "reasoningEffort": "high",
+            "textVerbosity": "low",
+            "reasoningSummary": "auto",
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "parallel_tool_calls": true,
+            "tool_choice": "auto",
+            "thinking": true,
+            "temperature": 0.7
+          }
+        },
+        "mistral-small-4-119b": {
+          "id": "mistral-small-4-119b",
+          "name": "mistral-small-4-119b",
+          "tools": true,
+          "cost": {
+            "input": 1,
+            "output": 4.2
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
           "limit": {
             "context": 120000,
             "output": 120000
@@ -211,6 +244,10 @@
             "context": 200000,
             "output": 128000
           },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
+          },
           "options": {
             "temperature": 1,
             "top_k": 40,
@@ -259,6 +296,10 @@
           "limit": {
             "context": 200000,
             "output": 128000
+          },
+          "modalities": {
+            "input": ["text", "image"],
+            "output": ["text"]
           },
           "options": {
             "temperature": 1,
