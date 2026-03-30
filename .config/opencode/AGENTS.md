@@ -19,10 +19,12 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 Before implementing:
 - State your assumptions explicitly. If uncertain, ask.
+- First find root cause and next find the solution
 - If multiple interpretations exist, present them - don't pick silently.
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
 - Don't forget to planning to execute multiple subagents for the various tasks
+- Search for skills using the tools that can help you
 
 ## 3. Simplicity First
 
@@ -54,7 +56,7 @@ The test: Every changed line should trace directly to the user's request.
 
 ## 5. Goal-Driven Execution
 
-**Define success criteria. Loop until verified.**
+**Define success criteria. Loop until verified (and generate a test to avoid regressions).**
 
 Transform tasks into verifiable goals:
 - "Add validation" → "Write tests for invalid inputs, then make them pass"

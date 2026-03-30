@@ -493,5 +493,10 @@
         "Authorization": "Bearer {env:ANTHROPIC_API_KEY}"
       }
     },
-  }
+  },
+  "agent": {
+    "compaction": {
+      "model": "regolo/qwen3.5-122b",
+    },
+  },
 }
