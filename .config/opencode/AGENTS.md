@@ -160,159 +160,51 @@ Each server provides a specific type of context or tooling.
 
 Agents should use these tools when appropriate instead of guessing.
 
----
+### Priority Order (always follow this sequence)'
 
-## Usage Rule
+1. **context7** — Official library/framework documentation and code snippets.
+   Use first for: "How do I use X?", "What are the parameters of Y function?", "Show me the API for Z."
+   Example: User asks about Django REST framework serializers → resolve library ID first, then query docs.
+   Skip when: You need real-world patterns, not official docs.
+2. **grep_app** — Search real-world code across 1M+ public GitHub repos.
+   Use for: "How do people actually use this API?", "Show me production examples of X pattern", finding edge cases that docs don't cover.
+   Example: Unsure how `celery.chain` works in practice → search `celery.chain(` with `language: ["Python"]`.
+   Skip when: The question is about official behavior, not community patterns.
+3. **websearch / web-search-prime** — General internet search for tutorials, blog posts, news, comparisons.
+   Use for: Non-library questions ("Redis vs KeyDB performance"), current information ("what changed in X v3"), debugging obscure errors, finding tutorials.
+   Example: User gets a cryptic `E0597` Rust error → websearch for "Rust E0597 borrowed value does not live long enough struct" to find explanations.
+   Skip when: context7 or grep_app already answered it.
+4. **fetch / web-reader** — Retrieve and parse a specific URL you already know.
+   Use for: You found a link via websearch and need the full content. Reading a specific doc page, GitHub issue, or blog post.
+   Example: websearch returns "https://docs.djangoproject.com/en/5.0/releases/" → fetch that URL to get the actual release notes.
+   Skip when: You don't have a URL yet — use websearch first.
+5. **deepwiki** — Understand an unfamiliar GitHub repo's architecture without cloning.
+   Use for: "How is project X structured?", "What design patterns does Y use?", getting a repo overview before diving into code.
+   Example: User mentions an unfamiliar crate → ask deepwiki about the repo to understand its module structure and key abstractions.
+   Skip when: You can read the actual code locally.
+6. **zread** — Read long documents that exceed normal context limits.
+   Use for: Lengthy RFCs, technical papers, extensive markdown docs, API specification documents.
+   Example: User references a 50-page architecture doc → zread can handle it when normal context would choke.
+   Skip when: The document is short enough for fetch/web-reader.
+7. **sequentialthinking** — Structured reasoning for complex, multi-step problems.
+   Use for: Architecture decisions with tradeoffs, debugging with multiple hypotheses, planning implementations with dependencies, comparing 3+ approaches.
+   Example: "Should we use event sourcing or CQRS for this module?" → break down pros/cons/fit in structured steps.
+   Skip when: The answer is a simple lookup or single-step decision.
 
-When solving problems, prefer tools over assumptions.
+### Chaining Examples
 
-Recommended priority order:
+Common tool chains that work well together:
+- **Library question**: context7 (official docs) → grep_app (real usage) if docs are thin
+- **Unknown error**: websearch (find explanations) → fetch (read the solution page)
+- **Unfamiliar codebase**: deepwiki (architecture overview) → zread (deep dive into specific docs)
+- **Complex decision**: sequentialthinking (frame the problem) → context7/grep_app (gather evidence per option)
 
-1. `context7` → official documentation
-2. `grep_app` → real-world code examples
-3. `websearch` / `web-search-prime` → general knowledge
-4. `fetch` / `web-reader` → retrieve and inspect specific pages
-5. `deepwiki` → understand repositories
-6. `zread` → analyze long documents
-7. `sequentialthinking` → structured reasoning for complex tasks
+### Rules
 
----
-
-### context7
-
-**Purpose:** Documentation and library context.
-
-Use it to retrieve:
-
-- framework documentation
-- library usage examples
-- API references
-- configuration details
-
-Use when:
-
-- unsure about library behavior
-- needing official usage patterns
-- verifying correct API usage
-
----
-
-### grep_app
-
-**Purpose:** Search real-world code.
-
-Searches across large open-source repositories.
-
-Useful for:
-
-- seeing how APIs are used in real projects
-- finding implementation patterns
-- discovering edge cases
-
-Think of it as **large-scale code search across public repositories**.
-
----
-
-### websearch
-
-**Purpose:** General internet search.
-
-Used to retrieve:
-
-- tutorials
-- blog posts
-- documentation
-- technical explanations
-
-Use when:
-
-- official documentation is not enough
-- searching for explanations or guides
-
----
-
-### sequentialthinking
-
-**Purpose:** Structured reasoning.
-
-Helps break complex tasks into logical steps.
-
-Use when:
-
-- solving multi-step problems
-- debugging complex logic
-- planning implementations
-- evaluating tradeoffs
-
----
-
-### fetch
-
-**Purpose:** Retrieve raw content from URLs.
-
-Used to download:
-
-- web pages
-- documentation pages
-- API responses
-- text resources
-
-Useful when a specific link must be inspected.
-
----
-
-### deepwiki
-
-**Purpose:** Repository knowledge extraction.
-
-Provides structured understanding of:
-
-- GitHub repositories
-- project documentation
-- architecture summaries
-
-Useful when exploring unfamiliar projects.
-
----
-
-### zread
-
-**Purpose:** Long-document reading.
-
-Optimized for processing:
-
-- large documentation
-- technical papers
-- long markdown files
-- long code explanations
-
-Use when documents exceed normal context limits.
-
----
-
-### web-search-prime
-
-**Purpose:** High-quality web search.
-
-Provides more curated and reliable search results.
-
-Prefer when:
-
-- accuracy matters
-- searching for technical information
-- needing authoritative sources
-
----
-
-### web-reader
-
-**Purpose:** Extract and parse webpage content.
-
-Useful for:
-
-- reading full articles
-- summarizing documentation
-- extracting structured content from webpages
+- **Never guess when a tool can answer.** If unsure about a library API, check context7 first.
+- **Prefer specific over general.** context7 > websearch. fetch(url) > websearch(query).
+- **Chain tools, don't duplicate.** If websearch found a URL, use fetch to read it — don't websearch again.
+- **Use sequentialthinking** for architecture decisions, tradeoff analysis, or debugging with multiple hypotheses — not for simple lookups.
 
 # 8. File & Output Rules
 
