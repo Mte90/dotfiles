@@ -196,7 +196,7 @@
           "reasoning": true,
           "interleaved": true,
           "limit": {
-            "context": 200000,
+            "context": 198000,
             "output": 128000
           },
           "modalities": {
@@ -249,7 +249,7 @@
           "reasoning": true,
           "interleaved": true,
           "limit": {
-            "context": 200000,
+            "context": 198000,
             "output": 128000
           },
           "modalities": {
@@ -302,7 +302,7 @@
           "reasoning": true,
           "interleaved": true,
           "limit": {
-            "context": 200000,
+            "context": 198000,
             "output": 128000
           },
           "modalities": {
@@ -355,7 +355,7 @@
           "reasoning": true,
           "interleaved": true,
           "limit": {
-            "context": 200000,
+            "context": 198000,
             "output": 128000
           },
           "options": {

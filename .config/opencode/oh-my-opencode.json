@@ -17,7 +17,7 @@
       "model": "regolo/mistral-small-4-119b"
     },
     "prometheus": {
-      "model": "zai-coding-plan/glm-5"
+      "model": "zai-coding-plan/glm-5.1"
     },
     "metis": {
       "model": "regolo/mistral-small-4-119b"
@@ -34,7 +34,7 @@
   },
   "categories": {
     "visual-engineering": {
-      "model": "regolo/minimax-m2.5"
+      "model": "regolo/qwen3.5-122b"
     },
     "ultrabrain": {
       "model": "regolo/mistral-small-4-119b"
@@ -84,5 +84,5 @@
     "force_enable": true
   },
   "hashline_edit": true,
-  "disabled_hooks": ["non-interactive-env"]
+  "disabled_hooks": ["non-interactive-env", "context-window-monitor", "preemptive-compaction", "anthropic-context-window-limit-recovery"]
 }
