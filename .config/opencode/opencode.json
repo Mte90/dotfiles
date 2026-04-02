@@ -126,35 +126,6 @@
             "temperature": 0.7
           }
         },
-        "mistral-small-4-119b": {
-          "id": "mistral-small-4-119b",
-          "name": "mistral-small-4-119b",
-          "tools": true,
-          "cost": {
-            "input": 1,
-            "output": 4.2
-          },
-          "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
-          },
-          "limit": {
-            "context": 120000,
-            "output": 120000
-          },
-          "options": {
-            "reasoningEffort": "high",
-            "textVerbosity": "low",
-            "reasoningSummary": "auto",
-            "include": [
-              "reasoning.encrypted_content"
-            ],
-            "parallel_tool_calls": true,
-            "tool_choice": "auto",
-            "thinking": true,
-            "temperature": 0.7
-          }
-        },
         "qwen3-coder-next": {
           "id": "qwen3-coder-next",
           "name": "qwen3-coder-next",
@@ -492,11 +463,11 @@
       "headers": {
         "Authorization": "Bearer {env:ANTHROPIC_API_KEY}"
       }
-    },
+    }
   },
   "agent": {
     "compaction": {
       "model": "regolo/qwen3.5-122b",
-    },
-  },
+    }
+  }
 }

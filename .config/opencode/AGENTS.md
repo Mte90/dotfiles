@@ -48,20 +48,6 @@ Environment: uv (Python)
   - Found: pyproject.toml, .venv/, uv.lock
 ```
 
-### Step 0.3 — Scan available skills
-
-- Search for all `SKILL.md` files in ~/.config/opencode/
-- List each skill found with its name and a one-line summary (from the skill's frontmatter or description).
-- Do **not** load every skill into context — just catalog them so you know what's available when needed.
-
-**Output format:**
-```
-Available Skills (N found):
-  1. skill-name — Brief description of what it does
-  2. another-skill — Brief description
-  ...
-```
-
 ### Why this matters
 
 Skipping initialization leads to:
