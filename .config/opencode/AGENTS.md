@@ -31,7 +31,6 @@ Determine whether the project is **npm-based** (Node.js/TypeScript) or **uv-base
 - `.venv/` or `venv/` directory (virtual environment)
 - `requirements.txt` or `requirements-dev.txt`
 - `setup.py` / `setup.cfg` (legacy)
-- `Pipfile` / `Pipfile.lock`
 
 **If neither is detected clearly:**
 - Report what *is* present (e.g., "Found no package.json, pyproject.toml, or venv directory")
@@ -329,9 +328,9 @@ Useful for:
 - summarizing documentation
 - extracting structured content from webpages
 
-# 8. File & Output Rules 
+# 8. File & Output Rules
 
-## 8.1 — Temporary files go to /tmp 
+## 8.1 — Temporary files go to /tmp
 
 All test scripts, scratch files, prototypes, intermediate artifacts, and anything the agent writes to try something out must go under /tmp/. This includes: 
 
@@ -339,18 +338,15 @@ All test scripts, scratch files, prototypes, intermediate artifacts, and anythin
      Downloaded files used only for inspection
      Intermediate build or transformation artifacts
      Any file the agent creates for its own debugging purposes
-     
 
-Never create these files in the project root, in source directories, or in /home/z/my-project/ unless they are the actual deliverable the user asked for. 
+Never create these files in the project root, in source directories unless they are the actual deliverable the user asked for. 
 
-The only place to save user deliverables is /home/z/my-project/download/. 
 ## 8.2 — README generation rules 
 
 When generating a README.md for a project: 
 
      Do not include a "Project Structure" or "Directory Tree" section. File trees go stale fast, add noise, and the user can run tree themselves.
      Focus on: what the project does, how to set it up, how to use it, and any non-obvious conventions.
-     
 
 ## Completion Verification Step
 
