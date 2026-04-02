@@ -6,7 +6,7 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 ## 0. Session Initialization (Mandatory)
 
-**At the start of every new session, before any other work, the agent MUST perform these steps in order.**
+**At the start of every new session (not for sub-agents), before any other work, the agent MUST perform these steps in order.**
 
 ### Step 0.1 — Read the project README
 

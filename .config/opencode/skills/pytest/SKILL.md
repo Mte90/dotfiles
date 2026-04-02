@@ -482,169 +482,649 @@ def test_slow_integration():
 
 ## Plugins
 
-### pytest-cov (Coverage)
+pytest has a rich plugin ecosystem. Here are the most essential plugins.
 
+### pytest-asyncio (Async Testing)
+
+**Installation:**
 ```bash
-pip install pytest-cov
-
-# Run with coverage
-pytest --cov=myapp tests/
-
-# Coverage report
-pytest --cov=myapp --cov-report=html tests/
-
-# Minimum coverage
-pytest --cov=myapp --cov-fail-under=80 tests/
+pip install pytest-asyncio
 ```
 
+**Configuration:**
 ```ini
 # pytest.ini
 [pytest]
-addopts = --cov=myapp --cov-report=term-missing
+asyncio_mode = auto  # Options: auto, strict, legacy
 ```
 
-### pytest-mock
-
+**Basic Async Tests:**
 ```python
 import pytest
 
-def test_with_mock(mocker):
-    """Using pytest-mock's mocker fixture."""
-    # Mock function
+# Auto mode - no decorator needed with auto mode
+async def test_async_operation():
+    """Test async function."""
+    result = await fetch_data()
+    assert result == expected
+
+# Strict mode - requires decorator
+@pytest.mark.asyncio
+async def test_with_decorator():
+    """Test with explicit marker."""
+    result = await async_function()
+    assert result is not None
+```
+
+**Async Fixtures:**
+```python
+import pytest
+import httpx
+
+@pytest.fixture
+async def async_client():
+    """Async HTTP client fixture."""
+    async with httpx.AsyncClient() as client:
+        yield client
+
+@pytest.fixture
+async def db_session():
+    """Async database session."""
+    session = await create_session()
+    yield session
+    await session.close()
+
+# Usage
+@pytest.mark.asyncio
+async def test_api_call(async_client):
+    """Test API with async client."""
+    response = await async_client.get("https://api.example.com/data")
+    assert response.status_code == 200
+    data = response.json()
+    assert "items" in data
+```
+
+**Testing Async Context Managers:**
+```python
+@pytest.mark.asyncio
+async def test_async_context():
+    """Test async context manager."""
+    async with AsyncResource() as resource:
+        result = await resource.process()
+        assert result.success
+```
+
+**Testing Concurrent Operations:**
+```python
+import asyncio
+
+@pytest.mark.asyncio
+async def test_concurrent_tasks():
+    """Test multiple concurrent operations."""
+    tasks = [
+        fetch_user(1),
+        fetch_user(2),
+        fetch_user(3),
+    ]
+    results = await asyncio.gather(*tasks)
+    assert len(results) == 3
+```
+
+**Mocking Async Functions:**
+```python
+from unittest.mock import AsyncMock
+
+@pytest.mark.asyncio
+async def test_with_async_mock():
+    """Mock async function."""
+    fetch_data = AsyncMock(return_value={"status": "ok"})
+    
+    result = await fetch_data()
+    assert result["status"] == "ok"
+    fetch_data.assert_awaited_once()
+
+# With pytest-mock
+def test_async_mock_mocker(mocker):
+    """Using pytest-mock for async."""
+    mock_fetch = mocker.patch('mymodule.fetch_data', new_callable=AsyncMock)
+    mock_fetch.return_value = {"data": "test"}
+    
+    # In your async code
+    result = await fetch_data()
+    assert result["data"] == "test"
+```
+
+### pytest-django (Django Testing)
+
+**Installation:**
+```bash
+pip install pytest-django
+```
+
+**Configuration:**
+```ini
+# pytest.ini
+[pytest]
+DJANGO_SETTINGS_MODULE = myproject.settings
+python_files = tests.py test_*.py *_tests.py
+```
+
+**Database Access:**
+```python
+import pytest
+from django.contrib.auth.models import User
+from myapp.models import Post
+
+# Mark test for database access
+@pytest.mark.django_db
+def test_create_user():
+    """Test requires database."""
+    user = User.objects.create_user('testuser', 'test@example.com', 'password')
+    assert user.username == 'testuser'
+
+# Using db fixture (preferred)
+def test_with_db_fixture(db):
+    """db fixture enables database access."""
+    User.objects.create_user('testuser')
+    assert User.objects.count() == 1
+
+# Transactional tests (rollback after test)
+@pytest.mark.django_db(transaction=True)
+def test_transactional():
+    """Test with transaction rollback."""
+    User.objects.create_user('temp')
+    # Rolled back after test
+```
+
+**Django Fixtures:**
+```python
+@pytest.fixture
+def client():
+    """Django test client."""
+    from django.test import Client
+    return Client()
+
+@pytest.fixture
+def admin_user(db):
+    """Create admin user."""
+    return User.objects.create_superuser(
+        'admin',
+        'admin@example.com',
+        'adminpass'
+    )
+
+@pytest.fixture
+def admin_client(client, admin_user):
+    """Authenticated admin client."""
+    client.force_login(admin_user)
+    return client
+
+@pytest.fixture
+def post(db):
+    """Create test post."""
+    user = User.objects.create_user('author')
+    return Post.objects.create(
+        title="Test Post",
+        content="Test content",
+        author=user
+    )
+
+# Usage
+def test_admin_access(admin_client):
+    """Test admin-only view."""
+    response = admin_client.get('/admin/')
+    assert response.status_code == 200
+
+def test_post_creation(admin_client):
+    """Test creating a post."""
+    response = admin_client.post('/posts/', {
+        'title': 'New Post',
+        'content': 'Content here'
+    })
+    assert response.status_code == 302  # Redirect after create
+```
+
+**Testing Views:**
+```python
+def test_home_view(client):
+    """Test home page."""
+    response = client.get('/')
+    assert response.status_code == 200
+    assert 'Welcome' in response.content.decode()
+
+def test_login_view(client):
+    """Test login."""
+    response = client.post('/login/', {
+        'username': 'test',
+        'password': 'pass'
+    })
+    assert response.status_code == 302  # Redirect after login
+
+def test_api_json(client):
+    """Test JSON API."""
+    response = client.get('/api/data/')
+    assert response.status_code == 200
+    data = response.json()
+    assert 'results' in data
+```
+
+**Testing Models:**
+```python
+@pytest.mark.django_db
+class TestUserModel:
+    """Test User model."""
+    
+    def test_create_user(self):
+        user = User.objects.create_user('test')
+        assert user.username == 'test'
+        assert user.is_active is True
+    
+    def test_user_str(self):
+        user = User(username='testuser')
+        assert str(user) == 'testuser'
+```
+
+**Testing Forms:**
+```python
+def test_valid_form():
+    """Test form validation."""
+    from myapp.forms import PostForm
+    form = PostForm(data={
+        'title': 'Test',
+        'content': 'Content'
+    })
+    assert form.is_valid() is True
+
+def test_invalid_form():
+    """Test invalid form."""
+    from myapp.forms import PostForm
+    form = PostForm(data={'title': ''})  # Missing content
+    assert form.is_valid() is False
+    assert 'content' in form.errors
+```
+
+### pytest-cov (Coverage)
+
+**Installation:**
+```bash
+pip install pytest-cov
+```
+
+**Basic Usage:**
+```bash
+# Run with coverage
+pytest --cov=myapp tests/
+
+# Coverage with report
+pytest --cov=myapp --cov-report=term-missing tests/
+
+# HTML report
+pytest --cov=myapp --cov-report=html tests/
+# Open htmlcov/index.html in browser
+
+# XML report (for CI)
+pytest --cov=myapp --cov-report=xml tests/
+
+# Multiple report formats
+pytest --cov=myapp --cov-report=term --cov-report=html --cov-report=xml tests/
+```
+
+**Fail on Low Coverage:**
+```bash
+# Fail if coverage below 80%
+pytest --cov=myapp --cov-fail-under=80 tests/
+```
+
+**Configuration:**
+```ini
+# pytest.ini
+[pytest]
+addopts = --cov=myapp --cov-report=term-missing --cov-fail-under=80
+
+# .coveragerc
+[run]
+source = myapp
+omit = 
+    myapp/tests/*
+    myapp/migrations/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:
+    raise NotImplementedError
+```
+
+**Coverage Configuration in pyproject.toml:**
+```toml
+# pyproject.toml
+[tool.coverage.run]
+source = ["myapp"]
+omit = ["myapp/tests/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]
+fail_under = 80
+```
+
+**Branch Coverage:**
+```bash
+# Enable branch coverage
+pytest --cov=myapp --cov-branch tests/
+```
+
+**Coverage Contexts:**
+```python
+# Test with coverage contexts
+pytest --cov-context=test tests/
+```
+
+### pytest-mock (Mocking)
+
+**Installation:**
+```bash
+pip install pytest-mock
+```
+
+**Basic Mocking:**
+```python
+def test_mock_function(mocker):
+    """Mock a function."""
     mock_get = mocker.patch('requests.get')
     mock_get.return_value.status_code = 200
+    mock_get.return_value.json.return_value = {"data": "test"}
     
-    response = requests.get("https://example.com")
+    import requests
+    response = requests.get("https://api.example.com")
+    
     assert response.status_code == 200
-    
-    mock_get.assert_called_once()
+    assert response.json() == {"data": "test"}
+    mock_get.assert_called_once_with("https://api.example.com")
 
 def test_mock_method(mocker):
     """Mock class method."""
     user = User()
-    mock_save = mocker.patch.object(user, 'save')
+    mock_save = mocker.patch.object(user, 'save', return_value=True)
     
-    user.name = "test"
-    user.save()
+    result = user.save()
     
+    assert result is True
     mock_save.assert_called_once()
 
+def test_mock_class(mocker):
+    """Mock entire class."""
+    MockUser = mocker.patch('myapp.models.User')
+    MockUser.objects.create.return_value = User(id=1, name="Test")
+    
+    user = create_user("Test")
+    
+    assert user.id == 1
+    MockUser.objects.create.assert_called_once_with(name="Test")
+```
+
+**Mock Properties:**
+```python
 def test_mock_property(mocker):
     """Mock property."""
-    mocker.patch.object(User, 'is_active', new_callable=mocker.PropertyMock, return_value=True)
+    mocker.patch.object(
+        User, 
+        'is_active',
+        new_callable=mocker.PropertyMock,
+        return_value=True
+    )
     
     user = User()
     assert user.is_active is True
+```
 
+**Spy on Functions:**
+```python
 def test_spy(mocker):
-    """Spy on real function."""
-    real_func = mocker.spy(myapp, 'function_name')
+    """Spy tracks calls but uses real implementation."""
+    spy = mocker.spy(myapp, 'process_data')
     
-    result = myapp.function_name(1, 2)
+    result = myapp.process_data([1, 2, 3])
     
-    assert result == expected
-    real_func.assert_called_once_with(1, 2)
+    assert result == [2, 4, 6]  # Real implementation
+    spy.assert_called_once_with([1, 2, 3])
 ```
 
-### pytest-asyncio
-
+**Mock Context Managers:**
 ```python
-import pytest
-import asyncio
+def test_mock_context_manager(mocker):
+    """Mock context manager."""
+    mock_open = mocker.patch('builtins.open', mocker.mock_open(read_data="test data"))
+    
+    with open('file.txt') as f:
+        content = f.read()
+    
+    assert content == "test data"
+    mock_open.assert_called_once_with('file.txt')
+```
+
+**Side Effects:**
+```python
+def test_side_effect(mocker):
+    """Mock with side effects."""
+    mock_func = mocker.patch('mymodule.api_call')
+    mock_func.side_effect = [
+        {"status": "pending"},
+        {"status": "pending"},
+        {"status": "complete"}
+    ]
+    
+    # First call
+    assert api_call()["status"] == "pending"
+    # Second call
+    assert api_call()["status"] == "pending"
+    # Third call
+    assert api_call()["status"] == "complete"
+
+def test_side_effect_exception(mocker):
+    """Mock to raise exception."""
+    mock_func = mocker.patch('mymodule.risky_operation')
+    mock_func.side_effect = ValueError("Invalid input")
+    
+    with pytest.raises(ValueError, match="Invalid input"):
+        risky_operation()
+```
+
+**Mock Async Functions:**
+```python
+from unittest.mock import AsyncMock
 
 @pytest.mark.asyncio
-async def test_async_function():
-    """Test async function."""
-    result = await async_operation()
-    assert result == expected
-
-@pytest.mark.asyncio
-async def test_async_with_fixture(async_client):
-    """Test with async fixture."""
-    response = await async_client.get("/api/data")
-    assert response.status_code == 200
-
-# Async fixture
-@pytest.fixture
-async def async_client():
-    """Async fixture for testing."""
-    client = AsyncClient()
-    await client.connect()
-    yield client
-    await client.disconnect()
+async def test_async_mock(mocker):
+    """Mock async function."""
+    mock_fetch = mocker.patch(
+        'mymodule.fetch_data',
+        new_callable=AsyncMock,
+        return_value={"data": "test"}
+    )
+    
+    result = await fetch_data()
+    
+    assert result == {"data": "test"}
+    mock_fetch.assert_awaited_once()
 ```
 
-### pytest-django
-
+**Reset Mocks:**
 ```python
-import pytest
-from django.test import Client
-
-@pytest.fixture
-def client():
-    """Django test client."""
-    return Client()
-
-@pytest.fixture
-def admin_client(db):
-    """Authenticated admin client."""
-    from django.contrib.auth.models import User
-    user = User.objects.create_superuser('admin', 'admin@test.com', 'password')
-    client = Client()
-    client.force_login(user)
-    return client
-
-@pytest.mark.django_db
-def test_with_database():
-    """Test requiring database access."""
-    from myapp.models import Post
-    Post.objects.create(title="Test", body="Content")
-    assert Post.objects.count() == 1
-
-def test_with_db_fixture(db):
-    """Test with db fixture."""
-    from myapp.models import User
-    User.objects.create_user('test')
-    assert User.objects.count() == 1
-
-@pytest.fixture
-def post(db):
-    """Create a post for testing."""
-    from myapp.models import Post
-    return Post.objects.create(title="Test", body="Content")
-
-def test_post(post):
-    assert post.title == "Test"
+def test_reset_mock(mocker):
+    """Reset mock between tests."""
+    mock_func = mocker.patch('mymodule.function')
+    
+    function()  # Called once
+    mock_func.assert_called_once()
+    
+    mock_func.reset_mock()
+    
+    # Now call count is 0
+    mock_func.assert_not_called()
 ```
 
-### pytest-xdist (Parallel)
+### pytest-xdist (Parallel Execution)
 
+**Installation:**
 ```bash
 pip install pytest-xdist
+```
 
-# Run tests in parallel
+**Basic Usage:**
+```bash
+# Auto-detect CPU count
 pytest -n auto tests/
 
-# Run with specific number of workers
+# Specific number of workers
 pytest -n 4 tests/
 
-# Distribute by load
-pytest --dist=loadscope tests/
+# One worker per test file
+pytest -n 0 tests/  # Run each file in separate process
+```
+
+**Distribution Modes:**
+```bash
+# Load balancing (default)
+pytest -n auto --dist=load tests/
+
+# Each worker gets one test file
+pytest -n auto --dist=loadfile tests/
+
+# Each worker gets one test class
+pytest -n auto --dist=loadscope tests/
+
+# No distribution (run in main process)
+pytest -n 0 tests/
+```
+
+**Configuration:**
+```ini
+# pytest.ini
+[pytest]
+addopts = -n auto --dist=loadfile
+```
+
+**When to Use:**
+- ✅ Slow tests (I/O bound, API calls, database)
+- ✅ Large test suites (100+ tests)
+- ✅ CPU-bound tests (can use multiple cores)
+- ❌ Tests with shared state
+- ❌ Tests that modify global state
+- ❌ Tests with race conditions
+
+**Synchronization Between Workers:**
+```python
+import pytest
+from xdist.scheduler import LoadScopeScheduling
+
+# Tests in same class run on same worker
+class TestDatabase:
+    """All tests in this class run on same worker."""
+    
+    def test_create(self):
+        pass
+    
+    def test_update(self):
+        pass
 ```
 
 ### pytest-timeout
 
+**Installation:**
+```bash
+pip install pytest-timeout
+```
+
+**Usage:**
 ```python
 import pytest
 
-@pytest.mark.timeout(5)
-def test_must_complete_in_5_seconds():
-    """Test with timeout."""
+@pytest.mark.timeout(5)  # 5 seconds
+def test_must_be_fast():
+    """Fail if takes longer than 5 seconds."""
+    result = fast_operation()
+    assert result is not None
+
+@pytest.mark.timeout(10, method='thread')
+def test_with_thread_method():
+    """Use thread-based timeout (default)."""
     pass
 
-# Or configure globally
+@pytest.mark.timeout(10, method='signal')
+def test_with_signal_method():
+    """Use signal-based timeout (Unix only)."""
+    pass
+```
+
+**Global Configuration:**
+```ini
+# pytest.ini
 [pytest]
 timeout = 10
+timeout_method = thread
+```
+
+**Command Line:**
+```bash
+# Global timeout for all tests
+pytest --timeout=10 tests/
+
+# Override marker timeout
+pytest --timeout=5 --override-timeout tests/
+```
+
+### Other Essential Plugins
+
+**pytest-env (Environment Variables):**
+```ini
+# pytest.ini
+[pytest]
+env =
+    D:DATABASE_URL=sqlite:///:memory:
+    D:DEBUG=True
+    API_KEY=test_key
+```
+
+**pytest-randomly (Random Test Order):**
+```bash
+pip install pytest-randomly
+
+# Randomizes test order to detect inter-test dependencies
+pytest tests/
+
+# Set seed for reproducibility
+pytest --randomly-seed=1234 tests/
+```
+
+**pytest-sugar (Better Output):**
+```bash
+pip install pytest-sugar
+
+# Automatically enhances pytest output with progress bar and icons
+pytest tests/
+```
+
+**pytest-clarity (Better Diffs):**
+```bash
+pip install pytest-clarity
+
+# Improves diff output for failed assertions
+pytest tests/
+```
+
+**pytest-benchmark (Performance):**
+```python
+def test_performance(benchmark):
+    """Benchmark function performance."""
+    result = benchmark(sort_large_list, data)
+    assert result == sorted(data)
+
+# Run
+pytest --benchmark-only tests/
 ```
 
 ## Configuration
