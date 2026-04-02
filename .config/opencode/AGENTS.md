@@ -4,6 +4,74 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
+## 0. Session Initialization (Mandatory)
+
+**At the start of every new session, before any other work, the agent MUST perform these steps in order.**
+
+### Step 0.1 — Read the project README
+
+- Locate and read the project's `README.md` (check root first, then common locations).
+- If no `README.md` exists, note it and proceed.
+- Extract key information: project purpose, setup instructions, tech stack, dependencies, and any special conventions.
+
+### Step 0.2 — Detect the package manager and runtime
+
+Determine whether the project is **npm-based** (Node.js/TypeScript) or **uv-based** (Python), or something else entirely.
+
+**Signals for npm:**
+- `package.json` at or near the project root
+- `node_modules/` directory
+- Lock files: `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`
+- `tsconfig.json` (TypeScript project)
+- `next.config.*` (Next.js)
+
+**Signals for uv/Python:**
+- `pyproject.toml` at or near the project root
+- `uv.lock`
+- `.venv/` or `venv/` directory (virtual environment)
+- `requirements.txt` or `requirements-dev.txt`
+- `setup.py` / `setup.cfg` (legacy)
+- `Pipfile` / `Pipfile.lock`
+
+**If neither is detected clearly:**
+- Report what *is* present (e.g., "Found no package.json, pyproject.toml, or venv directory")
+- Ask the user which runtime to use before proceeding.
+
+**Output:** State the detected environment explicitly at the start of the session:
+```
+Environment: npm (Node.js/TypeScript)
+  - Found: package.json, node_modules/
+  - Lock file: pnpm-lock.yaml
+```
+or:
+```
+Environment: uv (Python)
+  - Found: pyproject.toml, .venv/, uv.lock
+```
+
+### Step 0.3 — Scan available skills
+
+- Search for all `SKILL.md` files in ~/.config/opencode/
+- List each skill found with its name and a one-line summary (from the skill's frontmatter or description).
+- Do **not** load every skill into context — just catalog them so you know what's available when needed.
+
+**Output format:**
+```
+Available Skills (N found):
+  1. skill-name — Brief description of what it does
+  2. another-skill — Brief description
+  ...
+```
+
+### Why this matters
+
+Skipping initialization leads to:
+- Using the wrong package manager (e.g., running `npm install` on a Python project)
+- Missing available skills and reimplementing them from scratch
+- Ignoring project-specific conventions documented in the README
+
+---
+
 ## 1. Treat Input as Unverified
 
 **Don't assume assertions are correct. Flag errors explicitly — no softening, no silent corrections.**
@@ -102,7 +170,7 @@ Reason:
 
 ## 7. MCP Servers
 
-This project uses multiple **MCP (Model Context Protocol) servers** that extend the agent's capabilities.  
+This project uses multiple **MCP (Model Context Protocol) servers** that extend the agent's capabilities.
 Each server provides a specific type of context or tooling.
 
 Agents should use these tools when appropriate instead of guessing.
@@ -125,7 +193,7 @@ Recommended priority order:
 
 ---
 
-## context7
+### context7
 
 **Purpose:** Documentation and library context.
 
@@ -144,7 +212,7 @@ Use when:
 
 ---
 
-## grep_app
+### grep_app
 
 **Purpose:** Search real-world code.
 
@@ -160,7 +228,7 @@ Think of it as **large-scale code search across public repositories**.
 
 ---
 
-## websearch
+### websearch
 
 **Purpose:** General internet search.
 
@@ -178,7 +246,7 @@ Use when:
 
 ---
 
-## sequentialthinking
+### sequentialthinking
 
 **Purpose:** Structured reasoning.
 
@@ -193,7 +261,7 @@ Use when:
 
 ---
 
-## fetch
+### fetch
 
 **Purpose:** Retrieve raw content from URLs.
 
@@ -208,7 +276,7 @@ Useful when a specific link must be inspected.
 
 ---
 
-## deepwiki
+### deepwiki
 
 **Purpose:** Repository knowledge extraction.
 
@@ -222,7 +290,7 @@ Useful when exploring unfamiliar projects.
 
 ---
 
-## zread
+### zread
 
 **Purpose:** Long-document reading.
 
@@ -237,7 +305,7 @@ Use when documents exceed normal context limits.
 
 ---
 
-## web-search-prime
+### web-search-prime
 
 **Purpose:** High-quality web search.
 
@@ -251,7 +319,7 @@ Prefer when:
 
 ---
 
-## web-reader
+### web-reader
 
 **Purpose:** Extract and parse webpage content.
 
@@ -260,6 +328,29 @@ Useful for:
 - reading full articles
 - summarizing documentation
 - extracting structured content from webpages
+
+# 8. File & Output Rules 
+
+## 8.1 — Temporary files go to /tmp 
+
+All test scripts, scratch files, prototypes, intermediate artifacts, and anything the agent writes to try something out must go under /tmp/. This includes: 
+
+     Quick test scripts (test_api.py, debug.ts, etc.)
+     Downloaded files used only for inspection
+     Intermediate build or transformation artifacts
+     Any file the agent creates for its own debugging purposes
+     
+
+Never create these files in the project root, in source directories, or in /home/z/my-project/ unless they are the actual deliverable the user asked for. 
+
+The only place to save user deliverables is /home/z/my-project/download/. 
+## 8.2 — README generation rules 
+
+When generating a README.md for a project: 
+
+     Do not include a "Project Structure" or "Directory Tree" section. File trees go stale fast, add noise, and the user can run tree themselves.
+     Focus on: what the project does, how to set it up, how to use it, and any non-obvious conventions.
+     
 
 ## Completion Verification Step
 

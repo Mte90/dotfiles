@@ -420,15 +420,15 @@
   },
   "watcher": {
     "ignore": [
-      "node_modules/",
-      "dist/",
-      ".cargo/",
-      "target/",
+      "node_modules/*",
+      "dist/*",
+      ".cargo/*",
+      "target/*",
       ".git/**",
       "*cache*/",
-      ".sisyphus/",
-      ".venv/",
-      "venv/"
+      ".sisyphus/*",
+      ".venv/*",
+      "venv/*"
     ]
   },
   "plugin": [
