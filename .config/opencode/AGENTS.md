@@ -4,6 +4,8 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
 
+**User instructions always override this file.**
+
 ## 0. Session Initialization (Mandatory)
 
 **At the start of every new session (not for sub-agents), before any other work, the agent MUST perform these steps in order.**
@@ -78,6 +80,8 @@ Before implementing:
 - If something is unclear, stop. Name what's confusing. Ask.
 - Don't forget to planning to execute multiple subagents for the various tasks
 - Search for skills using the tools that can help you
+- Be concise in output but thorough in reasoning. No sycophantic openers or closing fluff.
+- Don't re-read files you have already read unless the file may have changed.
 
 ## 3. Simplicity First
 
@@ -124,6 +128,8 @@ For multi-step tasks, state a brief plan:
 ```
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+
+- Test your code before declaring done.
 
 ## 6. Git Workflow Rules
 
