@@ -432,7 +432,8 @@
     "@franlol/opencode-md-table-formatter@latest",
     "@cortexkit/aft-opencode@latest",
     "@cortexkit/opencode-magic-context@latest",
-    "opencode-agent-skills@latest"
+    "opencode-agent-skills@latest",
+    "file:///home/YOURUSER/.config/opencode/plugin/opencode-auto-resume/dist/index.js"
   ],
   "autoupdate": true,
   "experimental": {

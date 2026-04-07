@@ -226,6 +226,22 @@ When generating a README.md for a project:
      Do not include a "Project Structure" or "Directory Tree" section. File trees go stale fast, add noise, and the user can run tree themselves.
      Focus on: what the project does, how to set it up, how to use it, and any non-obvious conventions.
 
+## 9. Plan Quality (Prometheus → Sisyphus)
+
+When generating or consuming plans in `.sisyphus/plans/` or in other folders, enforce these rules:
+
+**Every task in a plan MUST include:**
+- Exact file paths to modify (no "find the right file" — state it)
+- Concrete success criteria (how to verify it's done)
+- Explicit scope boundary (what NOT to touch)
+- Required tools/skills for the delegate agent
+
+**A plan is ready-to-execute when:**
+- Each task can be delegated to an agent with ZERO clarification needed
+- File paths, function names, and patterns are specific enough to grep
+- Dependencies between tasks are explicitly stated
+- No vague directives like "improve X" without defining what "improve" means
+
 ## Completion Verification Step
 
 Before declaring that a task is complete, the agent **must verify that modified files are syntactically valid**.
