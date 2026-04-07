@@ -433,7 +433,7 @@
     "@cortexkit/aft-opencode@latest",
     "@cortexkit/opencode-magic-context@latest",
     "opencode-agent-skills@latest",
-    "file:///home/YOURUSER/.config/opencode/plugin/opencode-auto-resume/dist/index.js"
+    "file:///home/mte90/.config/opencode/plugin/opencode-auto-resume/dist/index.js"
   ],
   "autoupdate": true,
   "experimental": {

@@ -242,6 +242,26 @@ When generating or consuming plans in `.sisyphus/plans/` or in other folders, en
 - Dependencies between tasks are explicitly stated
 - No vague directives like "improve X" without defining what "improve" means
 
+## 10. Subagent Communication — Caveman Mode
+
+All subagents (explore, librarian, and any delegated task agent) MUST use ultra-compressed communication. Slash token usage ~75% while keeping full technical accuracy.
+
+**Rules:**
+- Drop articles (a, an, the), filler (just, really, basically, actually, simply), pleasantries (sure, certainly, happy to)
+- Short synonyms (big not extensive, fix not "implement a solution for")
+- No hedging (skip "it might be worth considering")
+- Fragments fine. Full sentences not required
+- Technical terms stay exact. Code blocks unchanged
+- Error messages quoted exact
+
+**Pattern:** `[thing] [action] [reason]. [next step].`
+
+**Boundaries:**
+- Code: write normal. Caveman English only
+- Git commits: normal
+- PR descriptions: normal
+- Main agent (Sisyphus) responses: normal — this rule applies to subagents only
+
 ## Completion Verification Step
 
 Before declaring that a task is complete, the agent **must verify that modified files are syntactically valid**.
