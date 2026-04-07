@@ -52,8 +52,13 @@
             "output": 2.1
           },
           "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
           },
           "limit": {
             "context": 120000,
@@ -106,8 +111,13 @@
             "output": 4.2
           },
           "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
           },
           "limit": {
             "context": 120000,
@@ -171,8 +181,13 @@
             "output": 128000
           },
           "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
           },
           "options": {
             "temperature": 1,
@@ -224,8 +239,13 @@
             "output": 128000
           },
           "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
           },
           "options": {
             "temperature": 1,
@@ -277,8 +297,13 @@
             "output": 128000
           },
           "modalities": {
-            "input": ["text", "image"],
-            "output": ["text"]
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
           },
           "options": {
             "temperature": 1,
@@ -403,10 +428,11 @@
     ]
   },
   "plugin": [
-    "oh-my-opencode@latest",
+    "oh-my-openagent@latest",
     "@franlol/opencode-md-table-formatter@latest",
     "@cortexkit/aft-opencode@latest",
-    "@cortexkit/opencode-magic-context@latest"
+    "@cortexkit/opencode-magic-context@latest",
+    "opencode-agent-skills@latest"
   ],
   "autoupdate": true,
   "experimental": {
@@ -467,7 +493,7 @@
   },
   "agent": {
     "compaction": {
-      "model": "regolo/qwen3.5-122b",
+      "model": "regolo/qwen3.5-122b"
     }
   }
 }

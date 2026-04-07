@@ -30,6 +30,7 @@ For detailed information, see the specialized sub-skills:
 | **pyqt-dialogs** | Standard and custom dialogs | [dialogs/SKILL.md](dialogs/SKILL.md) |
 | **pyqt-testing** | pytest-qt testing patterns | [testing/SKILL.md](testing/SKILL.md) |
 | **pyqt-styling** | QSS styling and themes | [styling/SKILL.md](styling/SKILL.md) |
+| **pyqt-multimedia** | Audio, video, camera, recording | [multimedia/SKILL.md](multimedia/SKILL.md) |
 
 ## PyQt vs PySide Comparison
 
