@@ -33,10 +33,32 @@ Pygame is a set of Python modules designed for writing video games. It provides 
 ### Installation
 
 ```bash
+# Install pygame-ce (Community Edition) - recommended
+pip install pygame-ce
+
+# Legacy pygame (no longer maintained)
 pip install pygame
 
 # With additional features
-pip install pygame[fonts]
+pip install pygame-ce[fonts]
+```
+
+### pygame-ce (Community Edition)
+
+pygame-ce is the maintained fork of pygame. Key differences:
+
+- 20-30% faster performance in many benchmarks
+- `IS_CE` flag to detect pygame-ce
+- Better Python 3.10+ support
+- Active development and bug fixes
+
+```python
+import pygame
+print(pygame.ver)  # '2.x.x' for pygame-ce, '1.x.x' for legacy
+
+# Check if using pygame-ce
+if hasattr(pygame, 'IS_CE'):
+    print("Using pygame-ce!")
 ```
 
 ## Getting Started
@@ -146,6 +168,115 @@ screen.blit(surface, (x, y))
 scaled = pygame.transform.scale(surface, (new_width, new_height))
 rotated = pygame.transform.rotate(surface, angle)
 flipped = pygame.transform.flip(surface, flip_x, flip_y)
+```
+
+## Performance Optimization
+
+### Image Conversion
+
+Always convert images after loading to match the display format:
+
+```python
+# Bad: Each blit converts format (slow)
+screen.blit(pygame.image.load("sprite.png"), (0, 0))
+
+# Good: Convert once at load time
+sprite = pygame.image.load("sprite.png").convert()
+sprite_alpha = pygame.image.load("player.png").convert_alpha()
+
+# When to use convert() vs convert_alpha():
+# - convert(): Opaque images, no transparency needed (20-30% faster)
+# - convert_alpha(): Images with transparency, alpha channels, or colorkeys
+```
+
+### RLEACCEL for Static Surfaces
+
+For surfaces that rarely change, RLEACCEL speeds up repeated blitting:
+
+```python
+# Create surface with RLEACCEL flag (can be combined with SRCALPHA)
+static_bg = pygame.Surface((800, 600))
+static_bg.fill((50, 50, 50))
+static_bg = static_bg.convert()
+static_bg.set_colorkey((0, 0, 0), pygame.RLEACCEL)  # RLE encode colorkey
+static_bg.set_alpha(128, pygame.RLEACCEL)  # RLE encode alpha
+
+# RLEACCEL speeds up repeated blits of the same surface
+# Best for: backgrounds, UI elements, static game elements
+```
+
+### Batched Blits with blits()
+
+Use `blits()` instead of multiple `blit()` calls for better performance:
+
+```python
+# Bad: Multiple individual blits
+screen.blit(sprite1, (x1, y1))
+screen.blit(sprite2, (x2, y2))
+screen.blit(sprite3, (x3, y3))
+
+# Good: Batched blits (single call)
+screen.blits([(sprite1, (x1, y1)), (sprite2, (x2, y2)), (sprite3, (x3, y3))])
+
+# With destination areas (for clipping)
+screen.blits([(sprite, dest_rect1), (sprite, dest_rect2)], doreturn=0)
+```
+
+### Dirty Rect Optimization
+
+For games with many sprites where only some move, use dirty rect tracking:
+
+```python
+class OptimizedSprite(pygame.sprite.DirtySprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.image = pygame.Surface((32, 32))
+        self.image.fill(GREEN)
+        self.rect = self.image.get_rect()
+        self.rect.topleft = (x, y)
+        self.dirty = 1  # Force initial draw
+    
+    def update(self):
+        # Movement logic...
+        if moved:
+            self.dirty = 1  # Mark as needing redraw
+
+# Only redraw changed regions
+def render_dirty_rects(screen, sprite_group, background):
+    # Clear only dirty rects
+    for sprite in sprite_group:
+        if sprite.dirty:
+            if sprite.visible:
+                # Restore background at old position
+                screen.blit(background, sprite.rect, sprite.rect)
+            
+            # Draw at new position
+            if sprite.visible:
+                screen.blit(sprite.image, sprite.rect)
+            sprite.dirty = 0
+```
+
+### Pre-rendered Surfaces
+
+Cache expensive operations:
+
+```python
+# Bad: Rotate every frame
+while running:
+    rotated = pygame.transform.rotate(original_image, angle)
+    screen.blit(rotated, pos)
+
+# Good: Pre-render all rotations
+rotations = {angle: pygame.transform.rotate(original, angle) 
+             for angle in range(0, 360, 5)}
+while running:
+    screen.blit(rotations[int(angle) % 360], pos)
+
+# Bad: Scale every frame
+screen.blit(pygame.transform.scale(small_image, (100, 100)), pos)
+
+# Good: Cache scaled versions
+sizes = {size: pygame.transform.scale(image, (size, size)) for size in [32, 64, 128]}
 ```
 
 ## Sprites
@@ -398,6 +529,68 @@ while True:
     # Move at consistent speed regardless of framerate
     player.x += player.speed * dt
 ```
+
+### Fixed Timestep Game Loop
+
+The basic `clock.tick(fps)` approach varies the timestep when framerate drops, causing inconsistent physics. Fixed timestep updates physics at regular intervals while allowing interpolated rendering:
+
+```python
+class Game:
+    def __init__(self):
+        pygame.init()
+        self.screen = pygame.display.set_mode((800, 600))
+        self.clock = pygame.time.Clock()
+        self.running = True
+        
+        # Fixed timestep configuration
+        self.fixed_dt = 1/60  # 60 Hz physics
+        self.accumulator = 0.0
+        
+    def run(self):
+        while self.running:
+            # Calculate delta time (in seconds)
+            dt = self.clock.tick(60) / 1000.0
+            
+            # Handle events
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+            
+            # Fixed timestep update loop
+            self.accumulator += dt
+            while self.accumulator >= self.fixed_dt:
+                self.fixed_update(self.fixed_dt)
+                self.accumulator -= self.fixed_dt
+            
+            # Render with interpolation (smooths visual updates)
+            interpolation = self.accumulator / self.fixed_dt
+            self.render(interpolation)
+        
+        pygame.quit()
+    
+    def fixed_update(self, dt):
+        """Physics/update at fixed 60 Hz"""
+        # All game logic here - movement, collision, AI
+        player.update_physics(dt)
+    
+    def render(self, interp):
+        """Render with interpolation factor (0.0 to 1.0)"""
+        self.screen.fill((0, 0, 0))
+        
+        # Interpolate positions for smooth rendering
+        for sprite in all_sprites:
+            render_x = sprite.x + (sprite.vx * interp)
+            render_y = sprite.y + (sprite.vy * interp)
+            self.screen.blit(sprite.image, (render_x, render_y))
+        
+        pygame.display.flip()
+```
+
+**Why fixed timestep matters:**
+- Consistent physics regardless of framerate
+- Deterministic network games (same simulation everywhere)
+- No "spiral of death" when frame time exceeds update time
+- Interpolation makes rendering smooth even when physics runs at lower rate
 
 ## Camera
 

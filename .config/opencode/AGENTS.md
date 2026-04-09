@@ -82,6 +82,8 @@ Before implementing:
 - Search for skills using the tools that can help you
 - Be concise in output but thorough in reasoning. No sycophantic openers or closing fluff.
 - Don't re-read files you have already read unless the file may have changed.
+- **No stubs** — When developing or planning, always write complete, working code. Never leave TODO placeholders, "// implementation here", or incomplete functions. If you don't know how to implement something, ask the user instead of stubbing.
+- **Fast recovery** — When there are AI issue/fails (timeout, hallucinated error, tool crash) load caveman skill
 
 ## 3. Simplicity First
 
@@ -168,31 +170,33 @@ Agents should use these tools when appropriate instead of guessing.
 
 ### Priority Order (always follow this sequence)'
 
-1. **context7** — Official library/framework documentation and code snippets.
+0. **n8n_mcp** — n8n workflow automation. Use for: searching n8n nodes, creating/managing workflows, managing credentials, deploying templates.
+1. **vuda** — Browser automation. Use for: testing web apps, taking screenshots, filling forms, navigation flows, visual comparison.
+2. **context7** — Official library/framework documentation and code snippets.
    Use first for: "How do I use X?", "What are the parameters of Y function?", "Show me the API for Z."
    Example: User asks about Django REST framework serializers → resolve library ID first, then query docs.
    Skip when: You need real-world patterns, not official docs.
-2. **grep_app** — Search real-world code across 1M+ public GitHub repos.
+3. **grep_app** — Search real-world code across 1M+ public GitHub repos.
    Use for: "How do people actually use this API?", "Show me production examples of X pattern", finding edge cases that docs don't cover.
    Example: Unsure how `celery.chain` works in practice → search `celery.chain(` with `language: ["Python"]`.
    Skip when: The question is about official behavior, not community patterns.
-3. **websearch / web-search-prime** — General internet search for tutorials, blog posts, news, comparisons.
+4. **websearch / web-search-prime** — General internet search for tutorials, blog posts, news, comparisons.
    Use for: Non-library questions ("Redis vs KeyDB performance"), current information ("what changed in X v3"), debugging obscure errors, finding tutorials.
    Example: User gets a cryptic `E0597` Rust error → websearch for "Rust E0597 borrowed value does not live long enough struct" to find explanations.
    Skip when: context7 or grep_app already answered it.
-4. **fetch / web-reader** — Retrieve and parse a specific URL you already know.
+5. **fetch / web-reader** — Retrieve and parse a specific URL you already know.
    Use for: You found a link via websearch and need the full content. Reading a specific doc page, GitHub issue, or blog post.
    Example: websearch returns "https://docs.djangoproject.com/en/5.0/releases/" → fetch that URL to get the actual release notes.
    Skip when: You don't have a URL yet — use websearch first.
-5. **deepwiki** — Understand an unfamiliar GitHub repo's architecture without cloning.
+6. **deepwiki** — Understand an unfamiliar GitHub repo's architecture without cloning.
    Use for: "How is project X structured?", "What design patterns does Y use?", getting a repo overview before diving into code.
    Example: User mentions an unfamiliar crate → ask deepwiki about the repo to understand its module structure and key abstractions.
    Skip when: You can read the actual code locally.
-6. **zread** — Read long documents that exceed normal context limits.
+7. **zread** — Read long documents that exceed normal context limits.
    Use for: Lengthy RFCs, technical papers, extensive markdown docs, API specification documents.
    Example: User references a 50-page architecture doc → zread can handle it when normal context would choke.
    Skip when: The document is short enough for fetch/web-reader.
-7. **sequentialthinking** — Structured reasoning for complex, multi-step problems.
+8. **sequentialthinking** — Structured reasoning for complex, multi-step problems.
    Use for: Architecture decisions with tradeoffs, debugging with multiple hypotheses, planning implementations with dependencies, comparing 3+ approaches.
    Example: "Should we use event sourcing or CQRS for this module?" → break down pros/cons/fit in structured steps.
    Skip when: The answer is a simple lookup or single-step decision.
@@ -232,7 +236,7 @@ When generating a README.md for a project:
      Do not include a "Project Structure" or "Directory Tree" section. File trees go stale fast, add noise, and the user can run tree themselves.
      Focus on: what the project does, how to set it up, how to use it, and any non-obvious conventions.
 
-## 9. Plan Quality (Prometheus → Sisyphus)
+## 9. Plan Quality
 
 When generating or consuming plans in `.sisyphus/plans/` or in other folders, enforce these rules:
 
@@ -241,32 +245,13 @@ When generating or consuming plans in `.sisyphus/plans/` or in other folders, en
 - Concrete success criteria (how to verify it's done)
 - Explicit scope boundary (what NOT to touch)
 - Required tools/skills for the delegate agent
+- No STUBs but real code
 
 **A plan is ready-to-execute when:**
 - Each task can be delegated to an agent with ZERO clarification needed
 - File paths, function names, and patterns are specific enough to grep
 - Dependencies between tasks are explicitly stated
 - No vague directives like "improve X" without defining what "improve" means
-
-## 10. Subagent Communication — Caveman Mode
-
-All subagents (explore, librarian, and any delegated task agent) MUST use ultra-compressed communication. Slash token usage ~75% while keeping full technical accuracy.
-
-**Rules:**
-- Drop articles (a, an, the), filler (just, really, basically, actually, simply), pleasantries (sure, certainly, happy to)
-- Short synonyms (big not extensive, fix not "implement a solution for")
-- No hedging (skip "it might be worth considering")
-- Fragments fine. Full sentences not required
-- Technical terms stay exact. Code blocks unchanged
-- Error messages quoted exact
-
-**Pattern:** `[thing] [action] [reason]. [next step].`
-
-**Boundaries:**
-- Code: write normal. Caveman English only
-- Git commits: normal
-- PR descriptions: normal
-- Main agent (Sisyphus) responses: normal — this rule applies to subagents only
 
 ## Completion Verification Step
 
