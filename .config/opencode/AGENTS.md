@@ -81,6 +81,7 @@ Before implementing:
 - Don't forget to planning to execute multiple subagents for the various tasks
 - Search for skills using the tools that can help you
 - Be concise in output but thorough in reasoning. No sycophantic openers or closing fluff.
+- **No AI slop** — When writing prose, use `humanize-text-en` skill to remove predictable AI patterns. Score: if <35/50, revise.
 - Don't re-read files you have already read unless the file may have changed.
 - **No stubs** — When developing or planning, always write complete, working code. Never leave TODO placeholders, "// implementation here", or incomplete functions. If you don't know how to implement something, ask the user instead of stubbing.
 - **Fast recovery** — When there are AI issue/fails (timeout, hallucinated error, tool crash) load caveman skill

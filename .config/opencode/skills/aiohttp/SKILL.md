@@ -1097,6 +1097,80 @@ async with aiohttp.ClientSession(timeout=timeout) as session:
         pass
 ```
 
+## Best Practices
+
+### Session Management
+
+```python
+# ❌ BAD: Create session per request
+async def bad_handler(request):
+    session = aiohttp.ClientSession()  # Creates new connection each time
+    async with session.get(url) as response:
+        return response
+
+# ✅ GOOD: Reuse single session
+async def setup(app):
+    app['session'] = aiohttp.ClientSession()
+    
+async def cleanup(app):
+    await app['session'].close()
+
+app.on_startup.append(setup)
+app.on_cleanup.append(cleanup)
+
+async def good_handler(request):
+    session = request.app['session']
+    async with session.get(url) as response:
+        return response
+```
+
+### Connection Settings
+
+```python
+# Optimize TCP connector
+connector = aiohttp.TCPConnector(
+    limit=100,              # Total connection limit
+    limit_per_host=30,      # Per-host limit
+    ttl_dns_cache=300,      # DNS cache TTL
+    ssl=True,
+    keepalive_timeout=30,   # Keep connections alive
+)
+session = aiohttp.ClientSession(connector=connector)
+```
+
+### Error Handling
+
+```python
+# Always handle exceptions
+async def safe_request(url):
+    try:
+        async with session.get(url) as response:
+            response.raise_for_status()  # Raise on 4xx/5xx
+            return await response.json()
+    except aiohttp.ClientError as e:
+        logger.error(f"Request failed: {e}")
+        return None
+    finally:
+        # Ensure response is closed
+        pass  # async with handles this
+```
+
+### Do:
+
+- Reuse ClientSession (not create per request)
+- Always use `async with` for responses
+- Set timeouts on all requests
+- Use `raise_for_status()` for HTTP errors
+
+### Don't:
+
+- Create ClientSession in handler
+- Forget to close sessions on shutdown
+- Use sync I/O in handlers
+- Store large data in memory (use streaming)
+
+---
+
 ## References
 
 - **Official Documentation**: https://docs.aiohttp.org/

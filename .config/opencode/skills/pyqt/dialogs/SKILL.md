@@ -401,6 +401,115 @@ search_dialog.show()  # Use show() instead of exec() for modeless
 5. **Set minimum size** - Prevent dialogs from being too small
 6. **Consider modeless dialogs** - For search, find/replace, etc.
 
+## Qt 6 Dialogs
+
+### QDialog Modern Patterns
+
+```python
+# ✅ GOOD: Use QDialog for custom dialogs
+class MyDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Settings")
+        self.setModal(True)
+        
+        layout = QVBoxLayout()
+        # ... widgets ...
+        self.setLayout(layout)
+        
+        # Confirm/Cancel buttons
+        btn_box = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        )
+        btn_box.accepted.connect(self.accept)
+        btn_box.rejected.connect(self.reject)
+        layout.addWidget(btn_box)
+        
+    def get_value(self):
+        if self.result() == QDialog.Accepted:
+            return self.value
+    
+    # Qt 6: add native buttons
+    # (replace QDialogButtonBox)
+    self.addNativeButton(QDialogButtonBox.StandardButton.Ok)
+```
+
+### Modal vs Non-modal
+
+```python
+# Modal (blocks parent)
+dialog = MyDialog(parent)
+result = dialog.exec()  # Blocks until closed
+
+# Non-modal (doesn't block)
+dialog = MyDialog(parent)
+dialog.show()  # Doesn't block
+```
+
+---
+
+## Best Practices (Extended)
+
+```python
+# ✅ GOOD: Always have Cancel button
+button_box = QDialogButtonBox(
+    QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+)
+
+# ✅ GOOD: Use QDialogButtonBox for standard buttons
+# Avoid manual QDialogButton instances
+
+# ✅ GOOD: Pass parent to dialogs
+dialog = QDialog(parent_window)
+
+# ❌ BAD: Creating dialogs without parent
+dialog = QDialog()  # No parent = orphaned
+```
+
+---
+
+## Advanced Dialogs
+
+### Multi-page Dialog
+
+```python
+class MultiPageDialog(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.pages = [Page1(), Page2(), Page3()]
+        
+        self.current_page = 0
+        self.setup_ui()
+    
+    def setup_ui(self):
+        main_layout = QVBoxLayout()
+        
+        # Page navigation
+        page_layout = QHBoxLayout()
+        prev_btn = QPushButton("← Prev")
+        next_btn = QPushButton("Next →")
+        prev_btn.clicked.connect(lambda: self.set_page(-1))
+        next_btn.clicked.connect(lambda: self.set_page(1))
+        page_layout.addWidget(prev_btn)
+        page_layout.addWidget(next_btn)
+        
+        self.page_container = QWidget()
+        self.page_container_layout = QVBoxLayout(self.page_container)
+        self.page_container_layout.addWidget(self.pages[0])
+        
+        main_layout.addLayout(page_layout)
+        main_layout.addWidget(self.page_container)
+        self.setLayout(main_layout)
+    
+    def set_page(self, delta):
+        self.current_page += delta
+        if 0 <= self.current_page < len(self.pages):
+            self.page_container_layout.deleteWidget(self.pages[0])
+            self.page_container_layout.addWidget(self.pages[self.current_page])
+        else:
+            self.current_page = max(0, min(len(self.pages)-1, self.current_page))
+```
+
 ## References
 
 - **QDialog**: https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/QDialog.html

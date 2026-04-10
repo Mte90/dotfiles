@@ -974,3 +974,372 @@ const safeReadTool: Tool = {
 - **MCP Documentation**: https://modelcontextprotocol.io/
 - **TypeScript SDK**: packages/sdk/js
 - **Plugin API**: packages/plugin
+
+---
+
+## Advanced Plugin Development (Practical Guide)
+
+This section covers undocumented behaviors discovered through real plugin development.
+
+### Plugin Export Pattern (NOT in official docs)
+
+The official docs show an object export, but **the real pattern is an async function** that returns hooks:
+
+```typescript
+// ACTUAL WORKING PATTERN - not object export
+export const AutoResumePlugin = async (ctx: any, options: PluginOptions) => {
+    // ctx provides access to OpenCode internals
+    return {
+        event: async ({ event }: { event: Record<string, unknown> }) => {
+            // Handle SSE events
+        },
+        config: async () => {
+            // Called when plugin loads
+        }
+    }
+}
+
+export default AutoResumePlugin
+```
+
+### Context API (ctx) - Undocumented
+
+```typescript
+// ctx.client - API calls
+ctx.client.app.log({ 
+    body: { 
+        service: string,       // Your plugin name
+        level: string,        // "debug" | "info" | "warn" | "error"
+        message: string 
+    } 
+})
+
+ctx.client.session.list()           // Get all sessions
+ctx.client.session.messages({ id: string })  // Get session messages
+ctx.client.session.prompt({        // Send prompt to session
+    path: { id: string },
+    body: { parts: Array<{ type: string, text: string }> },
+    agent?: string                  // Agent name: "sisyphus", "prometheus"
+})
+ctx.client.session.abort({ id: string })
+
+// ctx.ui - User interface
+ctx.ui.toast({
+    title: string,
+    message: string,
+    variant: "info" | "success" | "warning" | "error",
+    duration?: number
+})
+```
+
+### Agent Selection - CRITICAL
+
+**Where is the agent field?**
+
+- `UserMessage` has `agent: string` field (selected by user)
+- `AssistantMessage` does NOT have an agent field
+
+```typescript
+// Get selected agent from session messages
+async function getSessionAgent(ctx: any, sid: string): Promise<string | undefined> {
+    const messages = await ctx.client.session.messages({ id: sid })
+    
+    // Find most recent user message with agent field
+    const reversed = [...messages].reverse()
+    const lastUserWithAgent = reversed.find(
+        m => m.role === "user" && "agent" in m
+    )
+    
+    const agent = (lastUserWithAgent as any)?.agent
+    return typeof agent === "string" && agent.length > 0 ? agent : undefined
+}
+```
+
+### Event System (Real SSE Events)
+
+The "Event Bus" section uses fake `Bus.publish()` - **the real system uses SSE events**:
+
+```typescript
+// Real event hook structure
+return {
+    event: async ({ event }) => {
+        const type = event.type as string
+        const props = event.properties as Record<string, unknown> | undefined
+        const sessionID = event.sessionID as string | undefined
+        
+        switch (type) {
+            case "session.status": {
+                const status = props?.status as any
+                if (status?.type === "idle") {
+                    // Session finished work
+                } else if (status?.type === "busy") {
+                    // Session is working
+                } else if (status?.type === "retry") {
+                    // Retry attempt (has attempt, message, next)
+                }
+                break
+            }
+            case "session.error": {
+                const error = props?.error as any
+                break
+            }
+            case "message.updated": {
+                // Message was updated
+                break
+            }
+            case "message.part.updated": {
+                const delta = props?.delta as string | undefined
+                // Streaming text delta
+                break
+            }
+        }
+    }
+}
+```
+
+### SessionStatus Types
+
+```typescript
+type SessionStatus = 
+    | { type: "idle" }
+    | { type: "busy" }
+    | { type: "retry", attempt: number, message: string, next: number }
+```
+
+### Message SDK Types (from @opencode-ai/sdk)
+
+```typescript
+interface UserMessage {
+    id: string
+    sessionID: string
+    role: "user"
+    time: { created: number }
+    agent: string          // SELECTED AGENT - critical for resume
+    model: { providerID: string, modelID: string }
+    tools?: { [key: string]: boolean }
+    system?: string
+    summary?: { title?: string, body?: string, diffs: any[] }
+}
+
+interface AssistantMessage {
+    id: string
+    sessionID: string
+    role: "assistant"
+    time: { created: number, completed?: number }
+    error?: any           // Error info if failed
+    parentID: string
+    modelID: string
+    providerID: string
+    mode: string
+    path: { cwd: string, root: string }
+    cost: number
+    tokens: { input: number, output: number, reasoning: number, cache: { read: number, write: number } }
+    finish?: string        // "stop" | "length" | "error" | "unknown"
+}
+```
+
+### Part Types
+
+```typescript
+type Part = 
+    | { type: "text", text: string, synthetic?: boolean }
+    | { type: "tool", callID: string, tool: string, state: ToolState }
+    | { type: "reasoning", text: string }
+    | { type: "file", mime: string, url: string }
+    | { type: "agent", name: string }
+    | { type: "step-start", snapshot?: any }
+    | { type: "step-finish", reason: string, cost: number, tokens: any }
+    | { type: "subtask", prompt: string, description: string, agent: string }
+    | { type: "retry", attempt: number, error: string }
+    | { type: "compaction", auto: boolean }
+
+type ToolState = 
+    | { status: "pending", input: any, raw: any }
+    | { status: "running", input: any, title?: string, time: { start: number } }
+    | { status: "completed", input: any, output: any, title: string, metadata: any, time: { start: number, end: number } }
+    | { status: "error", input: any, error: any, time: { start: number, end: number } }
+```
+
+### Configuration (inline options)
+
+The official docs show plugin as object, but **options are inline in opencode.jsonc**:
+
+```jsonc
+{
+    "plugin": [
+        "file:///absolute/path/to/dist/index.js",
+        { "option": "value", "enabled": true }
+    ]
+}
+```
+
+Options are passed as second parameter to the async function:
+
+```typescript
+export const MyPlugin = async (ctx, options: { enabled?: boolean } = {}) => {
+    if (options.enabled === false) {
+        return { event: async () => {}, config: async () => {} }
+    }
+    // ... plugin logic
+}
+```
+
+### Type Validation - CRITICAL
+
+**Always validate inputs before API calls** to prevent "Expected 'id' to be a string" errors:
+
+```typescript
+// Bad - will crash if sid is invalid
+await ctx.client.session.prompt({ path: { id: sid }, ... })
+
+// Good - defensive validation
+const validSid = (typeof sid === "string" && sid.length > 0) ? sid : undefined
+const validAgent = (typeof agent === "string" && agent.length > 0) ? agent : undefined
+
+if (validSid) {
+    await ctx.client.session.prompt({
+        path: { id: validSid },
+        body: { parts: [...] },
+        agent: validAgent
+    })
+}
+```
+
+### Build Configuration
+
+```json
+{
+    "scripts": {
+        "build": "bun build src/index.ts --outdir dist --target bun",
+        "dev": "bun build src/index.ts --outdir dist --target bun --watch",
+        "prepublishOnly": "bun run build"
+    }
+}
+```
+
+Output goes to `dist/index.js` - use absolute path in opencode.jsonc:
+
+```jsonc
+{
+    "plugin": [
+        "file:///home/user/project/opencode-auto-resume/dist/index.js",
+        { "enabled": true }
+    ]
+}
+```
+
+### Testing Pattern
+
+```typescript
+import { mock } from "bun:test"
+import type { Session, UserMessage, Message } from "@opencode-ai/sdk"
+
+const createMockContext = () => {
+    const promptCalls: Array<{ sid: string; agent?: string }> = []
+    
+    const ctx = {
+        client: {
+            app: { log: mock(async () => {}) },
+            session: {
+                list: mock(async () => ({ data: sessions })),
+                messages: mock(async (path) => messages.get(path.id) ?? []),
+                prompt: mock(async (cfg) => promptCalls.push({ 
+                    sid: cfg.path.id, 
+                    agent: cfg.agent 
+                })),
+                abort: mock(async () => ({}))
+            }
+        },
+        ui: { toast: mock(async () => {}) }
+    } as any
+    
+    return { ctx, promptCalls }
+}
+
+test("plugin preserves agent on resume", async () => {
+    const { ctx, promptCalls } = createMockContext()
+    const hooks = await AutoResumePlugin(ctx, {})
+    
+    // Trigger event
+    await hooks.event({ 
+        event: { type: "session.status", sessionID: "s1", 
+            properties: { status: { type: "idle" } } 
+        } 
+    })
+    
+    // Verify agent was passed
+    expect(promptCalls[0]?.agent).toBe("prometheus")
+})
+```
+
+### Common Bugs Discovered
+
+1. **Wrong message type for agent**: Used `AssistantMessage` instead of `UserMessage`
+2. **Missing type validation**: "Expected 'id' to be a string" when session is in error state
+3. **Wrong hook format**: Returned object from `ctx.on()` instead of `{ event, config }` hooks
+4. **Absolute path required**: Plugin config needs `file:///` + absolute path, not relative
+
+### Real World Patterns
+
+**Auto-resume on idle:**
+
+```typescript
+async function handleIdleSession(ctx: any, sid: string) {
+    const messages = await ctx.client.session.messages({ id: sid })
+    const lastMsg = messages[messages.length - 1]
+    
+    // Check if last message ends with continuation prompt
+    if (lastMsg?.role === "assistant" && shouldAutoContinue(lastMsg)) {
+        const agent = await getSessionAgent(ctx, sid)
+        await ctx.client.session.prompt({
+            path: { id: sid },
+            body: { parts: [{ type: "text", text: "continue" }] },
+            agent: agent
+        })
+    }
+}
+
+function shouldAutoContinue(msg: Message): boolean {
+    const text = (msg as any).parts?.[0]?.text ?? ""
+    return text.endsWith("Ready to continue with Task") || 
+           text.includes("Should I continue?") ||
+           text.includes("What would you like to do next?")
+}
+```
+
+**Hallucination loop detection:**
+
+```typescript
+interface SessionWatch {
+    status: string
+    continueCount: number
+    lastContinueAt: number
+}
+
+const sessions = new Map<string, SessionWatch>()
+
+function recordContinue(sid: string) {
+    const w = sessions.get(sid) ?? { status: "unknown", continueCount: 0, lastContinueAt: 0 }
+    const now = Date.now()
+    
+    // Reset if more than 10 minutes since last continue
+    if (now - w.lastContinueAt > 600000) {
+        w.continueCount = 0
+    }
+    
+    w.continueCount++
+    w.lastContinueAt = now
+    sessions.set(sid, w)
+}
+
+function isLoopDetected(sid: string): boolean {
+    const w = sessions.get(sid)
+    return w !== undefined && w.continueCount >= 3
+}
+```
+
+### References
+
+- SDK types: `node_modules/@opencode-ai/sdk/dist/index.d.ts`
+- OpenCode core: `https://github.com/anomalyco/opencode`
+- Plugin source: `packages/opencode/src/plugin/`

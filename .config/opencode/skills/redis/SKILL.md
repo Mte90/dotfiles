@@ -189,6 +189,98 @@ KEYS *
 FLUSHDB  # Clear current database
 ```
 
+## Best Practices
+
+### Connection Management
+
+```python
+# Reuse connection, don't create new each request
+from django_redis import get_redis_connection
+
+def get_redis():
+    # Global singleton
+    return get_redis_connection("default")
+```
+
+```python
+# Connection pool settings
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': 'redis://127.0.0.1:6379/1',
+        'OPTIONS': {
+            'CONNECTION_POOL_KWARGS': {
+                'max_connections': 100,
+                'retry_on_timeout': True,
+            },
+            'SOCKET_CONNECT_TIMEOUT': 5,
+            'SOCKET_TIMEOUT': 5,
+        }
+    }
+}
+```
+
+### Key Design
+
+```python
+# Use namespaced keys
+KEY_PREFIX = 'myapp'
+VERSION = 1
+# Keys become: myapp:v1:user:123
+
+# Add TTL to all keys
+cache.set('temp_token', token, timeout=300)  # 5 min
+
+# Use consistent naming
+cache.set('user:profile:123', data)
+cache.set('user:session:123', data)
+```
+
+### Performance
+
+```python
+# Batch operations
+cache.set_many({
+    'key1': 'value1',
+    'key2': 'value2',
+    'key3': 'value3',
+}, timeout=3600)
+
+# Use pipeline for multiple ops
+pipe = cache.client.get_client()
+pipe.set('a', 1)
+pipe.set('b', 2)
+pipe.execute()  # Atomic, single round-trip
+```
+
+### Error Handling
+
+```python
+from django.core.cache import CacheKeyError
+
+try:
+    value = cache.get('key')
+except ConnectionError:
+    # Fallback to DB or default
+    value = get_from_db()
+```
+
+### Do:
+
+- Always set TTL (expire keys)
+- Use key prefixes for namespacing
+- Reuse connections (don't create per request)
+- Use pipeline for batch operations
+
+### Don't:
+
+- Use KEYS * in production (blocks Redis)
+- Store large values (>1MB consider compression)
+- Use Redis as primary data store (it's a cache)
+- Forget connection timeout settings
+
+---
+
 ## References
 
 - **django-redis**: https://github.com/jazzband/django-redis

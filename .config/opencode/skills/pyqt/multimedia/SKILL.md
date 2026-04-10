@@ -509,6 +509,57 @@ recorder.setVideoCodec(QMediaFormat.VideoCodec.H264)
 
 ---
 
+## Best Practices
+
+### Audio/Video Capture
+
+```python
+# ✅ GOOD: Check availability first
+from PyQt6.QtMultimedia import QMediaDevices
+
+if not QMediaDevices.audioInputs():
+    print("No microphone available")
+    return
+
+# ✅ GOOD: Set output location before recording
+recorder.setOutputLocation(QUrl.fromLocalFile(path))
+recorder.record()  # Start after setting location
+```
+
+### Playback
+
+```python
+# ✅ GOOD: Check player state
+player.play()
+# Wait for state change signal, don't assume immediate playback
+
+# ✅ GOOD: Handle missing codecs
+# Install K-Lite on Windows, gstreamer on Linux
+```
+
+### Resource Management
+
+```python
+# ✅ GOOD: Clean up resources
+def closeEvent(self, event):
+    self.player.stop()
+    self.recorder.stop()
+    self.camera.stop()
+    super().closeEvent(event)
+```
+
+### Do:
+- Check device availability before use
+- Set output location before recording
+- Clean up on close
+
+### Don't:
+- Record without checking available disk space
+- Use unsupported formats
+- Forget to stop capture sessions
+
+---
+
 ## References
 
 - **Qt Multimedia**: https://doc.qt.io/qt-6/qtmultimedia-index.html

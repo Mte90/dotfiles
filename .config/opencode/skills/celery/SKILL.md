@@ -16,6 +16,28 @@ metadata:
 
 Complete reference for distributed task processing with Celery.
 
+## Django 6.0 Alternative
+
+For complex Django projects, consider **Django 6.0's built-in task queue** as a simpler alternative to Celery. It provides:
+
+- Native Django integration (no separate broker needed)
+- Database-backed task storage
+- Simpler deployment (single Django process)
+- Standardized interface: `from django.task import task`
+
+**When to choose Django Tasks over Celery:**
+- Existing Django project on version 6.0+
+- Simpler use cases (single server, moderate load)
+- Preference for minimal dependencies
+- Database as task storage is acceptable
+
+**When to keep Celery:**
+- Multi-server distributed deployment
+- High-throughput requirements (1000s of tasks/sec)
+- Multiple broker options (Redis, RabbitMQ, etc.)
+- Advanced features (task prioritization, complex routing)
+- Multi-language support
+
 ## Overview
 
 Celery is a distributed task queue system for Python that enables asynchronous task execution, scheduled tasks, and real-time processing.

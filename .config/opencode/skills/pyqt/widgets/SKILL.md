@@ -603,6 +603,59 @@ from PySide6.QtWidgets import QSizePolicy
 widget.setSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed)
 ```
 
+## Best Practices
+
+### Layout
+
+```python
+# ✅ GOOD: Use layouts, not fixed positions
+layout = QVBoxLayout()
+layout.addWidget(button)
+
+# ❌ BAD: Hardcoded positions
+button.setGeometry(10, 10, 100, 30)
+
+# ✅ GOOD: Responsive layouts
+layout.setStretchFactor(widget, 1)  # Proportional sizing
+```
+
+### Widget Creation
+
+```python
+# ✅ GOOD: Reuse widgets
+class CustomButton(QPushButton):
+    def __init__(self, text):
+        super().__init__(text)
+        self.setMinimumSize(100, 40)
+
+# ❌ BAD: Create widgets in loops
+# Create outside loop, update in loop
+```
+
+### State Management
+
+```python
+# ✅ GOOD: Centralize state
+class AppState:
+    def __init__(self):
+        self.data_changed = Signal()
+        
+state = AppState()
+# Connect to signal for updates
+```
+
+### Do:
+- Use layouts over fixed geometry
+- Set size policies, not fixed sizes
+- Use signals for communication
+
+### Don't:
+- Mix layout with setGeometry
+- Create widgets in tight loops
+- Hardcode sizes
+
+---
+
 ## References
 
 - **Qt for Python Widgets**: https://doc.qt.io/qtforpython-6/PySide6/QtWidgets/

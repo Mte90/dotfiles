@@ -297,12 +297,135 @@ jobs:
 ## Best Practices
 
 1. **Use multi-stage builds** for smaller images
-2. **Don't run as root** in containers
+2. **Don't run as root** - use USER instruction
 3. **Use .dockerignore** to exclude unnecessary files
 4. **Use healthchecks** for dependencies
 5. **Use volume mounts** for development
 6. **Set proper environment variables**
 7. **Use gunicorn** in production, not runserver
+8. **Scan images for vulnerabilities** - docker scout
+9. **Use specific tags** - not :latest in production
+10. **Readonly containers** - use --read-only flag
+
+## Docker Compose
+
+### Basic Usage
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=1
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=app
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=secret
+
+  redis:
+    image: redis:7-alpine
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+```
+
+### Compose Commands
+
+```bash
+# Start all services
+docker compose up -d
+
+# View logs
+docker compose logs -f web
+
+# Scale service
+docker compose up -d --scale web=3
+
+# Stop all
+docker compose down
+
+# With volumes
+docker compose down -v
+```
+
+## BuildKit
+
+### Enable BuildKit
+
+```bash
+# Enable permanently
+export DOCKER_BUILDKIT=1
+
+# Or per-build
+DOCKER_BUILDKIT=1 docker build .
+```
+
+### BuildKit Features
+
+```dockerfile
+# Syntax directive for BuildKit
+# syntax=docker/dockerfile:1
+
+# --mount=type=cache for caching layers
+FROM node:20
+RUN --mount=type=cache,target=/root/.npm \
+    npm ci
+```
+
+## Multi-platform Builds
+
+```bash
+# Build for multiple platforms
+docker buildx build \
+  --platform linux/amd64,linux/arm64 \
+  --tag myapp:latest \
+  --push .
+```
+
+## Security
+
+### Scan images
+
+```bash
+docker scout cves myapp:latest
+docker scout recommendations myapp:latest
+```
+
+## Production Tips
+
+```bash
+# Run with resource limits
+docker run -d \
+  --name myapp \
+  --memory=512m \
+  --cpus=1.0 \
+  --restart=unless-stopped \
+  -e PYTHONUNBUFFERED=1 \
+  myapp:latest
+
+# Healthcheck
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8000/health || exit 1
+```
 
 ## References
 

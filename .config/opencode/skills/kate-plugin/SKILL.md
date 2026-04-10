@@ -359,6 +359,81 @@ doc.textChanged.connect(self.onTextChanged)
 doc.cursorPositionChanged.connect(self.onCursorMoved)
 ```
 
+## Advanced Topics
+
+### KTextEditor Interface
+
+```cpp
+// Document interface - text manipulation
+KTextEditor::Document* doc = view->document();
+
+// Insert text at cursor
+doc->insertText(cursor, "text");
+
+// Replace range
+doc->replaceText(start, end, "new text");
+
+// Search and replace
+doc->setSearchText("pattern", KTextEditor::Search::CaseInsensitive);
+```
+
+### View Interface
+
+```cpp
+// Cursor management
+KTextEditor::Cursor cursor = view->cursorPosition();
+view->setCursorPosition(cursor);
+
+// Selection
+view->selection();
+view->setSelection(range);
+view->clearSelection();
+
+// Folding
+view->toggleFolding(idx);
+```
+
+### Advanced Features
+
+```cpp
+// Variables (user-configurable settings)
+KTextEditor::VariableInterface* varIface = qobject_cast<KTextEditor::VariableInterface*>(doc);
+QVariant value = varIface->variable("my-var");
+
+// Plugins can register:
+# Document: new editing features
+# View: visual enhancements  
+# Tools: integrated utilities
+# Tolls: additional functionality
+```
+
+### Best Practices
+
+```cpp
+// ✅ GOOD: Use proper interfaces
+KTextEditor::Editor* editor = KTextEditor::Editor::self();
+
+// ✅ GOOD: Check for null
+if (view && view->document()) {
+    // ...
+}
+
+// ✅ GOOD: Use signals for async
+connect(doc, &KTextEditor::Document::textChanged, this, &MyPlugin::onTextChanged);
+
+// ❌ BAD: Direct manipulation without interfaces
+```
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| Plugin not loading | Check JSON metadata, correct category |
+| Crash on load | Initialize in init() not constructor |
+| Feature not working | CheckKatePart version requirement |
+
+---
+
 ## References
 
 - **KDE Documentation**: https://docs.kde.org/
