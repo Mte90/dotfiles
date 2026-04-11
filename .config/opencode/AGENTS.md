@@ -84,7 +84,7 @@ Before implementing:
 - **No AI slop** — When writing prose, use `humanize-text-en` skill to remove predictable AI patterns. Score: if <35/50, revise.
 - Don't re-read files you have already read unless the file may have changed.
 - **No stubs** — When developing or planning, always write complete, working code. Never leave TODO placeholders, "// implementation here", or incomplete functions. If you don't know how to implement something, ask the user instead of stubbing.
-- **Fast recovery** — When there are AI issue/fails (timeout, hallucinated error, tool crash) load caveman skill
+- **Fast recovery** — When there are AI issue/fails (timeout, hallucinated error, tool crash) load caveman skill once for session
 
 ## 3. Simplicity First
 
