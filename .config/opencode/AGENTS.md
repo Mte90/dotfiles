@@ -86,6 +86,43 @@ Before implementing:
 - **No stubs** — When developing or planning, always write complete, working code. Never leave TODO placeholders, "// implementation here", or incomplete functions. If you don't know how to implement something, ask the user instead of stubbing.
 - **Fast recovery** — When there are AI issue/fails (timeout, hallucinated error, tool crash) load caveman skill once for session
 
+## 2.1 Context Stacking (Mandatory for analysis tasks)
+
+When the user asks for analysis, evaluation, or creative output:
+
+* Always ask for or infer: who is the target audience? What's the goal?
+* Before producing output, state what context you're working with
+* If the user provides an example of what they like, anchor to it
+* Generic input → generic output. Always. Refuse to proceed if context is too vague.
+
+## 2.2 Sub-Agent Briefing Protocol
+
+When delegating to a sub-agent, every prompt MUST include:
+
+* Role — who the sub-agent should be ("You are a senior Python architect")
+* Context — what exists, what was tried, relevant constraints
+* Specific deliverable — exact format, length, structure expected
+* Examples — paste working examples when available ("Match this style: ...")
+* What NOT to do — explicit exclusions
+* Success criteria — how to verify the output is correct
+
+## 2.3 Iterative Refinement
+
+For non-coding tasks (analysis, writing, strategy):
+
+* First draft is never final. Present it with explicit confidence level.
+* Ask: "What aspect needs the most work?"
+* After feedback, revise ONLY the flagged sections — don't rewrite everything
+* Track what changed between iterations and why
+
+## 2.4 Output Quality for Non-Coding Tasks
+
+* Never start a paragraph with "In conclusion", "It's important to note", "In today's rapidly evolving landscape"
+* Never use more than 2 adjectives in a row
+* If a sentence can lose 40% of its words without losing meaning, shorten it
+* Prefer specific numbers over vague quantifiers ("3 weeks" not "a while")
+* One idea per paragraph. No exceptions.
+
 ## 3. Simplicity First
 
 **Minimum code that solves the problem. Nothing speculative.**

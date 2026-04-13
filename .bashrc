@@ -140,3 +140,6 @@ done
 export BUN_INSTALL="$HOME/.local/share/reflex/bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 eval "$(uv generate-shell-completion bash)"
+
+# opencode
+export PATH=/home/mte90/.opencode/bin:$PATH

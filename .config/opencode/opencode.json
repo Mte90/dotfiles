@@ -433,7 +433,7 @@
     "@cortexkit/aft-opencode@latest",
     "@cortexkit/opencode-magic-context@latest",
     "opencode-agent-skills@latest",
-    "opencode-auto-resume@latest",
+    "opencode-auto-resume@latest"
   ],
   "autoupdate": true,
   "experimental": {
@@ -470,6 +470,11 @@
       "url": "https://mcp.deepwiki.com/mcp",
       "enabled": true
     },
+    "grep": {
+      "type": "remote",
+      "url": "https://mcp.grep.app",
+      "enabled": true
+    },
     "zread": {
       "type": "remote",
       "url": "https://api.z.ai/api/mcp/zread/mcp",
@@ -489,6 +494,21 @@
       "url": "https://api.z.ai/api/mcp/web_reader/mcp",
       "headers": {
         "Authorization": "Bearer {env:ANTHROPIC_API_KEY}"
+      }
+    },
+    "vuda": {
+      "type": "local",
+      "command": ["/home/mte90/.local/share/npm/lib/node_modules/visual-ui-debug-agent-mcp/dist/index.js"]
+    },
+    "n8n": {
+      "type": "local",
+      "command": ["npx", "-y", "n8n-mcp"],
+      "environment": {
+        "MCP_MODE": "stdio",
+        "LOG_LEVEL": "error",
+        "DISABLE_CONSOLE_OUTPUT": "true",
+        "N8N_API_URL": "https://n8n.codeat.it",
+        "N8N_API_KEY": "{env:N8N_KEY}"
       }
     }
   },

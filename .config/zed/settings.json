@@ -118,14 +118,51 @@
     },
   },
   "languages": {
-    "CSS": {
-      "language_servers": ["..."],
-    },
     "JavaScript": {
       "language_servers": ["..."],
     },
+    "YAML": {
+      "language_servers": [
+        "yaml-language-server",
+        "..."
+      ]
+    },
+    "CSS": {
+      "language_servers": [
+        "vscode-css-language-server",
+        "..."
+      ]
+    },
     "PHP": {
-      "language_servers": ["phptools", "..."],
+      "language_servers": [
+        "intelephense",
+        "phptools",
+        "..."
+      ]
+    },
+    "HTML": {
+      "language_servers": [
+        "tailwindcss-language-server",
+        "..."
+      ]
+    },
+    "Rust": {
+      "language_servers": [
+        "rust-analyzer",
+        "..."
+      ]
+    },
+    "Bash": {
+      "language_servers": [
+        "bash-language-server",
+        "..."
+      ]
+    },
+    "C": {
+      "language_servers": [
+        "clangd",
+        "..."
+      ]
     },
     "Django": {
       "language_servers": [
@@ -136,6 +173,7 @@
     },
     "Python": {
       "language_servers": [
+        "pylsp",
         "basedpyright",
         "ruff",
         "...",
