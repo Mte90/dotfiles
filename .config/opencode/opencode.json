@@ -433,7 +433,8 @@
     "@cortexkit/aft-opencode@latest",
     "@cortexkit/opencode-magic-context@latest",
     "opencode-agent-skills@latest",
-    "opencode-auto-resume@latest"
+    "opencode-auto-resume@latest",
+    "opencode-plugin-auto-update"
   ],
   "autoupdate": true,
   "experimental": {

@@ -1,114 +1,211 @@
 ---
 name: playwright-visual-regression
-description: >
-  Visual regression testing with Playwright — pixel-by-pixel screenshot comparison against baselines.
-  Built on @playwright/test's toHaveScreenshot() — no third-party services.
-  
-  TRIGGER when: user mentions "visual regression", "screenshot diff", "snapshot mismatch",
-  "toHaveScreenshot", "pixel-perfect", "UI looks broken after changes", "compare screenshots",
-  "visual QA", "catch visual bugs", "baseline screenshots", or wants to verify code changes
-  didn't break the UI visually.
-  
-  DO NOT TRIGGER when: user wants functional/behavioral testing (use Playwright skill),
-  just wants a single screenshot (use screenshots skill), or asks about accessibility.
+description: "Visual regression testing using Playwright with toHaveScreenshot(), masking, thresholds, cross-browser testing, and VUDA integration for AI-powered visual analysis"
 metadata:
-  author: OSS AI Skills
-  version: 1.0.0
-  based_on: https://github.com/maxrihter/claude-skill-visual-regression
+  author: "OSS AI Skills"
+  version: "1.0.0"
   tags:
     - playwright
-    - visual-regression
+    - visual-testing
+    - regression
     - screenshot
+    - vrt
+    - automation
     - testing
-    - e2e
-    - snapshot
-    - pixel-perfect
 ---
 
 # Playwright Visual Regression Testing
 
-Compare UI screenshots pixel-by-pixel against a baseline. Catch unintended visual changes. Built on `@playwright/test` — no third-party services.
+Complete guide to visual regression testing using Playwright's built-in `toHaveScreenshot()` API, VUDA MCP integration, and AI-powered visual analysis with vision models.
 
-```
-Baseline capture → Code change → Re-run → HTML diff report
-     ✅                 🛠️           ▶️          🔍
-```
+## Overview
 
-> **Working directory:** All commands run from the project root — the directory containing `package.json`. Do not `cd` between steps.
->
-> **Package manager:** This skill uses npm. If your project uses yarn or pnpm, adapt install and CI commands accordingly.
+Playwright provides native visual regression testing through the `toHaveScreenshot()` assertion. It captures screenshots, compares them against baselines using pixelmatch, and fails tests when visual differences exceed configured thresholds.
 
-## Step 1: Check State
+**Key Features:**
+- Built-in screenshot comparison (no external dependencies)
+- Pixel-by-pixel comparison with configurable thresholds
+- Dynamic content masking
+- Animation handling
+- Cross-browser testing (Chromium, Firefox, WebKit)
+- Full-page and element-level screenshots
+- Integration with VUDA MCP for AI-powered visual debugging
+- Vision model integration for screenshot analysis
 
-Run all three commands, then use the table to choose your workflow.
+## Installation
+
+### Python Installation
 
 ```bash
-ls playwright.config.ts 2>/dev/null && echo "CONFIG_EXISTS" || echo "CONFIG_MISSING"
-find snapshots/ -name "*.png" 2>/dev/null | head -1 | grep -q . && echo "BASELINES_EXIST" || echo "BASELINES_MISSING"
-curl -s -o /dev/null -w "%{http_code}" --max-time 5 http://localhost:3000 2>/dev/null | grep -q "^2" && echo "SERVER_OK" || echo "NO_SERVER"
+# Install Playwright for Python
+pip install playwright
+
+# Install browser drivers
+playwright install chromium firefox webkit
+
+# Or install all browsers
+playwright install
 ```
 
-> If your dev server runs on a port other than 3000, adjust the URL in the curl command above.
+### TypeScript/JavaScript Installation
 
-| Config | Baselines | Server | → Do this |
-|--------|-----------|--------|-----------|
-| CONFIG_MISSING | any | any | **→ Workflow A** (Full Setup) |
-| CONFIG_EXISTS | BASELINES_MISSING | SERVER_OK | **→ Workflow B** (Capture Baseline) |
-| CONFIG_EXISTS | BASELINES_EXIST | SERVER_OK | Run `npx playwright test`. If all tests pass ✓, done. If tests fail → see **Step 2**. |
-| CONFIG_EXISTS | BASELINES_EXIST | NO_SERVER | STOP. Tell the user: "Dev server is not running. Start it first, then re-check." |
-| CONFIG_EXISTS | BASELINES_MISSING | NO_SERVER | STOP. Tell the user: "No baselines and no dev server. Start the server first." |
-
-Do not guess the next step — use the table.
-
-## Step 2: If Tests Fail
-
-Only consult this section after running `npx playwright test` and seeing a failure.
-
-```
-What kind of failure?
-│
-├─ "screenshot doesn't match" / snapshot diff
-│  │
-│  │  STOP. Ask the user:
-│  │  "Was this visual change intentional (design update) or unexpected (possible bug)?"
-│  │  Wait for an explicit answer — do NOT infer from context.
-│  │  If the answer is ambiguous, ask again: "Please answer 'intentional' or 'bug'."
-│  │
-│  ├─ "Intentional" → Workflow C: Update Baseline
-│  └─ "Bug" / "Unexpected" → Workflow D: Debug Comparison
-│
-├─ Tests flaky (pass sometimes, fail sometimes)
-│  └─ → Workflow E: Fix Flakiness with Fixture
-│
-└─ Config errors / tests won't run
-   └─ Check Node.js version (v18+), re-run `npx playwright install chromium`
-```
-
----
-
-## Workflow A: Full Setup
-
-**Precondition:** Step 1 returned `CONFIG_MISSING`.
-
-**Exit condition:** `npx playwright test --list` prints test names without errors.
-
-**Step 1.** Check for existing `package.json`:
 ```bash
-ls package.json 2>/dev/null && echo "EXISTS" || echo "MISSING"
-```
-If MISSING: run `npm init -y` first. If EXISTS: skip — do not re-initialize.
-
-**Step 2.** Install Playwright:
-```bash
+# Install Playwright
 npm install -D @playwright/test
-npx playwright install chromium
+
+# Install browsers
+npx playwright install chromium firefox webkit
 ```
-If this fails: check `node -v` — requires v18+.
 
-**Step 3.** Ask the user: "What URL does your dev server run on? (e.g. http://localhost:3000)"
-Wait for their answer. Save it — you will use it in Step 4 and in Workflow B.
+## Basic Usage
 
-**Step 4.** Write the config file:
+### Python Example
+
+Playwright supports Python alongside TypeScript/JavaScript:
+
+```python
+from playwright.sync_api import sync_playwright, expect
+
+def test_homepage_screenshot():
+    """Visual regression test for homepage"""
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        
+        page.goto("https://your-app.com")
+        
+        # Take screenshot for comparison
+        expect(page).to_have_screenshot("homepage.png")
+        
+        browser.close()
+
+def test_element_screenshot():
+    """Test specific element instead of full page"""
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        
+        page.goto("/pricing")
+        
+        # Screenshot of specific element
+        pricing_card = page.locator('[data-testid="pro-plan"]')
+        expect(pricing_card).to_have_screenshot("pro-plan-card.png")
+        
+        browser.close()
+
+def test_with_masking():
+    """Mask dynamic content before screenshot"""
+    with sync_playwright() as p:
+        browser = p.chromium.launch()
+        page = browser.new_page()
+        
+        page.goto("/dashboard")
+        
+        # Mask dynamic elements
+        expect(page).to_have_screenshot("dashboard.png", mask=[
+            page.locator(".timestamp"),
+            page.locator(".user-avatar"),
+        ])
+        
+        browser.close()
+```
+
+### Using pytest with Playwright
+
+```python
+# conftest.py
+import pytest
+from playwright.sync_api import sync_playwright, Browser, Page
+
+@pytest.fixture(scope="session")
+def browser():
+    with sync_playwright() as p:
+        yield p.chromium.launch()
+
+@pytest.fixture
+def page(browser: Browser):
+    page = browser.new_page()
+    yield page
+    page.close()
+
+# test_visual.py
+def test_login_page(page: Page):
+    page.goto("/login")
+    expect(page).to_have_screenshot("login-page.png")
+
+def test_login_with_errors(page: Page):
+    page.goto("/login")
+    page.fill("#email", "invalid")
+    page.click('[data-testid="submit"]')
+    expect(page).to_have_screenshot("login-error.png")
+```
+
+### Pytest Markers for Visual Tests
+
+```python
+import pytest
+
+@pytest.mark.visual
+def test_visual_regression(page):
+    """Run only visual tests with: pytest -m visual"""
+    page.goto("/")
+    expect(page).to_have_screenshot("homepage.png")
+
+@pytest.mark.visual
+@pytest.mark.parametrize("viewport", [
+    {"width": 1280, "height": 720},  # Desktop
+    {"width": 375, "height": 667},   # Mobile
+])
+def test_responsive_visual(page, viewport):
+    """Test different viewports"""
+    page.set_viewport_size(viewport)
+    page.goto("/")
+    name = f"homepage-{viewport['width']}x{viewport['height']}.png"
+    expect(page).to_have_screenshot(name)
+```
+
+### TypeScript/JavaScript Example
+
+### Simple Screenshot Test
+
+```typescript
+import { test, expect } from '@playwright/test';
+
+test('homepage matches baseline', async ({ page }) => {
+  await page.goto('https://your-app.com');
+  await expect(page).toHaveScreenshot();
+});
+```
+
+### First Run Behavior
+
+The first run creates baseline images. Run with `--update-snapshots` to generate baselines:
+
+```bash
+npx playwright test --update-snapshots
+```
+
+Baselines are stored in `__snapshots__` directories next to test files.
+
+### Named Screenshots
+
+```typescript
+test('login form states', async ({ page }) => {
+  await page.goto('/login');
+  
+  // Empty state
+  await expect(page).toHaveScreenshot('login-empty.png');
+  
+  // Validation error
+  await page.fill('#email', 'invalid');
+  await page.click('[data-testid="submit"]');
+  await expect(page).toHaveScreenshot('login-validation-error.png');
+});
+```
+
+## Configuration
+
+### Playwright Config
 
 ```typescript
 // playwright.config.ts
@@ -116,600 +213,845 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  snapshotDir: './snapshots',
-  // {testFileDir}/{testFileName} keeps the path readable without .ts-as-directory quirk
-  snapshotPathTemplate: '{snapshotDir}/{projectName}/{testFileDir}/{testFileName}/{arg}{ext}',
-
-  // Run tests in parallel within each file
   fullyParallel: true,
-  // GitHub Actions ubuntu-latest = 2 vCPUs. Higher values increase screenshot timing
-  // variability and make diffs non-deterministic. Use 2 in CI, unlimited locally.
-  workers: process.env.CI ? 2 : undefined,
-
-  // ⚠️ Visual regression tests should NOT retry.
-  // A retry overwrites diff artifacts, making it impossible to diagnose whether the
-  // failure was a flake or a real regression. If you see flakiness, fix it with the
-  // visual fixture (Workflow E) instead of masking it with retries.
-  retries: 0,
-
-  // Stop after 10 failures in CI — don't waste time if something is globally broken.
-  // 0 means "no limit" (unintuitive API — 0 ≠ "stop immediately").
-  maxFailures: process.env.CI ? 10 : 0,
-
-  // CI:    'none' — missing baseline = test fails. Baselines must be committed to git.
-  //        ⚠️ New tests added in a PR will fail in CI until baselines are generated
-  //        via the update-snapshots workflow and committed. This is intentional.
-  // Local: 'missing' — create new baselines automatically, never overwrite existing ones.
-  //        Use `npx playwright test --update-snapshots` to overwrite changed ones.
-  updateSnapshots: process.env.CI ? 'none' : 'missing',
-
-  // Reporter: CI → dot + HTML report (open:'never' — no browser in CI)
-  //           Local → list (verbose) + HTML report (opens on failure)
-  reporter: process.env.CI
-    ? [['dot'], ['html', { open: 'never', outputFolder: 'playwright-report' }]]
-    : [['list'], ['html', { open: 'on-failure', outputFolder: 'playwright-report' }]],
-
-  use: {
-    // Set your actual dev server URL, or override via env variable:
-    //   BASE_URL=https://staging.example.com npx playwright test
-    baseURL: process.env.BASE_URL || 'http://localhost:3000',
-
-    // ⚠️ reducedMotion: 'reduce' sets prefers-reduced-motion CSS media query.
-    // Apps that respond to this query will render a DIFFERENT visual state
-    // (e.g., no fade-in, instant transitions). You are testing the reduced-motion
-    // layout, not the default one. If your app doesn't handle prefers-reduced-motion,
-    // this has no effect. If it does — make sure your baselines match this state.
-    // Remove this line if you want to test the default (animated) visual state.
-    reducedMotion: 'reduce',
-  },
-
-  expect: {
-    toHaveScreenshot: {
-      // animations: 'disabled' freezes CSS transitions + Web Animations API at
-      // screenshot time via DevTools protocol. This is already the default.
-      animations: 'disabled',
-      maxDiffPixelRatio: 0.01, // allow up to 1% of pixels to differ
-      // threshold: per-pixel color sensitivity (0–1).
-      // 0.05 = a pixel must differ by >5% of full color range to count as changed.
-      // Increase to 0.1 or 0.2 only if font anti-aliasing causes false positives.
-      threshold: 0.05,
-    },
-  },
-
-  // Uncomment to auto-start your dev server before tests.
-  // Without this, start the server manually before running `npx playwright test`.
-  // webServer: {
-  //   command: 'npm run dev',
-  //   url: 'http://localhost:3000',
-  //   reuseExistingServer: !process.env.CI,
-  //   timeout: 30_000,
-  // },
-
+  retries: 2,
+  
+  // Cross-browser projects
   projects: [
     {
-      name: 'Desktop',
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1440, height: 900 },
-      },
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
     },
     {
-      name: 'Tablet',
-      use: {
-        // Spread device for correct user agent, touch emulation, deviceScaleFactor.
-        // Override viewport to exact dimensions needed.
-        ...devices['iPad (gen 7)'],
-        viewport: { width: 768, height: 1024 },
-      },
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
     },
     {
-      name: 'Mobile',
-      use: {
-        // Spread device for correct mobile user agent and touch emulation.
-        // Override viewport to exact dimensions needed.
-        ...devices['iPhone 13'],
-        viewport: { width: 375, height: 812 },
-      },
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+    // Mobile viewports
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 7'] },
     },
   ],
+  
+  // Visual regression settings
+  expect: {
+    toHaveScreenshot: {
+      // Maximum time to wait for screenshot
+      timeout: 5000,
+      // Animated elements
+      animations: 'disabled',
+    },
+  },
 });
 ```
 
-If the user's URL differs from `http://localhost:3000`, edit the `baseURL` line.
-
-**Step 5.** Write the test file:
+### Threshold Options
 
 ```typescript
-// tests/visual.spec.ts
-// Basic tests — standard @playwright/test
-import { test, expect } from '@playwright/test';
+// Allow minor pixel differences
+await expect(page).toHaveScreenshot('page.png', {
+  maxDiffPixels: 100,           // Maximum pixels that can differ
+  maxDiffPixelRatio: 0.01,      // Maximum 1% pixel difference
+  threshold: 0.3,               // Per-pixel color sensitivity (0-1)
+});
+```
 
-// With the production fixture (fonts, JS animations, lazy images):
-// import { test, expect, waitForPageReady } from '../fixtures/visual';
+## Masking Dynamic Content
 
-// ─────────────────────────────────────────────
-// Basic: full page screenshot
-// ─────────────────────────────────────────────
-test('homepage', async ({ page }) => {
-  await page.goto('/');
+Real applications have dynamic elements (timestamps, avatars, ads). Mask them to avoid false positives.
 
-  // locator.waitFor() is the modern API — prefer over page.waitForSelector()
-  await page.locator('h1').waitFor();
+### Basic Masking
 
-  // If using fixture: await waitForPageReady(page);
+```typescript
+await expect(page).toHaveScreenshot('dashboard.png', {
+  mask: [
+    page.locator('[data-testid="user-avatar"]'),
+    page.locator('[data-testid="timestamp"]'),
+    page.locator('.live-feed'),
+    page.locator('.ad-banner'),
+  ],
+  maskColor: '#000000',  // Custom mask color
+});
+```
 
-  await expect(page).toHaveScreenshot('homepage.png', {
+### Reusable Mask Helper
+
+```typescript
+// helpers/visual.ts
+import { Page } from '@playwright/test';
+
+export async function maskDynamicContent(page: Page, selectors: string[]) {
+  return selectors.map(selector => page.locator(selector));
+}
+
+// Usage
+test('dashboard with masking', async ({ page }) => {
+  await page.goto('/dashboard');
+  
+  const dynamicElements = await maskDynamicContent(page, [
+    '.timestamp',
+    '.user-avatar',
+    '.notification-badge',
+  ]);
+  
+  await expect(page).toHaveScreenshot('dashboard.png', {
+    mask: dynamicElements,
+  });
+});
+```
+
+## Handling Animations
+
+Animations cause flaky tests. Disable them before capturing.
+
+### CSS-Based Animation Disable
+
+```typescript
+async function disableAnimations(page: Page) {
+  await page.addStyleTag({
+    content: `
+      *, *::before, *::after {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+        transition-duration: 0s !important;
+        transition-delay: 0s !important;
+        scroll-behavior: auto !important;
+      }
+    `,
+  });
+}
+
+test('checkout without animations', async ({ page }) => {
+  await page.goto('/checkout');
+  await disableAnimations(page);
+  await expect(page).toHaveScreenshot('checkout.png');
+});
+```
+
+### Built-in Animation Option
+
+```typescript
+await expect(page).toHaveScreenshot('page.png', {
+  animations: 'disabled',  // Playwright handles this automatically
+});
+```
+
+## Full-Page Screenshots
+
+### Full-Page Capture
+
+```typescript
+test('full page screenshot', async ({ page }) => {
+  await page.goto('/pricing');
+  
+  await expect(page).toHaveScreenshot('pricing-full.png', {
     fullPage: true,
   });
 });
-
-// ─────────────────────────────────────────────
-// Element-level screenshot
-// ─────────────────────────────────────────────
-test('heading', async ({ page }) => {
-  await page.goto('/');
-  await page.locator('h1').waitFor();
-
-  await expect(page.locator('h1')).toHaveScreenshot('heading.png');
-});
-
-// ─────────────────────────────────────────────
-// With dynamic content masked (adapt selectors to your app)
-// ─────────────────────────────────────────────
-// test('page with live data', async ({ page }) => {
-//   await page.goto('/your-route');
-//   await page.locator('[data-testid="loaded"]').waitFor();
-//
-//   await expect(page).toHaveScreenshot('page-live-data.png', {
-//     fullPage: true,
-//     mask: [
-//       page.locator('[data-testid="live-price"]'),
-//       page.locator('[data-testid="timestamp"]'),
-//     ],
-//   });
-// });
-
-// ─────────────────────────────────────────────
-// With fixture: fonts + JS animations + lazy images
-// ─────────────────────────────────────────────
-// import { test, expect, waitForPageReady } from '../fixtures/visual';
-//
-// test('page with animations', async ({ page }) => {
-//   await page.goto('/');
-//   await page.locator('h1').waitFor();
-//   await waitForPageReady(page);   // freeze fonts, images, GSAP
-//   await expect(page).toHaveScreenshot('animated-page.png', { fullPage: true });
-// });
 ```
 
-**Step 6.** Verify setup is functional:
-```bash
-npx playwright test --list
-```
-If this errors or prints `0 tests`: show the output to the user and stop. Do not proceed to Workflow B.
-
-**Optional:** If the project uses custom fonts, JS animations (GSAP, Framer Motion), or lazy-loaded images, also install the fixture now — see **Workflow E** Steps 1–2.
-
-**Workflow A complete** → continue to **Workflow B**.
-
----
-
-## Workflow B: Capture Baseline
-
-**Precondition:** CONFIG_EXISTS + BASELINES_MISSING + SERVER_OK. (Or: just completed Workflow A.)
-
-**Exit condition:** `find snapshots/ -name "*.png" | wc -l` prints a non-zero number and snapshots are committed to git.
-
-**Step 1.** Verify the dev server responds. Use the `baseURL` from `playwright.config.ts` (default: `http://localhost:3000`). Replace the URL in the command if yours differs:
-```bash
-curl -s -o /dev/null -w "%{http_code}" http://localhost:3000
-```
-Expected: `200`. If not 200: STOP. Tell the user the server is not responding and ask them to start it.
-
-**Step 2.** Check if Docker is available:
-```bash
-docker --version 2>/dev/null && echo "DOCKER_OK" || echo "NO_DOCKER"
-```
-
-If DOCKER_OK — capture inside Docker (matches Linux CI, avoids font rendering diffs):
-```bash
-docker run --rm --ipc=host -v "$(pwd):/work" -w /work \
-  mcr.microsoft.com/playwright:v1.50.1-noble \
-  npx playwright test --update-snapshots
-```
-
-If NO_DOCKER — ask the user:
-> "Docker is not available. Baselines captured locally on macOS can cause false CI failures due to font rendering differences. Do you want to proceed locally (acceptable if you won't use CI), or install Docker first?"
-Wait for their answer before proceeding. If they confirm local: run `npx playwright test --update-snapshots`.
-
-**Step 3.** Verify snapshots were created:
-```bash
-find snapshots/ -name "*.png" | wc -l
-```
-If output is `0` or command errors: STOP. Show the user the test output and ask to debug.
-
-**Step 4.** Commit baselines:
-```bash
-if ! git rev-parse --is-inside-work-tree 2>/dev/null; then
-  echo "Not a git repository — skipping commit."
-elif git check-ignore -q snapshots/ 2>/dev/null; then
-  echo "⚠️  snapshots/ is listed in .gitignore — remove it so baselines can be committed."
-else
-  git add snapshots/
-  if git diff --staged --quiet; then
-    echo "Snapshots already committed — nothing to add."
-  else
-    git commit -m "chore: add visual baselines"
-    echo "Done. Push to remote: git push"
-  fi
-fi
-```
-
-**Workflow B complete.** Baselines are now the source of truth.
-
----
-
-## Workflow C: Update Baseline
-
-**Precondition:** Tests failing with 'screenshot doesn't match' and the user confirmed the change is **intentional**.
-
-Use when a design change is intentional and the current baseline is outdated.
-
-**Before Step 1.** Ask the user:
-> "What is the reason for updating these baselines? (e.g., 'updated button design', 'new header font')"
-Wait for their answer. Save it. You will use it in Step 2. Do not proceed until you have a clear answer.
-
-**Step 1.** Check if Docker is available:
-```bash
-docker --version 2>/dev/null && echo "DOCKER_OK" || echo "NO_DOCKER"
-```
-
-If DOCKER_OK — update snapshots inside Docker:
-```bash
-docker run --rm --ipc=host -v "$(pwd):/work" -w /work \
-  mcr.microsoft.com/playwright:v1.50.1-noble \
-  npx playwright test --update-snapshots
-```
-This updates all existing baselines AND creates new ones.
-
-If NO_DOCKER — existing baselines need updating, so local font rendering on macOS may differ from Linux CI:
-1. Install Docker (recommended) and rerun this step.
-2. Or run `npx playwright test --update-snapshots` locally and accept that CI may need a re-run after push (CI captures its own Linux baselines).
-
-Ask the user which they prefer before proceeding.
-
-**Step 2.** Commit with the reason the user gave you:
-```bash
-git add snapshots/ && git commit -m "chore: update visual baselines — USER_REASON"
-```
-Replace `USER_REASON` with the exact answer from the user. Do not invent a reason. If the user's reason contains backticks, `$(`, or newlines, ask for a simpler version — those characters cause shell injection in the commit command.
-
-> ⚠️ Never auto-update snapshots in CI. Use a dedicated workflow for intentional updates — it requires a reason and commits with attribution.
-
----
-
-## Workflow D: Debug Comparison
-
-**Precondition:** Tests failing with 'screenshot doesn't match' and the user confirmed it is a **bug** (unexpected change).
-
-**Step 1.** Run tests and capture output:
-```bash
-npx playwright test 2>&1 | tail -30
-```
-
-**Step 2.** Find diff images (CLI-friendly — no browser needed):
-```bash
-find playwright-report/ -name "*-diff.png" -o -name "*-actual.png" 2>/dev/null | head -20
-find test-results/ -name "*.png" 2>/dev/null | head -20
-```
-Show the user the list of diff image paths. Ask them to open the files to see what changed.
-
-**Step 3.** If the user has a browser available, they can run the HTML report themselves:
-```
-npx playwright show-report
-```
-Do NOT run `show-report` yourself — it starts a web server and blocks the terminal indefinitely.
-
----
-
-## Workflow E: Fix Flakiness with Fixture
-
-**Precondition:** Tests are flaky (pass sometimes, fail sometimes) — not a consistent snapshot mismatch.
-
-For pages with custom fonts, JS animations (Framer Motion, GSAP), or lazy-loaded images.
-
-**Step 1.** Create the fixture file:
+### Handling Lazy-Loaded Content
 
 ```typescript
-// tests/fixtures/visual.ts
-import { test as base, expect, type Page } from '@playwright/test';
-
-/**
- * Production-ready visual test fixture.
- *
- * Architecture: two-phase approach
- *   Phase 1 — addInitScript (runs BEFORE any page JS):
- *     - IntersectionObserver mock (lazy images load immediately)
- *     - window.__PLAYWRIGHT__ flag (for app-level animation disabling)
- *   Phase 2 — waitForPageReady() (call explicitly after page.goto()):
- *     - Double rAF — JS framework finishes initial render, layout stabilizes
- *     - Freeze GSAP timeline (if present) in final state
- *     - Wait for all images to decode
- *     - Wait for custom fonts (document.fonts.ready)
- *     - Final rAF — browser settles last paint after fonts and images
- *
- * Usage:
- *   import { test, expect, waitForPageReady } from '../fixtures/visual';
- *
- *   test('homepage', async ({ page }) => {
- *     await page.goto('/');
- *     await page.locator('h1').waitFor();   // wait for key element
- *     await waitForPageReady(page);         // stabilize before screenshot
- *     await expect(page).toHaveScreenshot('homepage.png', { fullPage: true });
- *   });
- *
- * Framer Motion (skipAnimations):
- *   The fixture sets window.__PLAYWRIGHT__ = true before page JS runs.
- *   In your app (e.g., layout.tsx or _app.tsx), add:
- *
- *   import { MotionGlobalConfig } from 'framer-motion'; // or 'motion/react'
- *   if (typeof window !== 'undefined' && (window as any).__PLAYWRIGHT__) {
- *     MotionGlobalConfig.skipAnimations = true;
- *   }
- */
-
-/**
- * Stabilizes the page before taking a screenshot.
- * Call explicitly after page.goto() and after waiting for key content.
- * Works for both full-page navigations and SPA route changes.
- */
-export async function waitForPageReady(page: Page): Promise<void> {
-  // 1. Double rAF — let JS framework complete initial render and layout stabilize.
-  await page.evaluate(
-    () =>
-      new Promise<void>((resolve) =>
-        requestAnimationFrame(() => requestAnimationFrame(() => resolve()))
-      )
-  );
-
-  // 2. Freeze GSAP timeline in final state (if GSAP is present on the page).
-  await page.evaluate(() => {
-    const g = (window as any).gsap;
-    if (g?.globalTimeline) {
-      if (g.ticker?.lagSmoothing) g.ticker.lagSmoothing(0);
-      g.globalTimeline.progress(1, true);
-      g.globalTimeline.pause();
-    }
+test('blog with lazy loading', async ({ page }) => {
+  await page.goto('/blog');
+  
+  // Scroll to trigger lazy loading
+  await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+  await page.waitForTimeout(1000);  // Wait for images
+  await page.evaluate(() => window.scrollTo(0, 0));  // Scroll back
+  
+  await expect(page).toHaveScreenshot('blog-full.png', {
+    fullPage: true,
   });
+});
+```
 
-  // 3. Wait for all images to fully load.
-  await page.evaluate(() =>
-    Promise.all(
-      [...document.images].map((img) =>
-        img.complete
-          ? Promise.resolve()
-          : img.decode().catch(() => {
-              /* broken images (404, CORS) — don't block */
-            })
-      )
-    )
-  );
+## Element-Level Testing
 
-  // 4. Wait for all custom fonts to finish loading.
-  await page.evaluate(() => document.fonts.ready.then(() => {}));
+Test specific components instead of full pages for more precise results.
 
-  // 5. Final rAF — let the browser settle one last paint frame after fonts and images.
-  await page.evaluate(
-    () => new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
-  );
-}
-
-export const test = base.extend({
-  page: async ({ page }, use) => {
-    // Phase 1: addInitScript — runs BEFORE any page JavaScript
-    await page.addInitScript(() => {
-      // Set window.__PLAYWRIGHT__ flag for app-level animation disabling.
-      (window as any).__PLAYWRIGHT__ = true;
-
-      // Mock IntersectionObserver so lazy loaders fire immediately.
-      window.IntersectionObserver = class MockIntersectionObserver
-        implements IntersectionObserver
-      {
-        readonly root: Element | Document | null = null;
-        readonly rootMargin: string = '0px';
-        readonly thresholds: ReadonlyArray<number> = [0];
-
-        private readonly _callback: IntersectionObserverCallback;
-
-        constructor(callback: IntersectionObserverCallback) {
-          this._callback = callback;
-        }
-
-        observe(target: Element): void {
-          queueMicrotask(() => {
-            const rect = target.getBoundingClientRect();
-            this._callback(
-              [
-                {
-                  isIntersecting: true,
-                  intersectionRatio: 1,
-                  target,
-                  boundingClientRect: rect,
-                  intersectionRect: rect,
-                  rootBounds: {
-                    x: 0,
-                    y: 0,
-                    top: 0,
-                    left: 0,
-                    width: window.innerWidth,
-                    height: window.innerHeight,
-                    bottom: window.innerHeight,
-                    right: window.innerWidth,
-                    toJSON() {
-                      return {
-                        x: 0,
-                        y: 0,
-                        top: 0,
-                        left: 0,
-                        width: window.innerWidth,
-                        height: window.innerHeight,
-                        bottom: window.innerHeight,
-                        right: window.innerWidth,
-                      };
-                    },
-                  } as DOMRectReadOnly,
-                  time: performance.now(),
-                } as IntersectionObserverEntry,
-              ],
-              this as unknown as IntersectionObserver
-            );
-          });
-        }
-
-        unobserve(_target: Element): void {}
-        disconnect(): void {}
-        takeRecords(): IntersectionObserverEntry[] {
-          return [];
-        }
-      };
-    });
-
-    await use(page);
-  },
+```typescript
+test('navigation component', async ({ page }) => {
+  await page.goto('/');
+  
+  const navbar = page.locator('nav[data-testid="main-nav"]');
+  await expect(navbar).toHaveScreenshot('navbar.png');
 });
 
-export { expect };
+test('pricing card', async ({ page }) => {
+  await page.goto('/pricing');
+  
+  const card = page.locator('[data-testid="pro-plan"]');
+  await expect(card).toHaveScreenshot('pro-plan-card.png', {
+    maxDiffPixelRatio: 0.005,  // Tighter threshold for components
+  });
+});
 ```
 
-**Step 2.** In your test file (e.g. `tests/visual.spec.ts`), find the import line:
-```typescript
-import { test, expect } from '@playwright/test';
+## Cross-Browser Considerations
+
+Different browsers render differently. Each project gets its own baseline:
+
 ```
-Replace it with:
-```typescript
-import { test, expect, waitForPageReady } from './fixtures/visual';
+tests/
+  homepage.spec.ts-snapshots/
+    homepage-chromium-linux.png
+    homepage-firefox-linux.png
+    homepage-webkit-linux.png
 ```
-(Adjust the relative path if your test file is in a different location.)
 
-**Step 3.** In every test that calls `toHaveScreenshot()`, add these two lines immediately before the `toHaveScreenshot` call:
-```typescript
-await page.locator('TODO_REPLACE_WITH_KEY_SELECTOR').waitFor();  // key element confirming page is loaded
-await waitForPageReady(page);              // fonts + images + GSAP freeze
-```
-Replace `TODO_REPLACE_WITH_KEY_SELECTOR` with the actual selector for the main content element on that page.
-
----
-
-## Workflow F: GitHub Actions CI
-
-**Precondition:** Workflow B is complete — baselines are committed and pushed to git.
-
-**Exit condition:** Visual tests workflow exists at `.github/workflows/visual-tests.yml` and CI runs green on push.
-
-**Step 1.** Create the workflow file:
+**Important:** Generate baselines in the same environment as CI to avoid OS-level rendering differences.
 
 ```yaml
-# .github/workflows/visual-tests.yml
-name: Visual Tests
+# CI using Playwright Docker image
+- uses: docker://mcr.microsoft.com/playwright:v1.50.0-noble
+```
 
-on:
-  push:
-    branches: [main, master]
-  pull_request:
-    branches: [main, master]
+## CI/CD Integration
+
+### GitHub Actions
+
+```yaml
+name: Visual Regression Tests
+on: [pull_request]
 
 jobs:
   visual-tests:
     runs-on: ubuntu-latest
-    
+    container: mcr.microsoft.com/playwright:v1.50.0-noble
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
-    
-    - name: Install dependencies
-      run: npm ci
-    
-    - name: Install Playwright browsers
-      run: npx playwright install chromium --with-deps
-    
-    - name: Run visual tests
-      env:
-        BASE_URL: ${{ secrets.BASE_URL }}
-      run: npx playwright test --project=Desktop
-      # Note: Run all projects in CI with: npx playwright test
-    
-    - name: Upload test results
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: playwright-report
-        path: playwright-report/
-        retention-days: 30
-    
-    - name: Upload diff images
-      if: failure()
-      uses: actions/upload-artifact@v4
-      with:
-        name: visual-diffs
-        path: |
-          test-results/
-          playwright-report/
-        retention-days: 30
+      - uses: actions/checkout@v4
+      - run: npm ci
+      - name: Run visual tests
+        run: npx playwright test --grep @visual
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: visual-diff-report
+          path: playwright-report/
 ```
 
-**Step 2.** Configure `BASE_URL` for CI. Ask the user:
-> "What URL should CI run visual tests against? (e.g. https://staging.example.com)"
-
-Then add it as a repository secret in GitHub (**Settings → Secrets and variables → Actions → New repository secret**, name: `BASE_URL`). The workflow reads `BASE_URL` from secrets.
-
-If the user has no staging URL yet (tests run against localhost only), skip this step. CI will fail at the network step until a server is available.
-
-**Key requirements:**
-- Baselines must be committed to git before running in CI
-- `CI=true` is set automatically by GitHub Actions
-- Keep the Docker image version in sync with `@playwright/test` in `package.json`
-
----
-
-## Key Options
-
-| Option | Default | Use |
-|--------|---------|-----|
-| `maxDiffPixelRatio` | `0.01` | % pixels allowed to differ (`0.01` = 1%). Set to `0` for zero tolerance |
-| `threshold` | `0.05` | Per-pixel color sensitivity (0–1). Raise to `0.1` only for font anti-aliasing false positives |
-| `reducedMotion` | `'reduce'` | Sets `prefers-reduced-motion` CSS media query. Remove if you want to test the default (animated) visual state |
-| `mask` | `[]` | Locators to black out (prices, timestamps, live data) |
-| `fullPage` | `false` | Capture entire scrollable page |
-| `animations` | `'disabled'` | Default — CSS + Web Animations API stopped at screenshot time |
-
-## Quick Commands
+### Updating Baselines
 
 ```bash
-npx playwright test                             # compare vs baseline
-npx playwright test --project=Desktop           # specific viewport
-npx playwright test tests/visual.spec.ts        # specific file
-npx playwright test --update-snapshots          # update changed baselines
-npx playwright test --update-snapshots=missing  # only add new baselines
-npx playwright show-report                      # open HTML report (local only)
+# Update snapshots for specific test
+npx playwright test --update-snapshots --grep "homepage"
+
+# Update all snapshots
+npx playwright test --update-snapshots
 ```
+
+## Debugging Visual Failures
+
+When tests fail, Playwright generates three images in `test-results/`:
+
+1. **Expected** - the baseline image
+2. **Actual** - current screenshot
+3. **Diff** - highlighted differences (red pixels)
+
+```bash
+# View HTML report with visual diffs
+npx playwright show-report
+```
+
+### Common Issues
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| Entire screenshot different | Different OS/browser version | Use consistent CI environment |
+| Text differences | Font rendering variance | Use Playwright Docker image |
+| Scattered pixels | Anti-aliasing | Increase `maxDiffPixels` |
+| Specific component changed | Real regression | Investigate CSS change |
+
+## VUDA Integration (Optional)
+
+VUDA (Visual UI Debug Agent) is an optional MCP server that provides AI-powered visual testing capabilities. It's **not included** in this skill - you need to install and configure it separately.
+
+VUDA goes beyond Playwright's built-in VRT by providing:
+- AI-powered visual analysis without writing tests
+- Automatic visual difference detection
+- DOM inspection with styles
+- User workflow validation
+- Performance metrics
+- Console error monitoring
+
+### VUDA Installation
+
+```bash
+# Install globally
+npm install -g visual-ui-debug-agent-mcp
+
+# Or run with npx
+npx visual-ui-debug-agent-mcp
+```
+
+### Configure VUDA MCP
+
+Add to your Claude Desktop config (`~/Library/Application Support/Claude/claude_desktop_config.json`):
+
+```json
+{
+  "mcpServers": {
+    "vuda": {
+      "command": "npx",
+      "args": ["-y", "visual-ui-debug-agent-mcp"]
+    }
+  }
+}
+```
+
+VUDA provides these tools for visual testing:
+
+### Available VUDA Tools
+
+| Tool | Description | Use Case |
+|------|-------------|----------|
+| `screenshot_url` | Capture screenshots of any URL | Quick visual capture without writing tests |
+| `enhanced_page_analyzer` | Comprehensive page analysis with screenshots | Full diagnostic with console + elements |
+| `visual_comparison` | Compare two URLs/pages and highlight differences | Before/after visual regression |
+| `dom_inspector` | Inspect DOM elements with computed styles | Debug styling issues |
+| `ui_workflow_validator` | Test user journeys with validation | Automated E2E testing |
+| `performance_analysis` | Measure Core Web Vitals | Performance regression testing |
+| `console_monitor` | Capture console errors/warnings | JavaScript error detection |
+| `navigation_flow_validator` | Test sequences of user actions | Complex user flows |
+| `batch_screenshot_urls` | Capture multiple URLs in grid | Overview/comparison |
+| `visual_comparison` | Pixel-diff between two URLs | Automated visual diff |
+
+### 1. screenshot_url - Quick Screenshots
+
+Capture a screenshot without writing any test code:
+
+```
+screenshot_url(
+  url: "https://example.com",
+  fullPage: false,
+  selector: null,  // Optional: capture specific element
+  waitTime: 5000
+)
+```
+
+**Example workflow:**
+1. Run `screenshot_url` to capture current state
+2. Make changes to your app
+3. Run `screenshot_url` again
+4. Compare visually
+
+### 2. enhanced_page_analyzer - Full Diagnostic
+
+Comprehensive page analysis combining multiple data sources:
+
+```
+enhanced_page_analyzer(
+  url: "https://example.com",
+  includeConsole: true,     // Capture console logs
+  mapElements: true,        // Map interactive elements
+  fullPage: false,
+  waitForSelector: null,
+  device: null
+)
+```
+
+**Returns:**
+- Screenshot
+- Console logs (errors, warnings, info)
+- List of interactive elements
+- Page metadata
+
+**Use case:** Debug why a page looks broken - get screenshot + console + elements in one call.
+
+### 3. visual_comparison - Automated Visual Diff
+
+Compare two URLs and automatically highlight differences:
+
+```
+visual_comparison(
+  url1: "https://example.com",
+  url2: "https://staging.example.com",
+  threshold: 0.1,    // Sensitivity (0.0-1.0)
+  fullPage: false,
+  selector: null
+)
+```
+
+**Returns:**
+- Side-by-side screenshot
+- Highlighted diff image
+- Percentage of difference
+
+**Use case:** Compare production vs staging, before/after deployments.
+
+### 4. dom_inspector - Style Debugging
+
+Inspect specific DOM elements with computed styles:
+
+```
+dom_inspector(
+  url: "https://example.com",
+  selector: "#login-button",
+  includeChildren: false,
+  includeStyles: true
+)
+```
+
+**Returns:**
+- Element HTML
+- Computed CSS styles
+- Computed values (colors, sizes, positions)
+
+**Use case:** Debug why a button looks different - get exact CSS values.
+
+### 5. ui_workflow_validator - Automated E2E
+
+Test complete user journeys with validation:
+
+```
+ui_workflow_validator(
+  startUrl: "https://example.com",
+  taskDescription: "User login flow",
+  steps: [
+    {
+      action: "fill",
+      selector: "#email",
+      value: "test@example.com"
+    },
+    {
+      action: "fill", 
+      selector: "#password",
+      value: "password123"
+    },
+    {
+      action: "click",
+      selector: "[data-testid='login-btn']"
+    },
+    {
+      action: "verifyUrl",
+      url: "/dashboard"
+    },
+    {
+      action: "verifyText",
+      selector: "h1",
+      value: "Dashboard"
+    }
+  ],
+  captureScreenshots: "all"
+)
+```
+
+**Returns:**
+- Screenshots per step
+- Pass/fail status per step
+- Error details if failed
+
+**Use case:** Automate complex flows without writing Playwright code.
+
+### 6. performance_analysis - Core Web Vitals
+
+Measure page performance metrics:
+
+```
+performance_analysis(
+  url: "https://example.com",
+  iterations: 3,
+  waitForNetworkIdle: true,
+  device: null
+)
+```
+
+**Returns:**
+- LCP (Largest Contentful Paint)
+- FID (First Input Delay)
+- CLS (Cumulative Layout Shift)
+- FCP (First Contentful Paint)
+- TTFB (Time to First Byte)
+
+**Use case:** Catch performance regressions before deployment.
+
+### 7. console_monitor - JavaScript Error Detection
+
+Monitor console output for a page:
+
+```
+console_monitor(
+  url: "https://example.com",
+  filterTypes: ["error", "warning"],
+  duration: 5000,
+  interactionSelector: null
+)
+```
+
+**Returns:**
+- All console messages
+- Error stack traces
+- Warning details
+
+**Use case:** Detect JavaScript errors during page load.
+
+### 8. navigation_flow_validator - Multi-Page Flows
+
+Test sequences across multiple pages:
+
+```
+navigation_flow_validator(
+  startUrl: "https://example.com",
+  steps: [
+    { action: "navigate", url: "/products" },
+    { action: "click", selector: ".product:first-child" },
+    { action: "click", selector: "[data-testid='add-to-cart']" },
+    { action: "navigate", url: "/cart" },
+    { action: "screenshot", selector: null }
+  ],
+  captureScreenshots: true
+)
+```
+
+### Complete VUDA Workflow Example
+
+**Scenario:** You deployed a new version and want to verify the homepage looks correct.
+
+```python
+# Step 1: Capture baseline screenshot
+vuda.screenshot_url(
+    url="https://production.example.com",
+    fullPage=True
+)
+
+# Step 2: Analyze with console to check for JS errors  
+vuda.enhanced_page_analyzer(
+    url="https://production.example.com",
+    includeConsole=True,
+    mapElements=True
+)
+
+# Step 3: Compare with staging
+vuda.visual_comparison(
+    url1="https://production.example.com",
+    url2="https://staging.example.com",
+    threshold=0.05
+)
+
+# Step 4: If issues found, inspect specific element
+vuda.dom_inspector(
+    url="https://staging.example.com",
+    selector=".hero-title",
+    includeStyles=True
+)
+```
+
+### VUDA + Playwright Combined
+
+Use VUDA for quick analysis, Playwright for CI/CD:
+
+```python
+# Quick debug with VUDA
+vuda.enhanced_page_analyzer(
+    url="http://localhost:3000",
+    includeConsole=True
+)
+
+# Automated regression with Playwright
+def test_homepage_visual_regression(page):
+    page.goto("http://localhost:3000")
+    expect(page).to_have_screenshot("homepage.png")
+```
+
+### Best Practices with VUDA
+
+1. **Use for debugging** - Quick visual checks without writing tests
+2. **Use for exploration** - Discover issues on unknown pages
+3. **Use for comparison** - Before/after, staging/prod
+4. **Use Playwright for CI** - Automated, reproducible tests
+
+### Troubleshooting VUDA
+
+| Issue | Solution |
+|-------|----------|
+| No screenshots | Check browser can launch, no headless restrictions |
+| Timeout errors | Increase `waitTime` for slow pages |
+| Missing elements | Page may use client-side rendering, wait longer |
+| Console not captured | Some errors only appear on interaction |
+
+### VUDA vs Playwright Built-in
+
+| Feature | VUDA | Playwright toHaveScreenshot |
+|---------|------|---------------------------|
+| Setup required | Yes (MCP) | No (built-in) |
+| Test automation | No (manual) | Yes (CI/CD) |
+| AI analysis | Yes | No |
+| Visual diff | Manual comparison | Automatic |
+| Console capture | Yes | No |
+| Performance metrics | Yes | No |
+| Best for | Debugging, exploration | Automated regression |
+
+## Vision Model Integration (look_at)
+
+Use `look_at` tool with vision-capable models to analyze screenshots after capturing them.
+
+**Important:** `look_at` requires a **direct file path** to the screenshot file (e.g., `/tmp/dashboard.png`). It does not work with virtual files or URLs - you must save the screenshot to disk first.
+
+### Analyzing Screenshots with AI
+
+```typescript
+import { test, expect } from '@playwright/test';
+import { readFileSync } from 'fs';
+
+test('analyze screenshot with vision model', async ({ page }) => {
+  await page.goto('/dashboard');
+  
+  // IMPORTANT: Save screenshot to a real file path
+  // look_at needs a real filesystem path, not virtual/URL
+  await page.screenshot({ 
+    path: '/tmp/dashboard.png',  // Direct file path required!
+    fullPage: true 
+  });
+  
+  // Use look_at tool with the file path:
+  // look_at(
+  //   file_path: '/tmp/dashboard.png',
+  //   goal: 'Analyze this dashboard screenshot for layout issues, missing elements, color problems'
+  // )
+  
+  // The vision model will identify:
+  // - Layout issues
+  // - Color consistency problems
+  // - Missing elements
+  // - Visual anomalies
+});
+```
+
+### look_at Requirements
+
+```typescript
+// ❌ WRONG - look_at does NOT work with:
+// - URLs
+// - Virtual files
+// - Base64 strings
+// - File descriptors
+
+// ✅ CORRECT - look_at needs:
+look_at(
+  file_path: '/absolute/path/to/screenshot.png',  // Must be real file on disk
+  goal: 'What to analyze in the screenshot'
+)
+
+// Recommended: Save to /tmp for temporary screenshots
+await page.screenshot({ path: '/tmp/my-screenshot.png' });
+look_at(file_path: '/tmp/my-screenshot.png', goal: 'Find any visual bugs');
+```
+
+### Complete Workflow Example
+
+```typescript
+test('capture and analyze screenshot', async ({ page }) => {
+  await page.goto('/checkout');
+  
+  // Step 1: Capture screenshot to real file path
+  const screenshotPath = '/tmp/checkout-page.png';
+  await page.screenshot({ 
+    path: screenshotPath,
+    fullPage: true 
+  });
+  
+  // Step 2: Use look_at for AI analysis
+  // In your prompt, call look_at with:
+  // {
+  //   file_path: '/tmp/checkout-page.png',
+  //   goal: 'Identify any visual issues: layout shifts, color mismatches, missing text, overlapping elements'
+  // }
+  
+  // The model analyzes the image and returns:
+  // - List of detected visual issues
+  // - Screenshots of problematic areas
+  // - Specific recommendations
+});
+```
+
+### Best Practices for look_at
+
+1. **Always use absolute paths** - `/tmp/screenshot.png` not `screenshot.png`
+2. **Save to /tmp** - For temporary test screenshots
+3. **Use descriptive goals** - "Find UI bugs" is better than "Analyze this"
+4. **Check file exists** - Ensure screenshot was saved before calling look_at
 
 ## Best Practices
 
-1. **Never retry visual tests** — Retries overwrite diff artifacts, making debugging impossible
-2. **Use Docker for baselines** — Matches Linux CI, avoids font rendering differences
-3. **Commit baselines to git** — They're source of truth for your UI
-4. **Mask dynamic content** — Prices, timestamps, live data cause false positives
-5. **Use the fixture for flaky tests** — Handles fonts, animations, lazy images
-6. **Set reducedMotion** — Tests stable visual state, not animations
+### 1. Test Organization
 
-## References
+```typescript
+// Tag visual tests for selective execution
+test('homepage visual @visual', async ({ page }) => {
+  await page.goto('/');
+  await expect(page).toHaveScreenshot('homepage.png');
+});
 
-- **Based on**: [maxrihter/claude-skill-visual-regression](https://github.com/maxrihter/claude-skill-visual-regression)
-- **Playwright Documentation**: https://playwright.dev/docs/test-snapshots
-- **toHaveScreenshot API**: https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-have-screenshot-1
-- **Visual Comparisons**: https://playwright.dev/docs/test-snapshots#pixel-matching
+// Run only visual tests
+npx playwright test --grep @visual
+```
+
+### 2. Component Over Full Page
+
+```typescript
+// Prefer component screenshots
+// ✅ Good: Targeted, fast, precise
+await expect(page.locator('.product-card')).toHaveScreenshot('product-card.png');
+
+// ⚠️ Full page: Slower, more noise, harder to diagnose failures
+await expect(page).toHaveScreenshot('page.png');
+```
+
+### 3. Consistent Environments
+
+```bash
+# Always use Docker for consistent rendering
+docker run --rm -v $(pwd):/app mcr.microsoft.com/playwright:v1.50.0-noble
+```
+
+### 4. Threshold Guidelines
+
+| Type | Recommended Threshold |
+|------|----------------------|
+| Simple components | `maxDiffPixelRatio: 0.001` (0.1%) |
+| Text-heavy pages | `maxDiffPixelRatio: 0.01` (1%) |
+| Full-page with fonts | `maxDiffPixelRatio: 0.02` (2%) |
+
+### 5. Handle Dynamic Content
+
+```typescript
+// Always mask:
+test('feed with masking', async ({ page }) => {
+  await page.goto('/feed');
+  
+  await expect(page).toHaveScreenshot('feed.png', {
+    mask: [
+      page.locator('.timestamp'),
+      page.locator('.user-avatar'),
+      page.locator('.ad-slot'),
+      page.locator('[data-testid="like-count"]'),
+    ],
+  });
+});
+```
+
+## Advanced Patterns
+
+### Data-Driven Visual Testing
+
+```typescript
+import { test, expect } from '@playwright/test';
+import testData from './visual-scenarios.json';
+
+testData.forEach(({ name, url, maskSelectors, threshold }) => {
+  test(`visual: ${name}`, async ({ page }) => {
+    await page.goto(url);
+    
+    const mask = maskSelectors?.map(sel => page.locator(sel));
+    
+    await expect(page).toHaveScreenshot(`${name}.png`, {
+      mask,
+      maxDiffPixelRatio: threshold || 0.01,
+    });
+  });
+});
+```
+
+### Page Object Model
+
+```typescript
+// page-objects/VisualPage.ts
+import { type Page, expect } from '@playwright/test';
+
+export class VisualPage {
+  constructor(private page: Page) {}
+
+  async assertMatches(name: string, options = {}) {
+    await expect(this.page).toHaveScreenshot(name, options);
+  }
+
+  async assertElementMatches(selector: string, name: string, options = {}) {
+    const element = this.page.locator(selector);
+    await expect(element).toHaveScreenshot(name, options);
+  }
+}
+
+// Usage
+test('dashboard visual', async ({ page }) => {
+  const visualPage = new VisualPage(page);
+  await page.goto('/dashboard');
+  await visualPage.assertMatches('dashboard.png', { mask: [...] });
+});
+```
+
+## Troubleshooting
+
+### Flaky Tests
+
+**Causes:**
+1. Animations not disabled
+2. Dynamic content not masked
+3. Network not idle before capture
+4. Viewport inconsistencies
+
+**Solutions:**
+
+```typescript
+test('stable screenshot', async ({ page }) => {
+  await page.goto('/');
+  
+  // Disable animations
+  await page.addStyleTag({ content: '*, *::before, *::after { animation: none !important; }' });
+  
+  // Wait for network idle
+  await page.waitForLoadState('networkidle');
+  
+  // Disable animations in screenshot options
+  await expect(page).toHaveScreenshot('stable.png', {
+    animations: 'disabled',
+    mask: [page.locator('.dynamic')],
+  });
+});
+```
+
+### Baseline Mismatch
+
+1. **Different OS** - Use Playwright Docker image in CI
+2. **Different browser version** - Pin Playwright version
+3. **Font rendering** - Bundle fonts or use web fonts
+
+## Test Pyramid for Visual Testing
+
+```
+        /\
+       /  \     E2E Visual Tests (5-10%)
+      /----\    - Critical user flows
+     /      \   - Full-page regression
+    /--------\  Component Tests (20-30%)
+   /          \ - Individual components
+  /------------\- UI component variants
+ /              \ Element Tests (60-70%)
+/________________\ - Smallest UI units
+                 - Buttons, inputs, cards
+```
+
+## Resources
+
+- [Playwright Visual Regression Docs](https://playwright.dev/docs/test-snapshots)
+- [VUDA MCP GitHub](https://github.com/samihalawa/visual-ui-debug-agent-mcp)
+- [BrowserStack Visual Testing Guide](https://www.browserstack.com/guide/visual-regression-testing-using-playwright)
+- [CSS-Tricks Visual Testing Guide](https://css-tricks.com/automated-visual-regression-testing-with-playwright/)
+
+---
+
+**When to Use What:**
+
+| Need | Solution |
+|------|----------|
+| Basic VRT | `toHaveScreenshot()` - built into Playwright |
+| AI-powered analysis | VUDA MCP tools |
+| Vision model analysis | `look_at` tool with screenshots |
+| Vision model analysis | `look_at` tool with screenshots |
+| Cross-browser at scale | Run against multiple browsers in CI |
+| Component testing | Element-level screenshots |
