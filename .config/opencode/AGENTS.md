@@ -10,6 +10,8 @@ Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-s
 
 **At the start of every new session (not for sub-agents), before any other work, the agent MUST perform these steps in order.**
 
+**Skip this entire section if the working directory is `/tmp`, a non-project directory, or no project structure is detected.**
+
 ### Step 0.1 — Read the project README
 
 - Locate and read the project's `README.md` (check root first, then common locations).
@@ -38,7 +40,7 @@ Determine whether the project is **npm-based** (Node.js/TypeScript) or **uv-base
 - Report what *is* present (e.g., "Found no package.json, pyproject.toml, or venv directory")
 - Ask the user which runtime to use before proceeding.
 
-**Output:** State the detected environment explicitly at the start of the session:
+**Output:** State the detected environment explicitly at the start of the session. Example:
 ```
 Environment: npm (Node.js/TypeScript)
   - Found: package.json, node_modules/
@@ -78,10 +80,10 @@ Before implementing:
 - If multiple interpretations exist, present them - don't pick silently.
 - If a simpler approach exists, say so. Push back when warranted.
 - If something is unclear, stop. Name what's confusing. Ask.
-- Don't forget to planning to execute multiple subagents for the various tasks
+- Don't forget to plan executing multiple subagents for the various tasks
 - Search for skills using the tools that can help you
 - Be concise in output but thorough in reasoning. No sycophantic openers or closing fluff.
-- **No AI slop** — When writing prose, use `humanize-text-en` skill to remove predictable AI patterns. Score: if <35/50, revise.
+- **No AI slop** — When writing prose, use `humanize-text-en` skill to remove predictable AI patterns. Aim for a natural, non-robotic tone; if the output reads clearly AI-generated despite revision, rework it.
 - Don't re-read files you have already read unless the file may have changed.
 - **No stubs** — When developing or planning, always write complete, working code. Never leave TODO placeholders, "// implementation here", or incomplete functions. If you don't know how to implement something, ask the user instead of stubbing.
 - **Fast recovery** — When there are AI issue/fails (timeout, hallucinated error, tool crash) load caveman skill once for session
@@ -94,7 +96,7 @@ When the user asks for analysis, evaluation, or creative output:
 * Before producing output, state what context you're working with
 * If the user provides an example of what they like, anchor to it
 * Generic input → generic output. Always. Refuse to proceed if context is too vague.
-* If the context during development is >70% reduce it
+* If context usage is high (you notice degraded recall or repeated information), proactively use `ctx_reduce` and other context management tools to free up space.
 
 ## 2.2 Sub-Agent Briefing Protocol
 
@@ -106,6 +108,8 @@ When delegating to a sub-agent, every prompt MUST include:
 * Examples — paste working examples when available ("Match this style: ...")
 * What NOT to do — explicit exclusions
 * Success criteria — how to verify the output is correct
+
+**Exception:** If the agent is OpenCode (which has its own built-in delegation prompt structure), skip the fields above and rely on its native system. Still apply the rules below.
 
 Rules for spawning sub-agents:
 
@@ -132,58 +136,32 @@ For non-coding tasks (analysis, writing, strategy):
 * Prefer specific numbers over vague quantifiers ("3 weeks" not "a while")
 * One idea per paragraph. No exceptions.
 
-## 3. Simplicity First
+## 3. Coding Principles
 
-**Minimum code that solves the problem. Nothing speculative.**
+**Minimum code that solves the problem. Nothing speculative. Touch only what you must.**
 
-- No features beyond what was asked.
-- No abstractions for single-use code.
+- No features beyond what was asked. No abstractions for single-use code.
 - No "flexibility" or "configurability" that wasn't requested.
 - No error handling for impossible scenarios.
 - If you write 200 lines and it could be 50, rewrite it.
-
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
-
-## 4. Surgical Changes
-
-**Touch only what you must. Clean up only your own mess.**
-
-When editing existing code:
 - Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it - don't delete it.
-
-When your changes create orphans:
+- Don't refactor things that aren't broken. Match existing style.
+- If you notice unrelated dead code, mention it — don't delete it.
 - Remove imports/variables/functions that YOUR changes made unused.
 - Don't remove pre-existing dead code unless asked.
+- Every changed line should trace directly to the user's request.
 
-The test: Every changed line should trace directly to the user's request.
-
-## 5. Goal-Driven Execution
+## 4. Goal-Driven Execution
 
 **Define success criteria. Loop until verified (and generate a test to avoid regressions).**
 
-Transform tasks into verifiable goals:
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state a brief plan:
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
-
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
-
 - Always run the EXISTING test suite before making changes to establish baseline.
 - Write tests BEFORE fixing bugs (TDD for bugfixes).
-- Use the project's existing test runner — ex: don't introduce pytest if the project uses unittest.
+- Use the project's existing test runner — don't introduce pytest if the project uses unittest.
 - Always check for existing migrations before creating new ones.
+- If the same error persists after 3 fix attempts → STOP, revert, ask user.
 
-## 6. Git Workflow Rules
+## 5. Git Workflow Rules
 
 To avoid accidental repository changes, the agent must follow this strict rule:
 
@@ -211,14 +189,14 @@ Reason:
 * Keep full control of repository history
 * Ensure code review before remote updates
 
-## 7. MCP Servers
+## 6. MCP Servers
 
 This project uses multiple **MCP (Model Context Protocol) servers** that extend the agent's capabilities.
 Each server provides a specific type of context or tooling.
 
 Agents should use these tools when appropriate instead of guessing.
 
-### Priority Order (always follow this sequence)'
+### Priority Order (always follow this sequence)
 
 0. **n8n_mcp** — n8n workflow automation. Use for: searching n8n nodes, creating/managing workflows, managing credentials, deploying templates.
 1. **vuda** — Browser automation. Use for: testing web apps, taking screenshots, filling forms, navigation flows, visual comparison.
@@ -266,9 +244,9 @@ Common tool chains that work well together:
 - **Chain tools, don't duplicate.** If websearch found a URL, use fetch to read it — don't websearch again.
 - **Use sequentialthinking** for architecture decisions, tradeoff analysis, or debugging with multiple hypotheses — not for simple lookups.
 
-# 8. File & Output Rules
+## 7. File & Output Rules
 
-## 8.1 — Temporary files go to /tmp
+### 8.1 — Temporary files go to /tmp
 
 All test scripts, scratch files, prototypes, intermediate artifacts, and anything the agent writes to try something out must go under /tmp/. This includes: 
 
@@ -279,14 +257,14 @@ All test scripts, scratch files, prototypes, intermediate artifacts, and anythin
 
 Never create these files in the project root, in source directories unless they are the actual deliverable the user asked for. 
 
-## 8.2 — README generation rules 
+### 8.2 — README generation rules 
 
 When generating a README.md for a project: 
 
      Do not include a "Project Structure" or "Directory Tree" section. File trees go stale fast, add noise, and the user can run tree themselves.
      Focus on: what the project does, how to set it up, how to use it, and any non-obvious conventions.
 
-## 9. Plan Quality
+## 8. Plan Quality
 
 When generating or consuming plans in `.sisyphus/plans/` or in other folders, enforce these rules:
 
@@ -295,7 +273,7 @@ When generating or consuming plans in `.sisyphus/plans/` or in other folders, en
 - Concrete success criteria (how to verify it's done)
 - Explicit scope boundary (what NOT to touch)
 - Required tools/skills for the delegate agent
-- No STUBs but real code
+- No stubs but real code
 
 **Every plan MUST follow these rules:**
 - If a plan exists and has pending tasks, NEVER create a new competing plan for the same scope.
