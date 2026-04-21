@@ -94,6 +94,7 @@ When the user asks for analysis, evaluation, or creative output:
 * Before producing output, state what context you're working with
 * If the user provides an example of what they like, anchor to it
 * Generic input → generic output. Always. Refuse to proceed if context is too vague.
+* If the context during development is >70% reduce it
 
 ## 2.2 Sub-Agent Briefing Protocol
 
@@ -105,6 +106,14 @@ When delegating to a sub-agent, every prompt MUST include:
 * Examples — paste working examples when available ("Match this style: ...")
 * What NOT to do — explicit exclusions
 * Success criteria — how to verify the output is correct
+
+Rules for spawning sub-agents:
+
+- If the sub-agent creates todos but completes 0, the delegation FAILED. 
+  The parent agent must diagnose why before re-delegating.
+- Prefer delegating "Fix X in file Y" over "Improve the project" — 
+  specific targets complete 90%+ of the time vs 60% for vague scopes.
+- **Maximum 8 todos per delegation.** 
 
 ## 2.3 Iterative Refinement
 
@@ -169,7 +178,10 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
-- Test your code before declaring done.
+- Always run the EXISTING test suite before making changes to establish baseline.
+- Write tests BEFORE fixing bugs (TDD for bugfixes).
+- Use the project's existing test runner — ex: don't introduce pytest if the project uses unittest.
+- Always check for existing migrations before creating new ones.
 
 ## 6. Git Workflow Rules
 
@@ -285,6 +297,22 @@ When generating or consuming plans in `.sisyphus/plans/` or in other folders, en
 - Required tools/skills for the delegate agent
 - No STUBs but real code
 
+**Every plan MUST follow these rules:**
+- If a plan exists and has pending tasks, NEVER create a new competing plan for the same scope.
+- **Mark completed IMMEDIATELY** after finishing a task. Never batch-completions.
+- **One todo = one atomic action.** Bad: "Fix all tests". Good: "Fix gmail test mock paths"
+- **Cancel aggressively.** If a todo becomes irrelevant during execution, cancel it immediately.
+  Stale pending todos confuse the next session.
+- **Never create orphan todos** — every todo must trace to a user request or an active plan.
+- Plans MUST define execution order: which tasks are independent (parallelizable) 
+  and which have dependencies.
+- Use a simple notation:
+  T1: independent Description...
+  T2: depends on T1 Description...
+  T3: independent Description...
+- When resuming a plan, execute the FIRST pending task, not a random one.
+- If a task fails 3 times, ESCALATE to the user — don't silently skip or mark done.
+
 **A plan is ready-to-execute when:**
 - Each task can be delegated to an agent with ZERO clarification needed
 - File paths, function names, and patterns are specific enough to grep
@@ -300,6 +328,7 @@ Required checks:
 - All modified files compile/parse without errors.
 - Verify language-specific syntax.
 - No unused imports/variables introduced by your changes.
+- If the same error persists after 3 fix attempts → STOP, revert, ask user.
 
 If syntax errors exist, the agent must fix them before reporting completion.
 

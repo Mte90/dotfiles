@@ -1,7 +1,7 @@
 # Skills
 
 * https://github.com/cnbb-design/ai-design
-* https://github.com/actionbook/rust-skills
+* https://github.com/apollographql/skills
 * https://github.com/CodeAtCode/oss-ai-skills
 * https://github.com/khabaznak/htmx-skills/
 * https://github.com/Karanjot786/agent-skills-cli/blob/main/skills/deep-researcher/
@@ -15,3 +15,7 @@
 * https://github.com/chongdashu/vibejam-starter-pack/
 * https://github.com/OpusGameLabs/game-creator
 * https://github.com/JuliusBrussee/caveman
+* https://github.com/affaan-m/everything-claude-code
+* https://github.com/leonardomso/rust-skills
+* https://github.com/aj-geddes/useful-ai-prompts
+* https://github.com/vuejs-ai/skills
