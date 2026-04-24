@@ -19,3 +19,4 @@
 * https://github.com/leonardomso/rust-skills
 * https://github.com/aj-geddes/useful-ai-prompts
 * https://github.com/vuejs-ai/skills
+* https://github.com/hyperb1iss/hyperskills

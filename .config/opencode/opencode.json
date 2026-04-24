@@ -102,6 +102,40 @@
             "temperature": 0.7
           }
         },
+        "qwen3.6-27b": {
+          "id": "qwen3.6-27b",
+          "name": "qwen3.6-27b",
+          "tools": true,
+          "cost": {
+            "input": 0.5,
+            "output": 2.1
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 120000,
+            "output": 120000
+          },
+          "options": {
+            "reasoningEffort": "high",
+            "textVerbosity": "low",
+            "reasoningSummary": "auto",
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "parallel_tool_calls": true,
+            "tool_choice": "auto",
+            "thinking": true,
+            "temperature": 0.7
+          }
+        },
         "qwen3.5-122b": {
           "id": "qwen3.5-122b",
           "name": "qwen3.5-122b",
@@ -410,6 +444,10 @@
     "webfetch": "allow",
     "question": "allow"
   },
+  "tools": {
+    "websearch": true,
+    "codesearch": true
+  },
   "compaction": {
     "auto": false,
     "prune": false
@@ -428,13 +466,13 @@
     ]
   },
   "plugin": [
-    "oh-my-openagent@latest",
-    "@franlol/opencode-md-table-formatter@latest",
-    "@cortexkit/aft-opencode@latest",
-    "@cortexkit/opencode-magic-context@latest",
-    "opencode-agent-skills@latest",
-    "opencode-auto-resume@latest",
-    "opencode-plugin-auto-update"
+    "oh-my-openagent@3.17.4",
+    "@franlol/opencode-md-table-formatter@0.0.6",
+    "@cortexkit/aft-opencode@0.14.1",
+    "@cortexkit/opencode-magic-context@0.13.2",
+    "opencode-agent-skills@0.6.5",
+    "opencode-auto-resume@1.0.9",
+    "opencode-plugin-auto-update@0.3.1"
   ],
   "autoupdate": true,
   "experimental": {
@@ -499,11 +537,17 @@
     },
     "vuda": {
       "type": "local",
-      "command": ["/home/mte90/.local/share/npm/lib/node_modules/visual-ui-debug-agent-mcp/dist/index.js"]
+      "command": [
+        "/home/mte90/.local/share/npm/lib/node_modules/visual-ui-debug-agent-mcp/dist/index.js"
+      ]
     },
     "n8n": {
       "type": "local",
-      "command": ["npx", "-y", "n8n-mcp"],
+      "command": [
+        "npx",
+        "-y",
+        "n8n-mcp"
+      ],
       "environment": {
         "MCP_MODE": "stdio",
         "LOG_LEVEL": "error",
