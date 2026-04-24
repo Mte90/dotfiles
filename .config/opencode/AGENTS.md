@@ -313,3 +313,75 @@ If syntax errors exist, the agent must fix them before reporting completion.
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+## 9. Learnings
+
+Durable engineering wisdom that should survive refactors. Each rule pairs the wrong pattern with the right one.
+
+### 9.1 Engineering Discipline
+
+* **Fix warnings immediately.** → Warnings indicate mismatch between intent and reality. If you can't fix it now, stop and design a clean fix before continuing.
+* **Wire lint/format in every subproject, even standalone demos.** → Use ESLint + Prettier (or arc lint equivalents) via local scripts and scoped overrides. Skipped checks in demos propagate into production.
+* **Run independent validation/review tasks in parallel.** → Launch concurrent checks when tasks don't depend on each other. Use sequential execution only for true dependency chains.
+* **Gate async boundaries explicitly in tests.** → Use `setTimeout(..., 0)` or tight 1ms polling for yielding. Use larger fixed sleeps only when you don't care about ordering — they hide race conditions.
+* **Treat feedback as a quality input, not just a blocker gate.** → Adopt any suggestion that improves correctness, elegance, or simplicity, not only blockers.
+* **Record decisions and rationale in the plan itself.** → Encode accept/reject reasoning directly in the plan document so review rounds see stable intent instead of re-opening tradeoffs.
+* **Write plan docs in final form.** → Present the chosen design directly. List rejected alternatives separately if they add value. Don't narrate "we first thought X, then switched to Y."
+* **Re-run full review after any plan-changing round.** → Continue iterating until a complete round yields no further changes worth making. Don't stop mid-iteration.
+* **Match the review bar to the user's stated goal.** → For viability checks, evaluate feasibility and core risks. Reserve decision-complete standards for implementation-ready requests.
+* **Prefer fewer knobs in internal tooling.** → Use standard environment assumptions (`PATH`) and fail loudly on missing prerequisites. Skip optional CLI flags that add decision surface for single-workflow scripts.
+* **Preserve existing local conventions when widening a compatibility type.** → Add the new value without re-normalizing casing or naming to match a neighboring subsystem — unless the task explicitly asks for it.
+* **Keep boundary-specific parsing at that boundary.** → Handle weird API shapes (e.g. VS Code returning `undefined | '' | EnumValue`) right where that API is read. Use shared domain helpers only when the semantics truly span the domain.
+* **Duplicate small fixups at callsites over shared `normalize*` helpers.** → A helper like `normalizeReasoningEffort()` falsely suggests domain-wide normalization. Two inline fixups are cheaper than one misleading abstraction.
+* **Match the local testing style before introducing a new test surface.** → Add component/unit tests for small UI details only if the surrounding area already uses that style, or the behavior is important enough to justify the pattern change.
+* **Add `data-testid` only for concrete current tests.** → Speculative test hooks invite over-testing. If no harness needs it today, don't add it.
+* **Solve file length with factoring, not compression.** → Preserve meaningful whitespace, paragraph breaks, and comments. If the file is still too large, extract a justified module or request an exemption.
+* **Inspect first, recommend second.** → Confirm reality from code/runtime state before proposing changes. Don't guess.
+* **Document string-rewrite helpers with concrete examples.** → Show the literal input → output strings. `normalizeReasoningEffort('') → 'default'` beats three sentences of prose.
+* **Verify which boundary emitted a bad value before fixing normalization.** → A visible invalid identifier may come from a different layer than the one you're inspecting. Fixing the nearest mapping can be a clean implementation of the wrong diagnosis.
+* **Check contracts before changing implementation for a failing test.** → Verify the asserted behavior is still an explicit contract in code, docs, or plan notes. If the signal is mixed, ask the user instead of picking a side.
+* **Let logging adapt to data flow contracts, not the reverse.** → If a parameter exists only for nicer logs, remove it. Preserve the essential black-box data flow.
+* **Use self-describing discriminants: `threadKind: 'new' | 'resume'` over `isResumedConversation: boolean`.** → Bare booleans force readers to remember hidden meaning. Discriminated values explain themselves at the callsite.
+* **Write concrete union types inline: `'new' | 'resume'` over `SomeType['kind']`.** → Type indirection through another type saves nothing and makes the local boundary harder to read. Use the indirection only when it carries meaningful shared semantics.
+* **Name boundaries after the work they do.** → Use ugly-but-accurate names over vague wrappers like `*Context` or `*Utils`. Write small return shapes like `{thread: Thread; config: Config}` as inline structural types.
+* **Strengthen the producer contract instead of adding "impossible" throws.** → Return the value directly from the successful prerequisite. Prove the invariant at the ownership boundary, then expose the stronger contract outward.
+* **Use one collection with nullable fields over parallel related collections.** → Model discovered objects at different readiness levels as one record shape. Derive projections from it instead of maintaining subset invariants.
+* **Use one source-of-truth collection over parallel synchronized sets/maps.** → Combine "all seen", "seen from source A", "seen from source B" into one collection with explicit provenance data.
+* **Return one-shot data to the caller instead of adding sibling cached fields.** → Mutable fields create lifecycle questions (`when set?`, `cleared?`, `drift?`). Add the field only when later reads truly need retained ownership.
+* **Return extra data in the acquisition result instead of widening retained caches.** → Resume-only metadata and startup-only probes belong in the immediate result, not in long-lived owner state.
+* **Keep single-owner derivation logic in the owning module.** → Prefer private helpers over extracting sibling modules. Extraction should be earned by a real second owner, not by aesthetic tidiness.
+* **Name shared helpers after their concrete contract.** → Use `formatIsoDate()` over `*Utils`. Single-owner helpers stay in the owning module.
+* **Move synchronization to the true ownership boundary when an incidental wait breaks.** → Don't restore the sleep. The wait was masking a real bug — fix the synchronization properly.
+
+### 9.2 Architecture and Refactorability
+
+* **Write pure input→output logic from the start.** → Pure functions are cheaper to move, test, and recombine. Keep effects in thin orchestration layers.
+* **Separate decision logic from effects.** → Keep computation in pure helpers/reducers. Put I/O, storage, DOM, and network writes in the orchestration layer.
+* **Design modules around effect boundaries.** → A module should either decide what happens (pure) or perform side effects (impure), not both.
+* **Build clear boundaries upfront.** → Modularity is a maintenance multiplier, not a cleanup pass. Refactoring after feature completion is expensive and risky.
+
+### 9.3 Logging and Telemetry
+
+* **Use one summary string + one opaque details object for rich failure context.** → The error module formats the summary once; callers forward the untouched details bag without mirroring fields into parallel APIs.
+* **Keep `{humanSummary, telemetry}` as the primary contract.** → Don't tunnel through `Error.message` or create wrapper types like `*Telemetry`. One human string + one machine bag is enough.
+* **Emit rich raw observations; let the pipeline handle taxonomy.** → Slice observations into categories in the telemetry-reading pipeline, not in product code. Product logic changes only when behavior branches on the category.
+* **Keep telemetry-only drift monitoring minimal.** → Emit one bounded best-effort signal. Don't widen product state, picker contracts, startup blocking, or caching for a monitoring-only probe.
+* **Use boundary/failure events as logging, not high-volume chatter.** → Treat logs as a debugging contract. Prefer transition events over steady-state snapshots.
+* **Use `logger.info` for single-transcript debugging.** → Promote to central telemetry only when there's a clear product-analysis need across multiple transcripts.
+* **Implement centralized telemetry events for observability milestones.** → Local logfile diagnostics are optional and never a replacement for product-wide observability requirements.
+* **Surface diagnostics as structured events to the owning boundary.** → Don't keep telemetry-bound diagnostics logger-only in lower layers. One clear telemetry owner prevents duplicated parsing logic.
+* **Keep logging logic lightweight and stateless.** → Use caches, dedup state, and suppression only when proven necessary by real data.
+* **Log at the owning callsite with only the data needed.** → Don't create shared modules for debug-log formatting. Don't carry unrelated fields because they're easy to log.
+* **Keep logging helpers effect-free.** → A helper named for logging shouldn't hide mutations or streaming side effects.
+* **Emit diagnostics where state is owned.** → Log in the layer that owns the lifecycle/state. Don't duplicate logs across call stacks.
+* **Log transitions, not positions.** → State changes, request boundaries, and failure edges are actionable. Repeated steady-state snapshots are noise.
+* **Carry actionable context in thrown errors.** → If errors are logged at a higher layer, pack the context into the error object so single-site logging doesn't lose detail.
+* **Log once up-stack; preserve context in the error itself.** → Don't pair `logger.error` with `throw` at the same site. Let the catcher log with full context.
+* **Catch errors only to translate state or enrich the error contract.** → Don't add catch/rethrow blocks just to emit a log line. If you're not changing the error, let it propagate.
+* **Compute derived log fields at write time, not via stored state.** → Don't add timing fields, duplicate booleans, or extra counters whose only purpose is logging.
+* **Let readers infer timing from log timestamps.** → Don't compute elapsed time in code when the logger already timestamps each line.
+* **Represent each fact once in log output.** → Don't introduce parallel fields in logging helpers that require invariants to stay in sync.
+* **Keep log payload handling simple.** → Add truncation or special formatting only when real data shows logs are too large or noisy.
+* **Let logger configuration handle source attribution.** → Don't manually prefix log lines with logger identity.
+* **Test behavior, not debug output wording.** → Don't write tests that assert log message text unless the logging path also changes functional control flow or user-visible behavior.
+* **Test through the public surface, not exported internals.** → Keep private helpers private. Test via the module's true public API or the higher-level owner that consumes it. Extra exports for tests let tests dictate production shape.
