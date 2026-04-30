@@ -2,7 +2,7 @@
   "$schema": "https://opencode.ai/config.json",
   "share": "manual",
   "model": "regolo/qwen3.5-122b",
-  "small_model": "regolo/qwen3-coder-next",
+  "small_model": "regolo/qwen3.6-27b",
   "provider": {
     "regolo": {
       "npm": "@ai-sdk/openai-compatible",
@@ -18,6 +18,40 @@
         }
       },
       "models": {
+        "gemma4-31b": {
+          "id": "gemma4-31b",
+          "name": "gemma4-31b",
+          "tools": true,
+          "cost": {
+            "input": 0.4,
+            "output": 2.1
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "limit": {
+            "context": 100000,
+            "output": 100000
+          },
+          "options": {
+            "reasoningEffort": "high",
+            "textVerbosity": "low",
+            "reasoningSummary": "auto",
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "parallel_tool_calls": true,
+            "tool_choice": "auto",
+            "thinking": true,
+            "temperature": 0.7
+          }
+        },
         "gpt-oss-120b": {
           "id": "gpt-oss-120b",
           "name": "gpt-oss-120b",
@@ -471,7 +505,7 @@
     "@cortexkit/aft-opencode@0.14.1",
     "@cortexkit/opencode-magic-context@0.13.2",
     "opencode-agent-skills@0.6.5",
-    "opencode-auto-resume@1.0.9",
+    "opencode-auto-resume@1.0.10",
     "opencode-plugin-auto-update@0.3.1"
   ],
   "autoupdate": true,

@@ -11,7 +11,7 @@
       "model": "regolo/qwen3.5-122b"
     },
     "explore": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "regolo/qwen3.6-27b"
     },
     "multimodal-looker": {
       "model": "regolo/mistral-small-4-119b"
@@ -23,7 +23,7 @@
       "model": "regolo/mistral-small-4-119b"
     },
     "momus": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "regolo/mistral-small-4-119b"
     },
     "sisyphus": {
       "model": "zai-coding-plan/glm-5.1"
@@ -40,13 +40,13 @@
       "model": "regolo/mistral-small-4-119b"
     },
     "artistry": {
-      "model": "regolo/minimax-m2.5"
+      "model": "regolo/gemma4-31b"
     },
     "quick": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "regolo/qwen3.6-27b"
     },
     "git": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "regolo/qwen3.6-27b"
     },
     "deep": {
       "model": "regolo/minimax-m2.5"
@@ -55,7 +55,7 @@
       "model": "regolo/minimax-m2.5"
     },
     "unspecified-low": {
-      "model": "regolo/qwen3-coder-next"
+      "model": "regolo/qwen3.6-27b"
     },
     "writing": {
       "model": "regolo/gpt-oss-120b"
@@ -76,8 +76,9 @@
       "regolo/mistral-small-4-119b": 8,
       "regolo/minimax-m2.5": 8,
       "regolo/qwen3.5-122b": 8,
-      "regolo/qwen3-coder-next": 10,
+      "regolo/qwen3.6-27b": 10,
       "regolo/gpt-oss-120b": 5,
+      "regolo/gemma4-31b": 5
     }
   },
   "notification": {
