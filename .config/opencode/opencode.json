@@ -500,15 +500,14 @@
     ]
   },
   "plugin": [
-    "oh-my-openagent@3.17.4",
+    "oh-my-openagent@3.17.15",
     "@franlol/opencode-md-table-formatter@0.0.6",
-    "@cortexkit/aft-opencode@0.14.1",
-    "@cortexkit/opencode-magic-context@0.13.2",
-    "opencode-agent-skills@0.6.5",
+    "@cortexkit/aft-opencode@latest",
+    "@cortexkit/opencode-magic-context@latest",
     "opencode-auto-resume@1.0.10",
-    "opencode-plugin-auto-update@0.3.1"
+    "opencode-plugin-auto-update@latest"
   ],
-  "autoupdate": true,
+  "autoupdate": false,
   "experimental": {
     "openTelemetry": false
   },
@@ -516,11 +515,6 @@
     "context7": {
       "type": "remote",
       "url": "https://mcp.context7.com/mcp",
-      "enabled": true
-    },
-    "grep_app": {
-      "type": "remote",
-      "url": "https://mcp.grep.app",
       "enabled": true
     },
     "websearch": {
