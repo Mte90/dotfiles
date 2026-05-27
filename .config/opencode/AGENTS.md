@@ -248,12 +248,12 @@ Common tool chains that work well together:
 
 ### 8.1 — Temporary files go to /tmp
 
-All test scripts, scratch files, prototypes, intermediate artifacts, and anything the agent writes to try something out must go under /tmp/. This includes: 
+All test scripts, scratch files, prototypes, intermediate artifacts, and anything the agent writes to try something out must go under /tmp/ but without versioning files between edits. This includes: 
 
-     Quick test scripts (test_api.py, debug.ts, etc.)
-     Downloaded files used only for inspection
-     Intermediate build or transformation artifacts
-     Any file the agent creates for its own debugging purposes
+* Quick test scripts (test_api.py, debug.ts, etc.)
+* Downloaded files used only for inspection
+* Intermediate build or transformation artifacts
+* Any file the agent creates for its own debugging purposes
 
 Never create these files in the project root, in source directories unless they are the actual deliverable the user asked for. 
 
@@ -261,8 +261,8 @@ Never create these files in the project root, in source directories unless they 
 
 When generating a README.md for a project: 
 
-     Do not include a "Project Structure" or "Directory Tree" section. File trees go stale fast, add noise, and the user can run tree themselves.
-     Focus on: what the project does, how to set it up, how to use it, and any non-obvious conventions.
+* Do not include a "Project Structure" or "Directory Tree" section. File trees go stale fast, add noise, and the user can run tree themselves.
+* Focus on: what the project does, how to set it up, how to use it, and any non-obvious conventions.
 
 ## 8. Plan Quality
 
@@ -270,13 +270,16 @@ When generating or consuming plans in `.sisyphus/plans/` or in other folders, en
 
 **Every task in a plan MUST include:**
 - Exact file paths to modify (no "find the right file" — state it)
-- Concrete success criteria (how to verify it's done)
 - Explicit scope boundary (what NOT to touch)
 - Required tools/skills for the delegate agent
-- No stubs but real code
+- **All tasks in scope**: Every task in a plan or todo list must be completed before marking the session done. No "I'll finish this later."
+- **No stubs or TODOs**: Never leave placeholder code, `// implementation here`, incomplete functions, or `NotImplemented` exceptions. If you don't know how to implement something, ask the user instead.
+- **Zero compilation errors**: All modified files must compile/parse without syntax errors. If the same error persists after 3 fix attempts → STOP, revert, ask user.
+- **Zero warnings**: Warnings indicate mismatch between intent and reality. If you can't fix it now, stop and design a clean fix before continuing.
+- **Full verification**: Every task must include verification steps (tests, linting, type checking, manual validation). Task not complete without evidence.
 
 **Every plan MUST follow these rules:**
-- If a plan exists and has pending tasks, NEVER create a new competing plan for the same scope.
+- If a plan exists and has pending tasks, NEVER create a new competing plan.
 - **Mark completed IMMEDIATELY** after finishing a task. Never batch-completions.
 - **One todo = one atomic action.** Bad: "Fix all tests". Good: "Fix gmail test mock paths"
 - **Cancel aggressively.** If a todo becomes irrelevant during execution, cancel it immediately.
@@ -309,6 +312,10 @@ Required checks:
 - If the same error persists after 3 fix attempts → STOP, revert, ask user.
 
 If syntax errors exist, the agent must fix them before reporting completion.
+
+### Session Closure
+
+When finishing all work in a session (including sub-agents), **always close with 🎉** on its own line.
 
 ---
 
@@ -385,3 +392,5 @@ Durable engineering wisdom that should survive refactors. Each rule pairs the wr
 * **Let logger configuration handle source attribution.** → Don't manually prefix log lines with logger identity.
 * **Test behavior, not debug output wording.** → Don't write tests that assert log message text unless the logging path also changes functional control flow or user-visible behavior.
 * **Test through the public surface, not exported internals.** → Keep private helpers private. Test via the module's true public API or the higher-level owner that consumes it. Extra exports for tests let tests dictate production shape.
+
+---

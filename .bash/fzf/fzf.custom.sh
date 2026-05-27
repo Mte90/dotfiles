@@ -6,8 +6,6 @@ export FZF_DEFAULT_OPTS='--exact --preview "([[ -f {} ]] && (batcat --style=numb
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
 bind -x '"\C-p": nvim-qt $(fzf);'
-# Bind F1 to open file to Kate, Ctrl-Y to copy to the clipboard the path, Ctrl-N to enter the folder
-alias fzf='fzf --bind "f1:execute(kate {}),ctrl-y:execute-silent(echo {} | pbcopy)+abort,ctrl-n:execute(cd {})"' 
 
 # find-in-file - usage: fif <SEARCH_TERM>
 find-in-file() {
@@ -16,6 +14,14 @@ find-in-file() {
     return 1;
   fi
   rg --files-with-matches --no-messages "$1" | fzf --preview "([[ -f {} ]] && (batcat --style=numbers --color=always {} || cat {})) | $FZF_SEARCH --colors 'match:bg:yellow' --ignore-case --pretty --context 10 '$1'"
+}
+
+fkill() {
+  local pid=$(ps -ef | fzf --delimiter ' ' --preview 'echo Process: {2}' | awk '{print $2}')
+  if [ -n "$pid" ]; then
+    echo "Killing process $pid..."
+    kill -9 "$pid"
+  fi
 }
 
 source /usr/share/fzf-help/fzf-help.bash
