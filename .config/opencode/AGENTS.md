@@ -315,7 +315,20 @@ If syntax errors exist, the agent must fix them before reporting completion.
 
 ### Session Closure
 
-When finishing all work in a session (including sub-agents), **always close with 🎉** on its own line.
+**Only close with 🎉 when ALL work is truly complete:**
+
+- All main tasks finished (no pending todos)
+- All background tasks completed (explore/librarian agents, bash commands)
+- All sub-agents finished their work
+- No pending external responses (Oracle, codebase scans, etc.)
+
+**Do NOT use 🎉 when:**
+- A sub-agent is still running
+- A bash command is in background
+- Waiting for Oracle/external response
+- There are pending tasks
+
+Use 🎉 only when you have nothing left to do and the session is fully complete.
 
 ---
 
