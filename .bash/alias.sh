@@ -11,7 +11,7 @@ alias mkdir='mkdir -p'
 alias diff='colordiff'
 alias fd='fdfind'
 # Create folder and join it
-function mkcd(){ mkdir -p $@ && cd $_; }
+function mkcd(){ mkdir -p "$@" && cd "$_"; }
 alias jpeg-to-webp='fd "./*\.jpg$" -x cwebp -q 95 {} -o {.}.jpg.webp'
 
 # CD stuff
@@ -43,14 +43,18 @@ alias nvim-qt="/home/mte90/Desktop/Prog/My-Scripts/misc/nvim-qt.py"
 alias vim.tiny="nvim -u NONE"
 alias nvim.tiny="nvim -u NONE"
 
-alias poetry-run="poetry run python manage.py"
-alias runserver="poetry run python manage.py runserver"
-
 # https://github.com/cykerway/complete-alias
 complete -F _complete_alias "${!BASH_ALIASES[@]}"
 
 # https://github.com/flyingrhinonz/nccm
-alias nccm="/home/mte90/Desktop/kde/nccm/nccm/nccm"
+function nccm(){
+  for dir in /home/mte90/Desktop/kde/nccm/nccm /home/mte90/Prog; do
+    if [ -x "$dir/nccm" ]; then
+      exec "$dir/nccm" "$@"
+    fi
+  done
+  echo "nccm not found" >&2
+}
 
 # https://gist.github.com/kishannareshpal/342efc4a15e47ea5d338784d3e9a8d98
 function activatevenv() {
@@ -70,7 +74,13 @@ activatevenv
 
 function cd() {
   builtin cd "$1"
-  activatevenv
+  
+  if activatevenv; then
+    :
+  elif command -v deactivate &> /dev/null; then
+    deactivate
+    source /home/mte90/.bash/alias.sh
+  fi
 }
 
 function z() {
@@ -79,22 +89,4 @@ function z() {
 
 silent() {
     "$@" > /dev/null 2>&1 &
-}
-
-om-opencode() {
-  local config_file="$HOME/.config/opencode/opencode.json"
-  local updated_json
-
-  updated_json=$(jq '
-    .plugin = (
-      (.plugin // [])
-      | if any(.[]; test("^oh-my-opencode(@.*)?$")) then
-          .
-        else
-          . + ["oh-my-opencode@latest"]
-        end
-    )
-  ' "$config_file")
-
-  OPENCODE_CONFIG_CONTENT="$updated_json" opencode "$@"
 }
