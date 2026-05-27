@@ -48,9 +48,9 @@ complete -F _complete_alias "${!BASH_ALIASES[@]}"
 
 # https://github.com/flyingrhinonz/nccm
 function nccm(){
-  for dir in /home/mte90/Desktop/kde/nccm/nccm /home/mte90/Prog; do
-    if [ -x "$dir/nccm" ]; then
-      exec "$dir/nccm" "$@"
+  for dir in /home/mte90/Desktop/kde/nccm/nccm /home/mte90/Prog/nccm/nccm; do
+    if [ -e "$dir/nccm" ]; then
+      exec "$dir/nccm"
     fi
   done
   echo "nccm not found" >&2
