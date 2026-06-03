@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
   "agents": {
     "hephaestus": {
-      "model": "regolo/minimax-m2.5"
+      "model": "regolo/gpt-oss-120b"
     },
     "oracle": {
       "model": "regolo/qwen3.5-122b"
@@ -11,22 +11,22 @@
       "model": "regolo/qwen3.5-122b"
     },
     "explore": {
-      "model": "regolo/qwen3.6-27b"
+      "model": "regolo/gemma4-31b"
     },
     "multimodal-looker": {
       "model": "regolo/mistral-small-4-119b"
     },
     "prometheus": {
-      "model": "zai-coding-plan/glm-5.1"
+      "model": "regolo/qwen3.5-122b"
     },
     "metis": {
       "model": "regolo/mistral-small-4-119b"
     },
     "momus": {
-      "model": "regolo/mistral-small-4-119b"
+      "model": "regolo/deepseek-v4-flash"
     },
     "sisyphus": {
-      "model": "zai-coding-plan/glm-5.1"
+      "model": "regolo/qwen3.5-122b"
     },
     "atlas": {
       "model": "regolo/qwen3.5-122b"
@@ -71,8 +71,6 @@
     "defaultConcurrency": 10,
     "staleTimeoutMs": 180000,
     "modelConcurrency": {
-      "zai-coding-plan/glm-5": 2,
-      "zai-coding-plan/glm-5.1": 2,
       "regolo/mistral-small-4-119b": 8,
       "regolo/minimax-m2.5": 8,
       "regolo/qwen3.5-122b": 8,
