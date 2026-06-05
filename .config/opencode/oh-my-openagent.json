@@ -23,7 +23,7 @@
       "model": "regolo/mistral-small-4-119b"
     },
     "momus": {
-      "model": "regolo/deepseek-v4-flash"
+      "model": "regolo/mistral-small-4-119b"
     },
     "sisyphus": {
       "model": "regolo/qwen3.5-122b"
