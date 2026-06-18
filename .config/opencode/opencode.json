@@ -291,14 +291,14 @@
     ]
   },
   "plugin": [
-    "oh-my-opencode-slim@latest",
-    "opencode-plugin-openspec",
+    "oh-my-opencode-slim@2.0.4",
+    "opencode-plugin-openspec@0.1.4",
     "@franlol/opencode-md-table-formatter@0.0.6",
-    "@cortexkit/aft-opencode@latest",
-    "@cortexkit/opencode-magic-context@latest",
-    "opencode-auto-resume@1.0.14",
+    "@cortexkit/aft-opencode@0.39.3",
+    "@cortexkit/opencode-magic-context@0.25.0",
+    "opencode-auto-resume@1.0.15",
     "opencode-plugin-auto-update@latest",
-    "@tarquinen/opencode-smart-title"
+    "@tarquinen/opencode-smart-title@0.1.7"
   ],
   "autoupdate": true,
   "experimental": {

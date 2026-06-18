@@ -14,6 +14,13 @@
     "enabled": true,
     "timeoutMs": 15000
   },
+  "interview": {
+    "maxQuestions": 2,
+    "outputFolder": ".opencode",
+    "autoOpenBrowser": true,
+    "port": 1337,
+    "dashboard": true
+  },
   "disabled_agents": [],
   "presets": {
     "regolo": {
