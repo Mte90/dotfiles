@@ -4,6 +4,6 @@
 
   "historian": {
     "model": "regolo/gpt-oss-120b",
-    "fallback_models": ["regolo/qwen3.6-27b"]
+    "fallback_models": ["regolo/gpt-oss-20b"]
   }
 }
