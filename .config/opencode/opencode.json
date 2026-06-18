@@ -264,7 +264,10 @@
     "list": "allow",
     "skill": "allow",
     "webfetch": "allow",
-    "question": "allow"
+    "question": "allow",
+    "external_directory": {
+      "/tmp/**": "allow"
+    }
   },
   "tools": {
     "websearch": true,
