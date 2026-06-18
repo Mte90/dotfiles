@@ -1,0 +1,26 @@
+{
+  "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
+  "preset": "regolo",
+  "disabled_agents": [],
+  "presets": {
+    "regolo": {
+      "orchestrator": { "model": "regolo/qwen3.5-122b", "variant": "medium", "skills": ["*"], "mcps": ["*", "!context7", "!gh_app", "!websearch"] },
+      "oracle": { "model": "regolo/mistral-small-4-119b", "variant": "high", "skills": ["simplify"], "mcps": [] },
+      "librarian": { "model": "regolo/mistral-small-4-119b", "variant": "medium", "skills": [], "mcps": ["websearch", "context7", "gh_grep"] },
+      "explorer": { "model": "regolo/qwen3-coder-next", "variant": "low", "skills": ["caveman"], "mcps": ["*"] },
+      "designer": { "model": "regolo/gemma4-31b", "variant": "medium", "skills": [], "mcps": ["vuda"] },
+      "fixer": { "model": "regolo/qwen3.5-122b", "variant": "medium", "skills": [], "mcps": ["*"] },
+      "observer": { "model": "regolo/mistral-small-4-119b", "variant": "medium", "skills": [], "mcps": ["vuda"] }
+    }
+  },
+  "agents": {
+    "fast-generic": {
+      "model": "regolo/qwen3-coder-next",
+      "variant": "low",
+      "prompt": "You are a fast generic execution agent for routine mechanical command work. Run requested shell commands, inspect results, and report concise outcomes. For git commits or pushes, inspect git status, git diff, and recent log first; stage only intended files; avoid secrets; preserve repository commit-message style; never amend, rebase, reset --hard, clean, force-push, delete branches, or perform destructive history operations unless the user explicitly requested that exact operation. Do not edit code or make architecture/design decisions.",
+      "orchestratorPrompt": "Delegate to @fast-generic for routine mechanical command work: git status/diff/log reconnaissance, normal commit preparation, creating commits, pushing commits, and no-edit command validation such as lint, typecheck, static verification, tests, builds, or package-manager equivalents. Ask it to inspect diffs before committing, stage only intended files, avoid secrets, preserve repository commit-message style, and report final commit hashes or push results. Do not use it for code edits, design work, architecture, debugging strategy, docs research, or destructive git history operations such as amend, rebase, reset --hard, clean, force-push, or deleting branches unless the user explicitly requested that exact operation.",
+      "skills": ["caveman"],
+      "mcps": []
+    }
+  }
+}

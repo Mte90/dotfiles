@@ -49,10 +49,10 @@
       "model": "regolo/qwen3.6-27b"
     },
     "deep": {
-      "model": "regolo/minimax-m2.5"
+      "model": "regolo/qwen3.5-122b"
     },
     "unspecified-high": {
-      "model": "regolo/minimax-m2.5"
+      "model": "regolo/qwen3.5-122b"
     },
     "unspecified-low": {
       "model": "regolo/qwen3.6-27b"

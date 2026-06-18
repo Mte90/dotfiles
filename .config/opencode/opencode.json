@@ -52,6 +52,31 @@
             "temperature": 0.7
           }
         },
+        "gpt-oss-20b": {
+          "id": "gpt-oss-20b",
+          "name": "gpt-oss-20b",
+          "tools": true,
+          "cost": {
+            "input": 1,
+            "output": 4.2
+          },
+          "limit": {
+            "context": 120000,
+            "output": 90000
+          },
+          "options": {
+            "reasoningEffort": "high",
+            "textVerbosity": "low",
+            "reasoningSummary": "auto",
+            "include": [
+              "reasoning.encrypted_content"
+            ],
+            "parallel_tool_calls": true,
+            "tool_choice": "auto",
+            "thinking": true,
+            "temperature": 0.7
+          }
+        },
         "gpt-oss-120b": {
           "id": "gpt-oss-120b",
           "name": "gpt-oss-120b",
@@ -122,31 +147,6 @@
           "limit": {
             "context": 120000,
             "output": 120000
-          },
-          "options": {
-            "reasoningEffort": "high",
-            "textVerbosity": "low",
-            "reasoningSummary": "auto",
-            "include": [
-              "reasoning.encrypted_content"
-            ],
-            "parallel_tool_calls": true,
-            "tool_choice": "auto",
-            "thinking": true,
-            "temperature": 0.7
-          }
-        },
-        "minimax-m2.5": {
-          "id": "minimax-m2.5",
-          "name": "minimax-m2.5",
-          "tools": true,
-          "cost": {
-            "input": 0.6,
-            "output": 3.8
-          },
-          "limit": {
-            "context": 130000,
-            "output": 130000
           },
           "options": {
             "reasoningEffort": "high",
@@ -288,11 +288,11 @@
     ]
   },
   "plugin": [
-    "oh-my-openagent@3.17.15",
+    "oh-my-opencode-slim@latest",
     "@franlol/opencode-md-table-formatter@0.0.6",
     "@cortexkit/aft-opencode@latest",
     "@cortexkit/opencode-magic-context@latest",
-    "opencode-auto-resume@1.0.12",
+    "opencode-auto-resume@1.0.14",
     "opencode-plugin-auto-update@latest"
   ],
   "autoupdate": false,
@@ -325,17 +325,10 @@
       "url": "https://mcp.deepwiki.com/mcp",
       "enabled": true
     },
-    "grep": {
+    "gh_grep": {
       "type": "remote",
       "url": "https://mcp.grep.app",
       "enabled": true
-    },
-    "web-reader": {
-      "type": "remote",
-      "url": "https://api.z.ai/api/mcp/web_reader/mcp",
-      "headers": {
-        "Authorization": "Bearer {env:ANTHROPIC_API_KEY}"
-      }
     },
     "vuda": {
       "type": "local",
