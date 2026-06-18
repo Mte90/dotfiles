@@ -1,15 +1,28 @@
 {
   "$schema": "https://unpkg.com/oh-my-opencode-slim@latest/oh-my-opencode-slim.schema.json",
   "preset": "regolo",
+  "sessionManager": {
+    "maxSessionsPerAgent": 4
+  },
+  "todoContinuation": {
+    "autoEnable": true,
+    "autoEnableThreshold": 3,
+    "maxContinuations": 8,
+    "cooldownMs": 2000
+  },
+  "fallback": {
+    "enabled": true,
+    "timeoutMs": 15000
+  },
   "disabled_agents": [],
   "presets": {
     "regolo": {
-      "orchestrator": { "model": "regolo/qwen3.5-122b", "variant": "medium", "skills": ["*"], "mcps": ["*", "!context7", "!gh_app", "!websearch"] },
-      "oracle": { "model": "regolo/mistral-small-4-119b", "variant": "high", "skills": ["simplify"], "mcps": [] },
-      "librarian": { "model": "regolo/mistral-small-4-119b", "variant": "medium", "skills": [], "mcps": ["websearch", "context7", "gh_grep"] },
-      "explorer": { "model": "regolo/qwen3-coder-next", "variant": "low", "skills": ["caveman"], "mcps": ["*"] },
-      "designer": { "model": "regolo/gemma4-31b", "variant": "medium", "skills": [], "mcps": ["vuda"] },
-      "fixer": { "model": "regolo/qwen3.5-122b", "variant": "medium", "skills": [], "mcps": ["*"] },
+      "orchestrator": { "model": "regolo/qwen3.5-122b", "variant": "medium", "skills": ["*", "!codemap", "!clonedeps"], "mcps": ["*", "!context7", "!gh_app", "!websearch"] },
+      "oracle": { "model": "regolo/mistral-small-4-119b", "variant": "high", "skills": ["simplify", "code-review", "debugging", "system-design"], "mcps": [] },
+      "librarian": { "model": "regolo/mistral-small-4-119b", "variant": "medium", "skills": ["deep-researcher"], "mcps": ["websearch", "context7", "gh_grep"] },
+      "explorer": { "model": "regolo/qwen3-coder-next", "variant": "low", "skills": ["caveman", "context-optimization"], "mcps": ["*"] },
+      "designer": { "model": "regolo/gemma4-31b", "variant": "medium", "skills": ["design", "product-design", "interaction-design", "responsive-design", "domain-cli", "tui-design", "qt-ui-design", "minimalist-ui"], "mcps": ["vuda"] },
+      "fixer": { "model": "regolo/qwen3.5-122b", "variant": "medium", "skills": ["caveman"], "mcps": ["*"] },
       "observer": { "model": "regolo/mistral-small-4-119b", "variant": "medium", "skills": [], "mcps": ["vuda"] }
     }
   },

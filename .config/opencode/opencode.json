@@ -289,13 +289,15 @@
   },
   "plugin": [
     "oh-my-opencode-slim@latest",
+    "opencode-plugin-openspec",
     "@franlol/opencode-md-table-formatter@0.0.6",
     "@cortexkit/aft-opencode@latest",
     "@cortexkit/opencode-magic-context@latest",
     "opencode-auto-resume@1.0.14",
-    "opencode-plugin-auto-update@latest"
+    "opencode-plugin-auto-update@latest",
+    "@tarquinen/opencode-smart-title"
   ],
-  "autoupdate": false,
+  "autoupdate": true,
   "experimental": {
     "openTelemetry": false
   },
@@ -307,22 +309,17 @@
     },
     "websearch": {
       "type": "remote",
-      "url": "https://mcp.exa.ai/mcp?tools=web_search_exa",
-      "enabled": true
-    },
-    "sequentialthinking": {
-      "type": "remote",
-      "url": "https://remote.mcpservers.org/sequentialthinking/mcp",
-      "enabled": true
-    },
-    "fetch": {
-      "type": "remote",
-      "url": "https://remote.mcpservers.org/fetch/mcp",
+      "url": "https://mcp.exa.ai/mcp",
       "enabled": true
     },
     "deepwiki": {
       "type": "remote",
       "url": "https://mcp.deepwiki.com/mcp",
+      "enabled": true
+    },
+    "jina": {
+      "type": "remote",
+      "url": "https://mcp.jina.ai/",
       "enabled": true
     },
     "gh_grep": {
