@@ -295,7 +295,7 @@
     "opencode-plugin-openspec@0.1.4",
     "@franlol/opencode-md-table-formatter@0.0.6",
     "@cortexkit/aft-opencode@0.39.3",
-    "@cortexkit/opencode-magic-context@0.25.0",
+    "@cortexkit/opencode-magic-context@0.26.0",
     "opencode-auto-resume@1.0.15",
     "opencode-plugin-auto-update@latest",
     "@tarquinen/opencode-smart-title@0.1.7"
@@ -318,11 +318,6 @@
     "deepwiki": {
       "type": "remote",
       "url": "https://mcp.deepwiki.com/mcp",
-      "enabled": true
-    },
-    "jina": {
-      "type": "remote",
-      "url": "https://mcp.jina.ai/",
       "enabled": true
     },
     "gh_grep": {
