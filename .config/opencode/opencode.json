@@ -52,6 +52,28 @@
             "temperature": 0.7
           }
         },
+        "glm5.2-beta": {
+          "id": "glm5.2-beta",
+          "name": "glm5.2-beta",
+          "tools": true,
+          "cost": {
+            "input": 2,
+            "output": 5.2
+          },
+          "limit": {
+            "context": 300000,
+            "output": 200000
+          },
+          "options": {
+            "reasoningEffort": "max",
+            "textVerbosity": "low",
+            "reasoningSummary": "auto",
+            "parallel_tool_calls": true,
+            "tool_choice": "auto",
+            "thinking": true,
+            "temperature": 0.7
+          }
+        },
         "gpt-oss-20b": {
           "id": "gpt-oss-20b",
           "name": "gpt-oss-20b",

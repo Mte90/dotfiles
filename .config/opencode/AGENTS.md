@@ -151,6 +151,18 @@ For non-coding tasks (analysis, writing, strategy):
 - Don't remove pre-existing dead code unless asked.
 - Every changed line should trace directly to the user's request.
 
+### 3.1 Universal Execution Rules (apply to EVERY edit, not just plan tasks)
+
+These are non-negotiable. They apply to any code the agent writes or modifies — a one-line fix, a refactor, a plan task, a subagent delegation, anything.
+
+- **Zero compilation errors.** Every file you touch must compile/parse without errors after your change. If you can't verify compilation, you don't know if your change works. If the same error persists after 3 fix attempts → STOP, revert, ask user.
+- **Zero warnings.** Warnings indicate a mismatch between intent and reality. Fix them immediately or stop and design a clean fix before continuing. Don't suppress, don't ignore, don't defer.
+- **No stubs.** Never leave placeholder code, `// implementation here`, `TODO`, `FIXME`, incomplete functions, or `NotImplementedError`/`NotImplemented` exceptions. If you don't know how to implement something, ask the user instead of stubbing.
+- **No unused imports/variables introduced by your changes.** Clean up what your edit made dead. Don't touch pre-existing dead code unless asked.
+- **Verify before declaring done.** Before reporting any edit as complete, confirm the modified file(s) compile/parse and no new warnings were introduced. Evidence, not assertion.
+
+These rules are referenced by the plan task template (§8) as mandatory verification gates — they are not duplicated there.
+
 ## 4. Goal-Driven Execution
 
 **Define success criteria. Loop until verified (and generate a test to avoid regressions).**
@@ -268,24 +280,15 @@ When generating a README.md for a project:
 
 When generating or consuming plans in `.sisyphus/plans/` or in other folders, enforce these rules:
 
-**Every task in a plan MUST include:**
-- Exact file paths to modify (no "find the right file" — state it)
-- Explicit scope boundary (what NOT to touch)
-- Required tools/skills for the delegate agent
-- **All tasks in scope**: Every task in a plan or todo list must be completed before marking the session done. No "I'll finish this later."
-- **No stubs or TODOs**: Never leave placeholder code, `// implementation here`, incomplete functions, or `NotImplemented` exceptions. If you don't know how to implement something, ask the user instead.
-- **Zero compilation errors**: All modified files must compile/parse without syntax errors. If the same error persists after 3 fix attempts → STOP, revert, ask user.
-- **Zero warnings**: Warnings indicate mismatch between intent and reality. If you can't fix it now, stop and design a clean fix before continuing.
-- **Full verification**: Every task must include verification steps (tests, linting, type checking, manual validation). Task not complete without evidence.
+### 8.1 Plan-level rules
 
-**Every plan MUST follow these rules:**
 - If a plan exists and has pending tasks, NEVER create a new competing plan.
 - **Mark completed IMMEDIATELY** after finishing a task. Never batch-completions.
 - **One todo = one atomic action.** Bad: "Fix all tests". Good: "Fix gmail test mock paths"
 - **Cancel aggressively.** If a todo becomes irrelevant during execution, cancel it immediately.
   Stale pending todos confuse the next session.
 - **Never create orphan todos** — every todo must trace to a user request or an active plan.
-- Plans MUST define execution order: which tasks are independent (parallelizable) 
+- Plans MUST define execution order: which tasks are independent (parallelizable)
   and which have dependencies.
 - Use a simple notation:
   T1: independent Description...
@@ -294,26 +297,52 @@ When generating or consuming plans in `.sisyphus/plans/` or in other folders, en
 - When resuming a plan, execute the FIRST pending task, not a random one.
 - If a task fails 3 times, ESCALATE to the user — don't silently skip or mark done.
 
-**A plan is ready-to-execute when:**
-- Each task can be delegated to an agent with ZERO clarification needed
+### 8.2 Mandatory per-task template
+
+Every task in a plan MUST populate every field below. No optional fields.
+
+```
+T<N>: [independent | depends on T<M>] <concise, grep-able description>
+  Files to modify:
+    - path/to/file.ext — what changes (e.g. "adds method X", "refactors Y")
+  Files NOT to touch:
+    - path/to/other.ext — why (e.g. "handled by task T3")
+  Skills to load (call skill tool before starting):
+    - <skill-name> — why it's needed
+  Preconditions:
+    - state that must exist before starting (e.g. "test suite passes", "migration X applied")
+  Implementation steps:
+    - concrete step 1
+    - concrete step 2
+  Verification (satisfy §3.1 + run these exact commands):
+    - <exact command> — expected output (e.g. "must show PASS")
+    - <exact command> — expected output
+  Acceptance criteria (behavioral, observable):
+    - "Calling X with input Y returns Z"
+    - "User sees W in the UI"
+  Rollback:
+    - how to undo if it fails (e.g. "git checkout path/to/file.ext")
+  Risk: low | medium | high — rationale
+```
+
+**Template notes:**
+
+- **Verification**: MUST first satisfy Universal Execution Rules (§3.1: zero errors, zero warnings, no stubs, no dead imports). Then MUST include the exact commands to run to verify behavior. "Run tests" is not enough — write `pytest tests/test_foo.py::test_bar -v`. If you can't write the exact command, you don't understand the task well enough to delegate it.
+- **Acceptance criteria**: Never structural criteria ("the function exists"). Only behavioral observables ("the function returns Z for input Y"). You must be able to verify them without reading source code.
+- **Skills to load**: If a skill exists in the available catalog and the task relates to it, it must be listed. The delegate MUST call `skill` to load them before starting.
+- **Rollback**: How to return to the previous state if the task fails mid-way. Prevents inconsistent states.
+
+### 8.3 Ready-to-execute check
+
+A plan is ready when:
+
+- Every task has the template (§8.2) fully populated
+- Every task can be delegated to an agent with ZERO clarification questions
 - File paths, function names, and patterns are specific enough to grep
-- Dependencies between tasks are explicitly stated
+- Dependencies between tasks are explicitly declared
 - No vague directives like "improve X" without defining what "improve" means
 
-## Completion Verification Step
-
-Before declaring that a task is complete, the agent **must verify that modified files are syntactically valid**.
-
-Required checks:
-
-- All modified files compile/parse without errors.
-- Verify language-specific syntax.
-- No unused imports/variables introduced by your changes.
-- If the same error persists after 3 fix attempts → STOP, revert, ask user.
-
-If syntax errors exist, the agent must fix them before reporting completion.
-
-### Session Closure
+## Session Closure
 
 **Only close with 🎉 when ALL work is truly complete:**
 
