@@ -150,6 +150,7 @@ For non-coding tasks (analysis, writing, strategy):
 - Remove imports/variables/functions that YOUR changes made unused.
 - Don't remove pre-existing dead code unless asked.
 - Every changed line should trace directly to the user's request.
+- **Comments only when code isn't self-explanatory.** — Never add comments for every change. Code should be readable by itself. Comments are for: why (not what), non-obvious tradeoffs, workarounds for external constraints, or complex algorithms where intent isn't obvious from the implementation.
 
 ### 3.1 Universal Execution Rules (apply to EVERY edit, not just plan tasks)
 
