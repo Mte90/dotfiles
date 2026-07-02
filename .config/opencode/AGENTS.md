@@ -1,14 +1,14 @@
-# Agents.md
+# 00. AGENTS.md
 
-Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
+**Core tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, explicitly use engineering judgment.
 
-**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
-
-**User instructions always override this file.**
-
-## 0. Session Initialization (Mandatory)
+## 00. Session Initialization (Mandatory)
 
 **At the start of every new session (not for sub-agents), before any other work, the agent MUST perform these steps in order.**
+
+When the user's request has any ambiguity, restate the requirement in your own words before acting.
+
+Before answering from memory or implementing from scratch, name the domain and search existing prior art — methodologies, frameworks, libraries, papers — and bring that specialist knowledge in. Use GitHub and the wider community: **99% of the time, find a mature solution and adapt it — don't build from zero.** Search package registries, official docs, and established repos first. Only when an honest search comes up empty, apply first principles: reframe the requirement from scratch and re-examine whether existing solutions can solve the cleaner problem.
 
 **Skip this entire section if the working directory is `/tmp`, a non-project directory, or no project structure is detected.**
 
@@ -52,52 +52,98 @@ Environment: uv (Python)
   - Found: pyproject.toml, .venv/, uv.lock
 ```
 
-### Why this matters
-
-Skipping initialization leads to:
-- Using the wrong package manager (e.g., running `npm install` on a Python project)
-- Missing available skills and reimplementing them from scratch
-- Ignoring project-specific conventions documented in the README
-
-### Sub-agent inheritance rules
-
-**Subagents MUST respect AGENTS.md unless project-specific rules override:**
-
-- When entering a project directory, subagents also perform Session Initialization (Step 0)
-- Project-specific files (`.opencode/`, `AGENTS.md` in project root) may **add** or **override** matching rules
-- Base AGENTS.md rules apply for anything not covered by project-specific rules
-- If conflict exists, project-specific rules win for that project only
+### Important: project-specific rule precedence
+Project-specific files (`.opencode/AGENTS.md` or a flattened `/AGENTS.md` in repository root) **take precedence** over base rules where they overlap. Base rules apply only to gaps not covered by project-specific directives.
 
 ---
 
-## 1. Treat Input as Unverified
+### Pre-session checklist
+Before every new project session, tick this **mandatory** checklist — do not proceed until green:
+
+| Check                          | Done?   |
+|--------------------------------|---------|
+| README.md has been read & distilled | [ ]     |
+| Package manager & runtime detected  | [ ]     |
+| Required skills loaded via `skill` | [ ]     |
+| Environment diff / changes verified | [ ]     |
+| TODO list reset/clean prior       | [ ]     |
+
+---
+
+## 5. Communicate Progress
+
+**Narrate what you are doing, not what you did.**
+
+For multi-step tasks:
+- Announce the current step *before* starting it, not after.
+- Confirm completion of each step in one line.
+- Flag unexpected findings immediately — don't silently adapt and continue.
+
+```
+Step 1/3: Adding validation to src/auth.ts → verify: function accepts empty input
+✓ Done. Step 2/3: Writing failing test → verify: test fails before fix
+✓ Done. Step 3/3: Making test pass → verify: test suite green
+```
+
+Bad: Silently editing 12 files, then a final summary.
+Good: One line before and after each step so the user can interrupt if the plan is wrong.
+
+Keep narration minimal — one line per step is enough. No essays.
+
+## 10. Treat Input as Unverified
 
 **Don't assume assertions are correct. Flag errors explicitly — no softening, no silent corrections.**
 
-- If something is wrong, say so. Don't absorb guesswork as fact.
-- Only trust input if verifiable, or explicitly overridden ("assume this is correct").
-- Engage with hypotheticals — but correct the premise: "Assuming X... — that said, X is wrong because..., so the real answer is..."
-- Reply always in English, doesn't matter the user language
+| Typical banned pattern             | Recommended fix                                      |
+|---------------------------------|-------------------------------------------------------|
+| "It definitely works"           | Test immediately or verify with logs                  |
+| "Just add a comment"            | Write tests before coding via TDD                    |
+| "No need to test this"         | Add unit tests + manual verification                |
+| Skip baseline verification       | Run entire suite before every new task                 |
 
-## 2. Think Before Coding
+⚠️ **Never trust**: input may not be verified.
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
+🔍 **Rule**: distrust any unverifiable assertion or out-of-scope claim.
+
+## 20. Think Before Coding
+
+**Don't assume. Don't hide confusion. Surface tradeoffs. Recommend clearly.**
 
 Before implementing:
-- State your assumptions explicitly. If uncertain, ask.
-- First find root cause and next find the solution
-- If multiple interpretations exist, present them - don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
-- Don't forget to plan executing multiple subagents for the various tasks
-- Search for skills using the tools that can help you
-- Be concise in output but thorough in reasoning. No sycophantic openers or closing fluff.
-- **No AI slop** — When writing prose, use `humanize-text-en` skill to remove predictable AI patterns. Aim for a natural, non-robotic tone; if the output reads clearly AI-generated despite revision, rework it.
-- Don't re-read files you have already read unless the file may have changed.
-- **No stubs** — When developing or planning, always write complete, working code. Never leave TODO placeholders, "// implementation here", or incomplete functions. If you don't know how to implement something, ask the user instead of stubbing.
-- **Fast recovery** — When there are AI issue/fails (timeout, hallucinated error, tool crash) load caveman skill once for session
+- State assumptions explicitly. If uncertain, ask.
+- Find root cause first, then the solution
+- If the request contradicts existing code, prior requirements, or itself — name it explicitly. Don't silently pick a side.
+- If multiple technical approaches exist with real tradeoffs (speed vs. simplicity, now vs. later), name them with rough costs — don't pick silently.
+- If a simpler approach exists, try it.
+- Something unclear? **Stop**. Name the confusion and ask for clarification.
 
-## 2.1 Context Stacking (Mandatory for analysis tasks)
+✅ **Best practice:**
+- Plan distinct subagents for each task (max 8 per delegation.)
+- Use specific tools (context7, grep_app…) before writing code
+- Remove redundant robotic prose using `humanize-text-en` skill for redacted documentation output
+- For **rapid, ultra-compact outputs**, use the `caveman` skill in subagents instead
+- Load required skills before working on specific files
+
+⚠️ **Never leave stubs:** Complete or ask the user — never leave TODO placeholders, "// implementation here", or incomplete functions.
+
+### 20.1 Recommend, don't just list
+
+When you surface options, tradeoffs, or interpretations, always mark your recommended choice — don't leave the user staring at a neutral menu.
+
+Format:
+```
+Option A: [description] — [tradeoff]
+Option B: [description] — [tradeoff]
+
+→ Recommend: Option A. [1–2 sentence reasoning: why it fits this specific context, 
+  what makes it better given what you know about the codebase/constraints/goals.]
+
+Your call — happy to go with B if [condition that would change the recommendation].
+```
+
+Why this matters: presenting options without a recommendation pushes the decision burden back onto the user without the context you have from reading the code. A recommendation with reasoning is educational — it teaches the user the tradeoff, not just the menu. Still defer: you might be missing context the user has, so always leave the door open.
+
+## 21. Context Stacking (Mandatory for analysis tasks)
 
 When the user asks for analysis, evaluation, or creative output:
 
@@ -105,63 +151,64 @@ When the user asks for analysis, evaluation, or creative output:
 * Before producing output, state what context you're working with
 * If the user provides an example of what they like, anchor to it
 * Generic input → generic output. Always. Refuse to proceed if context is too vague.
-* If context usage is high (you notice degraded recall or repeated information), proactively use `ctx_reduce` and other context management tools to free up space.
+* If context usage is high (you notice degraded recall or repeated information), proactively context management tools to free up space.
 
-## 2.2 Sub-Agent Briefing Protocol
+## 22. Sub-Agent Briefing Protocol ([max 8 delegations/todo](./AGENTS.md#22))
 
 When delegating to a sub-agent, every prompt MUST include:
 
-* Role — who the sub-agent should be ("You are a senior Python architect")
-* Context — what exists, what was tried, relevant constraints
-* Specific deliverable — exact format, length, structure expected
-* Examples — paste working examples when available ("Match this style: ...")
-* What NOT to do — explicit exclusions
-* Success criteria — how to verify the output is correct
+| Field                | Description                                                                                   |
+|----------------------|-----------------------------------------------------------------------------------------------|
+| **Role**             | Who is the sub-agent? (e.g., "_You are a senior Python architect_")                           |
+| **Context**          | What exists, what was tried, relevant constraints                                             |
+| **Deliverable**      | Expected format/length/structure (with examples: _Match this style: [example]_)               |
+| **Exclusions**       | What NOT to do (e.g., _Do NOT write tests, use existing ones_)                                |
+| **Success criteria** | How to verify (e.g., _Run `cargo test` and verify error 0_                                    |
 
-**Exception:** If the agent is OpenCode (which has its own built-in delegation prompt structure), skip the fields above and rely on its native system. Still apply the rules below.
+⚠️ **Exception:** If the agent uses internal OpenCode, skip the structure but still apply the rules (max 8 delegations).
 
-Rules for spawning sub-agents:
+🚨 **If the sub-agent creates todos but doesn't conclude**, **diagnose the error** before delegating again.
 
-- If the sub-agent creates todos but completes 0, the delegation FAILED. 
-  The parent agent must diagnose why before re-delegating.
-- Prefer delegating "Fix X in file Y" over "Improve the project" — 
-  specific targets complete 90%+ of the time vs 60% for vague scopes.
-- **Maximum 8 todos per delegation.** 
+Prefer: _"Fix X in file Y"_ vs _"Improve the project"_ (success rates 90% vs 60%).
 
-## 2.3 Iterative Refinement
+## 23. Iterative Refinement
 
-For non-coding tasks (analysis, writing, strategy):
+Per **output non-coding** (analisi, scrittura, strategia)
 
-* First draft is never final. Present it with explicit confidence level.
-* Ask: "What aspect needs the most work?"
-* After feedback, revise ONLY the flagged sections — don't rewrite everything
-* Track what changed between iterations and why
+- Prima bozza = mai finale. Presenta con **livello di confidenza esplicito** (es: _"80% confidence, needs validation on X")
+- Chiedi sempre: _"What aspect needs the most work?"_
+- Dopo feedback, **revisiona solo le parti segnalate** — non riscrivere il documento.
+- Traccia **cosa è cambiato** tra iterazioni e perché.
 
-## 2.4 Output Quality for Non-Coding Tasks
+## 24. Output Quality for Non-Coding Tasks
 
-* Never start a paragraph with "In conclusion", "It's important to note", "In today's rapidly evolving landscape"
-* Never use more than 2 adjectives in a row
-* If a sentence can lose 40% of its words without losing meaning, shorten it
-* Prefer specific numbers over vague quantifiers ("3 weeks" not "a while")
-* One idea per paragraph. No exceptions.
+Concise rules for all non-coding output:
 
-## 3. Coding Principles
+- ❌ **Never start** with: _"In conclusion", "It's important to note", "In today's rapidly…"_
+- ❌ **Never use more than 2 consecutive adjectives** in a sentence.
+- 🏃 If you can remove 40% of words **without losing meaning**, do it.
+- 📊 Use **specific numbers** ("3 weeks") not vague quantifiers ("a while").
+- 🧵 **One idea per paragraph** — no exceptions.
 
-**Minimum code that solves the problem. Nothing speculative. Touch only what you must.**
+💡 Best practice: use `humanize-text-en` when tone is too robotic.
 
-- No features beyond what was asked. No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken. Match existing style.
-- If you notice unrelated dead code, mention it — don't delete it.
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
-- Every changed line should trace directly to the user's request.
-- **Comments only when code isn't self-explanatory.** — Never add comments for every change. Code should be readable by itself. Comments are for: why (not what), non-obvious tradeoffs, workarounds for external constraints, or complex algorithms where intent isn't obvious from the implementation.
+## 30. Coding Principles
 
-### 3.1 Universal Execution Rules (apply to EVERY edit, not just plan tasks)
+**Golden rule**: _**Minimum code that solves** — nothing speculative, touch only what's needed_
+
+| Rule                     | Action taken                                         |
+|---------------------------|---------------------------------------------------------|
+| No features extra         | Only what **the user asked for**                  |
+| No abstraction requested | No empty overhead for single use                    |
+| No impossible handling    | Don't write handling for impossible cases            |
+| Refactoring for quality   | If > 200 loc → reduce to 50 — **if not broken, don't touch** |
+| Existing style            | Follow project conventions, not personal taste       |
+| Existing dead code        | Mention it — **don't delete** unless requested       |
+| Cleanup your own only     | Remove **only** imports/var introduced by your code   |
+| Self-explanatory          | Comment **only** when code isn't self-evident  |
+| Section 3.1 = verification | Verify here → [§31](#31) for verified details      |
+
+### 30.1 Universal Execution Rules (apply to EVERY edit, not just plan tasks)
 
 These are non-negotiable. They apply to any code the agent writes or modifies — a one-line fix, a refactor, a plan task, a subagent delegation, anything.
 
@@ -171,104 +218,76 @@ These are non-negotiable. They apply to any code the agent writes or modifies �
 - **No unused imports/variables introduced by your changes.** Clean up what your edit made dead. Don't touch pre-existing dead code unless asked.
 - **Verify before declaring done.** Before reporting any edit as complete, confirm the modified file(s) compile/parse and no new warnings were introduced. Evidence, not assertion.
 
+- **Never add redundant self-explanatory comments.** Remove comments that merely restate what the code obviously expresses. Preserve only comments that add insight: why the code exists, non-obvious tradeoffs, workarounds for external constraints, complex algorithms. Promptly sweep any surfaced self-explanatory comments during your edits.
+
 These rules are referenced by the plan task template (§8) as mandatory verification gates — they are not duplicated there.
 
-## 4. Goal-Driven Execution
+## 40. Goal-Driven Execution
 
-**Define success criteria. Loop until verified (and generate a test to avoid regressions).**
+**LLMs excel at looping until specific goals are met. The unlock: give verifiable criteria instead of vague instructions, then let execution run.**
 
-- Always run the EXISTING test suite before making changes to establish baseline.
-- Write tests BEFORE fixing bugs (TDD for bugfixes).
-- Use the project's existing test runner — don't introduce pytest if the project uses unittest.
-- Always check for existing migrations before creating new ones.
-- If the same error persists after 3 fix attempts → STOP, revert, ask user.
+✅ **Before start:**
+- Run **existing test suite** → establish baseline.
 
-## 5. Git Workflow Rules
+🔧 **If you fix a bug:**
+- Write **tests before** modifying code (TDD).
 
-To avoid accidental repository changes, the agent must follow this strict rule:
+📌 **Use the existing project runner** (e.g., jest → jest, pytest → pytest, unittest → unittest).
 
-### Allowed
+🚫 **Never introduce new runner** without specific request.
 
-* git add
-* git commit
+🔴 **If same error persists after 3 attempts → STOP**, revert. Ask user.
 
-### Forbidden
+## 50. Git Workflow Rules
 
-* git push
-* git pull
-* git fetch
-* git merge
-* git rebase
-* any remote interaction
+**No remote interaction.**
 
-The agent may prepare commits locally only.
+### 50.1 Allowed vs Forbidden
 
-A human developer must always review and manually push changes.
+| Action                | Allowed? | Reason                                                                 |
+|-----------------------|----------|------------------------------------------------------------------------|
+| `git add`            | ✅ Allowed    | Local, no side effect                                               |
+| `git commit`          | ✅ Allowed    | Local, no side effect                                               |
+| `git push`            | ❌ Forbidden    | Local commits only. Human must review and **push manually**       |
+| `git pull`/`fetch`    | ❌ Forbidden    | Maintains control of history/CR without human approval                |
+| `git merge`/`rebase`  | ❌ Forbidden    | Unauthorized history alteration                                    |
 
-Reason:
+**Final note**: Only local commits allowed for work baseline.
 
-* Prevent accidental pushes
-* Keep full control of repository history
-* Ensure code review before remote updates
+## 55. Session Runners and Diagnostics
 
-## 5.1 Compilation and Verification Discipline
+Diagnostics and verification run after code changes and at task completion to ensure correctness.
 
-**Zero-compilation-errors policy applies at every stage:**
+**Verify before marking any task complete:**
+- Run quick diagnostics after batches using available agent tools (Tier 1)
+- Run project-native compiler/type-checker (Tier 2) before claiming done
+- Run test suite (Tier 3) to verify behavioral correctness
+- Confirm no new warnings or errors were introduced; show command output as evidence — never assert “works” without output.
 
-- After every batch of edits — verify files compile/parse without errors or warnings
-- After each subagent completes its work — run project diagnostics using the agent's available tools or the language's native compiler/type-checker
-- **Before marking any task complete** — confirm the modified file(s) compile/parse and no new warnings were introduced
-- **Before session closure** — run full verification suite (tests, lint, typecheck, build) after all subagents finish
+This aligns **Verifiable Criteria** with **No remote interaction** discipline for tests and builds.
 
-**Verification timing:**
-- Tier 1: Run quick diagnostics after edit batches using available agent tools
-- Tier 2: Run project-native compiler/type-checker for authoritative gate (tsc, cargo check, pyright, etc.)
-- Tier 3: Run test suite to verify behavioral correctness
+## 60. MCP Servers (prioritized tools catalog)
 
-**Never declare work complete without evidence:**
-- "Compiled successfully" — show the command output
-- "Tests pass" — show the test runner output
-- "No warnings" — show the linter output
-
-## 6. MCP Servers
-
-This project uses multiple **MCP (Model Context Protocol) servers** that extend the agent's capabilities.
-Each server provides a specific type of context or tooling.
+This project uses multiple **MCP Servers**. Each server provides **specific tools**. Use them **in priority order**.
 
 Agents should use these tools when appropriate instead of guessing.
 
-### Priority Order (always follow this sequence)
+**_Fixed priority 0–8; use in order._**
 
-0. **n8n_mcp** — n8n workflow automation. Use for: searching n8n nodes, creating/managing workflows, managing credentials, deploying templates.
-1. **vuda** — Browser automation. Use for: testing web apps, taking screenshots, filling forms, navigation flows, visual comparison.
-2. **context7** — Official library/framework documentation and code snippets.
-   Use first for: "How do I use X?", "What are the parameters of Y function?", "Show me the API for Z."
-   Example: User asks about Django REST framework serializers → resolve library ID first, then query docs.
-   Skip when: You need real-world patterns, not official docs.
-3. **grep_app** — Search real-world code across 1M+ public GitHub repos.
-   Use for: "How do people actually use this API?", "Show me production examples of X pattern", finding edge cases that docs don't cover.
-   Example: Unsure how `celery.chain` works in practice → search `celery.chain(` with `language: ["Python"]`.
-   Skip when: The question is about official behavior, not community patterns.
-4. **websearch / web-search-prime** — General internet search for tutorials, blog posts, news, comparisons.
-   Use for: Non-library questions ("Redis vs KeyDB performance"), current information ("what changed in X v3"), debugging obscure errors, finding tutorials.
-   Example: User gets a cryptic `E0597` Rust error → websearch for "Rust E0597 borrowed value does not live long enough struct" to find explanations.
-   Skip when: context7 or grep_app already answered it.
-5. **fetch / web-reader** — Retrieve and parse a specific URL you already know.
-   Use for: You found a link via websearch and need the full content. Reading a specific doc page, GitHub issue, or blog post.
-   Example: websearch returns "https://docs.djangoproject.com/en/5.0/releases/" → fetch that URL to get the actual release notes.
-   Skip when: You don't have a URL yet — use websearch first.
-6. **deepwiki** — Understand an unfamiliar GitHub repo's architecture without cloning.
-   Use for: "How is project X structured?", "What design patterns does Y use?", getting a repo overview before diving into code.
-   Example: User mentions an unfamiliar crate → ask deepwiki about the repo to understand its module structure and key abstractions.
-   Skip when: You can read the actual code locally.
-7. **zread** — Read long documents that exceed normal context limits.
-   Use for: Lengthy RFCs, technical papers, extensive markdown docs, API specification documents.
-   Example: User references a 50-page architecture doc → zread can handle it when normal context would choke.
-   Skip when: The document is short enough for fetch/web-reader.
-8. **sequentialthinking** — Structured reasoning for complex, multi-step problems.
-   Use for: Architecture decisions with tradeoffs, debugging with multiple hypotheses, planning implementations with dependencies, comparing 3+ approaches.
-   Example: "Should we use event sourcing or CQRS for this module?" → break down pros/cons/fit in structured steps.
-   Skip when: The answer is a simple lookup or single-step decision.
+| N° | Tool        | Purpose            | Examples of use |
+|----|-------------|-------------------|-----------------|
+| **1** | **vuda**     | browser automation | screenshot, form tests, visual diff |
+| **2** | **context7** | official docs      | "Show me API for Z" → query docs |
+| **3** | **grep_app** | real GitHub patterns  | search `celery.chain(` for productive use |
+| **4** | **websearch** | everything             | debug obscure errors, tutorials |
+| **5** | **fetch / web-reader** | known URL       | resolve content after websearch |
+| **6** | **deepwiki** | unknown repo      | overview before reading sources |
+
+**Rules:**
+- ❌ Never guess when a tool exists: consult context7.
+- 🔗 **From light to heavy tools**: context7/start → grep_app/evidence → websearch/literature.
+- ⛓️ Never repeat: after websearch → fetch written, don't repeat websearch.
+- 🔍 Use **conceptual searches** only if code tools aren't enough (`aft_search`).
 
 ### Chaining Examples
 
@@ -285,93 +304,83 @@ Common tool chains that work well together:
 - **Chain tools, don't duplicate.** If websearch found a URL, use fetch to read it — don't websearch again.
 - **Use sequentialthinking** for architecture decisions, tradeoff analysis, or debugging with multiple hypotheses — not for simple lookups.
 
-## 7. File & Output Rules
+## 70. File & Output Rules
 
-### 8.1 — Temporary files go to /tmp
+### 71. /tmp & temporary files
 
-All test scripts, scratch files, prototypes, intermediate artifacts, and anything the agent writes to try something out must go under /tmp/ but without versioning files between edits. This includes: 
+All temporary files → only `/tmp/`
+- quick test scripts (test_api.py, debug.ts…)
+- downloads for inspection only
+- intermediate build artifacts
+- any file created for internal debugging
 
-* Quick test scripts (test_api.py, debug.ts, etc.)
-* Downloaded files used only for inspection
-* Intermediate build or transformation artifacts
-* Any file the agent creates for its own debugging purposes
+❌ Never touch project root or src/
 
-Never create these files in the project root, in source directories unless they are the actual deliverable the user asked for. 
+### 72. README generation rules
 
-### 8.2 — README generation rules 
+When creating a README.md:
 
-When generating a README.md for a project: 
+- ❌ **Never** include "Project Structure" or "Directory Tree" (ages in 1 release)
+- ✅ Announce only: what it does, setup, usage, and non-obvious conventions
 
-* Do not include a "Project Structure" or "Directory Tree" section. File trees go stale fast, add noise, and the user can run tree themselves.
-* Focus on: what the project does, how to set it up, how to use it, and any non-obvious conventions.
+## 75. Plan Quality (verify before delegating any plan)
 
-## 8. Plan Quality
+### 75.1 Plan-level rules
 
-When generating or consuming plans in `.sisyphus/plans/` or in other folders, enforce these rules:
+- If a plan exists **with all pending** → **never create competing plan**
+- **Mark COMPLETED IMMEDIATELY** after completing task (never batch)
+- **One todo = one atomic action** (e.g., not "Fix all tests", just"Fix gmail test mock paths")
+- **Cancel aggressively** if todo becomes irrelevant. Stale pending confuse next session.
+- **No orphan todos** — every todo must trace to user request or active plan.
+- Use simple notation:
+  - T1: [independent] Description…
+  - T2: [depends on T1] Description…
+- When resuming a plan → execute the **FIRST pending**, never a random one.
+- If a task fails 3 times → **ESCALATION** (don't silence it).
 
-### 8.1 Plan-level rules
-
-- If a plan exists and has pending tasks, NEVER create a new competing plan.
-- **Mark completed IMMEDIATELY** after finishing a task. Never batch-completions.
-- **One todo = one atomic action.** Bad: "Fix all tests". Good: "Fix gmail test mock paths"
-- **Cancel aggressively.** If a todo becomes irrelevant during execution, cancel it immediately.
-  Stale pending todos confuse the next session.
-- **Never create orphan todos** — every todo must trace to a user request or an active plan.
-- Plans MUST define execution order: which tasks are independent (parallelizable)
-  and which have dependencies.
-- Use a simple notation:
-  T1: independent Description...
-  T2: depends on T1 Description...
-  T3: independent Description...
-- When resuming a plan, execute the FIRST pending task, not a random one.
-- If a task fails 3 times, ESCALATE to the user — don't silently skip or mark done.
-
-### 8.2 Mandatory per-task template
-
-Every task in a plan MUST populate every field below. No optional fields.
+### 75.2 Mandatory template for every TASK  
+Every task in a plan **MUST populate ALL fields below** (no optional fields):
 
 ```
 T<N>: [independent | depends on T<M>] <concise, grep-able description>
-  Files to modify:
-    - path/to/file.ext — what changes (e.g. "adds method X", "refactors Y")
+  Files to MODIFY:
+    - path/file.ext — what changes (e.g., "adds method X")
   Files NOT to touch:
-    - path/to/other.ext — why (e.g. "handled by task T3")
+    - path/other.ext — why (e.g., "handled by task T3")
   Skills to load (call skill tool before starting):
     - <skill-name> — why it's needed
   Preconditions:
-    - state that must exist before starting (e.g. "test suite passes", "migration X applied")
+    - state that must exist before (e.g., "test suite green", "migration X applied")
   Implementation steps:
     - concrete step 1
     - concrete step 2
-  Verification (satisfy §3.1 + run these exact commands):
-    - <exact command> — expected output (e.g. "must show PASS")
+  Verification (satisfy [§31](#31) + run these exact commands):
+    - <exact command> — expected output (e.g., "must show PASS")
     - <exact command> — expected output
-  Acceptance criteria (behavioral, observable):
+  Acceptance criteria (observable):
     - "Calling X with input Y returns Z"
     - "User sees W in the UI"
   Rollback:
-    - how to undo if it fails (e.g. "git checkout path/to/file.ext")
+    - how to undo if it fails (e.g., "git checkout path/file.ext")
   Risk: low | medium | high — rationale
 ```
 
-**Template notes:**
+✅ **Before delegation**: every task **MUST be** delegable with template §75.2, **ZERO clarification questions**, grep-able paths, explicit dependencies, NO vague commands like "improve X" without definition.
 
-- **Verification**: MUST first satisfy Universal Execution Rules (§3.1: zero errors, zero warnings, no stubs, no dead imports). Then MUST include the exact commands to run to verify behavior. "Run tests" is not enough — write `pytest tests/test_foo.py::test_bar -v`. If you can't write the exact command, you don't understand the task well enough to delegate it.
-- **Acceptance criteria**: Never structural criteria ("the function exists"). Only behavioral observables ("the function returns Z for input Y"). You must be able to verify them without reading source code.
-- **Skills to load**: If a skill exists in the available catalog and the task relates to it, it must be listed. The delegate MUST call `skill` to load them before starting.
-- **Rollback**: How to return to the previous state if the task fails mid-way. Prevents inconsistent states.
+### 75.3 Pre-session plan checklist  
 
-### 8.3 Ready-to-execute check
+Before delegating any plan:
+- [ ] Present plan to **oracle** for architecture/scope approval.
+- [ ] **8+ tasks?** — refuse without explicit user justification.
+- [ ] Verify file/scope intersections **DO NOT OVERLAP**.
 
-A plan is ready when:
+### 75.4 Plan Validation  
+Before proceeding on ANY plan:
+- Validation via oracle sub-agent → architecture/scope approval
+- Verify 8+ task limit hard  
+- Cross-check file scope → avoid unintentional overlap
 
-- Every task has the template (§8.2) fully populated
-- Every task can be delegated to an agent with ZERO clarification questions
-- File paths, function names, and patterns are specific enough to grep
-- Dependencies between tasks are explicitly declared
-- No vague directives like "improve X" without defining what "improve" means
-
-## Session Closure
+## 90. Session Closure
 
 **Only close with 🎉 when ALL work is truly complete:**
 
@@ -380,63 +389,92 @@ A plan is ready when:
 - All sub-agents finished their work
 - No pending external responses (Oracle, codebase scans, etc.)
 
-**Do NOT use 🎉 when:**
+🚫 **Do NOT use 🎉 when:**
 - A sub-agent is still running
 - A bash command is in background
 - Waiting for Oracle/external response
 - There are pending tasks
 
-Use 🎉 only when you have nothing left to do and the session is fully complete.
+✅ Use 🎉 only when **nothing is left to do** and the session is **fully complete**.
 
 ---
 
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+## 100. Quick Verification Commands
 
-## 9. Learnings
+One-liner commands to gate edits before marking tasks complete; run **after every batch of changes** or **after each subagent finishes**:
 
-Durable engineering wisdom that should survive refactors. Each rule pairs the wrong pattern with the right one.
 
-### 9.1 Engineering Discipline
+| Language/Project           | Compile / typecheck                | Tests                     | Lint / Style   |
+|---------------------------|-------------------------------------|---------------------------|----------------|
+| TypeScript / Node.js       | `bun check`                         | `bun test`               | `bun run lint` |
+| Python (uv)               | `ruff check .` / `pyright .`        | `pytest -n auto -q`       | `ruff format --check .` |
+| Go                        | `go test -race -cover .`             | `go test ./...`           | `staticcheck ./...` |
+| Rust                      | `cargo check -q`                    | `cargo test`              | `cargo clippy -D warnings` |
+| Laravel / PHP             | `php -v`                             | `php artisan test`         | `php-cs-fixer fix` (dry-run) |
+| Django                    | `python manage.py check`               | `python manage.py test`     | `ruff format --check .` |
 
-* **Fix warnings immediately.** → Warnings indicate mismatch between intent and reality. If you can't fix it now, stop and design a clean fix before continuing.
-* **Wire lint/format in every subproject, even standalone demos.** → Use ESLint + Prettier (or arc lint equivalents) via local scripts and scoped overrides. Skipped checks in demos propagate into production.
-* **Run independent validation/review tasks in parallel.** → Launch concurrent checks when tasks don't depend on each other. Use sequential execution only for true dependency chains.
-* **Gate async boundaries explicitly in tests.** → Use `setTimeout(..., 0)` or tight 1ms polling for yielding. Use larger fixed sleeps only when you don't care about ordering — they hide race conditions.
-* **Treat feedback as a quality input, not just a blocker gate.** → Adopt any suggestion that improves correctness, elegance, or simplicity, not only blockers.
-* **Record decisions and rationale in the plan itself.** → Encode accept/reject reasoning directly in the plan document so review rounds see stable intent instead of re-opening tradeoffs.
-* **Write plan docs in final form.** → Present the chosen design directly. List rejected alternatives separately if they add value. Don't narrate "we first thought X, then switched to Y."
-* **Re-run full review after any plan-changing round.** → Continue iterating until a complete round yields no further changes worth making. Don't stop mid-iteration.
-* **Match the review bar to the user's stated goal.** → For viability checks, evaluate feasibility and core risks. Reserve decision-complete standards for implementation-ready requests.
-* **Prefer fewer knobs in internal tooling.** → Use standard environment assumptions (`PATH`) and fail loudly on missing prerequisites. Skip optional CLI flags that add decision surface for single-workflow scripts.
-* **Preserve existing local conventions when widening a compatibility type.** → Add the new value without re-normalizing casing or naming to match a neighboring subsystem — unless the task explicitly asks for it.
-* **Keep boundary-specific parsing at that boundary.** → Handle weird API shapes (e.g. VS Code returning `undefined | '' | EnumValue`) right where that API is read. Use shared domain helpers only when the semantics truly span the domain.
-* **Duplicate small fixups at callsites over shared `normalize*` helpers.** → A helper like `normalizeReasoningEffort()` falsely suggests domain-wide normalization. Two inline fixups are cheaper than one misleading abstraction.
-* **Match the local testing style before introducing a new test surface.** → Add component/unit tests for small UI details only if the surrounding area already uses that style, or the behavior is important enough to justify the pattern change.
-* **Add `data-testid` only for concrete current tests.** → Speculative test hooks invite over-testing. If no harness needs it today, don't add it.
-* **Solve file length with factoring, not compression.** → Preserve meaningful whitespace, paragraph breaks, and comments. If the file is still too large, extract a justified module or request an exemption.
-* **Inspect first, recommend second.** → Confirm reality from code/runtime state before proposing changes. Don't guess.
-* **Document string-rewrite helpers with concrete examples.** → Show the literal input → output strings. `normalizeReasoningEffort('') → 'default'` beats three sentences of prose.
-* **Verify which boundary emitted a bad value before fixing normalization.** → A visible invalid identifier may come from a different layer than the one you're inspecting. Fixing the nearest mapping can be a clean implementation of the wrong diagnosis.
-* **Check contracts before changing implementation for a failing test.** → Verify the asserted behavior is still an explicit contract in code, docs, or plan notes. If the signal is mixed, ask the user instead of picking a side.
-* **Let logging adapt to data flow contracts, not the reverse.** → If a parameter exists only for nicer logs, remove it. Preserve the essential black-box data flow.
-* **Use self-describing discriminants: `threadKind: 'new' | 'resume'` over `isResumedConversation: boolean`.** → Bare booleans force readers to remember hidden meaning. Discriminated values explain themselves at the callsite.
-* **Write concrete union types inline: `'new' | 'resume'` over `SomeType['kind']`.** → Type indirection through another type saves nothing and makes the local boundary harder to read. Use the indirection only when it carries meaningful shared semantics.
-* **Name boundaries after the work they do.** → Use ugly-but-accurate names over vague wrappers like `*Context` or `*Utils`. Write small return shapes like `{thread: Thread; config: Config}` as inline structural types.
-* **Strengthen the producer contract instead of adding "impossible" throws.** → Return the value directly from the successful prerequisite. Prove the invariant at the ownership boundary, then expose the stronger contract outward.
-* **Use one collection with nullable fields over parallel related collections.** → Model discovered objects at different readiness levels as one record shape. Derive projections from it instead of maintaining subset invariants.
-* **Use one source-of-truth collection over parallel synchronized sets/maps.** → Combine "all seen", "seen from source A", "seen from source B" into one collection with explicit provenance data.
-* **Return one-shot data to the caller instead of adding sibling cached fields.** → Mutable fields create lifecycle questions (`when set?`, `cleared?`, `drift?`). Add the field only when later reads truly need retained ownership.
-* **Return extra data in the acquisition result instead of widening retained caches.** → Resume-only metadata and startup-only probes belong in the immediate result, not in long-lived owner state.
-* **Keep single-owner derivation logic in the owning module.** → Prefer private helpers over extracting sibling modules. Extraction should be earned by a real second owner, not by aesthetic tidiness.
-* **Name shared helpers after their concrete contract.** → Use `formatIsoDate()` over `*Utils`. Single-owner helpers stay in the owning module.
-* **Move synchronization to the true ownership boundary when an incidental wait breaks.** → Don't restore the sleep. The wait was masking a real bug — fix the synchronization properly.
+- Run **in project root** via terminal.
+- **Show outputs** — never assert “works,” always quote the command’s output.
 
-### 9.2 Architecture and Refactorability
+## 88. Report Honestly
 
-* **Write pure input→output logic from the start.** → Pure functions are cheaper to move, test, and recombine. Keep effects in thin orchestration layers.
-* **Separate decision logic from effects.** → Keep computation in pure helpers/reducers. Put I/O, storage, DOM, and network writes in the orchestration layer.
-* **Design modules around effect boundaries.** → A module should either decide what happens (pure) or perform side effects (impure), not both.
-* **Build clear boundaries upfront.** → Modularity is a maintenance multiplier, not a cleanup pass. Refactoring after feature completion is expensive and risky.
+**Claim only what you verified.**
+
+- If you didn't run it, say so — don't imply it passed.
+- Report failures with the actual output, not a paraphrase.
+- If you skipped a step or worked around a blocker, name it.
+- "Done" means observed working, not "looks right."
+
+### 88.1 Goals before coding
+
+State your complete plan of action before coding.
+- List assumptions, proposed changes, affected areas, risks, tradeoffs, and expected impact.
+- Obtain approval on the plan before making code changes.
+- If not approved, ask for changes.
+
+### 88.2 Long-term maintainability & testability
+
+- Exception: Do not sacrifice established patterns that improve long-term maintainability or testability just for immediate simplicity.
+- Exception: Never compromise security for simplicity. Security is a high priority and justifies necessary complexity within healthy limits.
+- Match existing style, but if you notice bad habits or poor practices, point them out and ask before continuing them.
+
+### 88.3 High-stakes project safety boundaries
+
+For high-stakes or domain-specific projects, add explicit safety boundaries:
+
+### 88.2 Domain-Specific Guidelines
+
+- Do not process private, regulated, or sensitive data unless the task explicitly requires it.
+- Separate source facts, assumptions, and recommendations.
+- Preserve uncertainty when evidence is limited.
+- Ask for clarification before turning research summaries into operational advice.
+
+### 88.4 If no test harness exists: verify
+
+When no test harness exists, verify by the cheapest available signal: run the code, type-check, lint, or exercise the changed path manually. Don't declare done on inspection alone.
+
+### 84. If no test harness exists: verify
+
+When no test harness exists, verify by the cheapest available signal: run the code, type-check, lint, or exercise the changed path manually. Don't declare done on inspection alone.
+
+Keep these universal rules top-of-mind. Violations signal design drift.
+
+| Principle | Source | Why |
+|-----------|--------|-----|
+| Fix warnings immediately | 3.1 | A warning shows a mismatch intent vs reality — don’t suppress, fix or stop work |
+| Zero stubs ever | 3.1 | No `TODO`, `// impl here`, `NotImplemented`, incomplete fns — ask user instead of stubbing |
+| Never add your own unused code | 3.1 | Clean up imports you introduce; do not touch pre-existing dead code unless asked |
+| Use pure logic with thin effects layer | 9.2 | Keep computation pure, put I/O in thin orchestration layer to ease testing/refactoring |
+| Separate decision logic from side effects | 9.2 | A module should only decide OR only perform — not both |
+| Preserve local styles; add tests only if style exists there | 9.1 | Match existing test surface before adding new one |
+| Log verbs match intent; remove unused params | 9.1 | If parameter exists solely for debug log, remove it; preserve actual data flow |
+| Use discriminated types over boolean flags | 9.1 | Replace `isResumedConversation: boolean` with `threadKind: 'new' | 'resume'` to make meaning self-documenting |
+| Name boundaries by work they do | 9.1 | Prefer `formatIsoDate()` over `*Utils`; keep helpers near the semantics they represent |
+| Fail loudly on missing prerequisites | 3.1 | Use strict env checks; report clearly; do not guess |
+| Inspect reality before proposing change | 9.1 | Read code/runtime state first; don’t guess and refactor later |
+| Small focused helpers > shared `normalize*` helpers | 9.1 | Two inline fixups cheaper than one shared abstraction that suggests too broad scope |
+| Match existing conventions before widening types | 9.1 | Add new value without renormalizing casing; only normalize if task explicitly asks |
+| Identify root cause before changing surface | 3.1 | Fix the real boundary emitting invalid data; don’t downstream-patch normalization |
 
 ### 9.3 Logging and Telemetry
 
