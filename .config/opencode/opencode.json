@@ -61,8 +61,8 @@
             "output": 5.2
           },
           "limit": {
-            "context": 300000,
-            "output": 200000
+            "context": 32000,
+            "output": 10000
           },
           "options": {
             "reasoningEffort": "max",
@@ -140,31 +140,6 @@
             "output": [
               "text"
             ]
-          },
-          "limit": {
-            "context": 120000,
-            "output": 120000
-          },
-          "options": {
-            "reasoningEffort": "high",
-            "textVerbosity": "low",
-            "reasoningSummary": "auto",
-            "include": [
-              "reasoning.encrypted_content"
-            ],
-            "parallel_tool_calls": true,
-            "tool_choice": "auto",
-            "thinking": true,
-            "temperature": 0.7
-          }
-        },
-        "deepseek-v4-flash": {
-          "id": "deepseek-v4-flash",
-          "name": "deepseek-v4-flash",
-          "tools": true,
-          "cost": {
-            "input": 1,
-            "output": 4.2
           },
           "limit": {
             "context": 120000,
@@ -313,12 +288,12 @@
     ]
   },
   "plugin": [
-    "oh-my-opencode-slim@2.0.4",
+    "oh-my-opencode-slim@2.0.5",
     "opencode-plugin-openspec@0.1.4",
     "@franlol/opencode-md-table-formatter@0.0.6",
-    "@cortexkit/aft-opencode@0.39.3",
-    "@cortexkit/opencode-magic-context@0.26.0",
-    "opencode-auto-resume@1.0.15",
+    "@cortexkit/aft-opencode@latest",
+    "@cortexkit/opencode-magic-context@latest",
+    "opencode-auto-resume@1.0.17",
     "opencode-plugin-auto-update@latest",
     "@tarquinen/opencode-smart-title@0.1.7"
   ],
@@ -352,21 +327,6 @@
       "command": [
         "/home/mte90/.local/share/npm/lib/node_modules/visual-ui-debug-agent-mcp/dist/index.js"
       ]
-    },
-    "n8n": {
-      "type": "local",
-      "command": [
-        "npx",
-        "-y",
-        "n8n-mcp"
-      ],
-      "environment": {
-        "MCP_MODE": "stdio",
-        "LOG_LEVEL": "error",
-        "DISABLE_CONSOLE_OUTPUT": "true",
-        "N8N_API_URL": "https://n8n.codeat.it",
-        "N8N_API_KEY": "{env:N8N_KEY}"
-      }
     }
   },
   "agent": {

@@ -59,6 +59,15 @@ Skipping initialization leads to:
 - Missing available skills and reimplementing them from scratch
 - Ignoring project-specific conventions documented in the README
 
+### Sub-agent inheritance rules
+
+**Subagents MUST respect AGENTS.md unless project-specific rules override:**
+
+- When entering a project directory, subagents also perform Session Initialization (Step 0)
+- Project-specific files (`.opencode/`, `AGENTS.md` in project root) may **add** or **override** matching rules
+- Base AGENTS.md rules apply for anything not covered by project-specific rules
+- If conflict exists, project-specific rules win for that project only
+
 ---
 
 ## 1. Treat Input as Unverified
@@ -201,6 +210,25 @@ Reason:
 * Prevent accidental pushes
 * Keep full control of repository history
 * Ensure code review before remote updates
+
+## 5.1 Compilation and Verification Discipline
+
+**Zero-compilation-errors policy applies at every stage:**
+
+- After every batch of edits — verify files compile/parse without errors or warnings
+- After each subagent completes its work — run project diagnostics using the agent's available tools or the language's native compiler/type-checker
+- **Before marking any task complete** — confirm the modified file(s) compile/parse and no new warnings were introduced
+- **Before session closure** — run full verification suite (tests, lint, typecheck, build) after all subagents finish
+
+**Verification timing:**
+- Tier 1: Run quick diagnostics after edit batches using available agent tools
+- Tier 2: Run project-native compiler/type-checker for authoritative gate (tsc, cargo check, pyright, etc.)
+- Tier 3: Run test suite to verify behavioral correctness
+
+**Never declare work complete without evidence:**
+- "Compiled successfully" — show the command output
+- "Tests pass" — show the test runner output
+- "No warnings" — show the linter output
 
 ## 6. MCP Servers
 
