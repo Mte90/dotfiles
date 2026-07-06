@@ -61,8 +61,8 @@
             "output": 5.2
           },
           "limit": {
-            "context": 32000,
-            "output": 10000
+            "context": 96000,
+            "output": 96000
           },
           "options": {
             "reasoningEffort": "max",
@@ -250,6 +250,301 @@
           }
         }
       }
+    },
+    "zai-coding-plan": {
+      "npm": "@ai-sdk/anthropic",
+      "options": {
+        "baseURL": "https://api.z.ai/api/anthropic/v1",
+        "timeout": 1200000,
+        "chunkTimeout": 600000,
+        "headers": {
+          "Accept": "application/json",
+          "Authorization": "Bearer {env:ANTHROPIC_API_KEY}"
+        }
+      },
+      "models": {
+        "glm-4.7": {
+          "reasoning": true,
+          "interleaved": true,
+          "limit": {
+            "context": 198000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "options": {
+            "temperature": 1,
+            "top_k": 40,
+            "top_p": 0.95,
+            "maxOutputTokens": 128000,
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 64000
+            }
+          },
+          "variants": {
+            "none": {
+              "thinking": {
+                "type": "disabled"
+              }
+            },
+            "low": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 8000
+              }
+            },
+            "medium": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 24000
+              }
+            },
+            "high": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 48000
+              }
+            },
+            "max": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 64000
+              }
+            }
+          }
+        },
+        "glm-5": {
+          "reasoning": true,
+          "interleaved": true,
+          "limit": {
+            "context": 198000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "options": {
+            "temperature": 1,
+            "top_k": 40,
+            "top_p": 0.95,
+            "maxOutputTokens": 128000,
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 64000
+            }
+          },
+          "variants": {
+            "none": {
+              "thinking": {
+                "type": "disabled"
+              }
+            },
+            "low": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 8000
+              }
+            },
+            "medium": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 24000
+              }
+            },
+            "high": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 48000
+              }
+            },
+            "max": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 64000
+              }
+            }
+          }
+        },
+        "glm-5.1": {
+          "reasoning": true,
+          "interleaved": true,
+          "limit": {
+            "context": 198000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "options": {
+            "temperature": 1,
+            "top_k": 40,
+            "top_p": 0.95,
+            "maxOutputTokens": 128000,
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 64000
+            }
+          },
+          "variants": {
+            "none": {
+              "thinking": {
+                "type": "disabled"
+              }
+            },
+            "low": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 8000
+              }
+            },
+            "medium": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 24000
+              }
+            },
+            "high": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 48000
+              }
+            },
+            "max": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 64000
+              }
+            }
+          }
+        },
+        "glm-5.2": {
+          "reasoning": true,
+          "interleaved": true,
+          "limit": {
+            "context": 500000,
+            "output": 128000
+          },
+          "modalities": {
+            "input": [
+              "text",
+              "image"
+            ],
+            "output": [
+              "text"
+            ]
+          },
+          "options": {
+            "temperature": 1,
+            "top_k": 40,
+            "top_p": 0.95,
+            "maxOutputTokens": 128000,
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 64000
+            }
+          },
+          "variants": {
+            "none": {
+              "thinking": {
+                "type": "disabled"
+              }
+            },
+            "low": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 8000
+              }
+            },
+            "medium": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 24000
+              }
+            },
+            "high": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 48000
+              }
+            },
+            "max": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 64000
+              }
+            }
+          }
+        },
+        "glm-5-turbo": {
+          "reasoning": true,
+          "interleaved": true,
+          "limit": {
+            "context": 198000,
+            "output": 128000
+          },
+          "options": {
+            "temperature": 1,
+            "top_k": 40,
+            "top_p": 0.95,
+            "maxOutputTokens": 128000,
+            "thinking": {
+              "type": "enabled",
+              "budgetTokens": 64000
+            }
+          },
+          "variants": {
+            "none": {
+              "thinking": {
+                "type": "disabled"
+              }
+            },
+            "low": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 8000
+              }
+            },
+            "medium": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 24000
+              }
+            },
+            "high": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 48000
+              }
+            },
+            "max": {
+              "thinking": {
+                "type": "enabled",
+                "budgetTokens": 64000
+              }
+            }
+          }
+        }
+      }
     }
   },
   "permission": {
@@ -288,12 +583,12 @@
     ]
   },
   "plugin": [
-    "oh-my-opencode-slim@2.0.5",
+    "oh-my-opencode-slim@2.1.0",
     "opencode-plugin-openspec@0.1.4",
     "@franlol/opencode-md-table-formatter@0.0.6",
     "@cortexkit/aft-opencode@latest",
     "@cortexkit/opencode-magic-context@latest",
-    "opencode-auto-resume@1.0.17",
+    "opencode-auto-resume@1.0.18",
     "opencode-plugin-auto-update@latest",
     "@tarquinen/opencode-smart-title@0.1.7"
   ],
@@ -310,6 +605,11 @@
     "websearch": {
       "type": "remote",
       "url": "https://mcp.exa.ai/mcp",
+      "enabled": true
+    },
+    "tavily": {
+      "type": "remote",
+      "url": "https://mcp.tavily.com/mcp/?tavilyApiKey={env:TAVILY_API_KEY}",
       "enabled": true
     },
     "deepwiki": {
