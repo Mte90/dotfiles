@@ -587,8 +587,8 @@
     "opencode-plugin-openspec@0.1.4",
     "@franlol/opencode-md-table-formatter@0.0.6",
     "@cortexkit/aft-opencode@latest",
+    "opencode-auto-resume@latest",
     "@cortexkit/opencode-magic-context@latest",
-    "opencode-auto-resume@1.0.18",
     "opencode-plugin-auto-update@latest",
     "@tarquinen/opencode-smart-title@0.1.7"
   ],
