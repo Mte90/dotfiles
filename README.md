@@ -5,13 +5,14 @@ A list of external tools that is repo use (or extend) or that I use on daily usa
 ## Other tools installed
 
 * [opencode](https://opencode.ai/)
-* [oh-my-opencode](https://github.com/code-yeongyu/oh-my-opencode)
+* [oh-my-opencode-slim](https://github.com/alvinunreal/oh-my-opencode-slim)
+* [opencode-auto-resume](https://github.com/Mte90/opencode-auto-resume)
 * [youtube-dlp](https://github.com/yt-dlp/yt-dlp)
 * [nccm](https://github.com/flyingrhinonz/nccm)
 
 ## Opencode
 
-I am using Oh-my-opencode with my custom [AGENTS.md](https://github.com/Mte90/dotfiles/blob/master/.config/opencode/AGENTS.md) based on [forrestchang/andrej-karpathy-skills/](https://github.com/forrestchang/andrej-karpathy-skills/blob/main/CLAUDE.md) with [CodeAtCode/oss-ai-skills](https://github.com/CodeAtCode/oss-ai-skills).
+I am using Oh-my-opencode-slim with my custom [AGENTS.md](https://github.com/Mte90/dotfiles/blob/master/.config/opencode/AGENTS.md) based on [forrestchang/andrej-karpathy-skills/](https://github.com/forrestchang/andrej-karpathy-skills/blob/main/CLAUDE.md) with [CodeAtCode/oss-ai-skills](https://github.com/CodeAtCode/oss-ai-skills).
 
 ## NeoVim
 
