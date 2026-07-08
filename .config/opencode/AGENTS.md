@@ -17,6 +17,14 @@ Use consistently. Do not overload a symbol with multiple meanings.
 
 **🎉 rule:** emit 🎉 (or call `task_complete`) only when **ALL** todos are done — never after a single task. See §90.
 
+## 02. Language & Output Charter
+
+Two hard rules, non-negotiable:
+
+1. **Always respond in English.** Every reply, comment, plan, commit message, and log must be in English — regardless of the language the user writes in. This file itself must stay in English.
+
+2. **No self-explanatory code comments.** Comments exist only to explain *why* when the code isn't self-evident — non-obvious tradeoffs, external constraints, workarounds, complex algorithms. Never restate what the code obviously expresses. Remove any redundant comment you encounter during edits.
+
 ## 00. Session Initialization (Mandatory)
 
 **At the start of every new session (not for sub-agents), before any other work, the agent MUST perform these steps in order.**
@@ -188,12 +196,12 @@ Prefer: _"Fix X in file Y"_ vs _"Improve the project"_ (success rates 90% vs 60%
 
 ## 23. Iterative Refinement
 
-Per **output non-coding** (analisi, scrittura, strategia)
+For **non-coding output** (analysis, writing, strategy):
 
-- Prima bozza = mai finale. Presenta con **livello di confidenza esplicito** (es: _"80% confidence, needs validation on X")
-- Chiedi sempre: _"What aspect needs the most work?"_
-- Dopo feedback, **revisiona solo le parti segnalate** — non riscrivere il documento.
-- Traccia **cosa è cambiato** tra iterazioni e perché.
+- First draft is never final. Present with an **explicit confidence level** (e.g., _"80% confidence, needs validation on X")
+- Always ask: _"What aspect needs the most work?"_
+- After feedback, **revise only the flagged parts** — don't rewrite the whole document.
+- Track **what changed** between iterations and why.
 
 ## 24. Output Quality for Non-Coding Tasks
 
@@ -220,7 +228,6 @@ Concise rules for all non-coding output:
 | Existing style            | Follow project conventions, not personal taste       |
 | Existing dead code        | Mention it — **don't delete** unless requested       |
 | Cleanup your own only     | Remove **only** imports/var introduced by your code   |
-| Self-explanatory          | Comment **only** when code isn't self-evident  |
 | Verification gate | Run [§55](#55) diagnostics after every batch of edits      |
 
 ### 30.1 Universal Execution Rules (apply to EVERY edit, not just plan tasks)
@@ -232,8 +239,6 @@ These are non-negotiable. They apply to any code the agent writes or modifies �
 - **No stubs.** Never leave placeholder code, `// implementation here`, `TODO`, `FIXME`, incomplete functions, or `NotImplementedError`/`NotImplemented` exceptions. If you don't know how to implement something, ask the user instead of stubbing.
 - **No unused imports/variables introduced by your changes.** Clean up what your edit made dead. Don't touch pre-existing dead code unless asked.
 - **Verify before declaring done.** Before reporting any edit as complete, confirm the modified file(s) compile/parse and no new warnings were introduced. Evidence, not assertion.
-
-- **Never add redundant self-explanatory comments.** Remove comments that merely restate what the code obviously expresses. Preserve only comments that add insight: why the code exists, non-obvious tradeoffs, workarounds for external constraints, complex algorithms. Promptly sweep any surfaced self-explanatory comments during your edits.
 
 These rules are referenced by the plan task template (§75.2) as mandatory verification gates — they are not duplicated there.
 
