@@ -9,6 +9,7 @@ A list of external tools that is repo use (or extend) or that I use on daily usa
 * [opencode-auto-resume](https://github.com/Mte90/opencode-auto-resume)
 * [youtube-dlp](https://github.com/yt-dlp/yt-dlp)
 * [nccm](https://github.com/flyingrhinonz/nccm)
+* [flyline](https://github.com/HalFrgrd/flyline)
 
 ## Opencode
 

@@ -143,3 +143,8 @@ eval "$(uv generate-shell-completion bash)"
 
 # opencode
 export PATH=/home/mte90/.opencode/bin:$PATH
+
+# Flyline - enhanced Bash experience
+enable -f /home/mte90/.local/lib/libflyline.so flyline
+flyline set-style matching-char="bold green"
+flyline set-cursor --backend terminal

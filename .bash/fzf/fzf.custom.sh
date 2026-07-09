@@ -4,7 +4,6 @@ export FZF_DEFAULT_COMMAND="$FZF_SEARCH --files"
 # https://medium.com/@vdeantoni/boost-your-command-line-productivity-with-fuzzy-finder-985aa162ba5d
 export FZF_DEFAULT_OPTS='--exact --preview "([[ -f {} ]] && (batcat --style=numbers --color=always {} || cat {})) || ([[ -d {} ]] && (tree -C {} | less)) || echo {} 2> /dev/null | head -200" --height=90%'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
-export FZF_CTRL_R_OPTS="--preview 'echo {}' --preview-window down:3:hidden:wrap --bind '?:toggle-preview'"
 bind -x '"\C-p": nvim-qt $(fzf);'
 
 # find-in-file - usage: fif <SEARCH_TERM>
