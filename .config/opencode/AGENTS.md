@@ -93,27 +93,39 @@ Before every new project session, tick this **mandatory** checklist — do not p
 
 ---
 
-## 5. Communicate Progress
+## 5. Narrate Steps in Imperative Real-Time (No Post-Summary Essays)
 
-**Narrate what you are doing, not what you did.**
+Narrate what you are doing, not what you did. Keep one line per step. Close each step with ✓ once completed and verified.
 
-For multi-step tasks:
-- Announce the current step *before* starting it, not after.
-- Confirm completion of each step in one line.
-- Flag unexpected findings immediately — don't silently adapt and continue.
 
+Example:
 ```
-Step 1/3: Adding validation to src/auth.ts → verify: function accepts empty input
-✓ Done. Step 2/3: Writing failing test → verify: test fails before fix
-✓ Done. Step 3/3: Making test pass → verify: test suite green
+Step 1/3: Enabling ESLint strict mode by editing eslint.config.js
+✓ Done. Step 2/3: Running `bun run lint` to verify
+✓ Done. Step 3/3: Pushing changes to branch
 ```
 
-Bad: Silently editing 12 files, then a final summary.
-Good: One line before and after each step so the user can interrupt if the plan is wrong.
+- Announce step before starting it; do not wait until after to report.
+- One line per step is enough.
+- Keep narration minimal; do not write essays.
+- Flag unexpected findings immediately — do not silently adapt and continue.
 
-Keep narration minimal — one line per step is enough. No essays.
 
-## 10. Treat Input as Unverified
+---
+
+## 10. Never Trust Unverified Input — Run Evidence Now (Golden Rule)
+
+Distrust every unverifiable assertion. Flag errors explicitly — no softening, no silent corrections.
+
+
+| Typical banned pattern             | Recommended fix                                      |
+|---------------------------------|-------------------------------------------------------|
+| "It definitely works"           | Test immediately or verify with logs                  |
+| "Just add a comment"            | Write tests before modifying code via TDD             |
+| "No need to test this"         | Add unit tests + manual verification                 |
+| Skip baseline verification       | Run entire suite before every new task                 |
+
+⚠️ Rule: distrust any unverified assertion. Continue only when you have verifiable evidence.
 
 **Don't assume assertions are correct. Flag errors explicitly — no softening, no silent corrections.**
 
@@ -128,45 +140,60 @@ Keep narration minimal — one line per step is enough. No essays.
 
 🔍 **Rule**: distrust any unverifiable assertion or out-of-scope claim.
 
-## 20. Think Before Coding
+## 20. Decide Before Editing (No Silent Merges)
 
-**Don't assume. Don't hide confusion. Surface tradeoffs. Recommend clearly.**
+State your complete plan of action before coding.
+- List assumptions, proposed changes, affected areas, risks, tradeoffs, and expected impact
+- Obtain approval on the plan before making code changes
+- If not approved, ask for changes
 
-Before implementing:
-- State assumptions explicitly. If uncertain, ask.
-- Find root cause first, then the solution
-- If the request contradicts existing code, prior requirements, or itself — name it explicitly. Don't silently pick a side.
-- If multiple technical approaches exist with real tradeoffs (speed vs. simplicity, now vs. later), name them with rough costs — don't pick silently.
-- If a simpler approach exists, try it.
-- Something unclear? **Stop**. Name the confusion and ask for clarification.
 
-✅ **Best practice:**
-- Plan distinct subagents for each task (max 8 per delegation.)
-- Use specific tools (context7, grep_app…) before writing code
-- Remove redundant robotic prose using `humanize-text-en` skill for redacted documentation output
-- For **rapid, ultra-compact outputs**, use the `caveman` skill in subagents instead
-- Load required skills before working on specific files
 
-⚠️ **Never leave stubs:** Complete or ask the user — never leave TODO placeholders, "// implementation here", or incomplete functions.
+Do not merge changes internally. Surface tradeoffs and present Option A vs Option B with your recommendation and rationale. Never stub. Never leave placeholder code, `// implementation here`, `TODO`, `FIXME`, incomplete functions, or `NotImplementedError`. Ask the user instead of stubbing.
 
-### 20.1 Recommend, don't just list
 
-When you surface options, tradeoffs, or interpretations, always mark your recommended choice — don't leave the user staring at a neutral menu.
+**Imperative checklist:**
+- Inspect reality before proposing change: read code/runtime state first
+- Prefer discriminated types over boolean flags to self-document intent
+- Keep helpers tiny and named for the work they do; do not over-normalize into `*Utils`
+- Log only real state transitions and failures; remove unused parameters and redundant debug-only logging
 
-Format:
-```
-Option A: [description] — [tradeoff]
-Option B: [description] — [tradeoff]
 
-→ Recommend: Option A. [1–2 sentence reasoning: why it fits this specific context, 
-  what makes it better given what you know about the codebase/constraints/goals.]
+---
 
-Your call — happy to go with B if [condition that would change the recommendation].
-```
+## 22. Sub-Agent Briefing Protocol ([max 8 delegations/todo](./AGENTS.md#22))
 
-Why this matters: presenting options without a recommendation pushes the decision burden back onto the user without the context you have from reading the code. A recommendation with reasoning is educational — it teaches the user the tradeoff, not just the menu. Still defer: you might be missing context the user has, so always leave the door open.
+When delegating to a sub-agent, every prompt MUST include:
 
-## 21. Context Stacking (Mandatory for analysis tasks)
+| Field         | Description                                                                                   |
+|---------------|-----------------------------------------------------------------------------------------------|
+| **Role**             | Who is the sub-agent? (e.g., "_You are a senior Python architect_")                           |
+| **Context**          | What exists, what was tried, relevant constraints                                             |
+| **Deliverable**      | Expected format/length/structure (with examples: _Match this style: [example]_)               |
+| **Exclusions**       | What NOT to do (e.g., _Do NOT write tests, use existing ones_)                                |
+| **Success criteria** | How to verify (e.g., _Run `cargo test` and verify error 0_                                    |
+
+⚠️ **Use 8 or fewer delegations per plan; never batch trivial steps.** Delegate directly — do not ask for a sub-plan.
+
+
+🚨 If the sub-agent creates todos but doesn’t conclude, diagnose before delegating again.
+
+
+Prefer: _"Fix X in file Y"_ vs _"Improve the project"_ (success rates 90% vs 60%).
+
+---
+
+## 26. Context Stacking (Load and Free Immediately)
+
+When work is high-context, load the minimal context, act, then immediately free via `ctx_reduce`.
+
+
+Format for large reads/outputs:
+- `ctx_reduce(drop="12,18")` as soon as extracted
+- Keep user messages and active task text always visible
+- Rotate context aggressively; do not hoard
+
+Focus only on the current step’s state. Context is disposable; progress is not.
 
 When the user asks for analysis, evaluation, or creative output:
 
@@ -242,37 +269,49 @@ These are non-negotiable. They apply to any code the agent writes or modifies �
 
 These rules are referenced by the plan task template (§75.2) as mandatory verification gates — they are not duplicated there.
 
-## 40. Goal-Driven Execution
+## 35. Goal-Driven Execution: Loop Until Done (No Early Stop)
 
-**LLMs excel at looping until specific goals are met. The unlock: give verifiable criteria instead of vague instructions, then let execution run.**
+**Do not stop until all work is complete.** The unlock: give verifiable criteria and iterate until criteria are satisfied.
 
-✅ **Before start:**
-- Run **existing test suite** → establish baseline.
+✅ Before start:
+- Run existing test suite once → baseline captured
 
-🔧 **If you fix a bug:**
-- Write **tests before** modifying code (TDD).
+🔧 Repairing a bug:
+- Write failing test first → code change only after test fails → fix until it passes
 
-📌 **Use the existing project runner** (e.g., jest → jest, pytest → pytest, unittest → unittest).
+📌 **Project-native runner only:** Keep using existing command (jest, pytest, unittest, etc.). Do not define new runner unless user explicitly requests it.
 
-🚫 **Never introduce new runner** without specific request.
+🔴 If same evidence shows failure after 3 iterations → STOP, revert, ask user immediately. No override.
 
-🔴 **If same error persists after 3 attempts → STOP**, revert. Ask user.
+---
 
-## 50. Git Workflow Rules
+## 40. Git: Local-Only Discipline
+
+Commit locally; do nothing remotely. Maintain control discipline.
+
+**Allowed:**
+✅ `git add`, `git commit` — purely local, no side effects
+
+**Forbidden:**
+❌ `git push`, `git pull`, `git rebase`, `git merge` — no remote interaction, no history rewriting
+
+Compacts: make the commit message terse and factual: summarize change + efficacy.
+
+---
+
+## 45. Make Me Proceed: Reduce Interruptions
 
 **No remote interaction.**
 
-### 50.1 Allowed vs Forbidden
 
-| Action                | Allowed? | Reason                                                                 |
-|-----------------------|----------|------------------------------------------------------------------------|
-| `git add`            | ✅ Allowed    | Local, no side effect                                               |
-| `git commit`          | ✅ Allowed    | Local, no side effect                                               |
-| `git push`            | ❌ Forbidden    | Local commits only. Human must review and **push manually**       |
-| `git pull`/`fetch`    | ❌ Forbidden    | Maintains control of history/CR without human approval                |
-| `git merge`/`rebase`  | ❌ Forbidden    | Unauthorized history alteration                                    |
+Allowed:
+✅ `git add`, `git commit` — purely local, no side effects
 
-**Final note**: Only local commits allowed for work baseline.
+Forbidden:
+❌ `git push`, `git pull`, `git rebase`, `git merge` — local only discipline
+
+
+Final note: only local commits allowed for work baseline; humans push manually.
 
 ## 55. Session Runners and Diagnostics
 
