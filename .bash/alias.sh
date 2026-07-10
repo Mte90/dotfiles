@@ -23,7 +23,7 @@ alias wpt='cd ./public_html/wp-content/themes 2>/dev/null;cd ./public_html/build
 # Misc
 alias biggest-10-files='BLOCKSIZE=1048576; du -x -h | sort -nr | head -10'
 #youtube-dl as mp3
-alias yt2mp3='youtube-dl -x --audio-format=mp3 -w -c -o "%(title)s.%(ext)s"'
+alias yt2mp3='youtube-dl -x --audio-format=mp3 -w -c -o "%(title)s.%(ext)s" --js-runtime node'
 alias changedfiles="find . -type f -print0 | xargs -0 stat --format '%Z :%z %n' | sort -nr | cut -d: -f2- | head -n 20"
 alias kate='kate -b -s default'
 alias vim='vim.tiny'
@@ -45,6 +45,7 @@ alias nvim.tiny="nvim -u NONE"
 
 # https://github.com/cykerway/complete-alias
 complete -F _complete_alias "${!BASH_ALIASES[@]}"
+eval "$(uv generate-shell-completion bash)"
 
 # https://github.com/flyingrhinonz/nccm
 function nccm(){
@@ -61,20 +62,21 @@ function activatevenv() {
   VIRTUALENV_DIRS=("venv/" "env/" ".env/" ".venv/" "${PWD##*/}")
 
   for dir in "${VIRTUALENV_DIRS[@]}"; do
-    if [[ -d "${dir}" ]]; then
-      if [[ -e "./${dir}/bin/activate" ]]; then
-        source ./$dir/bin/activate
-        break
+    if [[ -d "${dir}" ]] && [[ -e "./${dir}/bin/activate" ]]; then
+      if command -v deactivate &> /dev/null; then
+        deactivate
       fi
+      source ./$dir/bin/activate
+      return 0
     fi
   done
-
+  return 1
 }
 activatevenv
 
 function cd() {
   builtin cd "$1"
-  
+
   if activatevenv; then
     :
   elif command -v deactivate &> /dev/null; then

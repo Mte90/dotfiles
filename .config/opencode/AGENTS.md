@@ -158,50 +158,30 @@ Do not merge changes internally. Surface tradeoffs and present Option A vs Optio
 - Keep helpers tiny and named for the work they do; do not over-normalize into `*Utils`
 - Log only real state transitions and failures; remove unused parameters and redundant debug-only logging
 
+**Before decomposing into tasks, produce a brief feature spec (5-10 lines):**
+- Goal: one sentence
+- Requirements: bullet list
+- Acceptance criteria: observable outcomes
+
+This surfaces doubts before task decomposition. If doubts arise while writing the spec, resolve them with the user before proceeding.
 
 ---
 
-## 22. Sub-Agent Briefing Protocol ([max 8 delegations/todo](./AGENTS.md#22))
+## 21. Autonomy Calibration (Familiarity → Trust → Control)
 
-When delegating to a sub-agent, every prompt MUST include:
+Calibrate autonomy per task based on three factors:
 
-| Field         | Description                                                                                   |
-|---------------|-----------------------------------------------------------------------------------------------|
-| **Role**             | Who is the sub-agent? (e.g., "_You are a senior Python architect_")                           |
-| **Context**          | What exists, what was tried, relevant constraints                                             |
-| **Deliverable**      | Expected format/length/structure (with examples: _Match this style: [example]_)               |
-| **Exclusions**       | What NOT to do (e.g., _Do NOT write tests, use existing ones_)                                |
-| **Success criteria** | How to verify (e.g., _Run `cargo test` and verify error 0_                                    |
+| Factor              | Low → Ask more, step smaller    | High → Proceed autonomously     |
+|---------------------|--------------------------------|---------------------------------|
+| **Familiarity**     | Unfamiliar domain/codebase     | Known patterns, recent work     |
+| **Trust**           | First attempt, past failures   | Earned through reliable delivery |
+| **Control needed**  | High-risk, irreversible        | Low-risk, easily reverted       |
 
-⚠️ **Use 8 or fewer delegations per plan; never batch trivial steps.** Delegate directly — do not ask for a sub-plan.
+**Rule:** When any factor is low → ask before proceeding, not after. When all three are high → proceed and report results.
 
-
-🚨 If the sub-agent creates todos but doesn’t conclude, diagnose before delegating again.
-
-
-Prefer: _"Fix X in file Y"_ vs _"Improve the project"_ (success rates 90% vs 60%).
+This is not binary (ask/proceed). It is a gradient: low familiarity means smaller steps and more checkpoints; high trust means larger bounded tasks with verification at the end.
 
 ---
-
-## 26. Context Stacking (Load and Free Immediately)
-
-When work is high-context, load the minimal context, act, then immediately free via `ctx_reduce`.
-
-
-Format for large reads/outputs:
-- `ctx_reduce(drop="12,18")` as soon as extracted
-- Keep user messages and active task text always visible
-- Rotate context aggressively; do not hoard
-
-Focus only on the current step’s state. Context is disposable; progress is not.
-
-When the user asks for analysis, evaluation, or creative output:
-
-* Always ask for or infer: who is the target audience? What's the goal?
-* Before producing output, state what context you're working with
-* If the user provides an example of what they like, anchor to it
-* Generic input → generic output. Always. Refuse to proceed if context is too vague.
-* If context usage is high (you notice degraded recall or repeated information), proactively context management tools to free up space.
 
 ## 22. Sub-Agent Briefing Protocol ([max 8 delegations/todo](./AGENTS.md#22))
 
@@ -214,12 +194,52 @@ When delegating to a sub-agent, every prompt MUST include:
 | **Deliverable**      | Expected format/length/structure (with examples: _Match this style: [example]_)               |
 | **Exclusions**       | What NOT to do (e.g., _Do NOT write tests, use existing ones_)                                |
 | **Success criteria** | How to verify (e.g., _Run `cargo test` and verify error 0_                                    |
+| **Constraints**      | Boundaries: tech stack, max lines, performance reqs, compatibility, style                     |
 
-⚠️ **Exception:** If the agent uses internal OpenCode, skip the structure but still apply the rules (max 8 delegations).
+⚠️ **Use 8 or fewer delegations per plan; never batch trivial steps.** Delegate directly — do not ask for a sub-plan.
 
-🚨 **If the sub-agent creates todos but doesn't conclude**, **diagnose the error** before delegating again.
+
+🚨 If the sub-agent creates todos but doesn’t conclude, diagnose before delegating again.
+
 
 Prefer: _"Fix X in file Y"_ vs _"Improve the project"_ (success rates 90% vs 60%).
+
+---
+
+## 26. Context Engineering (Not Just Stacking)
+
+Context is an engineered information environment, not a dump-and-pray buffer.
+
+### Mental model: context window as RAM
+- **Load on demand:** bring in information as needed, not preemptively
+- **Cache frequently used:** keep common patterns accessible
+- **Garbage collection:** remove outdated context aggressively
+- **Priority scheduling:** most relevant information first
+
+### Context Rot
+As work grows, context accumulates stale and irrelevant information. Symptoms: degraded recall, repeated information, circular reasoning.
+
+**Fix:** Periodically summarize and prune. Use available context-reduction tools. Do not hoard — rotate aggressively.
+
+### Progressive context building
+1. Start with core files directly relevant to the task
+2. Add related files only as the task requires
+3. Include constraints and requirements last
+4. Free what was needed for a prior step but not the current one
+
+### Formatting context for sub-agents
+When delegating, structure the context you pass:
+- Label sections: "Relevant code:", "Error logs:", "Schema:", "Constraints:"
+- Use clear headings and bullet points
+- Include complete error messages and stack traces, not paraphrases
+- Provide schema/type definitions for data-related tasks
+
+### When the user asks for analysis, evaluation, or creative output:
+- Always ask for or infer: who is the target audience? What's the goal?
+- Before producing output, state what context you're working with
+- If the user provides an example of what they like, anchor to it
+- Generic input → generic output. Always. Refuse to proceed if context is too vague.
+- If context usage is high (you notice degraded recall or repeated information), proactively use context management tools to free up space.
 
 ## 23. Iterative Refinement
 
@@ -268,6 +288,16 @@ These are non-negotiable. They apply to any code the agent writes or modifies �
 - **Verify before declaring done.** Before reporting any edit as complete, confirm the modified file(s) compile/parse and no new warnings were introduced. Evidence, not assertion.
 
 These rules are referenced by the plan task template (§75.2) as mandatory verification gates — they are not duplicated there.
+
+### 30.2 Sandboxing for Risky Changes
+
+For risky, experimental, or potentially destructive changes, isolate first:
+- Use available checkpoint/snapshot tools before major changes
+- Work on a separate branch or worktree when available
+- Create checkpoints at feature boundaries, not just per-task
+- Before experimental approaches, snapshot so reversion is one step
+
+**Rule:** If a change touches >3 files or modifies critical paths (auth, data layer, config) → checkpoint first, no exceptions.
 
 ## 35. Goal-Driven Execution: Loop Until Done (No Early Stop)
 
@@ -324,6 +354,28 @@ Diagnostics and verification run after code changes and at task completion to en
 - Confirm no new warnings or errors were introduced; show command output as evidence — never assert “works” without output.
 
 This aligns **Verifiable Criteria** with **No remote interaction** discipline for tests and builds.
+
+### 55.1 Quality Gates Checklist
+
+Before marking any task complete, verify ALL of:
+- [ ] Logic correctness and edge case handling
+- [ ] Security vulnerabilities and data validation
+- [ ] Performance implications and resource usage
+- [ ] Code style and maintainability standards
+- [ ] Error handling and logging
+- [ ] Test coverage and quality
+- [ ] No new warnings introduced
+- [ ] Dependencies managed (no unauthorized additions)
+
+### 55.2 Categorized Testing
+
+"Tests pass" is not monolithic. Distinguish:
+- **Unit tests:** every function has corresponding tests
+- **Integration tests:** components work in context with existing systems
+- **Security tests:** input handling, auth boundaries, injection prevention
+- **Performance tests:** meets requirements under expected load
+
+When implementing a feature, identify which categories apply and verify each.
 
 ## 60. MCP Servers (prioritized tools catalog)
 
@@ -396,6 +448,8 @@ When creating a README.md:
   - T2: [depends on T1] Description…
 - When resuming a plan → execute the **FIRST pending**, never a random one.
 - If a task fails 3 times → **ESCALATION** (don't silence it).
+- **Size tasks by confidence:** first tasks in a plan should be small and bounded to build trust. Grow task scope only after early tasks verify successfully.
+- **Checkpoint before plan execution:** before starting the first task, create a snapshot of working state. This is the plan-level rollback point.
 
 ### 75.2 Mandatory template for every TASK  
 Every task in a plan **MUST populate ALL fields below** (no optional fields):
@@ -438,6 +492,16 @@ Before proceeding on ANY plan:
 - Validation via oracle sub-agent → architecture/scope approval
 - Verify 8+ task limit hard  
 - Cross-check file scope → avoid unintentional overlap
+
+### 75.5 Checkpointing Rules
+
+Create checkpoints:
+- ✅ Before plan execution starts (plan-level rollback point)
+- ✅ At feature boundaries (between independent task groups)
+- ✅ Before experimental or risky approaches
+- ✅ Before changes touching >3 files or critical paths
+
+❌ Do NOT checkpoint per-task only — plan-level checkpoints catch cascading failures that per-task rollback misses.
 
 ## 90. Session Closure
 
@@ -508,6 +572,16 @@ State your complete plan of action before coding.
 ### 88.4 If no test harness exists: verify
 
 When no test harness exists, verify by the cheapest available signal: run the code, type-check, lint, or exercise the changed path manually. Don't declare done on inspection alone.
+
+### 88.5 Continuous Human Oversight
+
+Human oversight is not a one-time approval gate. It is a continuous responsibility:
+- Review changes for subtle errors and edge cases
+- Validate that requirements are met, not just that tests pass
+- Check alignment with broader project goals
+- Make judgment calls on tradeoffs the AI surfaced but didn't resolve
+
+The approval gate at plan time is the START of oversight, not the end.
 
 Keep these universal rules top-of-mind. Violations signal design drift.
 

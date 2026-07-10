@@ -33,3 +33,10 @@ export DJANGO_DEBUG=True
 export TZ=$(readlink -f /etc/localtime | cut -d/ -f 5-)
 
 source /etc/profile.d/keys.sh
+
+# bun
+export BUN_INSTALL="$HOME/.local/share/reflex/bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# opencode
+export PATH=/home/mte90/.opencode/bin:$PATH

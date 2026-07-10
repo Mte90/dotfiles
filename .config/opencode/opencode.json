@@ -583,13 +583,13 @@
     ]
   },
   "plugin": [
-    "oh-my-opencode-slim@2.1.0",
+    "oh-my-opencode-slim@2.1.1",
     "opencode-plugin-openspec@0.1.4",
     "@franlol/opencode-md-table-formatter@0.0.6",
-    "@cortexkit/aft-opencode@latest",
-    "opencode-auto-resume@latest",
-    "@cortexkit/opencode-magic-context@latest",
-    "opencode-plugin-auto-update@latest",
+    "@cortexkit/aft-opencode@0.46.0",
+    "opencode-auto-resume@1.1.1",
+    "@cortexkit/opencode-magic-context@0.31.5",
+    "opencode-plugin-auto-update@0.3.1",
     "@tarquinen/opencode-smart-title@0.1.7"
   ],
   "autoupdate": true,
@@ -633,5 +633,8 @@
     "compaction": {
       "model": "regolo/qwen3.5-122b"
     }
+  },
+  "config": {
+    "plugins": []
   }
 }
