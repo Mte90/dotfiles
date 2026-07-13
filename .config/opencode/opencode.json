@@ -633,8 +633,5 @@
     "compaction": {
       "model": "regolo/qwen3.5-122b"
     }
-  },
-  "config": {
-    "plugins": []
   }
 }
