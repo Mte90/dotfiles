@@ -40,3 +40,5 @@ export PATH="$BUN_INSTALL/bin:$PATH"
 
 # opencode
 export PATH=/home/mte90/.opencode/bin:$PATH
+
+activatevenv

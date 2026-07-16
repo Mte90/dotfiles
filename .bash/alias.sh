@@ -72,7 +72,6 @@ function activatevenv() {
   done
   return 1
 }
-activatevenv
 
 function cd() {
   builtin cd "$1"
@@ -81,7 +80,6 @@ function cd() {
     :
   elif command -v deactivate &> /dev/null; then
     deactivate
-    source /home/mte90/.bash/alias.sh
   fi
 }
 
