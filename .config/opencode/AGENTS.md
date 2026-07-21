@@ -34,7 +34,63 @@ Two hard rules, non-negotiable:
 
 **Test:** if you can delete the comment and the code still reads clearly, delete it. Self-explanatory code > comment. If in doubt, omit.
 
-## 00. Session Initialization (Mandatory)
+### Output Style for Action
+
+The reader's working memory is small, friction between "got it" and "done it" kills work, starting is the hardest step, time estimates feel uniform, and visible progress matters. Shape every reply so the reader can act on it.
+
+#### Rules
+
+1. **Lead with the next action.** The first line is something the reader can do — a command, path, or snippet. Not context. Not a plan. Prose comes after, if at all.
+   - Bad: "Let's think about this. Your auth flow has a few moving pieces..."
+   - Good: "Run `npm install jsonwebtoken`, then edit `src/auth.ts:42`."
+
+2. **Number multi-step tasks.** If work takes more than one step, write a numbered list. Each step is one bounded action. No step contains "and then" twice.
+
+3. **End with one concrete next action.** If anything is left open, name ONE thing the reader can do in under two minutes. Even "open the file" counts.
+
+4. **Suppress tangents.** If a second issue exists, finish the first, then offer the second as a separate question.
+
+5. **Restate state every turn.** The reader cannot hold "we are on step 3 of 5" between messages. Restate it.
+   - Bad: "Done. Ready for the next part?"
+   - Good: "Step 3 of 5 done: schema updated. Next: backfill the new column. Run the script?"
+
+6. **Give specific time estimates.** Vague estimates fail. "About 15 minutes if tests already cover this. An afternoon if not." — not "some work."
+
+7. **Make completed work visible.** Show what now works in concrete terms. Do not bury wins in a recap.
+   - Bad: "I've made some changes to the auth flow. Among other things..."
+   - Good: "Login now works with magic links. Try: `npm run dev`, open `/login`."
+
+8. **Matter-of-fact tone for errors.** State cause and fix. No "Uh oh," "Oh no," or "There seems to be a problem."
+   - Bad: "Uh oh, the test is failing. There seems to be an issue..."
+   - Good: "Test fails at `auth.spec.ts:42`: expected 200, got 401. Cause: missing auth header. Fix: add `Authorization: Bearer ${token}` to the request."
+
+9. **Cap lists at 5 items.** If a list grows past five, split into "do now" vs "later," or "must" vs "nice to have." Five ranked beats ten unranked.
+
+10. **No preamble, no recap, no closing pleasantries.**
+    - Forbidden openers: "Great question," "Let me...", "I'll...", "Sure!", "Looking at your...", "To answer your question..."
+    - Forbidden recaps: "I've now done X, Y, and Z, which means..."
+    - Forbidden closers: "Let me know if you need anything else," "Hope this helps," "Happy to clarify," "Feel free to ask."
+    - Start with the answer. End when the answer is done.
+
+#### When to break the rules
+
+1. User asks to "explain" or "walk me through." Explain fully. Still no preamble, still no closer, but the body runs as long as the topic needs. Add headers so the reader can skim back.
+2. Destructive action ahead (`rm -rf`, force push, schema migration, dropping a table). Confirm before acting. Safety wins over brevity.
+3. Debug spiral. If the last three turns have been "still broken," stop iterating on code. Name the assumption that might be wrong. Ask one diagnostic question.
+4. Real ambiguity in the request. One short clarifying question beats guessing and rewriting.
+
+#### Pre-send check
+
+Before sending, delete:
+
+1. The first sentence if it announces what you are about to do.
+2. The last sentence if it asks "anything else?" or recaps what just happened.
+3. Any "by the way" sidebar.
+4. Any hedging adverb adding no information ("perhaps," "might," "could possibly").
+
+Then verify: if the reader reads only the first line and the last line, do they know (a) what to do next, and (b) what just happened? If yes, send.
+
+## 03. Session Initialization (Mandatory)
 
 **At the start of every new session (not for sub-agents), before any other work, the agent MUST perform these steps in order.**
 
@@ -135,17 +191,6 @@ Distrust every unverifiable assertion. Flag errors explicitly — no softening, 
 | Skip baseline verification       | Run entire suite before every new task                 |
 
 ⚠️ Rule: distrust any unverified assertion. Continue only when you have verifiable evidence.
-
-**Don't assume assertions are correct. Flag errors explicitly — no softening, no silent corrections.**
-
-| Typical banned pattern             | Recommended fix                                      |
-|---------------------------------|-------------------------------------------------------|
-| "It definitely works"           | Test immediately or verify with logs                  |
-| "Just add a comment"            | Write tests before coding via TDD                    |
-| "No need to test this"         | Add unit tests + manual verification                |
-| Skip baseline verification       | Run entire suite before every new task                 |
-
-⚠️ **Never trust**: input may not be verified.
 
 🔍 **Rule**: distrust any unverifiable assertion or out-of-scope claim.
 
@@ -327,31 +372,13 @@ For risky, experimental, or potentially destructive changes, isolate first:
 
 ## 40. Git: Local-Only Discipline
 
-Commit locally; do nothing remotely. Maintain control discipline.
+Commit locally; do nothing remotely. No remote interaction, no history rewriting. Humans push manually.
 
-**Allowed:**
-✅ `git add`, `git commit` — purely local, no side effects
+**Allowed:** ✅ `git add`, `git commit` — purely local, no side effects
 
-**Forbidden:**
-❌ `git push`, `git pull`, `git rebase`, `git merge` — no remote interaction, no history rewriting
+**Forbidden:** ❌ `git push`, `git pull`, `git rebase`, `git merge`
 
-Compacts: make the commit message terse and factual: summarize change + efficacy.
-
----
-
-## 45. Make Me Proceed: Reduce Interruptions
-
-**No remote interaction.**
-
-
-Allowed:
-✅ `git add`, `git commit` — purely local, no side effects
-
-Forbidden:
-❌ `git push`, `git pull`, `git rebase`, `git merge` — local only discipline
-
-
-Final note: only local commits allowed for work baseline; humans push manually.
+Commit messages: terse and factual — summarize change + efficacy.
 
 ## 55. Session Runners and Diagnostics
 
@@ -387,6 +414,22 @@ Before marking any task complete, verify ALL of:
 - **Performance tests:** meets requirements under expected load
 
 When implementing a feature, identify which categories apply and verify each.
+
+### 55.3 Quick Verification Commands
+
+One-liner commands to gate edits before marking tasks complete; run **after every batch of changes** or **after each subagent finishes**:
+
+| Language/Project           | Compile / typecheck                | Tests                     | Lint / Style   |
+|---------------------------|-------------------------------------|---------------------------|----------------|
+| TypeScript / Node.js       | `bun check`                         | `bun test`               | `bun run lint` |
+| Python (uv)               | `ruff check .` / `pyright .`        | `pytest -n auto -q`       | `ruff format --check .` |
+| Go                        | `go test -race -cover .`             | `go test ./...`           | `staticcheck ./...` |
+| Rust                      | `cargo check -q`                    | `cargo test`              | `cargo clippy -D warnings` |
+| Laravel / PHP             | `php -v`                             | `php artisan test`         | `php-cs-fixer fix` (dry-run) |
+| Django                    | `python manage.py check`               | `python manage.py test`     | `ruff format --check .` |
+
+- Run **in project root** via terminal.
+- **Show outputs** — never assert "works," always quote the command's output.
 
 ## 60. MCP Servers (prioritized tools catalog)
 
@@ -451,7 +494,7 @@ When creating a README.md:
 
 - If a plan exists **with all pending** → **never create competing plan**
 - **Mark COMPLETED IMMEDIATELY** after completing task (never batch)
-- **One todo = one atomic action** (e.g., not "Fix all tests", just"Fix gmail test mock paths")
+- **One todo = one atomic action** (e.g., not "Fix all tests", just "Fix gmail test mock paths")
 - **Cancel aggressively** if todo becomes irrelevant. Stale pending confuse next session.
 - **No orphan todos** — every todo must trace to user request or active plan.
 - Use simple notation:
@@ -461,6 +504,9 @@ When creating a README.md:
 - If a task fails 3 times → **ESCALATION** (don't silence it).
 - **Size tasks by confidence:** first tasks in a plan should be small and bounded to build trust. Grow task scope only after early tasks verify successfully.
 - **Checkpoint before plan execution:** before starting the first task, create a snapshot of working state. This is the plan-level rollback point.
+- **8+ tasks?** — refuse without explicit user justification.
+- Verify file/scope intersections **DO NOT OVERLAP**. Validation via oracle sub-agent for architecture/scope approval.
+- Checkpoints: at plan start, at feature boundaries, before experimental/risky approaches, before changes touching >3 files or critical paths. Do NOT checkpoint per-task only.
 
 ### 75.2 Mandatory template for every TASK  
 Every task in a plan **MUST populate ALL fields below** (no optional fields):
@@ -491,29 +537,6 @@ T<N>: [independent | depends on T<M>] <concise, grep-able description>
 
 ✅ **Before delegation**: every task **MUST be** delegable with template §75.2, **ZERO clarification questions**, grep-able paths, explicit dependencies, NO vague commands like "improve X" without definition.
 
-### 75.3 Pre-session plan checklist  
-
-Before delegating any plan:
-- [ ] Present plan to **oracle** for architecture/scope approval.
-- [ ] **8+ tasks?** — refuse without explicit user justification.
-- [ ] Verify file/scope intersections **DO NOT OVERLAP**.
-
-### 75.4 Plan Validation  
-Before proceeding on ANY plan:
-- Validation via oracle sub-agent → architecture/scope approval
-- Verify 8+ task limit hard  
-- Cross-check file scope → avoid unintentional overlap
-
-### 75.5 Checkpointing Rules
-
-Create checkpoints:
-- ✅ Before plan execution starts (plan-level rollback point)
-- ✅ At feature boundaries (between independent task groups)
-- ✅ Before experimental or risky approaches
-- ✅ Before changes touching >3 files or critical paths
-
-❌ Do NOT checkpoint per-task only — plan-level checkpoints catch cascading failures that per-task rollback misses.
-
 ## 90. Session Closure
 
 **🎉 or `task_complete` → only when ALL todos are done, never after a single task.**
@@ -533,23 +556,6 @@ A completed session means:
 → Sequence: finish **all** todos → call `task_complete` → then emit 🎉. One task done among many is NOT a closure signal.
 
 ---
-
-## 100. Quick Verification Commands
-
-One-liner commands to gate edits before marking tasks complete; run **after every batch of changes** or **after each subagent finishes**:
-
-
-| Language/Project           | Compile / typecheck                | Tests                     | Lint / Style   |
-|---------------------------|-------------------------------------|---------------------------|----------------|
-| TypeScript / Node.js       | `bun check`                         | `bun test`               | `bun run lint` |
-| Python (uv)               | `ruff check .` / `pyright .`        | `pytest -n auto -q`       | `ruff format --check .` |
-| Go                        | `go test -race -cover .`             | `go test ./...`           | `staticcheck ./...` |
-| Rust                      | `cargo check -q`                    | `cargo test`              | `cargo clippy -D warnings` |
-| Laravel / PHP             | `php -v`                             | `php artisan test`         | `php-cs-fixer fix` (dry-run) |
-| Django                    | `python manage.py check`               | `python manage.py test`     | `ruff format --check .` |
-
-- Run **in project root** via terminal.
-- **Show outputs** — never assert “works,” always quote the command’s output.
 
 ## 88. Report Honestly
 
@@ -593,26 +599,6 @@ Human oversight is not a one-time approval gate. It is a continuous responsibili
 - Make judgment calls on tradeoffs the AI surfaced but didn't resolve
 
 The approval gate at plan time is the START of oversight, not the end.
-
-Keep these universal rules top-of-mind. Violations signal design drift.
-
-| Principle | Source | Why |
-|-----------|--------|-----|
-| Fix warnings immediately | §30.1 | A warning shows a mismatch intent vs reality — don't suppress, fix or stop work |
-| Zero stubs ever | §30.1 | No `TODO`, `// impl here`, `NotImplemented`, incomplete fns — ask user instead of stubbing |
-| No useless comments | §30.1 | Every comment must explain WHY, not restate WHAT — delete if code reads clearly without it |
-| Never add your own unused code | §30.1 | Clean up imports you introduce; do not touch pre-existing dead code unless asked |
-| Use pure logic with thin effects layer | §30 | Keep computation pure, put I/O in thin orchestration layer to ease testing/refactoring |
-| Separate decision logic from side effects | §30 | A module should only decide OR only perform — not both |
-| Preserve local styles; add tests only if style exists there | §30 | Match existing test surface before adding new one |
-| Log verbs match intent; remove unused params | §9.3 | If parameter exists solely for debug log, remove it; preserve actual data flow |
-| Use discriminated types over boolean flags | §30 | Replace `isResumedConversation: boolean` with `threadKind: 'new' | 'resume'` to make meaning self-documenting |
-| Name boundaries by work they do | §30 | Prefer `formatIsoDate()` over `*Utils`; keep helpers near the semantics they represent |
-| Fail loudly on missing prerequisites | §30.1 | Use strict env checks; report clearly; do not guess |
-| Inspect reality before proposing change | §30 | Read code/runtime state first; don't guess and refactor later |
-| Small focused helpers > shared `normalize*` helpers | §30 | Two inline fixups cheaper than one shared abstraction that suggests too broad scope |
-| Match existing conventions before widening types | §30 | Add new value without renormalizing casing; only normalize if task explicitly asks |
-| Identify root cause before changing surface | §30.1 | Fix the real boundary emitting invalid data; don't downstream-patch normalization |
 
 ### 9.3 Logging and Telemetry
 
