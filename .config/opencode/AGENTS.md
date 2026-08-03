@@ -316,6 +316,14 @@ Concise rules for all non-coding output:
 
 💡 Best practice: use `humanize-text-en` when tone is too robotic.
 
+## 28. Prior Art & Dependency Due Diligence (No Reinventing)
+
+Before building anything, establish what already exists and how the problem is conventionally solved.
+
+- **Research prior art first.** Before planning ([§75](#75)), use the [§60](#60) tool chain (context7 → grep_app → websearch → fetch) to find how other products and libraries solve the same problem. Reuse their patterns; apply first principles only after an honest search comes up empty. This is the planning-phase enforcement of [§03](#03).
+- **Verify the dependency gap before adding.** Read docs of existing dependencies and the standard library first — a feature already provided must not be reimplemented or re-installed under another name. Justify every new dependency against what existing tooling cannot do.
+- **Fit for the long term, not "works for now".** 🚫 Reject throwaway stopgaps unless explicitly approved as interim. If unavoidable, label with a **sunset condition** and the **intended replacement** so the debt is tracked.
+
 ## 30. Coding Principles
 
 **Golden rule**: _**Minimum code that solves** — nothing speculative, touch only what's needed_
@@ -492,6 +500,7 @@ When creating a README.md:
 
 ### 75.1 Plan-level rules
 
+- **Mandatory prior-art step:** every plan MUST run a [§28](#28) research pass first — find and document how others solve the same problem before inventing a bespoke approach.
 - If a plan exists **with all pending** → **never create competing plan**
 - **Mark COMPLETED IMMEDIATELY** after completing task (never batch)
 - **One todo = one atomic action** (e.g., not "Fix all tests", just "Fix gmail test mock paths")
