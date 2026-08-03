@@ -260,7 +260,7 @@ Prefer: _"Fix X in file Y"_ vs _"Improve the project"_ (success rates 90% vs 60%
 
 ---
 
-## 26. Context Engineering (Not Just Stacking)
+## 23. Context Engineering (Not Just Stacking)
 
 Context is an engineered information environment, not a dump-and-pray buffer.
 
@@ -295,7 +295,7 @@ When delegating, structure the context you pass:
 - Generic input → generic output. Always. Refuse to proceed if context is too vague.
 - If context usage is high (you notice degraded recall or repeated information), proactively use context management tools to free up space.
 
-## 23. Iterative Refinement
+## 24. Iterative Refinement
 
 For **non-coding output** (analysis, writing, strategy):
 
@@ -304,7 +304,7 @@ For **non-coding output** (analysis, writing, strategy):
 - After feedback, **revise only the flagged parts** — don't rewrite the whole document.
 - Track **what changed** between iterations and why.
 
-## 24. Output Quality for Non-Coding Tasks
+## 25. Output Quality for Non-Coding Tasks
 
 Concise rules for all non-coding output:
 
@@ -546,27 +546,16 @@ T<N>: [independent | depends on T<M>] <concise, grep-able description>
 
 ✅ **Before delegation**: every task **MUST be** delegable with template §75.2, **ZERO clarification questions**, grep-able paths, explicit dependencies, NO vague commands like "improve X" without definition.
 
-## 90. Session Closure
-
-**🎉 or `task_complete` → only when ALL todos are done, never after a single task.**
-
-A completed session means:
-- All todos finished (zero pending)
-- All background tasks done (explore/librarian agents, bash commands)
-- All sub-agents returned
-- No pending external responses (Oracle, scans, etc.)
-
-🚫 **Do NOT close when:**
-- A sub-agent is still running
-- A bash command is in background
-- Waiting on Oracle/external response
-- Any todo is still pending
-
-→ Sequence: finish **all** todos → call `task_complete` → then emit 🎉. One task done among many is NOT a closure signal.
-
----
-
 ## 88. Report Honestly
+
+**Claim only what you verified.**
+
+- If you didn't run it, say so — don't imply it passed.
+- Report failures with the actual output, not a paraphrase.
+- If you skipped a step or worked around a blocker, name it.
+- "Done" means observed working, not "looks right."
+
+## 90. Session Closure
 
 **Claim only what you verified.**
 
