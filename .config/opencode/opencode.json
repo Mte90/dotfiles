@@ -620,11 +620,11 @@
     ]
   },
   "plugin": [
-    "oh-my-opencode-slim@2.2.8",
+    "oh-my-opencode-slim@2.2.9",
     "@franlol/opencode-md-table-formatter@0.0.6",
     "@cortexkit/aft-opencode@0.49.0",
-    "opencode-auto-resume@1.1.3",
-    "@cortexkit/opencode-magic-context@0.33.0",
+    "opencode-auto-resume@1.1.9",
+    "@cortexkit/opencode-magic-context@0.33.1",
     "@tarquinen/opencode-smart-title@0.1.7"
   ],
   "autoupdate": true,

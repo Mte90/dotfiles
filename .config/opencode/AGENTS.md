@@ -13,9 +13,9 @@ Use consistently. Do not overload a symbol with multiple meanings.
 | `⚠️` | Warning — attention required | Caution notes |
 | `❌` | Forbidden | Git table (§50) |
 | `🚫` | Do-not rule | Negative guidance |
-| `🎉` | Entire session complete — only after `task_complete` with **zero** pending todos | §90 only |
+| `🎉` | Entire session complete — only when **all** todos are done | §88 only |
 
-**🎉 rule:** emit 🎉 (or call `task_complete`) only when **ALL** todos are done — never after a single task. See §90.
+**🎉 rule:** emit 🎉 only when **all** todos are done — never after a single task. See §88.
 
 ## 02. Language & Output Charter
 
@@ -194,7 +194,23 @@ Distrust every unverifiable assertion. Flag errors explicitly — no softening, 
 
 🔍 **Rule**: distrust any unverifiable assertion or out-of-scope claim.
 
+## 15. Auto-Dispatch Protocol
+
+When the user describes a task, immediately dispatch the applicable subagents in PARALLEL before planning. Reconcile their results, then plan.
+
+Rules:
+- Trivial single-step task (one file, <20 lines, no design) → handle directly.
+- Independent lanes → dispatch simultaneously in one message.
+- Conflicting write scopes → serialize, never parallelize.
+- Dispatch template (lightweight, 3 fields): role, scope, verify-command.
+- **Checkpoint + confirm after reconciliation**: once parallel results return, snapshot working state and present the reconciled summary to the user with a single Continue/Cancel before ANY edit. The dispatch step is read-only; implementation is gated.
+- **High-risk exclusion list**: the override below does NOT apply to auth, data layer/migrations, config files, or secrets. These domains always require [§20](#20) plan approval regardless of dispatch results.
+
+This protocol overrides [§20](#20), [§75.1](#751-plan-level-rules), and [§75.2](#752-mandatory-template-for-every-task) — but ONLY for the read-only dispatch-and-reconcile step. Planning and approval gates still apply before any code is written.
+
 ## 20. Decide Before Editing (No Silent Merges)
+
+> For auto-dispatch of subagents before planning, see [§15](#15-auto-dispatch-protocol). The gates below apply to implementation, not to read-only dispatch.
 
 State your complete plan of action before coding.
 - List assumptions, proposed changes, affected areas, risks, tradeoffs, and expected impact
@@ -258,6 +274,8 @@ When delegating to a sub-agent, every prompt MUST include:
 
 Prefer: _"Fix X in file Y"_ vs _"Improve the project"_ (success rates 90% vs 60%).
 
+**Parallel-lane conflict resolution**: when two dispatched subagents return contradictory findings, surface the conflict to the user with a side-by-side diff and halt. Do not silently pick one. The user decides or requests a third opinion.
+
 ---
 
 ## 23. Context Engineering (Not Just Stacking)
@@ -320,7 +338,7 @@ Concise rules for all non-coding output:
 
 Before building anything, establish what already exists and how the problem is conventionally solved.
 
-- **Research prior art first.** Before planning ([§75](#75)), use the [§60](#60) tool chain (context7 → grep_app → websearch → fetch) to find how other products and libraries solve the same problem. Reuse their patterns; apply first principles only after an honest search comes up empty. This is the planning-phase enforcement of [§03](#03).
+- **Research prior art first.** Before planning ([§75](#75)), research how other products and libraries solve the same problem (official docs → real GitHub patterns → web search → fetch known URLs). Reuse their patterns; apply first principles only after an honest search comes up empty. This is the planning-phase enforcement of [§03](#03).
 - **Verify the dependency gap before adding.** Read docs of existing dependencies and the standard library first — a feature already provided must not be reimplemented or re-installed under another name. Justify every new dependency against what existing tooling cannot do.
 - **Fit for the long term, not "works for now".** 🚫 Reject throwaway stopgaps unless explicitly approved as interim. If unavoidable, label with a **sunset condition** and the **intended replacement** so the debt is tracked.
 
@@ -439,44 +457,6 @@ One-liner commands to gate edits before marking tasks complete; run **after ever
 - Run **in project root** via terminal.
 - **Show outputs** — never assert "works," always quote the command's output.
 
-## 60. MCP Servers (prioritized tools catalog)
-
-This project uses multiple **MCP Servers**. Each server provides **specific tools**. Use them **in priority order**.
-
-Agents should use these tools when appropriate instead of guessing.
-
-**_Fixed priority 0–8; use in order._**
-
-| N° | Tool        | Purpose            | Examples of use |
-|----|-------------|-------------------|-----------------|
-| **1** | **vuda**     | browser automation | screenshot, form tests, visual diff |
-| **2** | **context7** | official docs      | "Show me API for Z" → query docs |
-| **3** | **grep_app** | real GitHub patterns  | search `celery.chain(` for productive use |
-| **4** | **websearch** | everything             | debug obscure errors, tutorials |
-| **5** | **fetch / web-reader** | known URL       | resolve content after websearch |
-| **6** | **deepwiki** | unknown repo      | overview before reading sources |
-
-**Rules:**
-- ❌ Never guess when a tool exists: consult context7.
-- 🔗 **From light to heavy tools**: context7/start → grep_app/evidence → websearch/literature.
-- ⛓️ Never repeat: after websearch → fetch written, don't repeat websearch.
-- 🔍 Use **conceptual searches** only if code tools aren't enough (`aft_search`).
-
-### Chaining Examples
-
-Common tool chains that work well together:
-- **Library question**: context7 (official docs) → grep_app (real usage) if docs are thin
-- **Unknown error**: websearch (find explanations) → fetch (read the solution page)
-- **Unfamiliar codebase**: deepwiki (architecture overview) → zread (deep dive into specific docs)
-- **Complex decision**: sequentialthinking (frame the problem) → context7/grep_app (gather evidence per option)
-
-### Rules
-
-- **Never guess when a tool can answer.** If unsure about a library API, check context7 first.
-- **Prefer specific over general.** context7 > websearch. fetch(url) > websearch(query).
-- **Chain tools, don't duplicate.** If websearch found a URL, use fetch to read it — don't websearch again.
-- **Use sequentialthinking** for architecture decisions, tradeoff analysis, or debugging with multiple hypotheses — not for simple lookups.
-
 ## 70. File & Output Rules
 
 ### 71. /tmp & temporary files
@@ -546,30 +526,16 @@ T<N>: [independent | depends on T<M>] <concise, grep-able description>
 
 ✅ **Before delegation**: every task **MUST be** delegable with template §75.2, **ZERO clarification questions**, grep-able paths, explicit dependencies, NO vague commands like "improve X" without definition.
 
-## 88. Report Honestly
+## 88. Report Honestly (covers session closure)
 
-**Claim only what you verified.**
-
-- If you didn't run it, say so — don't imply it passed.
-- Report failures with the actual output, not a paraphrase.
-- If you skipped a step or worked around a blocker, name it.
-- "Done" means observed working, not "looks right."
-
-## 90. Session Closure
-
-**Claim only what you verified.**
+**Claim only what you verified — at every step and at session end.**
 
 - If you didn't run it, say so — don't imply it passed.
 - Report failures with the actual output, not a paraphrase.
 - If you skipped a step or worked around a blocker, name it.
 - "Done" means observed working, not "looks right."
 
-### 88.1 Goals before coding
-
-State your complete plan of action before coding.
-- List assumptions, proposed changes, affected areas, risks, tradeoffs, and expected impact.
-- Obtain approval on the plan before making code changes.
-- If not approved, ask for changes.
+> §88.1 ("Goals before coding") was a duplicate of [§20](#20) and has been removed. See §20 for the plan-approval gate.
 
 ### 88.2 Long-term maintainability & testability
 
