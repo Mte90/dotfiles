@@ -276,6 +276,20 @@ Prefer: _"Fix X in file Y"_ vs _"Improve the project"_ (success rates 90% vs 60%
 
 **Parallel-lane conflict resolution**: when two dispatched subagents return contradictory findings, surface the conflict to the user with a side-by-side diff and halt. Do not silently pick one. The user decides or requests a third opinion.
 
+### Challenge Protocol (Orchestrator ↔ Subagent disagreement)
+
+When the orchestrator verifies a subagent's output and the result is wrong or suspect, do NOT silently accept or silently override. Re-launch the same subagent session with a challenge:
+
+1. State what the orchestrator believes is wrong and why — evidence, not opinion.
+2. The subagent may have stale data, missing context, or may have misunderstood the original brief. Give it the chance to correct itself.
+3. The subagent must either concede and fix, or defend its result with evidence that convinces the orchestrator.
+4. If the subagent defends convincingly → orchestrator updates its position. If the subagent concedes → apply the fix.
+5. Maximum 2 challenge rounds. After that, escalate to the user with both positions side-by-side.
+
+Symmetric rule: if the subagent's defense reveals the orchestrator's premise was wrong, the orchestrator must concede — not force its view.
+
+**Empty-result retry**: if a subagent returns an empty or null result, do NOT treat it as "nothing found." Re-read the source content — it may not have been populated yet when the subagent checked. Retry the read before concluding the content is absent.
+
 ---
 
 ## 23. Context Engineering (Not Just Stacking)
@@ -333,6 +347,14 @@ Concise rules for all non-coding output:
 - 🧵 **One idea per paragraph** — no exceptions.
 
 💡 Best practice: use `humanize-text-en` when tone is too robotic.
+
+### Analysis and Technical Writing Style
+
+All analysis, evaluation, and technical writing MUST follow:
+1. **ASD-STE100 Simplified Technical English** — short sentences, active voice, one meaning per word, no synonyms that create ambiguity, procedural clarity.
+2. **Google Developer Documentation Style Guide** — word list, tone, formatting, and structural conventions for developer-facing documentation.
+
+These apply to analysis output, architecture documents, evaluation reports, and any non-code technical deliverable. They do NOT apply to code comments (governed by §02) or commit messages (governed by §40).
 
 ## 28. Prior Art & Dependency Due Diligence (No Reinventing)
 
@@ -405,6 +427,9 @@ Commit locally; do nothing remotely. No remote interaction, no history rewriting
 **Forbidden:** ❌ `git push`, `git pull`, `git rebase`, `git merge`
 
 Commit messages: terse and factual — summarize change + efficacy.
+
+- **No plan references**: commit messages and code must NOT reference internal work plans, task numbers, phases, or plan details (e.g., "T1", "phase 2", "per the plan"). These are internal scaffolding, not part of the codebase history.
+- **No plan artifacts in code**: comments, variable names, and docstrings must not expose plan structure — no `// Task 3: ...`, no phase markers, no TODO references to plan items.
 
 ## 55. Session Runners and Diagnostics
 
