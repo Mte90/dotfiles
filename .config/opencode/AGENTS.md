@@ -194,6 +194,28 @@ Distrust every unverifiable assertion. Flag errors explicitly — no softening, 
 
 🔍 **Rule**: distrust any unverifiable assertion or out-of-scope claim.
 
+### 10.1 Confidence Ladder for Safety Claims
+
+A safety claim ("this is safe because X") has a confidence level. Escalate before asserting:
+
+1. **You said so.** Worthless on its own.
+2. **You pointed at the line.** A real `file:line` reference.
+3. **You showed the bad case can't happen.** Structural argument from the code.
+4. **You ran it.** A script or test that calls the real code and fails loud if wrong.
+5. **You reproduced it in the running app.** End-to-end verification.
+
+Any safety fact you can't get to step 4, say so out loud. "It looks safe" at step 1 is not a substitute for step 4.
+
+### 10.2 Prove with the Real Artifact, Not a Proxy
+
+Tests against mocks, stubs, or toy proxies are weaker evidence than tests against the real thing. Proxies hide integration failures, schema drift, and real-world ordering.
+
+- Mock the unit under test only when the real dependency is impractical (network, paid API, slow disk). State why you mocked.
+- Prefer the real database, real filesystem, real HTTP server in tests. Spin them up in CI if needed.
+- A reproducible check (script, failing test, one-command repro) turns "trust me" into "run this." If a fix has no repro check in the diff, the bug isn't proven fixed.
+
+A passing test against a mock of X proves your code talks to your model of X — not that it talks to X.
+
 ## 15. Auto-Dispatch Protocol
 
 When the user describes a task, immediately dispatch the applicable subagents in PARALLEL before planning. Reconcile their results, then plan.
@@ -202,6 +224,8 @@ Rules:
 - Trivial single-step task (one file, <20 lines, no design) → handle directly.
 - Independent lanes → dispatch simultaneously in one message.
 - Conflicting write scopes → serialize, never parallelize.
+- **Eliminate shared mutable state before serializing.** "Conflicting write scopes → serialize" is the last resort. First ask: can each parallel actor get its own write target (file, branch, key, state-dir)? Give each its own target; merge only at the read boundary. Two workers writing their own field into one `state.json` is still shared mutation — `indexer-state.json` + `metrics-state.json` is not. Instructions and conventions are not concurrency control. Serialize (lockfiles, sequential phases, single-writer) only when sharing is a real invariant.
+- **Build the lever for repeated non-trivial work.** If the same change applies to N units, build the rerunnable tool (codemod, script, generator). Do the first unit by hand to learn the recipe, then build the tool and prove it by rerunning on that unit — diff against your hand-done version. "A deterministic script turns 'trust me' into 'run this'." If you cited a pattern and there is no codemod/script/generator in the diff, you didn't apply it.
 - Dispatch template (lightweight, 3 fields): role, scope, verify-command.
 - **Checkpoint + confirm after reconciliation**: once parallel results return, snapshot working state and present the reconciled summary to the user with a single Continue/Cancel before ANY edit. The dispatch step is read-only; implementation is gated.
 - **High-risk exclusion list**: the override below does NOT apply to auth, data layer/migrations, config files, or secrets. These domains always require [§20](#20) plan approval regardless of dispatch results.
@@ -402,6 +426,96 @@ For risky, experimental, or potentially destructive changes, isolate first:
 
 **Rule:** If a change touches >3 files or modifies critical paths (auth, data layer, config) → checkpoint first, no exceptions.
 
+### 30.3 Idempotent State Mutations
+
+Every state-mutating operation must answer yes to all three:
+
+1. What happens if this runs twice in a row?
+2. What happens if the previous run crashed at every possible point?
+3. Does re-execution converge to the same end state?
+
+If any answer is "it depends on what state was left behind," the operation needs a reconciliation step — scan for existing state, clean stale artifacts, adopt live sessions. Convergent startup, not "start fresh and hope."
+
+### 30.4 Make Invalid States Hard to Write
+
+Design data so the wrong combination is awkward or impossible to construct, not just discouraged.
+
+Anti-pattern in any language: a record with `completed: bool` and `completed_at: optional<date>` admits `completed=true, completed_at=null`. The fix is structural: derive the boolean from the date's presence, or split into two variants ("open" vs "done at X").
+
+- Non-empty list = head + tail, not list + length check.
+- Valid time range = start + duration, not two timestamps you must keep ordered.
+- Two values that must stay in sync → derive one from the other, don't store both.
+- Semantic primitives that share a type but mean different things (UserId vs OrderId as bare strings) → wrap at construction, validate once, trust downstream.
+
+If you can write a comment explaining when a field combination is valid, the type is too loose — split it.
+
+### 30.5 Boundary Discipline
+
+Validate once at the system boundary (parse time, entry point — CLI, config, network, external API, env vars, DB rows). Inside the system: typed data, propagate errors, no re-validation.
+
+- No redundant nil-check deep in a call chain if the boundary already validated.
+- Keep business logic in framework-free pure functions; the shell is thin and mechanical.
+- Expose domain concepts through the boundary, not the boundary's private representation.
+
+Two tests: "Is this data crossing a system boundary right now?" and "Could this be a pure function the shell calls?"
+
+### 30.6 Encode Lessons in Structure
+
+When you catch yourself writing the same instruction a second time, ask: can this be a lint rule, a type constraint, a runtime check, or a script instead of more prose? If yes, encode it and delete the instruction.
+
+Strongest rung that fits the language:
+
+1. State that won't compile / won't parse (static languages: illegal variants, exhaustive match; dynamic languages: constructor that errors on bad input)
+2. Lint rule / banned API that fails CI (every language has a linter)
+3. Canonical helper that makes the right way the easy way
+4. Runtime check (weakest — catches after the fact)
+
+"If the fix is structural, USE ONLY the structural fix. The instruction IS the symptom."
+
+Feedback routing: one-off correction → mental note; recurring correction → lint rule or skill; systemic problem → principle.
+
+### 30.7 Foundational Thinking
+
+Get data shapes right before logic. Scaffold shared infrastructure (CI, lint, shared types/schemas, test harness) before features. Structural decisions beat code-level tweaks.
+
+- A wrong type signature fixed early saves hours of debugging downstream.
+- A missing test harness discovered late forces retrofit and skipped tests.
+- A schema designed without reading the query patterns will be rewritten.
+
+Order: shapes → scaffold → feature. Reversing this order produces code that works by accident.
+
+### 30.8 Subtract Before You Add
+
+Before adding a feature, remove unnecessary code. Trim surface area first.
+
+- Dead code, unused params, commented-out blocks, "just in case" branches — delete them (mention pre-existing dead code, don't silently delete per §30).
+- A smaller codebase is easier to extend correctly.
+- Adding to a bloated module deepens the bloat. Subtract first, then add to the leaner result.
+
+The default instinct is to add. Subtracting first creates room and surfaces what the addition actually needs.
+
+### 30.9 Single Source of Truth
+
+Consolidate decisions. When two values must stay in sync, derive one from the other — don't store both.
+
+- One place defines the canonical form; everywhere else reads it.
+- Duplicated constants drift. Duplicated logic diverges. Duplicated types rot.
+- Config in code, env, file, and docs = four sources of truth = three drift surfaces. Pick one, generate the rest.
+
+Related to §30.4 (invalid states) but broader: applies to config, constants, business logic — not just types.
+
+### 30.10 Migrate Callers, Then Delete Legacy APIs
+
+When replacing an API:
+
+1. Inventory every caller (grep, AST search, dependency graph).
+2. Migrate each caller to the new API.
+3. Delete the old API promptly. Do not leave it "for safety."
+
+A deprecated API left in tree accumulates new callers. "Temporary" deprecations become permanent. The window between deprecation and deletion is the window where the old shape leaks back in.
+
+If you can't delete because of external consumers, version the boundary explicitly and document the sunset.
+
 ## 35. Goal-Driven Execution: Loop Until Done (No Early Stop)
 
 **Do not stop until all work is complete.** The unlock: give verifiable criteria and iterate until criteria are satisfied.
@@ -410,6 +524,10 @@ For risky, experimental, or potentially destructive changes, isolate first:
 - Run existing test suite once → baseline captured
 
 🔧 Repairing a bug:
+- **Reproduce before fixing.** A bug you can't reproduce, you can't prove fixed. Reproduce it yourself on the matching surface — don't hand the repro to the user. Stage the failing repro commit before the fix in git history.
+- **Fix root causes, not symptoms.** Reproduce, ask "why" until you reach the underlying cause. A nil-check guard that masks the bug is not a fix — it's a patch over the symptom. The real fix changes the code path that produced the bad value.
+- **Restart-bug heuristic.** "Code doesn't change between runs. State does." When something fails after a restart, suspect stale persistent state first (config, caches, lock files, serialized state). If clearing a state file restores behavior, the fix is state validation, not a code patch.
+- **Sequence verifiable units.** Verify each small change before proceeding. Treat each edit+test as one bounded unit: make the edit, run the check, observe the result, decide. Don't stack five edits then run tests once — you won't know which edit broke what.
 - Write failing test first → code change only after test fails → fix until it passes
 
 📌 **Project-native runner only:** Keep using existing command (jest, pytest, unittest, etc.). Do not define new runner unless user explicitly requests it.
