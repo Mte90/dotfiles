@@ -49,6 +49,19 @@ INSTALLED_APPS = [
 
 ## Basic Usage
 
+### Django 6.0 Breaking Change
+
+**`fields` requires explicit `__all__`:**
+
+```python
+class UserFilter(FilterSet):
+    class Meta:
+        model = User
+        fields = '__all__'  # Must be string, not list
+```
+
+Using `fields = []` or `fields = ['field1', 'field2']` without `__all__` will raise an error in Django 6.0+
+
 ### FilterSet Class
 
 ```python
@@ -83,7 +96,8 @@ class ProductFilter(django_filters.FilterSet):
 
     class Meta:
         model = Product
-        fields = ['category', 'name', 'price', 'in_stock', 'is_active']
+        # Django 6.0+: Use '__all__' string or explicit field list
+        fields = '__all__'  # or ['category', 'name', 'price', ...]
 
     def filter_in_stock(self, queryset, name, value):
         """Custom filter method for in_stock."""

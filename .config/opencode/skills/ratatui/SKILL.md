@@ -3,7 +3,7 @@ name: ratatui
 description: "Rust terminal UI framework - widgets, components, layouts, events, input handling, and state management for TUI apps"
 metadata:
   author: mte90
-  version: "1.0.1"
+  version: "1.1.0"
   tags:
     - rust
     - tui
@@ -1935,6 +1935,208 @@ Run the demo: `cargo run --example demo --features crossterm`
 - **Repository**: https://github.com/gin66/tui-logger
 - **Docs**: https://docs.rs/tui-logger/
 - **DeepWiki**: https://deepwiki.com/gin66/tui-logger
+
+### tui-breadcrumb
+
+A customizable, interactive hierarchical breadcrumb navigation widget for Ratatui. Renders clickable path segments with truncation strategies and ancestor-element dropdowns.
+
+```toml
+# Cargo.toml
+[dependencies]
+tui-breadcrumb = "0.1"
+```
+
+Key features:
+- Separator presets (single/double `>`, `→`, `/`, custom)
+- Five truncation strategies: `Middle`, `Start`, `ShortenNames`, `End`, `None`
+- Interactive: keyboard (arrows/Tab/Enter) and mouse (click, scroll) navigation
+- `Breadcrumb::from_path()` builds from `std::path::Path`
+- Unicode-aware via `unicode-width`
+
+- **Repository**: https://github.com/shadowmkj/tui-breadcrumb
+
+### ratcn
+
+A shadcn-inspired, themeable component library for Ratatui with a small interaction runtime for focus, hover, and event routing. It is a toolkit, not a framework — nothing takes over your app loop.
+
+```toml
+# Cargo.toml
+[dependencies]
+ratcn = { version = "0.0.1", features = ["crossterm"] }
+```
+
+Key features:
+- 12 components: `Button`, `List`, `Select`, `Tabs`, `Dialog`, `ToasterWidget`, `BarChartWidget`, `Tooltip`, `ScrollArea`, `Checkbox`, `Cycle`, `ProgressWidget`
+- Each component = a paint-only `Widget` half + an interactive half; integrates at two call sites (`Ratcn::render`, `Ratcn::handle_event`)
+- Full theme system (`Theme`); `Theme::adaptive` solves colors from terminal fg/bg
+- Browser build via `ratzilla` (WASM) in addition to crossterm
+- Components are self-contained modules designed for copy-into-your-project (shadcn-style)
+
+> Preview status (0.0.1) — the API will break; pin exact versions.
+
+- **Documentation**: https://ratcn.kristoferlund.se/
+- **Repository**: https://github.com/kristoferlund/ratcn
+
+### edtui
+
+A TUI-based, vim-inspired text editor widget for Ratatui. Embeds an editor buffer with vim keybindings, theming, and optional syntax highlighting.
+
+```toml
+# Cargo.toml
+[dependencies]
+edtui = "0.11"
+```
+
+Key features:
+- Vim keybindings by default; Emacs mode available
+- Custom keybindings and theming
+- Mouse events (enabled by default)
+- Copy/paste to system clipboard
+- Line wrapping and line numbers (absolute or relative)
+- Single-line mode
+- Syntax highlighting via syntect
+- `system-editor` feature: opens selected text in your `$EDITOR`
+
+- **Repository**: https://github.com/preiter93/edtui
+
+### malevich
+
+Terminal plotting library for Rust — "a small grammar of marks, honest axes, millions of points." With the `ratatui` feature, `plot.widget()` drops any chart into a Ratatui TUI.
+
+```toml
+# Cargo.toml
+[dependencies]
+malevich = { version = "1.17", features = ["ratatui"] }
+```
+
+Key features:
+- 8 marks (line, points, bars, area, cells, range, rule, text) with a statistical layer; presets: scatter, bar, hist, stairs, ecdf, heatmap, density, box_plot, violin, error_bars, trend
+- Statistical layer other terminal libs lack: box plots (Tukey whiskers), KDE violins, trend lines with R² + confidence band, ECDFs with DKW bands, 2D densities
+- ~10M points in tens of ms via M4 (min/max/first/last) per-column aggregation
+- Extended-Wilkinson tick placement, exact-decimal labels, SI prefixes, log/calendar/band scales
+- Rendering ladder: truecolor → 256 → 16 → plain ASCII fallback; `pixel` feature renders real sixel/kitty/iTerm2 inline images
+- CLI tool `kaz` (crate `malevich-cli`)
+
+- **Repository**: https://github.com/shergin/malevich
+- **crates.io**: https://crates.io/crates/malevich
+
+### ratatui-explorer
+
+A small but highly customizable file explorer widget for Ratatui — an embeddable file tree/browser with input handling and theming.
+
+```toml
+# Cargo.toml
+[dependencies]
+ratatui-explorer = "0.3"
+```
+
+Key features:
+- Input handling via crossterm (default), termion, or termwiz features
+- Theming/customization of the explorer display
+- Toggle hidden files (Ctrl+h)
+- Configurable keyboard bindings
+
+- **Repository**: https://github.com/tatounee/ratatui-explorer
+
+### ratatui-textarea
+
+A simple yet powerful multi-line text editor widget for Ratatui. Embeddable as part of any TUI application as a stateful widget. Now maintained under the ratatui organization.
+
+```toml
+# Cargo.toml
+[dependencies]
+ratatui-textarea = "0.9"
+```
+
+Key features:
+- Multi-line editing with cursor, selection, clipboard
+- Backend features: `crossterm` (default), `termion`, `termwiz`
+- `search` feature (regex), `serde`, `arbitrary`
+
+- **Repository**: https://github.com/ratatui/ratatui-textarea
+- **crates.io**: https://crates.io/crates/ratatui-textarea
+
+### ratatui-code-editor
+
+A code editor widget for Ratatui with syntax highlighting powered by Tree-sitter and a ropey text buffer.
+
+```toml
+# Cargo.toml
+[dependencies]
+ratatui-code-editor = { version = "0.0.6", features = ["crossterm"] }
+```
+
+Key features:
+- Tree-sitter syntax highlighting: only visible region highlighted per render, cached per region; 16 languages (Rust, Python, JS/TS, C/C++, Go, C#, Java, HTML, CSS, YAML, TOML, JSON, Bash, Markdown)
+- Mouse support: clicks, scroll, selection with word/line snapping
+- Copy/paste via system clipboard (arboard)
+- Undo/redo, visual text selection (keyboard + mouse)
+- Customizable themes (`vesper` default)
+- Diff views: added/deleted lines, focused diffs with expandable unchanged sections
+- Code folding via Tree-sitter fold queries
+- Emoji/Unicode (grapheme-cluster) aware widths, cursor, selection
+
+- **Repository**: https://github.com/vipmax/ratatui-code-editor
+
+### ratatui-markdown
+
+Markdown rendering for Ratatui — renders markdown to styled `ratatui::text::Line`s, plus Mermaid diagrams, syntax highlighting, collapsible trees, and rich scroll widgets.
+
+```toml
+# Cargo.toml
+[dependencies]
+ratatui-markdown = { version = "0.3", features = ["preview"] }
+```
+
+Key features:
+- Markdown: headings, lists, code blocks, blockquotes, tables, images, inline formatting
+- Mermaid diagrams: sequence, pie, gantt, state (feature `mermaid`)
+- Tree-sitter code-block highlighting with per-language features (`highlight-lang-*`)
+- Image support via `ImageResolver` trait (feature `image`)
+- `RenderHooks` to override rendering of any block type
+- Collapsible JSON/TOML trees with keyboard navigation
+- Hybrid dual-mode scroll system; `MarkdownPreview` / `MarkdownViewer` unified widgets
+- `RichTheme` theming (15+ color slots); CJK-aware wrapping; TOML frontmatter stripping
+
+> Licensed under the Synthetic Source License (SySL) 1.0 — not MIT/Apache; verify compatibility before use.
+
+- **Repository**: https://github.com/celestia-island/ratatui-markdown
+
+### tui-menu
+
+A menu widget for Ratatui with nested submenu groups.
+
+```toml
+# Cargo.toml
+[dependencies]
+tui-menu = "0.3"
+```
+
+Key features:
+- Nested submenu groups (`MenuItem::group`)
+- Intuitive keyboard movement
+- Generic item data — any `Clone` type (enums, strings, custom state)
+- Stateful rendering + event draining (`MenuEvent::Selected`, `menu.reset()`)
+
+- **Repository**: https://github.com/shuoli84/tui-menu
+
+### rat-widget
+
+"ratatui widgets extended edition" — a widget library for ratatui, part of the `rat-salsa` monorepo which also includes `rat-salsa` (an event loop for ratatui) and a family of purpose-built sibling crates: `rat-widget-extra`, `rat-cursor`, `rat-dialog`, `rat-event`, `rat-focus`, `rat-ftable`, `rat-markdown`, `rat-menu`, `rat-popup`, `rat-reloc`, `rat-scrolled`, `rat-text`, `rat-theme4`.
+
+```toml
+# Cargo.toml
+[dependencies]
+rat-widget = "3.2"
+```
+
+Key features:
+- Extended widget library for ratatui
+- Companion event-loop crate (`rat-salsa`)
+- Family of sibling widgets (menus, dialogs, popups, markdown, ftable, scrolled, focus, text, theme)
+
+- **Repository**: https://github.com/thscharler/rat-salsa
+- **crates.io**: https://crates.io/crates/rat-widget
 
 ## Third-Party Widgets Showcase
 

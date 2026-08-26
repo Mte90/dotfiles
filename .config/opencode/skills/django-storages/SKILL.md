@@ -46,7 +46,32 @@ pip install django-storages[gcloud]    # Google Cloud Storage
 
 ---
 
-## Configuration (Django 4.2+)
+## Configuration (Django 6.0+)
+
+### STORAGES Setting (Required for Django 6.0+)
+
+```python
+# settings.py
+
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage",
+    },
+}
+```
+
+### Legacy Configuration (Django < 4.2)
+
+```python
+# settings.py (Django < 4.2)
+DEFAULT_FILE_STORAGE = "storages.backends.s3.S3Storage"
+STATICFILES_STORAGE = "storages.backends.s3.S3Storage"
+```
+
+> **Django 6.0**: `STATICFILES_STORAGE` and `DEFAULT_FILE_STORAGE` removed. Use `STORAGES` dict only.
 
 ### Using STORAGES Setting
 
@@ -106,6 +131,26 @@ AWS_S3_REGION_NAME = "us-east-1"
 ```
 
 ### S3 Advanced Options
+
+```python
+STORAGES = {
+    "default": {
+        "BACKEND": "storages.backends.s3.S3Storage",
+        "OPTIONS": {
+            "access_key": "your-access-key",
+            "secret_key": "your-secret-key",
+            "bucket_name": "your-bucket-name",
+            "region_name": "us-east-1",
+            
+            # Django 6.0+: AWS_S3_USE_THREADS removed → use AWS_S3_TRANSFER_CONFIG
+            "transfer_config": {
+                "use_threads": True,
+                "multipart_threshold": 100 * 1024 * 1024,  # 100MB
+            },
+        },
+    },
+}
+```
 
 ```python
 STORAGES = {

@@ -3,7 +3,7 @@ name: httpx
 description: "Modern async HTTP client for Python with sync/async API, HTTP/2 support, connection pooling, retries, and timeouts"
 metadata:
   author: mte90
-  version: "1.0.0"
+  version: "1.0.1"
   tags:
     - python
     - http
@@ -19,6 +19,11 @@ Modern HTTP client for Python.
 ## Overview
 
 httpx is a modern, full-featured HTTP client for Python that provides a simple but comprehensive API for making HTTP requests. It supports both synchronous and asynchronous programming, making it suitable for a wide variety of use cases.
+
+**Version Notes:**
+- Current stable: v0.28.1 (no major breaking changes)
+- HTTP/2 support stable with `http2=True`
+- v1.0 release in development (not yet released)
 
 **Key Features:**
 - Sync and async APIs
@@ -458,17 +463,18 @@ asyncio.run(stream_upload())
 
 ## Advanced Features
 
-### HTTP/2 Support
+### HTTP/2 Support (v0.28+)
 
 ```python
 import httpx
 
-# HTTP/2 with h2 library
+# HTTP/2 with h2 library (requires httpx[http2])
 client = httpx.Client(
-    http2=True
+    http2=True  # Enable HTTP/2
 )
 
-# Auto-negotiation (default in async)
+# HTTP/2 is stable in v0.28+
+# Auto-negotiation works with http2=True
 async with httpx.AsyncClient(http2=True) as client:
     # HTTP/2 connections are multiplexing
     # Multiple requests over single connection

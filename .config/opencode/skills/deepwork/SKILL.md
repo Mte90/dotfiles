@@ -19,77 +19,13 @@ features.
 When deepwork is active, the orchestrator must manage the work as a scheduler,
 not as the default implementation worker.
 
-Required behavior:
+## Setup and Deepwork State
 
-- before planning, delegation, or creating a deepwork state file, inspect the
-  existing `.gitignore` and `.ignore`; add only missing entries, without
-  duplicates, so `.gitignore` contains `.slim/deepwork/` and `.ignore` contains
-  `!.slim/deepwork/` and `!.slim/deepwork/**`;
-- keep OpenCode todos aligned with the active deepwork phase;
 - create and maintain a local markdown progress file under `.slim/deepwork/`;
 - save code/doc deliverables to project paths (e.g. `src/`, `docs/`); reserve
   `.slim/deepwork/` strictly for progress files;
-- write valuable research findings into that file as confirmed research context
-  when they are received and reconciled;
-- draft a plan before implementation;
-- create a phased implementation/delegation plan;
-- before dispatch, choose a small number of coherent implementation phases from
-  the work's dependencies and natural delivery boundaries; do not split work
-  merely to reduce an Oracle review's scope;
-- before execution, show the user a compact overview containing only phase
-  titles and order, each delegated specialist with its ownership/scope, and the
-  total Oracle reviews with the gate after each phase and a short reason for it;
-- before each implementation phase, decide the execution path: what can run in
-  parallel, what must be sequential, which specialists to delegate to, and
-  whether to split the same agent into multiple bounded lanes;
-- after each planned phase, validate and update the deepwork file, then ask
-  `@oracle` to review the phase result before continuing;
-- before an Oracle review, add relevant confirmed research findings and file
-  references to the deepwork file so Oracle can assess the decision or risk from
-  accepted context instead of redoing discovery;
-- triage and batch material actionable Oracle findings into one bounded
-  remediation pass, then validate it with focused evidence; request a follow-up
-  Oracle review only if that remediation changes the reviewed decision/risk or
-  the original concern cannot otherwise be verified;
-- when a phase includes `@designer`, preserve designer intent across later
-  phases. Use `@fixer` only for mechanical follow-up that does not alter the
-  UI/UX;
-- finish with final validation and a concise summary.
 
-## Planned Phase Reviews
-
-Oracle reviews are automatic gates between the planned implementation phases.
-Before dispatch, decide the phases from the task itself: its dependencies,
-integration boundaries, and meaningful delivery points. Record the phase order,
-the total review count, the review after each phase, and a short reason for each
-gate in the deepwork file and compact user overview.
-
-Avoid micro-phases created only to make reviews smaller or cheaper. Larger,
-complex tasks can have broader phases, broader patches, and correspondingly
-broader phase reviews. The goal is a sensible number of predictable review
-gates, not the smallest possible review scope. Never add an extra Oracle review
-merely to re-confirm a mechanical fixer change.
-
-## Designer Handoff Guardrail
-
-When a deepwork phase includes `@designer`, treat the delivered UI/UX as
-accepted design intent for later phases. Record any important design decisions in
-the deepwork file before continuing.
-
-After designer work:
-
-- preserve layout, rhythm, hierarchy, motion, spacing, color, affordances,
-  responsiveness, and component feel;
-- review and improve user-facing copy with grounded, normal wording, but do not
-  change visual structure or interaction intent;
-- route follow-up visual, responsive, motion, hierarchy, polish, or
-  component-feel changes back to `@designer`;
-- use `@fixer` only for bounded mechanical follow-up that preserves the design
-  exactly, such as wiring, tests, type fixes, or non-visual behavior changes;
-- if design intent must change, record why in the deepwork file before changing
-  it.
-
-## Deepwork File
+### Deepwork File
 
 Create a task-specific file such as:
 
@@ -125,21 +61,98 @@ capture, as applicable:
 - validation results;
 - unresolved questions, blockers, and follow-ups.
 
-Update this file after major decisions, valuable specialist research, reviews,
-phase completions, validation results, and scope changes.
-When `@librarian` docs, code reads, or external references produce useful
-information, reconcile the result and record the accepted findings here so later
-planning and reviews share the same context instead of rediscovering it.
-Don't put actual contents of local files, reference them by path only.
+Update this file after major decisions, accepted research, reviews, phase
+completions, validation results, and scope changes. Record accepted findings and
+reference local files by path rather than copying their contents.
 
-## Scheduler Discipline
+## Planning
+
+- draft a plan before implementation;
+- create a phased implementation/delegation plan;
+- before dispatch, choose a small number of coherent implementation phases from
+  the work's dependencies and natural delivery boundaries; do not split work
+  merely to reduce an Oracle review's scope;
+- before execution, define coherent delivery phases and make an `@oracle` review
+  mandatory after each one; record the phase order, specialist ownership, gate
+  order, and one-line gate rationale in the deepwork file; share a compact
+  version with the user;
+- before starting each phase, replace the OpenCode todo list with actionable
+  delivery todos for that phase only;
+
+## Phase Execution
+
+- before each implementation phase, decide the execution path: what can run in
+  parallel, what must be sequential, which specialists to delegate to, and
+  whether to split the same agent into multiple bounded lanes;
+
+### Scheduler Discipline
 
 Use the scheduler model throughout:
 
-- follow Orchestrator delegations rules
 - record task/session IDs and ownership boundaries;
 - wait for hook-driven background completion before consuming background results;
 - avoid blocking Orchestrator lane while background jobs run; if no independent
   work remains, stop briefly and let the completion event resume the workflow;
 - do not advance to the next phase while relevant jobs are running or terminal
   results are unreconciled.
+
+## Phase Gate and Commit
+
+- after each planned phase, run relevant validation, update the deepwork file,
+  then request its planned `@oracle` gate before continuing;
+- before its planned Oracle gate, record relevant accepted research and file
+  references so Oracle reviews established context rather than repeating
+  discovery;
+- record the phase goal, changed paths, validation evidence, and the specific
+  decision or risk to review in the deepwork file; provide this context to
+  Oracle with the accepted research and file references;
+- when the phase changes module boundaries, dependency direction, or file
+  placement, run an `@explorer` structure scan in parallel with the Oracle gate;
+- reconcile review findings, perform one bounded remediation pass for material
+  issues, and validate that pass with focused evidence;
+- create a focused commit when the phase is an independently valid delivery
+  boundary before starting the next phase;
+
+### Oracle Re-Reviews
+
+Every planned Oracle gate has one initial review and may have at most two
+re-reviews. Request a re-review only when the remediation materially changes
+the reviewed decision or risk, or when the original concern cannot be verified
+with focused evidence. Do not spend a re-review on a mechanical or
+already-verified change.
+
+State the attempt in every Oracle prompt, for example:
+
+```text
+Gate 2 — review attempt 2 of 3 (1 re-review remaining)
+```
+
+For re-reviews, tell Oracle to prioritize unresolved material findings, risks
+introduced by remediation, and whether prior findings are resolved. It must not
+reopen accepted, unchanged, or resolved concerns. When the two re-reviews are
+exhausted, record any remaining material risk or blocker in the deepwork file
+and ask the user whether to accept the risk, change scope, or authorize an
+exceptional additional review.
+
+## Designer Handoff Guardrail
+
+When a deepwork phase includes `@designer`, treat the delivered UI/UX as
+accepted design intent for later phases. Record any important design decisions in
+the deepwork file before continuing.
+
+After designer work:
+
+- preserve layout, rhythm, hierarchy, motion, spacing, color, affordances,
+  responsiveness, and component feel;
+- review and improve user-facing copy with grounded, normal wording, but do not
+  change visual structure or interaction intent;
+- route follow-up visual, responsive, motion, hierarchy, polish, or
+  component-feel changes back to `@designer`;
+- use `@fixer` only for bounded mechanical follow-up that preserves the design
+  exactly, such as wiring, tests, type fixes, or non-visual behavior changes;
+- if design intent must change, record why in the deepwork file before changing
+  it.
+
+## Completion
+
+- finish with final validation and a concise summary.

@@ -86,6 +86,21 @@ urlpatterns = [
 ]
 ```
 
+## OIDC Provider (NEW in 65.x)
+
+```python
+INSTALLED_APPS = [
+    # ... existing apps
+    "allauth.idp.oidc",  # OIDC provider
+]
+
+# For Django Ninja:
+from allauth.idp.oidc.contrib.ninja.security import TokenAuth
+
+# For DRF:
+from allauth.idp.oidc.contrib.rest_framework.authentication import TokenAuthentication
+```
+
 ## Local Authentication
 
 ### Signup

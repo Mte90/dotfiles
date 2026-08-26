@@ -3,7 +3,7 @@ name: django-ninja
 description: "Fast Django REST framework with Pydantic validation, type hints, and automatic OpenAPI documentation for building type-safe APIs"
 metadata:
   author: mte90
-  version: "1.0.0"
+  version: "1.1.0"
   tags:
     - python
     - django
@@ -19,7 +19,9 @@ Complete reference for building fast, type-safe REST APIs with Django and Pydant
 
 ## Overview
 
-Django Ninja is a web framework for building APIs with Django and Python 3.6+ type hints. It provides automatic request validation, response serialization, and generates OpenAPI documentation.
+Django Ninja is a web framework for building APIs with Django and Python 3.6+ type hints.
+
+**Versions**: django-ninja 1.6.x + Django 6.0 compatible. Requires Pydantic v2. It provides automatic request validation, response serialization, and generates OpenAPI documentation.
 
 **Key Features:**
 - Fast: Built on Pydantic for high performance
@@ -105,6 +107,19 @@ myproject/
 ```
 
 ## Schema Definitions
+
+### Pydantic v2 Context Support
+
+```python
+# Django 6.0+ context access in schemas
+class Payload(Schema):
+    id: int
+    request_path: str
+    
+    @staticmethod
+    def resolve_request_path(data, context):
+        return context["request"].get_full_path()
+```
 
 ### Basic Schema
 
@@ -1860,6 +1875,97 @@ class PostWithCategories(ModelSchema):
         return [c.name for c in obj.categories.all()]
 ```
 
+## Ecosystem Libraries
+
+### django-ninja-extra
+- **URL**: https://github.com/eadwinCode/django-ninja-extra
+- **PyPI**: `django-ninja-extra`
+- **Version**: 0.31.7 (requires Python >=3.7, Django >=2.2, django-ninja >=1.6.3)
+
+Extension of Django Ninja that adds class-based views (controllers) and advanced features on top of the framework.
+
+**Key features:**
+- Class-based controllers via `@api_controller` and HTTP method decorators (`http_get`, etc.), registered with `api.register_controllers()`
+- DRF-like permission system: controller-level permissions, route-level overrides, custom `PermissionBase` subclasses
+- Dependency injection built on the `Injector` library; injectable service layer (`ModelController`/`ModelService` pattern)
+- Inherits Django Ninja's core features (Pydantic validation, async, OpenAPI docs, throttling)
+
+```bash
+pip install django-ninja-extra
+```
+Add `'ninja_extra'` to `INSTALLED_APPS`.
+
+### ninja-schema
+- **URL**: https://github.com/eadwinCode/ninja-schema
+- **PyPI**: `ninja-schema`
+- **Version**: 0.14.3 (requires Python >=3.8)
+
+Converts Django ORM models to Pydantic schemas with full Pydantic feature support. Inspired by django-ninja and djantic.
+
+**Key features:**
+- `ModelSchema` with `include`, `exclude`, `optional`, and `depth` config (nested relation schema generation)
+- `model_validator` for field-level pre/post validation
+- `from_orm()` to instantiate schemas from model instances; `apply_to_model()` to write schema data back to a model instance
+- Supports Pydantic v1 and v2 (dual support since 0.13.4)
+
+```bash
+pip install ninja-schema
+```
+
+### django-ninja-jwt
+- **URL**: https://github.com/eadwinCode/django-ninja-jwt
+- **PyPI**: `django-ninja-jwt`
+- **Version**: 5.4.5 (requires Python >=3.7, `django-ninja-extra>=0.30.5`, `pyjwt>=1.7.1,<3`)
+
+JSON Web Token (JWT) plugin for Django-Ninja. Fork of Jazzband's Simple JWT that removes the DRF dependency and targets Django Ninja. Note: `django-ninja-jwt` depends on `django-ninja-extra`, so installing JWT pulls in Extra.
+
+**Key features:**
+- `NinjaJWTDefaultController` registering `obtain_token`, `refresh_token`, and `verify_token` routes
+- Custom controllers by inheriting the token controller classes and registering via `api.register_controller()`
+- Customizable token classes and claims; configuration via `pydantic-settings`
+- Optional use with a plain Django Ninja `Router`
+
+```bash
+pip install django-ninja-jwt
+```
+
+### django-ninja-aio-crud
+- **URL**: https://github.com/caspel26/django-ninja-aio-crud
+- **PyPI**: `django-ninja-aio-crud`
+- **Version**: 2.34.2 (requires Python >=3.10,<3.15; django-ninja >=1.3.0,<1.7.0)
+
+Async CRUD framework for Django Ninja providing automatic schema generation, filtering, pagination, auth, and M2M management.
+
+**Key features:**
+- Fully async CRUD viewsets (create/list/retrieve/update/delete) via `@api.viewset(Model)` and `APIViewSet`
+- Two schema styles: meta-driven `Serializer` (existing models) or `ModelSerializer` models with `Read/Create/UpdateSerializer` inner classes
+- Auto Pydantic schemas (read/create/update) and dynamic query params via `pydantic.create_model`
+- Per-method auth (incl. `AsyncJwtBearer` using `joserfc`), async pagination, M2M relation endpoints with filtering
+- Bulk create/update/delete endpoints, `@action`/`@on` custom endpoints, lifecycle hooks
+- ORJSON rendering; optional MCP extra exposing ViewSets as Model Context Protocol tools
+
+```bash
+pip install django-ninja-aio-crud
+```
+MCP support: `pip install "django-ninja-aio-crud[mcp]"`
+
+### django-contract-tester
+- **URL**: https://github.com/maticardenas/django-contract-tester
+- **PyPI**: `django-contract-tester`
+- **Version**: 1.8.2
+
+Test utility for validating DRF and Django Ninja test requests/responses against OpenAPI 2.0/3.0.x/3.1.x schemas. Forked from `snok/drf-openapi-tester`.
+
+**Key features:**
+- `SchemaTester` with `validate_response()` / `validate_request()`; auto-detects `drf-yasg` or `drf-spectacular` schemas, or loads schema files
+- `OpenAPIClient` (extends DRF `APIClient`) and `OpenAPINinjaClient` (extends the Django Ninja test client) for automatic per-request validation
+- Built-in key-case testers (`is_camel_case`, `is_pascal_case`, `is_snake_case`, `is_kebab_case`), `ignore_case`, custom validators
+- Config file support (`.django-contract-tester` INI or `[tool.django-contract-tester]` in `pyproject.toml`)
+
+```bash
+pip install django-contract-tester
+```
+Optional extras: `django-ninja`, `drf-yasg`, `drf-spectacular`.
 ## References
 
 - **Official Documentation**: https://django-ninja.dev/

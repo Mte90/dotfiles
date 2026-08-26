@@ -3,7 +3,7 @@ name: pytest
 description: "Python testing framework with powerful fixtures, parametrization, extensive plugin ecosystem, and support for async, Django, Flask testing"
 metadata:
   author: mte90
-  version: "1.0.0"
+  version: "2.0.0"
   tags:
     - python
     - testing
@@ -31,13 +31,27 @@ pytest is a mature, full-featured Python testing framework that makes it easy to
 ### Installation
 
 ```bash
-pip install pytest
-pip install pytest-cov      # Coverage
+pip install pytest>=9.0
+pip install pytest-cov>=5.0      # Coverage
 pip install pytest-mock     # Mocking
-pip install pytest-asyncio  # Async tests
-pip install pytest-django   # Django testing
+pip install pytest-asyncio>=0.25 # Async tests
+pip install pytest-django>=4.8   # Django testing
 pip install pytest-xdist    # Parallel execution
 ```
+
+### Python Version Requirements
+
+pytest 9.0 requires **Python 3.10+**. Python 3.9 is no longer supported.
+
+### Breaking Changes in pytest 9.0
+
+**Errors from previously deprecated behavior:**
+- `py.path.local` usage in hooks → Use `pathlib.Path` instead
+- Mixing async + sync fixtures → Now raises errors
+- `@pytest.mark.usefixtures` on fixture functions → Now errors
+- `pytest.importorskip` with `__import__` → Removed
+
+**CI Mode:** pytest enforces stricter configuration validation in CI environments.
 
 ### Basic Test
 
@@ -95,9 +109,10 @@ def test_function():
 ```python
 # conftest.py
 import pytest
+from pathlib import Path
 
-def pytest_collect_file(parent, file_path):
-    """Custom file collection."""
+def pytest_collect_file(file_path: Path, parent):
+    """Custom file collection (pytest 9.0+)."""
     if file_path.suffix == ".py" and file_path.name.startswith("check_"):
         return pytest.Module.from_parent(parent, path=file_path)
 
@@ -1262,10 +1277,10 @@ markers =
     unit: unit tests
 
 # Minimum pytest version
-minversion = 7.0
+minversion = 9.0
 
 # Required plugins
-required_plugins = pytest-cov pytest-mock
+required_plugins = pytest-cov>=5.0 pytest-mock pytest-asyncio>=0.25 pytest-django>=4.8
 
 # Logging
 log_cli = true
@@ -1419,7 +1434,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.10', '3.11', '3.12', '3.13']
     
     steps:
     - uses: actions/checkout@v4

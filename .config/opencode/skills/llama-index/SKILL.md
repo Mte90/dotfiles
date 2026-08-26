@@ -36,12 +36,20 @@ LlamaIndex is a data framework for LLM applications, providing tools for data in
 ### Setup
 
 ```bash
-# Basic installation
+# Basic installation (v0.14+)
 pip install llama-index
 
 # With OpenAI
 pip install llama-index-llms-openai
 pip install llama-index-embeddings-openai
+
+# With workflow engine support
+pip install llama-index-core
+
+# With vector stores
+pip install llama-index-vector-stores-chroma
+pip install llama-index-vector-stores-pinecone
+pip install llama-index-vector-stores-qdrant
 
 # With vector stores
 pip install llama-index-vector-stores-chroma
@@ -51,6 +59,12 @@ pip install llama-index-vector-stores-qdrant
 # With evaluation
 pip install llama-index-llms-openai ragas
 ```
+
+### Version Notes
+
+- Current stable: v0.14.x (rapid monthly releases)
+- Import paths unified under `llama_index.core`
+- Workflow engine added for complex multi-step operations
 
 ### Basic Configuration
 
@@ -72,10 +86,11 @@ Settings.chunk_overlap = 50
 
 ## Quick Start
 
-### Basic RAG Pipeline
+### Basic RAG Pipeline (v0.14+)
 
 ```python
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader
+# Unified imports in v0.14+
+from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, StorageContext, load_index_from_storage
 
 # Load documents
 documents = SimpleDirectoryReader("./data").load_data()
@@ -937,6 +952,84 @@ os.environ["LANGCHAIN_PROJECT"] = "my-project"
 
 # LlamaIndex automatically logs to LangSmith
 response = query_engine.query("Your query")
+```
+
+## Workflow Engine (v0.14+)
+
+The workflow engine provides a structured way to build complex, multi-step LLM applications.
+
+```python
+from llama_index.core.workflow import Workflow, step, Event, StartEvent, StopEvent
+from typing import Context
+
+class QueryEvent(StartEvent):
+    """Input event for queries."""
+    query: str
+
+class ResponseEvent(StopEvent):
+    """Output event with final response."""
+    response: str
+
+class SimpleSearchWorkflow(Workflow):
+    """Simple workflow for search + response."""
+    
+    @step
+    async def search_step(self, ctx: Context, ev: QueryEvent) -> dict:
+        """First step: search knowledge base."""
+        query = ev.query
+        # Perform search
+        results = await self._search(query)
+        ctx.set("search_results", results)
+        return {"results": results}
+    
+    @step
+    async def response_step(self, ctx: Context, ev: dict) -> ResponseEvent:
+        """Second step: generate response."""
+        results = ctx.get("search_results")
+        response = await self._generate_response(results)
+        return ResponseEvent(response=response)
+    
+    async def _search(self, query: str) -> list:
+        # Implementation
+        return []
+    
+    async def _generate_response(self, results: list) -> str:
+        # Implementation
+        return ""
+
+# Usage
+workflow = SimpleSearchWorkflow(timeout=30)
+result = await workflow.run(query="What is X?")
+print(result.response)
+```
+
+### Workflow Patterns
+
+```python
+# Parallel steps
+@step
+async def parallel_fetch(self, ctx: Context, ev: StartEvent) -> dict:
+    """Fetch data from multiple sources in parallel."""
+    results = await asyncio.gather(
+        self._fetch_source_a(),
+        self._fetch_source_b(),
+        self._fetch_source_c(),
+    )
+    return {"sources": results}
+
+# Conditional branching
+@step
+async def route_step(self, ctx: Context, ev: dict) -> str:
+    """Route based on data."""
+    if ev.get("needs_enrichment"):
+        return "enrichment_step"
+    return "direct_response"
+
+# Retry logic
+@step(retries=3)
+async def resilient_step(self, ctx: Context, ev: Event) -> dict:
+    """Step with automatic retries."""
+    return await self._resilient_operation()
 ```
 
 ## Chat Engines

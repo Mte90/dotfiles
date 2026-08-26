@@ -3,7 +3,7 @@ name: tailwind
 description: Utility-first CSS framework v4 with CSS-first configuration, @theme directive, and the new Oxide engine.
 metadata:
   author: mte90
-  version: 2.1.0
+  version: 2.2.0
   tags:
     - css
     - tailwind
@@ -532,6 +532,9 @@ Use `--inline-*` to generate values that don't create CSS variables:
 | Blur | `blur-lg` | `blur-md` | Remove `-lg` |
 | Blur | `blur-xl` | `blur-lg` | Remove `-xl` |
 | Opacity | `bg-opacity-50` | `bg-red-500/50` | Use `/` modifier |
+| Opacity | `text-opacity-75` | `text-red-500/75` | Use `/` modifier |
+| Flex | `flex-shrink-0` | `shrink-0` | Remove `flex-` prefix |
+| Flex | `flex-grow-1` | `grow-1` | Remove `flex-` prefix |
 | Arbitrary | `bg-[--var]` | `bg-(--var)` | Change `[]` to `()` |
 | Grid | `grid-cols-[a,b]` | `grid-cols-[a_b]` | Use `_` not `,` |
 | Important | `!bg-red-500` | `bg-red-500!` | Move `!` to end |
@@ -578,10 +581,18 @@ This handles most migration automatically.
    <div class="border border-gray-200"> <!-- explicit -->
    ```
 
-5. **Space-between changes:**
+5. **Opacity utilities:**
    ```html
-   <!-- The selector changed -->
-   <div class="space-y-4">...   <!-- now uses :not(:last-child) -->
+   <!-- Change these -->
+   <div class="bg-opacity-50">  <!-- now bg-black/50 -->
+   <div class="text-opacity-75"> <!-- now text-gray-900/75 -->
+   ```
+
+6. **Flex shorthand removed:**
+   ```html
+   <!-- Change these -->
+   <div class="flex-shrink-0">  <!-- now shrink-0 -->
+   <div class="flex-grow-1">    <!-- now grow-1 -->
    ```
 
 ## New Features in v4
@@ -591,19 +602,21 @@ This handles most migration automatically.
 <textarea class="field-sizing-content" placeholder="Auto-grows"></textarea>
 ```
 
+
+
+### 3D Transforms
+```html
+<div class="transform-style-3d perspective-1000 rotate-x-45">
+  3D content
+</div>
+```
+
 ### Container Queries
 ```html
 <div class="@container">
   <div class="@xs:bg-red-500 @lg:bg-blue-500">
     Responsive to container, not viewport
   </div>
-</div>
-```
-
-### 3D Transforms
-```html
-<div class="transform-style-3d perspective-1000 rotate-x-45">
-  3D content
 </div>
 ```
 
@@ -797,3 +810,4 @@ Prefixes now work like variants—always at the beginning:
 - [Oxide Engine Announcement](https://tailwindcss.com/blog/oxcide)
 - [Migration Guide: v3 to v4](https://tailwindcss.com/docs/upgrade-guide)
 - [Tailwind CSS on GitHub](https://github.com/tailwindlabs/tailwindcss)
+- [Lightning CSS - CSS parser and formatter](https://lightningcss.dev/)

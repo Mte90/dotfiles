@@ -18,6 +18,8 @@ metadata:
 
 Django-htmx provides seamless integration between Django and htmx for building modern, dynamic web applications without writing complex JavaScript.
 
+**Versions**: django-htmx 1.16.0 + Django 6.0 fully compatible. Python 3.10 → 3.14 supported.
+
 ## Installation
 
 ```bash
@@ -90,6 +92,21 @@ Load and use in templates:
 <html>
 <head>
     {% htmx_script %}
+</head>
+<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
+    ...
+</body>
+</html>
+```
+
+### CSP Nonce Support (Django 6.0+)
+
+```django
+{% load htmx %}
+<!DOCTYPE html>
+<html>
+<head>
+    {% htmx_script %}  {# Automatically includes nonce #}
 </head>
 <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
     ...

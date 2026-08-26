@@ -3,7 +3,7 @@ name: turbodrf
 description: "TurboDRF - fast Django REST framework with automatic OpenAPI, serializers, views, routers, and caching"
 metadata:
   author: mte90
-  version: 1.0.0
+  version: 1.1.0
   tags:
     - python
     - django
@@ -32,7 +32,7 @@ TurboDRF is a Django REST Framework mixin-based library that automatically gener
 - Client-side field selection (`?fields=`)
 - Auto-generated API documentation (Swagger UI, ReDoc)
 - Performance optimizations with compiled read path
-- Security: sensitive fields deny-list, Row Level Security (RLS) for Postgres
+  - Security: sensitive fields deny-list, FK injection defense, startup safety gates
 
 ## Installation
 
@@ -48,15 +48,18 @@ pip install turbodrf[fast]
 ### GitHub
 
 ```bash
-pip install git+https://github.com/alexandercollins/turbodrf.git
+pip install git+https://github.com/AlexanderCollins/TurboDRF.git
 ```
 
 ### Requirements
 
-- Python >= 3.10
-- Django >= 4.2
-- Django REST Framework >= 3.14
+- Python >=3.10 (tested: 3.10, 3.11, 3.12, 3.13, 3.14)
+- Django >=4.2 (tested: 4.2, 5.2, 6.0)
+- Django REST Framework >=3.14.0
+- drf-yasg >=1.21.0, django-filter >=23.0
+- Optional extras: `turbodrf[fast]` (msgspec/orjson ~7x faster JSON), `turbodrf[allauth]` (django-allauth >=0.57.0)
 
+Verified against TurboDRF v0.5.1 (2026-07-12).
 ## Quick Start
 
 ### 1. Add to `INSTALLED_APPS`
@@ -113,14 +116,16 @@ class Book(models.Model, TurboDRFMixin):
 # urls.py
 from django.contrib import admin
 from django.urls import path, include
-from turbodrf import urls as turbodrf_urls
+from turbodrf.router import TurboDRFRouter
+
+router = TurboDRFRouter()
 
 urlpatterns = [
     # Admin
     path('admin/', admin.site.urls),
-    
+
     # API with auto-configured documentation
-    path('api/', include(turbodrf_urls)),
+    path('api/', include(router.urls)),
 ]
 ```
 
@@ -393,6 +398,40 @@ If any level fails, the field is excluded.
 
 Users can only filter on fields they have read permission for. Filters on hidden fields are silently ignored.
 
+### Custom Actions (v0.5.0)
+
+TurboDRF supports custom actions attached to a model's config, inheriting tenant and predicate scoping:
+
+```python
+from turbodrf.decorators import turbodrf_action
+
+class Book(models.Model, TurboDRFMixin):
+    @classmethod
+    def turbodrf(cls):
+        return {
+            'actions': [
+                turbodrf_action(detail=True, methods=["post"], url_path="resend")(cls.resend)
+            ],
+        }
+
+    def resend(self, request):
+        # tenant-scoped; predicate stack enforced
+        ...
+```
+
+### Read-Only and HTTP Method Control (v0.5.0)
+
+- `read_only: True` — restricts a model to GET endpoints only
+- `http_methods: ['list', 'retrieve']` — whitelist specific HTTP methods
+- `full_clean: True` — runs `model.full_clean()` before save
+
+### Computed Fields on Both Read Paths (v0.5.0)
+
+`@property` fields work on both the standard and compiled read paths via `DictProxy`. Models with unsupported fields (GenericFK) auto-fallback to the serializer path.
+
+### Strict Swagger Role Preview (v0.5.0)
+
+The `?role=` query parameter is honored in Swagger only for roles the caller actually holds. A user cannot preview another role's permissions.
 ## Tenancy & Row-Level Access
 
 ### Multi-Tenant SaaS
@@ -410,9 +449,6 @@ class Project(models.Model, TurboDRFMixin):
             'bypass_owner_roles': ['manager', 'admin'],  # roles ignore owner check
             'fields': ['title', 'workspace', 'owner'],
         }
-```
-
-Plus project-wide settings:
 
 ```python
 TURBODRF_TENANT_MODEL = 'accounts.Workspace'
@@ -449,9 +485,19 @@ A request `GET /api/projects/` from Alice (member at ABC workspace) goes through
 
 See `docs/tenancy.md` for the full predicate vocabulary, hard-fail-at-startup behavior, and 404-vs-403 semantics.
 
-### Optional: Postgres RLS
+### Full Predicate Vocabulary (v0.4.0+)
 
-For Postgres deployments, TurboDRF can generate Row Level Security policies that enforce the same rules at the database layer. See `docs/rls.md`.
+Predicate primitives in `turbodrf.predicates`:
+
+- `Tenant(field='tenant')` — mandatory tenant boundary, applied as AND outside the algebra (OR-composition can never escape it)
+- `Owner(field='owner')` — row belongs to `request.user`
+- `Members(field='members')` — row's M2M members contains user (read-only: raises `NotImplementedError` on writes)
+- `Group(field='group')` — row's group field matches user's group (read-only: raises `NotImplementedError` on writes)
+- `Either(left, right)` — logical OR of two predicates
+- `Conditional(q_func, write_validator=...)` — custom predicate; `write_validator` is mandatory (read-only if omitted: raises `NotImplementedError` on writes)
+- `Custom(q_func, write_validator=...)` — fully custom; `write_validator` required
+
+> `Tenant()` inside `Either()` is prohibited — the tenant boundary must not be OR-able away.
 
 ## Security
 
@@ -490,12 +536,20 @@ REST_FRAMEWORK = {
 
 ### Security Gates
 
-TurboDRF includes startup gates that detect:
-- Compiled M2M target bypass vulnerabilities
-- Compiled FK annotation bypass
-- Search field target bypass
-- Unsafe Custom predicate write validators
-- Permission string typos
+TurboDRF runs 5 startup safety passes; each has a kill-switch setting:
+
+1. **Tenancy declaration** — every model declares `tenant_field`/`visibility`/`tenancy: 'shared'` (kill-switch: `TURBODRF_REQUIRE_TENANCY=False`)
+2. **Compiled-path FK safety** — validates FK annotations can't bypass predicates (kill-switch: `TURBODRF_ALLOW_UNSAFE_COMPILED_FK`)
+3. **Compiled-path M2M safety** — validates M2M target traversal (kill-switch: `TURBODRF_ALLOW_UNSAFE_COMPILED_M2M`)
+4. **Filter traversal safety** — validates searchable fields can't leak via filter joins (kill-switch: `TURBODRF_ALLOW_UNSAFE_FILTER_TRAVERSAL`)
+5. **Custom predicate write-safety** — `Custom`/`Conditional` must carry explicit `write_validator` (kill-switch: `TURBODRF_ALLOW_UNSAFE_CUSTOM_WRITE`)
+6. **Permission string typo check** — catches typos in `TURBODRF_ROLES` with difflib suggestions (kill-switch: `TURBODRF_ALLOW_UNKNOWN_PERMISSIONS`)
+
+Additional protections:
+- `Members`, `Group`, and `Conditional` predicates raise `NotImplementedError` on writes (read-only enforcement)
+- `TURBODRF_MAX_FILTER_VALUE_LENGTH` (default 1000) caps filter value length
+- `TURBODRF_LOG_UNRESTRICTED_CUSTOM` (default `True`) logs when unrestricted custom predicates run
+- FK injection defense: every FK in create/update bodies validated against the target's predicate stack; cross-tenant targets return 400 indistinguishable from nonexistent
 
 These gates refuse to boot if unsafe configurations are detected, preventing cross-permission read leaks.
 
@@ -541,7 +595,14 @@ Key settings:
 | `TURBODRF_MAX_NESTING_DEPTH` | Max nested field depth |
 | `TURBODRF_USE_FILTERS` | Enable Django filters |
 | `TURBODRF_DEFAULT_PAGE_SIZE` | Default pagination page size |
-| `TURBODRF_SENSITIVE_FIELDS` | Fields to hide from all users |
+| `TURBODRF_REQUIRE_TENANCY` | Force tenancy declaration on all models (default True) |
+| `TURBODRF_ALLOW_UNSAFE_COMPILED_FK` | Kill-switch for compiled FK safety gate |
+| `TURBODRF_ALLOW_UNSAFE_COMPILED_M2M` | Kill-switch for compiled M2M safety gate |
+| `TURBODRF_ALLOW_UNSAFE_FILTER_TRAVERSAL` | Kill-switch for filter traversal safety gate |
+| `TURBODRF_ALLOW_UNSAFE_CUSTOM_WRITE` | Kill-switch for custom predicate write-safety gate |
+| `TURBODRF_ALLOW_UNKNOWN_PERMISSIONS` | Kill-switch for permission string typo check |
+| `TURBODRF_MAX_FILTER_VALUE_LENGTH` | Max filter value length (default 1000) |
+| `TURBODRF_LOG_UNRESTRICTED_CUSTOM` | Log unrestricted custom predicates (default True) |
 
 ## Examples
 
@@ -609,11 +670,13 @@ TURBODRF_ROLES = {
 ```python
 from django.contrib import admin
 from django.urls import path, include
-from turbodrf import urls as turbodrf_urls
+from turbodrf.router import TurboDRFRouter
+
+router = TurboDRFRouter()
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include(turbodrf_urls)),
+    path('api/', include(router.urls)),
 ]
 ```
 
@@ -627,7 +690,40 @@ Define fields explicitly rather than `__all__` for better control.
 
 Use Django's form validation or custom validators:
 
-```python
+## Integrations
+
+TurboDRF ships optional, experimental integrations (all settings-gated, marked experimental in docs):
+
+- **Sentry** — security-event breadcrumbs
+- **Keycloak** — role mapping (`STRICT_ROLES=True` default)
+- **django-allauth** — group→role mapping (`pip install turbodrf[allauth]`)
+- **drf-api-tracking** — request logging
+
+Fast JSON: `pip install turbodrf[fast]` adds msgspec (~7x faster serialization; orjson auto-detected if present).
+
+## AI Agent Guidance
+
+The TurboDRF repository ships an `AGENTS.md` with canonical guidance for AI coding agents — the "what never to do" list (don't override `get_queryset`, don't use `Model.objects.all()` in custom actions, don't widen serializer fields, don't use `tenancy: 'shared'` as a test workaround) plus `invalidate_user_permissions()` cache API and testing patterns.
+
+- **Repo AGENTS.md**: https://github.com/AlexanderCollins/TurboDRF/blob/main/AGENTS.md
+
+> **Docs status:** The readthedocs and GitHub Pages sites are currently 404. The repo `docs/` folder is the only current documentation source.
+
+## References
+
+- **GitHub Repository**: https://github.com/AlexanderCollins/TurboDRF
+- **PyPI Package**: https://pypi.org/project/turbodrf/
+- **Documentation**: https://github.com/AlexanderCollins/TurboDRF/tree/main/docs
+  - [Configuration](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/configuration.md)
+  - [Permissions](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/permissions.md)
+  - [Tenancy & row-level access](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/tenancy.md)
+  - [Performance](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/performance.md)
+  - [Filtering & Search](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/filtering.md)
+  - [Integrations](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/integrations.md)
+  - [Security](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/security.md)
+  - [Management Commands](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/commands.md)
+  - [Settings Reference](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/settings_reference.md)
+- **AI Agent Guide (AGENTS.md)**: https://github.com/AlexanderCollins/TurboDRF/blob/main/AGENTS.md
 def validate_title(value):
     if Book.objects.filter(title=value).exclude(pk=self.instance.pk).exists():
         raise serializers.ValidationError("Title already exists")
@@ -698,16 +794,15 @@ If startup gate fires due to M2M/FK traversals:
 
 ## References
 
-- **GitHub Repository**: https://github.com/alexandercollins/turbodrf
+- **GitHub Repository**: https://github.com/AlexanderCollins/TurboDRF
 - **PyPI Package**: https://pypi.org/project/turbodrf/
-- **Documentation**: https://github.com/alexandercollins/turbodrf/tree/main/docs
-  - [Configuration](https://github.com/alexandercollins/turbodrf/blob/main/docs/configuration.md)
-  - [Permissions](https://github.com/alexandercollins/turbodrf/blob/main/docs/permissions.md)
-  - [Tenancy & row-level access](https://github.com/alexandercollins/turbodrf/blob/main/docs/tenancy.md)
-  - [RLS (Postgres)](https://github.com/alexandercollins/turbodrf/blob/main/docs/rls.md)
-  - [Performance](https://github.com/alexandercollins/turbodrf/blob/main/docs/performance.md)
-  - [Filtering & Search](https://github.com/alexandercollins/turbodrf/blob/main/docs/filtering.md)
-  - [Integrations](https://github.com/alexandercollins/turbodrf/blob/main/docs/integrations.md)
-  - [Security](https://github.com/alexandercollins/turbodrf/blob/main/docs/security.md)
-  - [Management Commands](https://github.com/alexandercollins/turbodrf/blob/main/docs/commands.md)
-  - [Settings Reference](https://github.com/alexandercollins/turbodrf/blob/main/docs/settings_reference.md)
+- **Documentation**: https://github.com/AlexanderCollins/TurboDRF/tree/main/docs
+  - [Configuration](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/configuration.md)
+  - [Permissions](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/permissions.md)
+  - [Tenancy & row-level access](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/tenancy.md)
+  - [Performance](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/performance.md)
+  - [Filtering & Search](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/filtering.md)
+  - [Integrations](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/integrations.md)
+  - [Security](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/security.md)
+  - [Management Commands](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/commands.md)
+  - [Settings Reference](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/settings_reference.md)
