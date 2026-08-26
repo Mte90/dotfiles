@@ -2,7 +2,7 @@
 name: pyqt-testing
 description: "PyQt/PySide6 testing with pytest-qt - qtbot fixture, waitSignal, mouse/keyboard simulation, dialog testing"
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - python

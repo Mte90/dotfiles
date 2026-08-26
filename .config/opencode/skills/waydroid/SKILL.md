@@ -2,7 +2,7 @@
 name: waydroid
 description: "Waydroid - Container-based Android on Linux with Wayland support, GPU acceleration, and native app integration"
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - waydroid

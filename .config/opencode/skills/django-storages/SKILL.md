@@ -2,7 +2,7 @@
 name: django-storages
 description: "Django cloud storage - S3, Azure, Google Cloud, Boto3, cloud file storage backends"
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - python

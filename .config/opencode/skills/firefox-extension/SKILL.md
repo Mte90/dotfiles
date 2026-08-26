@@ -2,7 +2,7 @@
 name: firefox-extension
 description: Comprehensive guide for developing WebExtensions (browser extensions) for Mozilla Firefox, including Manifest V2/V3 configuration, all WebExtension APIs, security practices, web-ext CLI, and AMO submission.
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - firefox

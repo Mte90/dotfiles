@@ -2,7 +2,7 @@
 name: django-bolt
 description: "Django Bolt - Rust-powered high-performance API framework, 60k+ RPS, decorator routing, built-in auth, async ORM"
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - python
@@ -1053,7 +1053,7 @@ server {
 
 ---
 
-## Error Handling
+## Error Handling (Exception Hierarchy)
 
 Django-Bolt provides a structured exception hierarchy for HTTP errors and automatic error response formatting.
 
@@ -1435,7 +1435,7 @@ async def get_data(db=Depends(DatabaseSession)):
 
 ---
 
-## File Uploads
+## File Uploads (UploadFile Class)
 
 Django-Bolt provides the `UploadFile` class for handling file uploads with Django integration.
 
@@ -1556,7 +1556,7 @@ BOLT_MEMORY_SPOOL_THRESHOLD = 5 * 1024 * 1024  # 5 MB
 
 ---
 
-## Pagination
+## Pagination (Styles)
 
 Django-Bolt provides three pagination styles for handling large datasets efficiently.
 
@@ -1877,7 +1877,7 @@ async def background_processing(task_id: str):
 
 ---
 
-## Django ORM Patterns
+## Django ORM Patterns (Async Methods)
 
 Django-Bolt handlers use async, requiring Django's async ORM methods for maximum performance.
 

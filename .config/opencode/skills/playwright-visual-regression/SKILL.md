@@ -2,7 +2,7 @@
 name: playwright-visual-regression
 description: "Visual regression testing using Playwright with toHaveScreenshot(), masking, thresholds, cross-browser testing, and VUDA integration for AI-powered visual analysis"
 metadata:
-  author: "OSS AI Skills"
+  author: mte90
   version: "1.0.0"
   tags:
     - playwright

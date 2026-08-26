@@ -2,7 +2,7 @@
 name: celery
 description: "Distributed task queue for Python supporting Redis, RabbitMQ, periodic scheduling, real-time processing, and Django integration"
 metadata:
-  author: "OSS AI Skills"
+  author: mte90
   version: "1.0.0"
   tags:
     - python

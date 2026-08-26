@@ -2,7 +2,7 @@
 name: llama-index
 description: Comprehensive guide for building LLM applications with LlamaIndex, including data loaders, indexes, query engines, chat engines, vector stores, retrievers, agents, evaluation, streaming, and observability.
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - llama-index

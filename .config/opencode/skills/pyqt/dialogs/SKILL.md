@@ -2,7 +2,7 @@
 name: pyqt-dialogs
 description: "PyQt/PySide6 dialogs - QFileDialog, QMessageBox, QInputDialog, QColorDialog, custom QDialog patterns"
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - python
@@ -448,7 +448,7 @@ dialog.show()  # Doesn't block
 
 ---
 
-## Best Practices (Extended)
+### Best Practices Code Examples
 
 ```python
 # ✅ GOOD: Always have Cancel button

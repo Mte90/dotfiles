@@ -2,7 +2,7 @@
 name: httpx
 description: "Modern async HTTP client for Python with sync/async API, HTTP/2 support, connection pooling, retries, and timeouts"
 metadata:
-  author: "OSS AI Skills"
+  author: mte90
   version: "1.0.0"
   tags:
     - python

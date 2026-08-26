@@ -2,7 +2,7 @@
 name: thunderbird-extension
 description: Comprehensive guide for developing MailExtensions for Mozilla Thunderbird, including Manifest V2/V3 configuration, all messenger.* APIs, UI actions, Experiment APIs, and ATN submission.
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - thunderbird

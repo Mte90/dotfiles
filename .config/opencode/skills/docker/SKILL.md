@@ -2,7 +2,7 @@
 name: docker
 description: "Docker - containers, Dockerfile, docker-compose, multi-stage builds, production, CI/CD"
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - docker

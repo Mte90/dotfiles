@@ -2,7 +2,7 @@
 name: pyqt-styling
 description: "PyQt/PySide6 QSS styling - selectors, properties, pseudo-states, dark theme, widget-specific styles"
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - python

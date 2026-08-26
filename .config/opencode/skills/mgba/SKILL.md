@@ -1,8 +1,8 @@
 ---
-name: mgba-scripting
+name: mgba
 description: "Lua scripting for mGBA emulator - game automation, memory hacking, cheats, callbacks, and ROM manipulation"
 metadata:
-  author: "OSS AI Skills"
+  author: mte90
   version: "1.0.0"
   tags:
     - lua

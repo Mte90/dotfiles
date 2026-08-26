@@ -2,7 +2,7 @@
 name: pydantic
 description: "Data validation using Python type hints with Pydantic models, settings, serialization, and performance optimization"
 metadata:
-  author: "OSS AI Skills"
+  author: mte90
   version: "1.0.0"
   tags:
     - python
@@ -119,19 +119,26 @@ class AllTypesExample(BaseModel):
 ### Nested Models
 
 ```python
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import List, Optional
 
-class Address(BaseModel):
-    street: str
-    city: str
-    country: str
-    postal_code: Optional[str] = None
+class ChildModel(BaseModel):
+    """Nested child model with alias for input."""
+    child_id: int
+    child_name: str
 
-class Company(BaseModel):
-    name: str
-    address: Address
-    employees: List[str] = []
+class ParentModel(BaseModel):
+    """Parent containing child model with Field alias."""
+    parent_id: int
+    parent_name: str
+    child_data: ChildModel = Field(alias='child_data')  # Field alias for input
+    
+    def __init__(self, parent_id: int, parent_name: str, child_info: ChildModel = None, **data):
+        super().__init__(
+            parent_id=parent_id,
+            parent_name=parent_name,
+            child_data=child_info if child_info else data.get('child_data')
+        )
 
 class Person(BaseModel):
     name: str
@@ -333,6 +340,15 @@ print(json_str)
 # Include/Exclude fields
 data = user.model_dump(include={'id', 'name'})  # Only id and name
 data = user.model_dump(exclude={'metadata'})     # Everything except metadata
+
+# Serialization Tips for clean API responses
+# Exclude None values
+data = user.model_dump(exclude_none=True)
+
+# Exclude nested None values recursively
+from pydantic import TypeAdapter
+ta = TypeAdapter(List[Optional[str]])
+clean_data = ta.dump_json(["a", None, "b"])  # Clean API responses
 ```
 
 ### Advanced Serialization
@@ -369,6 +385,16 @@ data = user.model_dump(
     exclude_unset=True,   # Exclude unset fields
     exclude_defaults=True # Exclude default values
 )
+
+# model_rebuild for dynamic schema generation
+def dynamic_schema_gen():
+    # Generate schema at runtime
+    schema = {
+        "type": "object",
+        "properties": {"id": {"type": "integer"}, "name": {"type": "string"}}
+    }
+    User.model_rebuild()  # Rebuild model with new schema
+    return User
 ```
 
 ### Model Validate
@@ -716,6 +742,7 @@ class User(BaseModel):
         populate_by_name=True,          # Allow population by name (not alias)
         extra='forbid',                 # Forbid extra fields
         frozen=True,                    # Make model immutable
+        strict_fields=False,            # Not strict by default
     )
     
     id: int
@@ -746,124 +773,226 @@ class ModelWithFieldConfig(BaseModel):
     value: str = Field(default="test", validate_default=True)
 ```
 
-## Inheritance
+### Advanced Config Patterns
 
-### Model Inheritance
+#### Strict Mode and Extra Fields
 
 ```python
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, ConfigDict, Field
+from typing import Any, Optional
 
-class BaseUser(BaseModel):
+# Strict mode with extra allowed
+class StrictWithExtra(BaseModel):
+    model_config = ConfigDict(
+        strict=False,                   # Non-strict mode
+        extra="allow"                   # Allow extra fields
+    )
+    
     id: int
     name: str
-    email: str
-
-class UserWithAge(BaseUser):
-    age: Optional[int] = None
-
-class AdminUser(UserWithAge):
-    is_admin: bool = True
-    permissions: list[str] = []
-
-# Inheritance works
-admin = AdminUser(
-    id=1,
-    name="John",
-    email="john@example.com",
-    age=30,
-    is_admin=True,
-    permissions=["read", "write"]
-)
-```
-
-### Composition
-
-```python
-from pydantic import BaseModel
-from typing import Optional
-
-class TimestampMixin(BaseModel):
-    """Mixin to add timestamps."""
-    created_at: str
-    updated_at: str
-
-class UserMixin(BaseModel):
-    """Mixin to add user fields."""
-    name: str
-    email: str
-
-class User(TimestampMixin, UserMixin):
-    id: int
-
-user = User(
-    id=1,
-    name="John",
-    email="john@example.com",
-    created_at="2024-01-01",
-    updated_at="2024-01-01"
-)
-```
-
-## Generic Models
-
-### Generic Models
-
-```python
-from pydantic import BaseModel
-from typing import Generic, TypeVar, List
-
-T = TypeVar('T')
-
-class Container(BaseModel, Generic[T]):
-    """Generic container model."""
-    items: List[T] = []
-    total: int = 0
-
-class StringContainer(Container[str]):
-    pass
-
-class IntContainer(Container[int]):
-    pass
-
-# Usage
-string_container = StringContainer(items=["a", "b", "c"], total=3)
-int_container = IntContainer(items=[1, 2, 3], total=3)
-
-# With bounds
-class OrderedModel(BaseModel, Generic[T]):
-    item: T
-    order: int
-
-class StringOrdered(OrderedModel[str]):
-    pass
-```
-
-### Nested Generics
-
-```python
-from pydantic import BaseModel
-from typing import Generic, TypeVar, Optional
-
-K = TypeVar('K')
-V = TypeVar('V')
-
-class KeyValue(BaseModel, Generic[K, V]):
-    key: K
-    value: V
-
-class DataStore(BaseModel, Generic[K, V]):
-    items: List[KeyValue[K, V]] = []
     metadata: Optional[dict] = None
+    extra_data: Any = Field(default=None)
+
+# This accepts extra fields without error
+data = {"id": 1, "name": "John", "extra_field": "allowed"}
+user = StrictWithExtra(**data)
+print(user.extra_field)  # "allowed"
+
+# Strict mode with forbid (default)
+class StrictModel(BaseModel):
+    model_config = ConfigDict(strict=True, extra="forbid")
+    
+    id: int
+    name: str
+    
+    # This will raise ValidationError for extra fields
+    data = {"id": 1, "name": "John", "extra": "not allowed"}
+```
+
+#### Multi-Environment Settings
+
+```python
+from pydantic_settings import BaseSettings, SettingsConfigDict
+from typing import Optional
+import os
+
+class DatabaseSettings(BaseSettings):
+    """Database configuration."""
+    model_config = SettingsConfigDict(
+        env_file='.env.prod',           # Different env file for production
+        env_nested_delimiter='__',
+    )
+    
+    host: str = "localhost"
+    port: int = 5432
+    name: str
+    user: str
+    password: str
+
+class DevSettings(BaseSettings):
+    """Development settings."""
+    model_config = SettingsConfigDict(
+        env_file='.env.dev',
+    )
+    
+    debug: bool = True
+    host: str = "127.0.0.1"
+    port: int = 8000
+
+class ProdSettings(BaseSettings):
+    """Production settings."""
+    model_config = SettingsConfigDict(
+        env_file='.env.prod',
+    )
+    
+    debug: bool = False
+    host: str = os.getenv("DATABASE_HOST", "db.prod.example.com")
+    port: int = 5432
+
+# Use environment-aware settings
+env = os.getenv("ENVIRONMENT", "dev")
+if env == "prod":
+    settings = ProdSettings()
+else:
+    settings = DevSettings()
+
+# Environment variables:
+# For production:
+# export ENVIRONMENT=prod
+# source .env.prod
+
+# For development:
+# export ENVIRONMENT=dev
+# source .env.dev
+```
+
+#### Nested Structure Config
+
+```python
+from pydantic import BaseModel, ConfigDict
+from typing import Dict, Any, Optional
+
+class APIConfig(BaseModel):
+    """Nested API configuration."""
+    model_config = ConfigDict(
+        extra="allow",
+    )
+    
+    timeout: int = 30
+    retries: int = 3
+    endpoints: Dict[str, Any] = {}
+
+class Application(BaseModel):
+    """Application with nested config structures."""
+    model_config = ConfigDict(
+        str_strip_whitespace=True,
+    )
+    
+    app_name: str
+    version: str
+    api: APIConfig = Field(default_factory=APIConfig)
+    features: Dict[str, bool] = {}
 
 # Usage
-store = DataStore[str, int](
-    items=[
-        KeyValue(key="age", value=25),
-        KeyValue(key="count", value=10)
-    ],
-    metadata={"source": "database"}
+app = Application(
+    app_name="MyApp",
+    version="1.0.0",
+    api={"timeout": 60, "retries": 5, "custom_setting": "extra"}
 )
+```
+
+## TypeAdapter
+
+### TypeAdapter for Custom Validation
+
+```python
+from pydantic import TypeAdapter, ValidationError
+from typing import List, Optional, Any
+
+# TypeAdapter for custom validation on arbitrary objects
+ta_list_str = TypeAdapter(List[str])
+
+# Validate arbitrary data against the adapter
+data = ["a", "b", "c"]
+validated = ta_list_str.validate_python(data)
+print(validated)  # ["a", "b", "c"]
+
+# Validate from JSON
+json_data = '["x", "y", "z"]'
+validated_json = ta_list_str.validate_json(json_data)
+print(validated_json)  # ["x", "y", "z"]
+
+# Convert to JSON
+output = ta_list_str.dump_json(["hello", "world"])
+print(output)  # b'["hello","world"]'
+
+# Using TypeAdapter for type coercion
+ta_int = TypeAdapter(int)
+result = ta_int.validate_python("42")  # Converts "42" to 42
+print(result)  # 42
+
+# TypeAdapter for complex nested types
+from typing import Dict
+ta_dict = TypeAdapter(Dict[str, int])
+nested_data = {"a": 1, "b": 2, "c": 3}
+validated_nested = ta_dict.validate_python(nested_data)
+
+# TypeAdapter for custom error messages
+class CustomIntError(BaseException):
+    pass
+
+ta_custom = TypeAdapter(int)
+try:
+    ta_custom.validate_python("not a number")
+except ValidationError as e:
+    # Custom error handling
+    print(f"Validation failed: {e.errors()[0]['msg']}")
+```
+
+### RootModel
+
+### RootModel for Collection-Only Schemas
+
+```python
+from pydantic import RootModel
+from typing import List, Optional
+
+# RootModel for collection-only schemas
+class StringList(RootModel[List[str]]):
+    """Root model for list of strings - no parent wrapper."""
+    
+    @property
+    def labels(self) -> List[str]:
+        """Derived property for list items."""
+        return [item.upper() for item in self.root]
+
+# Usage with list of strings
+strings = StringList(root=["apple", "banana", "cherry"])
+print(strings.root)  # ["apple", "banana", "cherry"]
+print(strings.labels)  # ["APPLE", "BANANA", "CHERRY"]
+
+# From JSON
+json_data = '["dog", "cat", "bird"]'
+pets = StringList.model_validate_json(json_data)
+print(pets)  # StringList(root=['dog', 'cat', 'bird'])
+
+# Optional root
+class OptionalList(RootModel[Optional[List[str]]]):
+    """Root model with optional root."""
+    pass
+
+optional = OptionalList(root=["a", "b"])
+empty = OptionalList(root=None)
+print(optional.root)  # ["a", "b"]
+print(empty.root)  # None
+
+# Multiple types with RootModel
+class NumberList(RootModel[List[int]]):
+    """List of numbers."""
+    pass
+
+numbers = NumberList(root=[1, 2, 3])
+print(numbers.model_dump())  # [1, 2, 3]
 ```
 
 ## Discriminated Unions
@@ -871,15 +1000,15 @@ store = DataStore[str, int](
 ### Basic Discriminated Union
 
 ```python
-from pydantic import BaseModel, Tag
-from typing import Union
+from pydantic import BaseModel, Field, Discriminator
+from typing import Union, Annotated
 
 class Cat(BaseModel):
-    pet_type: str = "cat"
+    pet_type: str = Field(default="cat", const=True)
     meows: int
 
 class Dog(BaseModel):
-    pet_type: str = "dog"
+    pet_type: str = Field(default="dog", const=True)
     barks: float
 
 class Zoo(BaseModel):
@@ -887,63 +1016,120 @@ class Zoo(BaseModel):
     pet: Union[Cat, Dog] = Field(..., discriminator='pet_type')
 
 # Pydantic v2 style
-from pydantic import Discriminator
-
-class Zoo(BaseModel):
+class ZooV2(BaseModel):
     pet: Annotated[
         Union[Cat, Dog],
         Discriminator(tag='pet_type')
     ]
+
+# This is how it's done in API responses with multiple types
+class ApiResponse(BaseModel):
+    status: str
+    data: Union[Cat, Dog] = Field(..., discriminator='pet_type')
+
+# Usage
+response = ApiResponse(
+    status="success",
+    data={"pet_type": "cat", "meows": 5}
+)
+print(response.data)  # Cat(meows=5)
 ```
 
 ### Advanced Discriminated Union
 
 ```python
-from pydantic import BaseModel
-from typing import Union, Literal
+from pydantic import BaseModel, Field, Discriminator
+from typing import Union, Literal, Annotated
 
 class Image(BaseModel):
     type: Literal["image"]
     url: str
+    format: Literal["jpg", "png", "gif"]
 
 class Video(BaseModel):
     type: Literal["video"]
     url: str
     duration: int
+    format: Literal["mp4", "webm"]
 
 class Document(BaseModel):
     type: Literal["document"]
     pages: int
+    format: Literal["pdf", "docx"]
 
-Media = Union[Image, Video, Document]
-
-class Post(BaseModel):
+# API Response with multiple media types
+class MediaResponse(BaseModel):
+    id: int
     title: str
-    media: Media
+    media: Annotated[
+        Union[Image, Video, Document],
+        Discriminator(tag='type')
+    ]
+    created_at: str
 
 # Pydantic automatically routes based on discriminator
-post = Post(
-    title="My Post",
-    media={"type": "video", "url": "https://example.com/video.mp4", "duration": 120}
+response = MediaResponse(
+    id=1,
+    title="My Video",
+    media={"type": "video", "url": "https://example.com/video.mp4", "duration": 120, "format": "mp4"},
+    created_at="2024-01-01T00:00:00Z"
 )
+print(response.media)  # Video(duration=120, url='https://example.com/video.mp4', format='mp4')
 ```
 
-## Validation Errors
+### Error Handling
 
-### Handling Errors
+### Error Handling with ValidationError
 
 ```python
 from pydantic import BaseModel, ValidationError
+from typing import List, Optional
 
-class User(BaseModel):
+# API response handling with error formatting
+class UserResponse(BaseModel):
     id: int
-    name: str
+    username: str
+    email: str
     age: int
 
+# Try/except for API responses
+def fetch_user_from_api(api_data):
+    try:
+        user = UserResponse(**api_data)
+        return {"success": True, "data": user}
+    except ValidationError as e:
+        # Format validation errors for API
+        errors = e.errors()
+        formatted_errors = {
+            error['loc'][0]: {
+                'message': error['msg'],
+                'type': error['type'],
+                'input': error['input']
+            }
+            for error in errors
+            if error['loc'] and len(error['loc']) > 0
+        }
+        return {
+            "success": False,
+            "errors": formatted_errors
+        }
+
+# Example usage
+valid_data = {"id": 1, "username": "john", "email": "john@example.com", "age": 30}
+invalid_data = {"id": "not_an_int", "username": "jo", "email": "invalid", "age": -5}
+
+result = fetch_user_from_api(valid_data)
+print(result["success"])  # True
+
+result = fetch_user_from_api(invalid_data)
+print(result["success"])  # False
+print(result["errors"])  # Formatted error dict
+
+# Error details in e.errors()
 try:
-    user = User(id="not an int", name="John", age="not an int")
+    user = UserResponse(id="not an int", name="John", age="not an int")
 except ValidationError as e:
-    # Error details
+    # Full error list
     print(e.errors())
     # [
     #     {
@@ -962,19 +1148,16 @@ except ValidationError as e:
     
     # Human-readable
     print(e)
-    # 2 validation errors for User
+    # 2 validation errors for UserResponse
     # id
     #   Input should be a valid integer [type=int_parsing, input_value='not an int', input_type=str]
     # age
     #   Input should be a valid integer [type=int_parsing, input_value='not an int', input_type=str]
-```
 
-### Custom Error Messages
+# Custom error messages in field validators
+from pydantic import field_validator
 
-```python
-from pydantic import BaseModel, field_validator, ValidationError
-
-class User(BaseModel):
+class AgeUser(BaseModel):
     age: int
     
     @field_validator('age')
@@ -987,7 +1170,7 @@ class User(BaseModel):
         return v
 
 try:
-    User(age=-5)
+    AgeUser(age=-5)
 except ValidationError as e:
     print(e.error_count())  # 1
     for error in e.errors():

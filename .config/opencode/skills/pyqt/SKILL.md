@@ -2,7 +2,7 @@
 name: pyqt
 description: "PyQt/PySide6 overview hub - installation, comparison, project structure. See sub-skills for detailed topics."
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 2.0.0
   tags:
     - python
@@ -217,13 +217,6 @@ grid.addWidget(input, 0, 1)
 form = QFormLayout()
 form.addRow("Name:", nameEdit)
 ```
-
-## References
-
-- **Qt for Python Documentation**: https://doc.qt.io/qtforpython-6/
-- **PySide6 GitHub**: https://github.com/pyside/pyside-setup
-- **PyQt6 Documentation**: https://www.riverbankcomputing.com/static/Docs/PyQt6/
-- **pytest-qt**: https://pytest-qt.readthedocs.io/
 
 ## Signals and Slots
 
@@ -1940,3 +1933,5 @@ python -c "from PySide6.QtWidgets import QApplication; app = QApplication([])"
 - [PyQt6 Documentation](https://www.riverbankcomputing.com/static/Docs/PyQt6/)
 - [Qt Examples](https://doc.qt.io/qt-6/qtexamplesandtutorials.html)
 - [Python GUI Programming](https://realpython.com/python-pyqt-gui-calculator/)
+- [PySide6 GitHub](https://github.com/pyside/pyside-setup)
+- [pytest-qt](https://pytest-qt.readthedocs.io/)

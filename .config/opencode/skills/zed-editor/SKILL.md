@@ -2,7 +2,7 @@
 name: zed-editor
 description: "Zed Editor extensions - Rust/Wasm plugins, LSP servers, Tree-sitter grammars, themes, MCP servers, slash commands, debug adapters"
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - zed
@@ -15,28 +15,36 @@ metadata:
     - plugin
 ---
 
-# Zed Editor Extensions
+## Overview
 
 Build extensions for the [Zed](https://zed.dev) editor — high-performance, multiplayer code editor built in Rust.
 
 Extensions are **Rust crates compiled to WebAssembly** that run in a sandboxed Wasmtime environment. They can provide languages, themes, debuggers, snippets, MCP servers, and AI slash commands.
 
-## Overview
 
-**What extensions can provide:**
-- Language support (Tree-sitter grammars + LSP servers)
-- Color themes and icon themes
-- Snippet collections
-- Debug adapters (DAP)
-- MCP context servers (for AI assistant)
-- Slash commands (for AI assistant)
-- Agent servers (ACP)
+## Top-Level Metadata
 
-**What extensions CANNOT do:**
-- Create custom UI panels or windows (no GPUI access)
-- Modify Zed's core UI behavior
-- Arbitrary filesystem access (restricted by capabilities)
-- Run system commands without user-granted capability
+**What**: This skill covers creating Zed Editor extensions — Rust/Wasm plugins for language support, themes, debuggers, MCP servers, slash commands, and more. Includes extension manifest structure, language server integration, tree-sitter grammar development, and publishing workflows.
+
+**Why**: Extend Zed to add custom language support, debugging capabilities, AI-powered features, and personalization through themes and snippets. Zed's sandboxed architecture allows safe extension development without compromising core editor stability.
+
+**When**: Use this skill when developing extensions for Zed, whether for production use, personal productivity tools, or contributing to the Zed ecosystem. Ideal for language developers, editor enthusiasts, and Rust developers building Wasm-based extensions.
+
+**Requirements**:
+- Rust 1.75+ with rustup installed
+- Zed Dev edition (installed locally or via [AppImage](https://zed.dev/download))
+- `cargo install zed_extension_api` (latest version from crates.io)
+- Tree-sitter CLI (for grammar compilation)
+- Node.js 18+ (for npm-based language server installations)
+- GitHub account (for publishing extensions)
+
+**See also**:
+- [Zed Extension API Documentation](https://zed.dev/docs/extensions)
+- [Publishing Extensions to Marketplace](https://github.com/zed-industries/extensions#publishing-your-extension)
+- [Zed Extension API Schema](https://github.com/zed-industries/zed/blob/main/crates/zed_extension_api/src/extension.toml.md)
+- [Zed GitHub Repository](https://github.com/zed-industries/zed)
+- [crates.io: zed_extension_api](https://crates.io/crates/zed_extension_api)
+
 
 ---
 
@@ -86,11 +94,11 @@ repository = "https://github.com/you/my-zed-extension"
 [grammars.my-language]
 repository = "https://github.com/tree-sitter/tree-sitter-my-language"
 rev = "abc123def456"
-
+#S|
 # For local development, use file:// URL
 # [grammars.my-language]
 # repository = "file:///path/to/tree-sitter-my-language"
-
+#N|
 # Language servers
 [language_servers.my-lsp]
 name = "My Language Server"
@@ -112,12 +120,12 @@ schema_path = "debug_adapter_schemas/my-dap.json"
 
 # MCP context servers
 [context_servers.my-mcp]
-
+#Y|
 # Agent servers
 [agent_servers.my-agent]
 name = "My AI Agent"
 icon = "icon/agent.svg"
-
+#X|
 [agent_servers.my-agent.env]
 AGENT_LOG_LEVEL = "info"
 
@@ -126,7 +134,7 @@ archive = "https://github.com/owner/repo/releases/download/v1.0.0/agent-darwin-a
 cmd = "./agent"
 args = ["--serve"]
 sha256 = "abc123..."
-
+#S|
 [agent_servers.my-agent.targets.linux-x86_64]
 archive = "https://github.com/owner/repo/releases/download/v1.0.0/agent-linux-x64.tar.gz"
 cmd = "./agent"
@@ -136,7 +144,7 @@ args = ["--serve"]
 ---
 
 ## Rust Extension Setup
-
+#O|
 ### Cargo.toml
 
 ```toml
@@ -1049,18 +1057,79 @@ fn test_extension_loads() {
 - Use async for I/O operations
 - Test on multiple Zed versions
 
+- **Always verify crate versions on [crates.io](https://crates.io)** before adding dependencies — Rust's strict semver means a wrong version can cascade into hundreds of compile errors. Check `zed_extension_api` and any third-party crate versions explicitly
+- **Inform the user when including libraries from third-party repositories** and let them check versions. Highlight files and lines where you include such dependencies so the user can double-check
+- When generating `Cargo.toml` dependencies, mark version numbers as approximate and advise the user to run `cargo check` immediately to verify compatibility
+
+- **Verify language server binary compatibility** — ensure LSP supports `--stdio` protocol for seamless integration
+
 ### Don't:
 - Block the main thread
 - Use heavy dependencies
 - Hardcode paths (use API methods)
+- Assume a crate version compiles without verifying — always recommend the user runs `cargo check` after dependency changes
+
+---
+
+## Known Issues / Pitfalls
+
+### No `cargo binstall` — Zed requires native `cargo install`
+- Zed's extension API does not support `cargo binstall` for package installation
+- Must use standard `cargo install` command for installing language servers and dependencies
+- Pre-built binaries from binstall packages may not work correctly
+
+### Binary download errors — LSP servers not supporting `--stdio` will fail
+- Language servers must support the `--stdio` (stdin/stdout) protocol
+- Some LSP servers require TCP socket connection instead
+- Binary downloads from GitHub may fail if asset naming doesn't match expected patterns
+- Always verify LSP documentation before implementing download logic
+
+### Cache invalidation — binary cache at `~/.cache/` needs manual clearing
+- Cached LSP binaries stored at `{worktree_root}/.cache/` persist across Zed sessions
+- Old/broken cached binaries cause silent failures
+- Manual cache clearing required: `rm -rf ~/.cache/zed/{extension_name}/`
+- Consider implementing cache age checks in production code
+
+### No GUI access — extensions cannot create custom panels or modify Zed's UI
+- Extensions run in sandboxed Wasmtime environment without GUI context
+- Cannot create custom panels, dialogs, or windows
+- Cannot access or modify Zed's internal UI components
+- All output must be text-based or passed through LSP/Slash Command channels
 
 ---
 
 ## References
 
-- **Official Docs**: https://zed.dev/docs/extensions
-- **API Reference**: https://docs.rs/zed_extension_api/latest/zed_extension_api/
-- **Extensions Registry**: https://zed.dev/extensions
-- **Extensions Repo**: https://github.com/zed-industries/extensions
-- **Theme Builder**: https://zed.dev/theme-builder
-- **Architecture Blog**: https://zed.dev/blog/zed-decoded-extensions
+
+**Core Resources:**
+
+- **Zed Editor Website**: https://zed.dev
+- **Zed Extension API Docs**: https://zed.dev/docs/extensions
+- **Extension Manifest Schema**: https://github.com/zed-industries/zed/blob/main/crates/zed_extension_api/src/extension.toml.md
+- **Publishing Guide**: https://github.com/zed-industries/extensions
+- **Zed GitHub Repository**: https://github.com/zed-industries/zed
+- **crates.io: zed_extension_api**: https://crates.io/crates/zed_extension_api
+
+**Protocols & Standards:**
+
+- **Language Server Protocol (LSP)**: https://microsoft.github.io/language-server-protocol/
+- **Model Context Protocol (MCP)**: https://modelcontextprotocol.io/
+- **Debug Adapter Protocol (DAP)**: https://microsoft.github.io/debug-adapter-protocol/
+
+**Tools & Utilities:**
+
+- **Tree-sitter CLI**: https://tree-sitter.github.io/tree-sitter/
+- **cargo install**: https://doc.rust-lang.org/cargo/commands/cargo-install.html
+- **npm CLI**: https://docs.npmjs.com/cli
+- **GitHub Releases API**: https://docs.github.com/en/rest/releases/releases
+
+**Additional Documentation:**
+
+- **Zed Theme Builder**: https://zed.dev/theme-builder
+- **Zed Extension API Rust Docs**: https://docs.rs/zed_extension_api/latest/zed_extension_api/
+- **Extension Naming Guide**: https://github.com/zed-industries/extensions#naming
+
+
+---
+
+**End of Document**

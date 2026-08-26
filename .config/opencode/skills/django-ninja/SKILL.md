@@ -2,7 +2,7 @@
 name: django-ninja
 description: "Fast Django REST framework with Pydantic validation, type hints, and automatic OpenAPI documentation for building type-safe APIs"
 metadata:
-  author: "OSS AI Skills"
+  author: mte90
   version: "1.0.0"
   tags:
     - python

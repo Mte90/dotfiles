@@ -2,7 +2,7 @@
 name: redis
 description: "Redis - in-memory database, caching, pub/sub, sessions, rate limiting, data structures"
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - redis

@@ -1,571 +1,713 @@
 ---
-name: turbadrf
+name: turbodrf
 description: "TurboDRF - fast Django REST framework with automatic OpenAPI, serializers, views, routers, and caching"
 metadata:
-  author: "OSS AI Skills"
-  version: "1.0.0"
+  author: mte90
+  version: 1.0.0
   tags:
     - python
     - django
     - rest-api
     - openapi
-    - fast
+    - serializers
+    - caching
 ---
 
-# TurboDRF
+# turbodrf
 
-Fast Django REST framework.
+**TurboDRF** - Dead simple Django REST API generator with role-based permissions
+
+Turn your Django models into fully-featured REST APIs with a mixin and a configuration method. Zero boilerplate.
 
 ## Overview
 
-TurboDRF is a high-performance REST framework for Django that provides automatic OpenAPI documentation, powerful serializers, views, routers, and built-in caching.
+TurboDRF is a Django REST Framework mixin-based library that automatically generates CRUD API endpoints for your models. Unlike traditional DRF setups requiring ViewSets and serializers, TurboDRF uses a simple mixin pattern where you declare your model inherits from `TurboDRFMixin` and define a `turbodrf()` configuration method.
 
 **Key Features:**
-- Automatic OpenAPI/Swagger documentation
-- Powerful serializers with validation
-- ViewSets and GenericViews
-- Automatic router generation
-- Built-in caching support
-- JWT authentication
-- Rate limiting
+- Automatic CRUD endpoints from model declaration
+- Role-based access control (RBAC)
+- Field-level permissions
+- Built-in search, filtering, ordering, and pagination
+- Nested field support for relationships
+- Client-side field selection (`?fields=`)
+- Auto-generated API documentation (Swagger UI, ReDoc)
+- Performance optimizations with compiled read path
+- Security: sensitive fields deny-list, Row Level Security (RLS) for Postgres
 
-### Installation
+## Installation
+
+### PyPI
 
 ```bash
-pip install turbodrframework
+pip install turbodrf
 
-# With caching support
-pip install turbodrframework[cache]
-
-# With async support
-pip install turbodrframework[async]
+# Optional: faster JSON rendering (7x faster than stdlib)
+pip install turbodrf[fast]
 ```
+
+### GitHub
+
+```bash
+pip install git+https://github.com/alexandercollins/turbodrf.git
+```
+
+### Requirements
+
+- Python >= 3.10
+- Django >= 4.2
+- Django REST Framework >= 3.14
 
 ## Quick Start
 
-### Basic Setup
+### 1. Add to `INSTALLED_APPS`
 
 ```python
 # settings.py
 INSTALLED_APPS = [
+    # Django apps
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    
+    # Third-party apps
     'rest_framework',
-    'turbodrframework',
+    'django_filters',
+    
+    # TurboDRF
+    'turbodrf',
+    
+    # Your apps
     'myapp',
 ]
-
-TURBODRF = {
-    'OPENAPI_ENABLED': True,
-    'CACHE_ENABLED': True,
-}
 ```
 
-### Minimal ViewSet
+### 2. Add the mixin to your model
 
 ```python
-from turbodrframework import ModelViewSet, Serializer
+# myapp/models.py
+from django.db import models
+from turbodrf.mixins import TurboDRFMixin
 
-class UserSerializer(Serializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email']
-
-class UserViewSet(ModelViewSet):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-    lookup_field = 'pk'
+class Book(models.Model, TurboDRFMixin):
+    title = models.CharField(max_length=200)
+    author = models.CharField(max_length=100)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    published_date = models.DateField()
+    
+    # Define searchable fields
+    searchable_fields = ['title', 'author']
+    
+    @classmethod
+    def turbodrf(cls):
+        return {
+            'fields': ['title', 'author', 'price', 'published_date']
+        }
 ```
 
-### URLs
+### 3. Add the router
 
 ```python
-from turbodrframework import routers
-from myapp.views import UserViewSet
-
-router = routers.DefaultRouter()
-router.register(r'users', UserViewSet)
-
-urlpatterns = router.urls
-```
-
-## Serializers
-
-### ModelSerializer
-
-```python
-from turbodrframework import Serializer, ModelSerializer
-from django.contrib.auth.models import User
-
-class UserSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
-        read_only_fields = ['id']
-
-class UserDetailSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = '__all__'
-```
-
-### Field Validation
-
-```python
-class UserRegistrationSerializer(Serializer):
-    username = serializers.CharField(min_length=3, max_length=50)
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True, min_length=8)
-    confirm_password = serializers.CharField(write_only=True)
-
-    def validate(self, data):
-        if data['password'] != data['confirm_password']:
-            raise serializers.ValidationError("Passwords don't match")
-        return data
-
-    def create(self, validated_data):
-        validated_data.pop('confirm_password')
-        user = User.objects.create_user(**validated_data)
-        return user
-```
-
-### Nested Serializers
-
-```python
-class CommentSerializer(Serializer):
-    id = serializers.IntegerField()
-    text = serializers.CharField()
-    author = serializers.StringRelatedField()
-
-class PostSerializer(Serializer):
-    id = serializers.IntegerField()
-    title = serializers.CharField()
-    comments = CommentSerializer(many=True, read_only=True)
-    author = UserSerializer(read_only=True)
-```
-
-## Views
-
-### ModelViewSet
-
-```python
-from turbodrframework import ModelViewSet
-from myapp.models import Article
-from myapp.serializers import ArticleSerializer
-
-class ArticleViewSet(ModelViewSet):
-    serializer_class = ArticleSerializer
-    queryset = Article.objects.all()
-    lookup_field = 'slug'
-    filterset_fields = ['category', 'status']
-    search_fields = ['title', 'content']
-    ordering_fields = ['created_at', 'updated_at']
-    ordering = ['-created_at']
-```
-
-### Custom Actions
-
-```python
-class ArticleViewSet(ModelViewSet):
-    serializer_class = ArticleSerializer
-    queryset = Article.objects.all()
-
-    @action(detail=True, methods=['post'])
-    def publish(self, request, pk=None):
-        article = self.get_object()
-        article.status = 'published'
-        article.save()
-        return Response({'status': 'published'})
-
-    @action(detail=False, methods=['get'])
-    def published(self, request):
-        articles = self.queryset.filter(status='published')
-        serializer = self.get_serializer(articles, many=True)
-        return Response(serializer.data)
-```
-
-### Generic Views
-
-```python
-from turbodrframework import (
-    ListAPIView,
-    CreateAPIView,
-    RetrieveAPIView,
-    UpdateAPIView,
-    DestroyAPIView,
-    ListCreateAPIView,
-    RetrieveUpdateAPIView,
-)
-
-class UserListCreateView(ListCreateAPIView):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-
-class UserDetailView(RetrieveUpdateDestroyAPIView):
-    serializer_class = UserSerializer
-    queryset = User.objects.all()
-    lookup_field = 'pk'
-```
-
-## Authentication
-
-### JWT Authentication
-
-```python
-# settings.py
-TURBODRF = {
-    'AUTH_CLASS': 'turbodrframework.authentication.JWTAuthentication',
-    'JWT_SECRET_KEY': 'your-secret-key',
-    'JWT_ALGORITHM': 'HS256',
-    'JWT_EXPIRATION': 3600,  # seconds
-}
-
-# views.py
-from turbodrframework import ModelViewSet
-from turbodrframework.permissions import IsAuthenticated
-
-class SecureViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticated]
-    queryset = SecureModel.objects.all()
-```
-
-### Token Authentication
-
-```python
-# settings.py
-TURBODRF = {
-    'AUTH_CLASS': 'turbodrframework.authentication.TokenAuthentication',
-}
-
 # urls.py
-from turbodrframework.authentication import obtain_token
+from django.contrib import admin
+from django.urls import path, include
+from turbodrf import urls as turbodrf_urls
 
 urlpatterns = [
-    path('api/token/', obtain_token),
+    # Admin
+    path('admin/', admin.site.urls),
+    
+    # API with auto-configured documentation
+    path('api/', include(turbodrf_urls)),
 ]
 ```
 
-### Custom Authentication
+### 4. Configure TurboDRF roles
 
 ```python
-from turbodrframework.authentication import BaseAuthentication
-
-class APIKeyAuthentication(BaseAuthentication):
-    def authenticate(self, request):
-        api_key = request.headers.get('X-API-Key')
-        if not api_key:
-            return None
+# settings.py
+TURBODRF_ROLES = {
+    'admin': [
+        # Model-level permissions
+        'myapp.book.read',
+        'myapp.book.create',
+        'myapp.book.update',
+        'myapp.book.delete',
         
-        try:
-            user = APIKey.objects.get(key=api_key).user
-            return (user, None)
-        except APIKey.DoesNotExist:
-            return None
+        # Field-level permissions
+        'myapp.book.price.read',
+        'myapp.book.price.write',
+    ],
+    'editor': [
+        'myapp.book.read',
+        'myapp.book.update',
+        'myapp.book.price.read',  # Read-only access to price
+    ],
+    'viewer': [
+        'myapp.book.read',
+        # No access to price field
+    ]
+}
+```
+
+### 5. Extend User Model with Roles
+
+```python
+# myapp/apps.py
+from django.apps import AppConfig
+from django.contrib.auth import get_user_model
+
+class MyAppConfig(AppConfig):
+    default_auto_field = 'django.db.models.BigAutoField'
+    name = 'myapp'
+    
+    def ready(self):
+        User = get_user_model()
+        
+        def get_user_roles(self):
+            # Example: Use Django groups as roles
+            return [group.name for group in self.groups.all()]
+        
+        if not hasattr(User, 'roles'):
+            User.add_to_class('roles', property(get_user_roles))
+```
+
+**Done!** You now have a full REST API at `/api/` with:
+
+```
+GET    /api/books/                          # List all books
+POST   /api/books/                          # Create a new book
+GET    /api/books/1/                        # Get a specific book
+PUT    /api/books/1/                        # Update a book
+DELETE /api/books/1/                        # Delete a book
+```
+
+**Query parameters:**
+```
+GET /api/books/?search=django              # Search
+GET /api/books/?author__name=Smith         # Filter
+GET /api/books/?ordering=-price            # Order
+GET /api/books/?page=2&page_size=10        # Paginate
+GET /api/books/?fields=title,price         # Client field selection
+```
+
+## Model Configuration
+
+### Basic Configuration
+
+```python
+@classmethod
+def turbodrf(cls):
+    return {
+        'enabled': True,              # Enable/disable API (default: True)
+        'endpoint': 'books',          # Custom endpoint name (default: pluralized model name)
+        'fields': ['title', 'author'], # Fields to expose (see below)
+        'public_access': False,       # Allow unauthenticated GET (default: False)
+        'lookup_field': 'pk',         # URL lookup field (default: 'pk', or 'slug')
+        'compiled': True,             # Use compiled read path (default: True)
+    }
+```
+
+### Fields Specification
+
+**All database fields:**
+```python
+'fields': '__all__'
+```
+
+**Specific fields (same for list and detail):**
+```python
+'fields': ['title', 'author', 'price']
+```
+
+**Different fields for list vs detail:**
+```python
+'fields': {
+    'list': ['title', 'author', 'price'],
+    'detail': ['title', 'description', 'author', 'author__email', 'price']
+}
+```
+
+### Nested Fields
+
+Access related model fields with `__` notation:
+
+```python
+'fields': [
+    'title',
+    'author__name',              # ForeignKey (1 level)
+    'author__publisher__name',   # Multi-level (2 levels)
+    'tags__name',               # ManyToMany
+]
+```
+
+FK fields are flattened in responses (`author__name` becomes `author_name`). M2M fields are arrays of objects:
+
+```json
+{
+    "title": "Django for APIs",
+    "author_name": "William Vincent",
+    "tags": [{"name": "Python"}, {"name": "Django"}]
+}
+```
+
+Maximum nesting depth is 3 by default. Change with `TURBODRF_MAX_NESTING_DEPTH` in settings.
+
+### Property Fields
+
+Model `@property` methods work in the compiled path:
+
+```python
+class Book(models.Model, TurboDRFMixin):
+    title = models.CharField(max_length=200)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def display_title(self):
+        return self.title.upper()
+
+    @classmethod
+    def turbodrf(cls):
+        return {
+            'fields': ['title', 'price', 'display_title']
+        }
+```
+
+Properties that access related objects (e.g., `self.author.name`) won't work in the compiled path — use `author__name` in the field config instead.
+
+### List/Detail Field Separation
+
+```python
+class Book(models.Model, TurboDRFMixin):
+    title = models.CharField(max_length=200)
+    author = models.CharField(max_length=100)
+    description = models.TextField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    @classmethod
+    def turbodrf(cls):
+        return {
+            'fields': {
+                'list': ['title', 'author', 'price'],
+                'detail': ['title', 'author', 'description', 'price']
+            }
+        }
 ```
 
 ## Permissions
 
-### Built-in Permissions
+### Permission Modes
+
+TurboDRF supports three permission modes:
+
+1. **No permissions (development):**
+   ```python
+   TURBODRF_DISABLE_PERMISSIONS = True
+   ```
+
+2. **Django default permissions:**
+   ```python
+   TURBODRF_USE_DEFAULT_PERMISSIONS = True
+   ```
+
+3. **Role-based permissions (default):**
+   ```python
+   TURBODRF_ROLES = {
+       'admin': [
+           'myapp.book.read',
+           'myapp.book.create',
+           'myapp.book.update',
+           'myapp.book.delete',
+           'myapp.book.price.read',
+           'myapp.book.price.write',
+       ],
+       'editor': [
+           'myapp.book.read',
+           'myapp.book.update',
+           'myapp.book.price.read',
+       ],
+       'viewer': [
+           'myapp.book.read',
+       ]
+   }
+   ```
+
+### Permission Format
+
+- Model-level: `app_label.model_name.action` (read, create, update, delete)
+- Field-level: `app_label.model_name.field_name.read` or `.write`
+
+### Field Permissions
+
+1. If ANY role defines an explicit field rule (e.g., `price.read`), that field requires explicit permission for ALL roles
+2. Fields without explicit rules fall back to model-level permission
+3. To restrict `price` for viewers, add `price.read` to at least one role (like admin)
+
+### How It Works
+
+TurboDRF reads `user.roles` — a property that returns a list of role names:
 
 ```python
-from turbodrframework.permissions import (
-    AllowAny,
-    IsAuthenticated,
-    IsAdminUser,
-    IsAuthenticatedOrReadOnly,
-)
+# From Django groups
+User.add_to_class('roles', property(lambda self: [g.name for g in self.groups.all()]))
 
-class ArticleViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+# From a JSONField
+class User(AbstractUser):
+    user_roles = models.JSONField(default=list)
+
+    @property
+    def roles(self):
+        return self.user_roles
 ```
 
-### Custom Permissions
+Authenticated users with no roles get 403 on all endpoints.
+
+### Database-Backed Permissions
+
+For runtime changes without redeployment:
 
 ```python
-from rest_framework import permissions
+TURBODRF_PERMISSION_MODE = 'database'
+TURBODRF_PERMISSION_CACHE_TIMEOUT = 300  # 5 minutes
 
-class IsOwnerOrReadOnly(permissions.BasePermission):
-    def has_object_permission(self, request, view, obj):
-        if request.method in permissions.SAFE_METHODS:
-            return True
-        return obj.owner == request.user
+from turbodrf.models import TurboDRFRole, RolePermission, UserRole
 
-class ArticleViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
+role = TurboDRFRole.objects.create(name='editor')
+RolePermission.objects.create(role=role, app_label='books', model_name='book', action='read')
+UserRole.objects.create(user=user, role=role)
 ```
 
-## Caching
+### Nested Field Permissions
 
-### Cache Configuration
+Permissions are checked at each level of a nested field path. For `author__publisher__name`:
+
+1. Can user read `author` on Book?
+2. Can user read `publisher` on Author?
+3. Can user read `name` on Publisher?
+
+If any level fails, the field is excluded.
+
+### Filter Permissions
+
+Users can only filter on fields they have read permission for. Filters on hidden fields are silently ignored.
+
+## Tenancy & Row-Level Access
+
+### Multi-Tenant SaaS
 
 ```python
-# settings.py
-TURBODRF = {
-    'CACHE_ENABLED': True,
-    'CACHE_CLASS': 'turbodrframework.cache.RedisCache',
-    'CACHE_CONFIG': {
-        'LOCATION': 'redis://127.0.0.1:6379/0',
-    },
-    'CACHE_TIMEOUT': 300,  # 5 minutes
-}
+class Project(models.Model, TurboDRFMixin):
+    workspace = models.ForeignKey(Workspace, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
 
-# Or use default cache
-TURBODRF = {
-    'CACHE_ENABLED': True,
-    'CACHE_CLASS': 'django.core.cache.backends.locmem.LocMemCache',
-}
+    @classmethod
+    def turbodrf(cls):
+        return {
+            'tenant_field': 'workspace',          # mandatory wall
+            'owner_field': 'owner',               # within-tenant rule
+            'bypass_owner_roles': ['manager', 'admin'],  # roles ignore owner check
+            'fields': ['title', 'workspace', 'owner'],
+        }
 ```
 
-### View Caching
+Plus project-wide settings:
 
 ```python
-class ArticleViewSet(ModelViewSet):
-    serializer_class = ArticleSerializer
-    queryset = Article.objects.all()
-    
-    @cache_response(timeout=60)
-    def list(self, request):
-        # This view will be cached for 60 seconds
-        return super().list(request)
-    
-    @cache_response(timeout=300)
-    def retrieve(self, request, pk=None):
-        # Individual article cached for 5 minutes
-        return super().retrieve(request, pk)
+TURBODRF_TENANT_MODEL = 'accounts.Workspace'
+TURBODRF_TENANT_USER_FIELD = 'workspace'  # request.user.workspace → tenant
 ```
 
-### Cache Invalidation
+### Request Flow
+
+A request `GET /api/projects/` from Alice (member at ABC workspace) goes through:
+
+1. **Permission gate** — Alice's role `member` has `app.project.read`. Pass.
+2. **Tenant filter** (mandatory, applied first, never bypassable): `WHERE project.workspace_id = <Alice's workspace>`
+3. **Owner filter** (Alice has no bypass role, so this layer applies): `AND project.owner_id = <Alice's user id>`
+4. **Field stripping** — Alice's role has read on `title`, `workspace`, `owner` but maybe not all configured fields. Hidden ones are removed from the response.
+
+### Quick Recipes
 
 ```python
-from turbodrframework.cache import invalidate_cache
+# Multi-tenant SaaS — most common case
+{'tenant_field': 'store', 'owner_field': 'customer', 'bypass_owner_roles': ['staff']}
 
-# Invalidate specific view cache
-invalidate_cache('ArticleViewSet', 'list')
+# Personal data app (no tenant)
+{'owner_field': 'author', 'bypass_owner_roles': ['admin']}
 
-# Invalidate all caches
-invalidate_cache('ArticleViewSet')
+# Reference data (currencies, country codes — not tenant-scoped)
+{'tenancy': 'shared'}
 
-# Invalidate by key
-invalidate_cache('ArticleViewSet:list', user_id=1)
+# M2M membership (Slack channels, Linear projects)
+{'visibility': [Tenant('workspace'), Members('participants')]}
+
+# Power-form composition (when sugar doesn't fit)
+{'visibility': [Tenant('workspace'), Either(Owner('owner'), Members('shared_with'))]}
 ```
 
-## Filtering
+See `docs/tenancy.md` for the full predicate vocabulary, hard-fail-at-startup behavior, and 404-vs-403 semantics.
 
-### QuerySet Filtering
+### Optional: Postgres RLS
 
-```python
-class ArticleViewSet(ModelViewSet):
-    serializer_class = ArticleSerializer
-    queryset = Article.objects.all()
-    filterset_fields = ['category', 'status', 'author']
-    search_fields = ['title', 'content', 'tags']
-```
+For Postgres deployments, TurboDRF can generate Row Level Security policies that enforce the same rules at the database layer. See `docs/rls.md`.
 
-### Custom Filtering
+## Security
+
+### Sensitive Fields
+
+Fields like `password`, `token`, and `secret_key` are never exposed:
 
 ```python
-from turbodrframework.filters import FilterSet
-
-class ArticleFilter(FilterSet):
-    category = filters.CharFilter(field_name='category__slug')
-    published_after = filters.DateTimeFilter(field_name='created_at', lookup_expr='gte')
-    author_username = filters.CharFilter(field_name='author__username')
-
-    class Meta:
-        model = Article
-        fields = ['category', 'status', 'published_after']
-
-class ArticleViewSet(ModelViewSet):
-    serializer_class = ArticleSerializer
-    queryset = Article.objects.all()
-    filterset_class = ArticleFilter
-```
-
-## Pagination
-
-### Default Pagination
-
-```python
-# settings.py
-TURBODRF = {
-    'PAGINATION_CLASS': 'turbodrframework.pagination.PageNumberPagination',
-    'PAGE_SIZE': 20,
-}
-```
-
-### Custom Pagination
-
-```python
-class CustomPagination(pagination.PageNumberPagination):
-    page_size = 50
-    page_query_param = 'page'
-    page_size_query_param = 'page_size'
-    max_page_size = 100
-
-class ArticleViewSet(ModelViewSet):
-    serializer_class = ArticleSerializer
-    queryset = Article.objects.all()
-    pagination_class = CustomPagination
-```
-
-### Cursor Pagination
-
-```python
-class ArticleViewSet(ModelViewSet):
-    serializer_class = ArticleSerializer
-    queryset = Article.objects.all().order_by('id')
-    pagination_class = pagination.CursorPagination
-    page_size = 100
-```
-
-## OpenAPI Documentation
-
-### Auto-Generated Docs
-
-```python
-# settings.py
-TURBODRF = {
-    'OPENAPI_ENABLED': True,
-    'OPENAPI_TITLE': 'My API',
-    'OPENAPI_VERSION': '1.0.0',
-    'OPENAPI_DESCRIPTION': 'API documentation',
-}
-
-# URLs
-from turbodrframework.docs import schema_view
-
-urlpatterns = [
-    path('docs/', schema_view),
+TURBODRF_SENSITIVE_FIELDS = [
+    'password', 'password_hash', 'secret_key', 'api_key',
+    'token', 'access_token', 'refresh_token', 'session_key',
 ]
 ```
 
-### Custom Schema
+### Fail-Closed Design
+
+If a permission check fails due to an error, access is denied. TurboDRF never grants access on exception.
+
+### Error Responses
 
 ```python
-from turbodrframework.docs import AutoSchema
-
-class CustomSchema(AutoSchema):
-    def get_operation_id(self, path, method):
-        # Custom operation ID
-        return f"{method.lower()}_{path.replace('/', '_')}"
-
-class ArticleViewSet(ModelViewSet):
-    serializer_class = ArticleSerializer
-    queryset = Article.objects.all()
-    schema = CustomSchema()
-```
-
-### Request/Response Examples
-
-```python
-from turbodrframework.docs import extend_schema
-
-class ArticleViewSet(ModelViewSet):
-    serializer_class = ArticleSerializer
-    queryset = Article.objects.all()
-
-    @extend_schema(
-        request=ArticleSerializer,
-        responses={201: ArticleSerializer},
-        examples=[
-            {
-                "title": "Example Article",
-                "content": "Article content here",
-            }
-        ]
-    )
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-```
-
-## Rate Limiting
-
-### Configuration
-
-```python
-# settings.py
-TURBODRF = {
-    'RATE_LIMIT_ENABLED': True,
-    'RATE_LIMIT_CLASS': 'turbodrframework.throttling.SimpleRateThrottle',
-    'DEFAULT_RATE': '100/minute',
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'turbodrf.exceptions.turbodrf_exception_handler',
 }
-
-# View-level
-class ArticleViewSet(ModelViewSet):
-    throttle_classes = [UserRateThrottle]
-    throttle_scope = 'articles'
 ```
+
+```json
+{
+    "error": {
+        "status": 403,
+        "code": "permission_denied",
+        "message": "You do not have permission to perform this action."
+    }
+}
+```
+
+### Security Gates
+
+TurboDRF includes startup gates that detect:
+- Compiled M2M target bypass vulnerabilities
+- Compiled FK annotation bypass
+- Search field target bypass
+- Unsafe Custom predicate write validators
+- Permission string typos
+
+These gates refuse to boot if unsafe configurations are detected, preventing cross-permission read leaks.
+
+## Documentation
+
+Auto-generated Swagger UI and ReDoc:
+- Swagger UI: `/api/swagger/`
+- ReDoc: `/api/redoc/`
+
+Disable in production:
+```python
+TURBODRF_ENABLE_DOCS = False
+```
+
+## Management Commands
+
+```bash
+# Validate configuration
+python manage.py turbodrf_check
+
+# Performance benchmark
+python manage.py turbodrf_benchmark
+
+# Explain query execution
+python manage.py turbodrf_explain
+```
+
+## Settings Reference
+
+Key settings:
+
+| Setting | Description |
+|---------|-------------|
+| `TURBODRF_ROLES` | Role-based permissions dict |
+| `TURBODRF_DISABLE_PERMISSIONS` | Disable all permissions |
+| `TURBODRF_USE_DEFAULT_PERMISSIONS` | Use Django default permissions |
+| `TURBODRF_PERMISSION_MODE` | 'static' or 'database' |
+| `TURBODRF_PERMISSION_CACHE_TIMEOUT` | Permission cache TTL (seconds) |
+| `TURBODRF_TENANT_MODEL` | Default tenant model |
+| `TURBODRF_TENANT_USER_FIELD` | User's tenant field |
+| `TURBODRF_SENSITIVE_FIELDS` | Fields to hide from all users |
+| `TURBODRF_ENABLE_DOCS` | Enable Swagger/ReDoc |
+| `TURBODRF_MAX_NESTING_DEPTH` | Max nested field depth |
+| `TURBODRF_USE_FILTERS` | Enable Django filters |
+| `TURBODRF_DEFAULT_PAGE_SIZE` | Default pagination page size |
+| `TURBODRF_SENSITIVE_FIELDS` | Fields to hide from all users |
 
 ## Examples
 
 ### Complete CRUD API
 
+**models.py:**
 ```python
-# serializers.py
-from turbodrframework import ModelSerializer
-from myapp.models import Article
+from django.db import models
+from turbodrf.mixins import TurboDRFMixin
 
-class ArticleSerializer(ModelSerializer):
-    class Meta:
-        model = Article
-        fields = ['id', 'title', 'content', 'author', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']
-
-# views.py
-from turbodrframework import ModelViewSet
-from myapp.models import Article
-from myapp.serializers import ArticleSerializer
-
-class ArticleViewSet(ModelViewSet):
-    serializer_class = ArticleSerializer
-    queryset = Article.objects.all()
-    filterset_fields = ['category']
-    search_fields = ['title', 'content']
-    ordering_fields = ['created_at', 'title']
+class Author(models.Model, TurboDRFMixin):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
     
-    def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+    @classmethod
+    def turbodrf(cls):
+        return {
+            'fields': ['name', 'email']
+        }
+
+class Book(models.Model, TurboDRFMixin):
+    title = models.CharField(max_length=200)
+    author = models.ForeignKey(Author, on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
     
-    def get_queryset(self):
-        return self.queryset.filter(author=self.request.user)
+    @classmethod
+    def turbodrf(cls):
+        return {
+            'fields': {
+                'list': ['title', 'author__name'],
+                'detail': ['title', 'author__name', 'author__email', 'price']
+            }
+        }
+```
 
-# urls.py
-from turbodrframework import routers
-from myapp.views import ArticleViewSet
+**settings.py:**
+```python
+INSTALLED_APPS = [
+    'rest_framework',
+    'turbodrf',
+    'myapp',
+]
 
-router = routers.DefaultRouter()
-router.register(r'articles', ArticleViewSet)
+TURBODRF_ROLES = {
+    'admin': [
+        'myapp.book.read',
+        'myapp.book.create',
+        'myapp.book.update',
+        'myapp.book.delete',
+        'myapp.book.price.read',
+        'myapp.book.price.write',
+    ],
+    'editor': [
+        'myapp.book.read',
+        'myapp.book.update',
+        'myapp.book.price.read',
+    ],
+    'viewer': [
+        'myapp.book.read',
+    ]
+}
+```
 
-urlpatterns = router.urls
+**urls.py:**
+```python
+from django.contrib import admin
+from django.urls import path, include
+from turbodrf import urls as turbodrf_urls
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include(turbodrf_urls)),
+]
 ```
 
 ## Best Practices
 
 ### 1. Use Meta Options
 
-```python
-class UserSerializer(ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email']
-        read_only_fields = ['id']
-```
+Define fields explicitly rather than `__all__` for better control.
 
 ### 2. Validate Input
 
+Use Django's form validation or custom validators:
+
 ```python
-def validate_username(self, value):
-    if User.objects.filter(username=value).exists():
-        raise serializers.ValidationError("Username already exists")
+def validate_title(value):
+    if Book.objects.filter(title=value).exclude(pk=self.instance.pk).exists():
+        raise serializers.ValidationError("Title already exists")
     return value
 ```
 
 ### 3. Use Permissions
 
+Restrict access appropriately:
+
 ```python
-class ArticleViewSet(ModelViewSet):
-    permission_classes = [IsAuthenticatedOrReadOnly]
+TURBODRF_ROLES = {
+    'public': ['myapp.book.read'],
+    'staff': [
+        'myapp.book.read',
+        'myapp.book.create',
+        'myapp.book.update',
+        'myapp.book.delete',
+    ],
+}
 ```
+
+### 4. Filter Usage
+
+Users can only filter on fields they have read permission for.
+
+### 5. Secure Sensitive Data
+
+Always include sensitive fields in the deny-list:
+
+```python
+TURBODRF_SENSITIVE_FIELDS = [
+    'password', 'token', 'api_key', 'secret_key',
+]
+```
+
+## Troubleshooting
+
+### Import Errors
+
+If you get import errors, ensure TurboDRF is properly installed:
+
+```bash
+pip list | grep turbodrf
+```
+
+### No API Endpoints
+
+If no endpoints appear, check that:
+1. Your models inherit from `TurboDRFMixin`
+2. Models have a `turbodrf()` classmethod
+3. The model is not disabled (`'enabled': False`)
+
+### Permission Denied
+
+If you get 403 errors:
+1. Check your user's roles
+2. Verify role permissions in `TURBODRF_ROLES`
+3. Ensure the User model has a `roles` property
+
+### Compiled Path Safety Issues
+
+If startup gate fires due to M2M/FK traversals:
+- **Drop the path** from the parent's `turbodrf()` `fields` list
+- **Set `'compiled': False`** on the parent model
+- **Strip the target's row-level rules** if genuinely public
+- **`TURBODRF_ALLOW_UNSAFE_COMPILED_M2M = True`** (not recommended)
 
 ## References
 
-- **TurboDRF Documentation**: https://turbodrframework.readthedocs.io/
-- **Django REST Framework**: https://www.django-rest-framework.org/
+- **GitHub Repository**: https://github.com/alexandercollins/turbodrf
+- **PyPI Package**: https://pypi.org/project/turbodrf/
+- **Documentation**: https://github.com/alexandercollins/turbodrf/tree/main/docs
+  - [Configuration](https://github.com/alexandercollins/turbodrf/blob/main/docs/configuration.md)
+  - [Permissions](https://github.com/alexandercollins/turbodrf/blob/main/docs/permissions.md)
+  - [Tenancy & row-level access](https://github.com/alexandercollins/turbodrf/blob/main/docs/tenancy.md)
+  - [RLS (Postgres)](https://github.com/alexandercollins/turbodrf/blob/main/docs/rls.md)
+  - [Performance](https://github.com/alexandercollins/turbodrf/blob/main/docs/performance.md)
+  - [Filtering & Search](https://github.com/alexandercollins/turbodrf/blob/main/docs/filtering.md)
+  - [Integrations](https://github.com/alexandercollins/turbodrf/blob/main/docs/integrations.md)
+  - [Security](https://github.com/alexandercollins/turbodrf/blob/main/docs/security.md)
+  - [Management Commands](https://github.com/alexandercollins/turbodrf/blob/main/docs/commands.md)
+  - [Settings Reference](https://github.com/alexandercollins/turbodrf/blob/main/docs/settings_reference.md)

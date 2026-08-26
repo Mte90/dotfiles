@@ -2,7 +2,7 @@
 name: vagrant
 description: Comprehensive guide for developing with Vagrant, including Vagrantfile configuration, custom boxes, providers (VirtualBox, VMware, Hyper-V, libvirt, AWS), provisioners (Ansible, Chef, Puppet), multi-machine setups, networking, synced folders, plugins, and troubleshooting.
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - vagrant

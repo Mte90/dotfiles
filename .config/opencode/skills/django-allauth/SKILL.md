@@ -2,7 +2,7 @@
 name: django-allauth
 description: "Django authentication - local accounts, social OAuth, registration, email verification, MFA, session management"
 metadata:
-  author: "OSS AI Skills"
+  author: mte90
   version: "1.0.0"
   tags:
     - python

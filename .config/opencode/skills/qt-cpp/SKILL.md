@@ -2,7 +2,7 @@
 name: qt-cpp
 description: Comprehensive guide for developing cross-platform desktop applications with Qt in C++, including Qt5/Qt6, CMake, signals/slots, widgets, QML, threading, and deployment.
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - qt

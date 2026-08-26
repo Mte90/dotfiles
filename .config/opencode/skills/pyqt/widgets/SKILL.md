@@ -2,7 +2,7 @@
 name: pyqt-widgets
 description: "PyQt/PySide6 widgets and layouts - buttons, inputs, containers, item views, layout management"
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - python

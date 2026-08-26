@@ -2,7 +2,7 @@
 name: django-celery
 description: "Django Celery integration - distributed tasks, periodic scheduling with django-celery-beat, monitoring, best practices"
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   tags:
     - python

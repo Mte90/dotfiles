@@ -2,7 +2,7 @@
 name: pygame
 description: "Python 2D game development - sprites, surfaces, events, sound, fonts, game loops, collision detection, and input handling"
 metadata:
-  author: "OSS AI Skills"
+  author: mte90
   version: "1.0.0"
   tags:
     - python

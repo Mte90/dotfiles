@@ -2,7 +2,7 @@
 name: pytest
 description: "Python testing framework with powerful fixtures, parametrization, extensive plugin ecosystem, and support for async, Django, Flask testing"
 metadata:
-  author: "OSS AI Skills"
+  author: mte90
   version: "1.0.0"
   tags:
     - python
@@ -741,6 +741,120 @@ def test_invalid_form():
     form = PostForm(data={'title': ''})  # Missing content
     assert form.is_valid() is False
     assert 'content' in form.errors
+```
+
+### Async Django Testing (pytest-asyncio + pytest-django)
+
+When combining pytest-asyncio with pytest-django, special configuration and patterns are required to handle the async event loop and Django's sync ORM.
+
+#### Configuration
+
+Make pytest-asyncio and pytest-django coexist in `pyproject.toml`:
+
+```toml
+# pyproject.toml
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "myproject.settings.test"
+asyncio_mode = "auto"
+```
+
+The `asyncio_mode = "auto"` setting is critical — it prevents event loop conflicts and allows async tests to run without explicit `@pytest.mark.asyncio` on every test.
+
+#### Async Database Fixture
+
+Async tests that write to the DB need `transaction=True` because the transaction is not shared between the async event loop and the sync DB connection:
+
+```python
+import pytest
+from asgiref.sync import sync_to_async
+
+@pytest.fixture
+@pytest.mark.django_db(transaction=True)
+async def async_db():
+    """Async fixture that can write to the DB."""
+    yield
+
+@pytest.mark.asyncio
+@pytest.mark.django_db(transaction=True)
+async def test_async_create_user():
+    """Test async Django ORM operation."""
+    from myapp.models import User
+    
+    # Must use sync_to_async for Django ORM calls
+    user = await sync_to_async(User.objects.create)(
+        username="testuser",
+        email="test@example.com"
+    )
+    assert user.pk is not None
+```
+
+#### Async Django View Testing
+
+Testing async views with the async test client:
+
+```python
+from django.test import AsyncClient
+import pytest
+
+@pytest.mark.asyncio
+@pytest.mark.django_db
+async def test_async_api_endpoint():
+    client = AsyncClient()
+    response = await client.get("/api/data/")
+    assert response.status_code == 200
+```
+
+#### sync_to_async / async_to_async Bridge
+
+The key pattern for mixing sync Django ORM with async tests:
+
+```python
+from asgiref.sync import sync_to_async
+
+@pytest.mark.asyncio
+@pytest.mark.django_db
+async def test_async_with_orm():
+    # Sync ORM call wrapped for async context
+    count = await sync_to_async(User.objects.count)()
+    assert count == 0
+    
+    # Create must also be wrapped
+    await sync_to_async(User.objects.create)(username="async_user")
+    
+    count = await sync_to_async(User.objects.count)()
+    assert count == 1
+```
+
+#### Common Pitfalls
+
+| Issue | Cause | Solution |
+|-------|-------|----------|
+| `SynchronousOnlyOperation` | Calling Django ORM directly in async | Use `sync_to_async()` wrapper |
+| `TransactionManagementError` | Transaction not shared between event loops | Use `@pytest.mark.django_db(transaction=True)` |
+| Tests hang/freeze | Event loop conflict | Set `asyncio_mode = "auto"` in config |
+| `RuntimeError: Event loop is closed` | Fixture scope mismatch | Use function-scoped async fixtures |
+| DB state leaks between tests | Missing transaction=True | Always use `transaction=True` for async DB tests |
+
+#### Complete conftest.py Example
+
+```python
+# tests/conftest.py
+import pytest
+from asgiref.sync import sync_to_async
+
+@pytest.fixture
+def async_client():
+    from django.test import AsyncClient
+    return AsyncClient()
+
+@pytest.fixture
+async def async_user(db):
+    """Create a user for async tests."""
+    from django.contrib.auth.models import User
+    return await sync_to_async(User.objects.create_user)(
+        username="testuser",
+        password="testpass123"
+    )
 ```
 
 ### pytest-cov (Coverage)

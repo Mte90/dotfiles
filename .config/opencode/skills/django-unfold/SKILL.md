@@ -2,7 +2,7 @@
 name: django-unfold
 description: "Modern Django admin theme - Unfold - customization, settings, components, actions, filters, integrations"
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 1.0.0
   based_on: https://github.com/unfoldadmin/django-unfold
   tags:

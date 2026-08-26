@@ -2,7 +2,7 @@
 name: rust-common-pitfalls
 description: "Common Rust development pitfalls: frequent compiler errors, struct constructor patterns, test organization, and coverage enforcement for reliable codebases."
 metadata:
-  author: "Sisyphus"
+  author: mte90
   version: "1.0.0"
   tags:
     - rust
@@ -645,6 +645,465 @@ async fn bad_example() {
 ```
 
 ---
+## Part 6: Module Splitting Strategies
+
+### When to Split a Module
+
+Signs a module has outgrown its single file:
+- **>300 lines** — readability degrades, navigation becomes painful
+- **Multiple responsibilities** — scanner logic mixed with staging, error handling, and output formatting
+- **Frequent merge conflicts** — multiple developers editing the same large file
+- **Hard to test** — too many internal dependencies to isolate units
+
+### The `mod.rs` vs `mod/` Directory Pattern
+
+**Before** (single large file):
+```rust
+// scanner.rs (500 lines)
+pub fn scan_phase(phase: ScanPhase) -> Result<Vec<Finding>, ScanError> { ... }
+pub fn stage_results(findings: &[Finding]) -> StagedResults { ... }
+pub fn run_semgrep(path: &Path) -> Result<SemgrepOutput, SemgrepError> { ... }
+// ... 490 more lines
+```
+
+**After** (split into submodules):
+```rust
+// scanner/mod.rs
+pub mod phases;
+pub mod staging;
+pub mod semgrep;
+
+// Re-export public API so callers see no difference
+pub use phases::scan_phase;
+pub use staging::stage_results;
+pub use semgrep::run_semgrep;
+
+// Also re-export types used in public signatures
+pub use phases::ScanPhase;
+pub use staging::StagedResults;
+```
+
+```rust
+// scanner/phases.rs
+use crate::scanner::{ScanPhase, Finding, ScanError};
+
+pub fn scan_phase(phase: ScanPhase) -> Result<Vec<Finding>, ScanError> {
+    // Implementation
+}
+```
+
+### Visibility Strategy
+
+| Visibility | Use Case |
+|------------|----------|
+| `pub` | True public API — stable across versions |
+| `pub(crate)` | Internal cross-module access within the crate |
+| (no `pub`) | Private to the module — implementation detail |
+
+```rust
+// scanner/mod.rs
+pub mod phases;
+mod staging_internal;  // Private helper module
+
+pub use phases::scan_phase;
+
+// Internal function, not exposed
+pub(crate) fn internal_helper() -> Result<(), ScanError> {
+    // Used by multiple modules but not part of public API
+}
+```
+
+```rust
+// scanner/phases.rs
+use crate::scanner::internal_helper;  // Can access pub(crate)
+
+pub fn scan_phase(phase: ScanPhase) -> Result<Vec<Finding>, ScanError> {
+    internal_helper()?;  // Cross-module internal access
+    // ...
+}
+```
+
+### Preserving API Compatibility During Refactor
+
+When splitting a module, maintain the **public facade**:
+
+```rust
+// Before split — callers import from scanner
+use scanner::scan_phase;
+use scanner::ScanPhase;
+
+// After split — same imports still work
+use scanner::scan_phase;  // Re-exported from scanner/mod.rs
+use scanner::ScanPhase;   // Re-exported type
+```
+
+**Key steps:**
+1. Create `scanner/mod.rs` with `pub mod` declarations
+2. Move functions/types to appropriate submodules
+3. Add `pub use` re-exports in `mod.rs` for all public symbols
+4. Run tests — integration tests should pass without modification
+
+### Common Pitfalls
+
+| Pitfall | Consequence | Fix |
+|---------|-------------|-----|
+| Forgetting to re-export types in public signatures | Callers get "type not found" errors | Add `pub use submodule::TypeName` in `mod.rs` |
+| Using `mod` instead of `pub mod` | Submodule not accessible outside parent | Change to `pub mod` if submodule is part of public API |
+| Circular dependencies between submodules | Compilation error | Restructure — extract shared code to a separate module |
+| Forgetting `pub` on items in submodules | Items not visible even with `pub use` | Ensure items are `pub` in their defining module |
+| Integration test imports break | Test fails to compile | Verify `mod.rs` re-exports match the old single-file API |
+
+### Integration Test Imports
+
+After splitting, integration tests continue to work if `mod.rs` re-exports correctly:
+
+```rust
+// tests/integration_test.rs
+use my_crate::scanner::{scan_phase, ScanPhase};  // Still works!
+
+#[test]
+fn test_scan_phase() {
+    let results = scan_phase(ScanPhase::Semgrep).unwrap();
+    assert!(!results.is_empty());
+}
+```
+
+---
+
+## Part 7: Error Design with thiserror
+
+### When to Use `thiserror` vs `anyhow`
+
+| Tool | Best For | Example |
+|------|----------|---------|
+| **`thiserror`** | Library errors, enum-based errors, public APIs | `ScanError::FileNotFound`, `ConfigError::InvalidPath` |
+| **`anyhow`** | Application-level error aggregation, CLI tools | `Result<T, anyhow::Error>` in `main()` |
+
+baco uses `thiserror` 9:1 over `anyhow` (225 vs 26 mentions) — this is the standard pattern for libraries.
+
+### Designing Error Enums
+
+```rust
+use thiserror::Error;
+use std::path::PathBuf;
+
+#[derive(Debug, Error)]
+pub enum ScanError {
+    #[error("file not found: {path}")]
+    FileNotFound { path: PathBuf },
+
+    #[error("invalid configuration: {0}")]
+    InvalidConfig(String),
+
+    #[error("scan failed: {source}")]
+    ScanFailed {
+        #[from]
+        source: std::io::Error,
+    },
+
+    #[error("semgrep error: {0}")]
+    Semgrep(#[from] SemgrepError),
+
+    #[error("phase {phase} timed out after {duration}s")]
+    Timeout { phase: String, duration: u64 },
+}
+```
+
+### The `#[from]` Attribute
+
+Automatically implements `From<E>` for your error type, enabling the `?` operator:
+
+```rust
+// With #[from]
+#[derive(Debug, Error)]
+pub enum ScanError {
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+}
+
+// Now this works:
+fn read_file(path: &Path) -> Result<String, ScanError> {
+    let content = std::fs::read_to_string(path)?;  // Auto-converts io::Error
+    Ok(content)
+}
+
+// Without #[from], you'd need:
+fn read_file(path: &Path) -> Result<String, ScanError> {
+    let content = std::fs::read_to_string(path)
+        .map_err(ScanError::Io)?;  // Manual conversion
+    Ok(content)
+}
+```
+
+### Error Context Chaining
+
+Wrap errors at each layer with structured context:
+
+```rust
+fn load_config(path: &Path) -> Result<Config, ScanError> {
+    // Layer 1: IO error → FileNotFound
+    let content = std::fs::read_to_string(path)
+        .map_err(|e| ScanError::FileNotFound { path: path.to_path_buf() })?;
+    
+    // Layer 2: Parse error → InvalidConfig
+    let config: Config = serde_json::from_str(&content)
+        .map_err(|e| ScanError::InvalidConfig(format!("JSON parse: {}", e)))?;
+    
+    Ok(config)
+}
+```
+
+### Unifying Errors Across Modules
+
+When multiple modules produce different error types, create a top-level enum:
+
+```rust
+// scanner/error.rs
+use thiserror::Error;
+
+#[derive(Debug, Error)]
+pub enum ScanError {
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+
+    #[error("semgrep error: {0}")]
+    Semgrep(#[from] semgrep::SemgrepError),
+
+    #[error("config error: {0}")]
+    Config(#[from] config::ConfigError),
+
+    #[error("scan failed: {message}")]
+    ScanFailed { message: String },
+}
+
+// semgrep/error.rs
+#[derive(Debug, Error)]
+pub enum SemgrepError {
+    #[error("semgrep not found")]
+    NotInstalled,
+    #[error("semgrep exited with code {code}")]
+    ExitCode { code: i32 },
+}
+
+// config/error.rs
+#[derive(Debug, Error)]
+pub enum ConfigError {
+    #[error("missing field: {field}")]
+    MissingField { field: String },
+}
+```
+
+### Common Pitfalls
+
+| Pitfall | Consequence | Fix |
+|---------|-------------|-----|
+| Forgetting `#[from]` and writing manual `From` impls | Boilerplate, error-prone | Use `#[from]` for automatic conversion |
+| Using `String` error messages instead of structured variants | Lost context, hard to match on | Use enum variants with typed fields |
+| Not deriving `Debug` on the error enum | Compilation error (required by `Error` trait) | Add `#[derive(Debug, Error)]` |
+| Flat enum with 20+ variants | Hard to navigate, unclear domain boundaries | Nest by domain — create submodule error types |
+| Mixing `thiserror` and `anyhow` in the same module | Confusing error handling strategy | Pick one per module — `thiserror` for libraries, `anyhow` for app entry points |
+
+### Example: Complete Error Design
+
+```rust
+use thiserror::Error;
+use std::path::PathBuf;
+
+// Domain-specific error types
+#[derive(Debug, Error)]
+pub enum ConfigError {
+    #[error("config file not found: {0}")]
+    NotFound(PathBuf),
+
+    #[error("invalid config: {0}")]
+    ParseError(String),
+}
+
+#[derive(Debug, Error)]
+pub enum ScanError {
+    #[error("config error: {0}")]
+    Config(#[from] ConfigError),
+
+    #[error("IO error: {0}")]
+    Io(#[from] std::io::Error),
+
+    #[error("no findings")]
+    NoFindings,
+}
+
+// Usage with context
+fn run_scan(config_path: &Path) -> Result<(), ScanError> {
+    let config = load_config(config_path)?;  // ConfigError auto-converted
+    let results = scan(&config)?;            // Io error auto-converted
+    
+    if results.is_empty() {
+        return Err(ScanError::NoFindings);
+    }
+    
+    Ok(())
+}
+```
+
+---
+
+## Part 8: Panic Elimination Strategies
+
+### Why Panics in Hot Paths Are Dangerous
+
+- **Crash on unexpected input** — no graceful degradation
+- **No recovery** — process dies, user loses work
+- **Hard to test** — panic paths often untested
+- **Poor UX** — users see raw error messages or silent crashes
+
+### `.unwrap()` → `?` Migration
+
+```rust
+// Bad: panics on None
+fn load_config() -> Config {
+    let content = std::fs::read_to_string("config.json").unwrap();
+    serde_json::from_str(&content).unwrap()
+}
+
+// Good: propagates error
+fn load_config() -> Result<Config, ScanError> {
+    let content = std::fs::read_to_string("config.json")?
+        .map_err(|e| ScanError::FileNotFound { path: "config.json".into() })?;
+    serde_json::from_str(&content)
+        .map_err(|e| ScanError::ConfigParse(e.to_string()))?
+}
+```
+
+### `.expect()` with Context
+
+`.expect()` is acceptable **only** for true invariants that are impossible to violate:
+
+```rust
+// Acceptable — invariant: process must have current thread
+fn spawn_worker() -> JoinHandle<()> {
+    let handle = std::thread::current()
+        .expect("must have current thread to spawn worker");
+    // ...
+}
+
+// NOT acceptable — file may legitimately not exist
+fn load_data(path: &Path) -> Data {
+    let file = File::open(path).expect("file should exist"); // BAD
+}
+
+// Good — handle the error
+fn load_data(path: &Path) -> Result<Data, ScanError> {
+    let file = File::open(path)?;
+    // ...
+}
+```
+
+### Result Propagation Pattern
+
+Make functions return `Result<T, E>` instead of panicking:
+
+```rust
+// Bad
+fn parse_config(content: &str) -> Config {
+    let json: Value = serde_json::from_str(content).unwrap();
+    Config {
+        name: json["name"].as_str().unwrap().to_string(),
+        port: json["port"].as_u16().unwrap(),
+    }
+}
+
+// Good
+fn parse_config(content: &str) -> Result<Config, ConfigError> {
+    let json: Value = serde_json::from_str(content)
+        .map_err(|e| ConfigError::ParseError(e.to_string()))?;
+    
+    let name = json["name"]
+        .as_str()
+        .ok_or(ConfigError::MissingField("name".into()))?
+        .to_string();
+    
+    let port = json["port"]
+        .as_u16()
+        .ok_or(ConfigError::MissingField("port".into()))?;
+    
+    Ok(Config { name, port })
+}
+```
+
+### Common Panic Sources and Fixes
+
+| Source | Panic Risk | Fix |
+|--------|------------|-----|
+| Array indexing `arr[i]` | Out of bounds | `arr.get(i).ok_or(Error)?` or bounds check first |
+| `unwrap()` on `Option` | `None` value | `ok_or(error)?` or `ok_or_else(|| ...)?` |
+| `unwrap()` on `Result` | Error variant | `?` with error mapping via `map_err()` |
+| Integer division | Divide by zero | `checked_div()` / `saturating_div()` |
+| `Vec::remove` out of bounds | Index >= len | Bounds check: `if i < vec.len() { vec.remove(i) }` |
+| `unwrap()` on `parse()` | Invalid format | `parse().map_err(...)?` |
+| `expect()` on fallible I/O | File not found, permissions | Return `Result` instead |
+
+### Audit Techniques
+
+Find production `.unwrap()` calls:
+
+```bash
+# Find all unwraps except in test code
+grep -rn '\.unwrap()' src/ | grep -v test
+
+# Find expect calls with context
+grep -rn '\.expect(' src/ | grep -v "test\|cfg(test)"
+
+# Use cargo-udeps to find unused error handling
+cargo udeps
+```
+
+### CI Gate: Deny `unwrap()` in Non-Test Code
+
+Add to `clippy.toml`:
+
+```toml
+# clippy.toml
+allow-unwrap-in-tests = true
+
+# Or in Cargo.toml with rustfmt
+[lints.clippy]
+panic_in_result_fn = "deny"
+unwrap_used = "deny"
+```
+
+Run in CI:
+
+```bash
+cargo clippy -- -D clippy::unwrap_used -D clippy::panic_in_result_fn
+```
+
+### When Panics ARE Acceptable
+
+| Scenario | Example | Rationale |
+|----------|---------|----------|
+| True invariants | `debug_assert!`, `unreachable!()` after exhaustive match | Logic guarantees impossibility |
+| Test setup | `#[test] fn foo() { setup().unwrap(); }` | Test failure is expected on bad setup |
+| `unreachable!()` | `match value { A => ..., B => ..., _ => unreachable!() }` | Exhaustive match proves impossibility |
+| `unimplemented!()` | Stub for future work during development | Explicit marker, not production code |
+| `todo!()` | Placeholder during implementation | Development-only, should be removed |
+
+```rust
+// Acceptable — exhaustive match proves unreachable
+match status {
+    Status::Active => process_active(),
+    Status::Inactive => process_inactive(),
+    _ => unreachable!("All status variants handled"),
+}
+
+// Acceptable — test setup
+#[test]
+fn test_scan() {
+    let config = load_test_config().unwrap();  // Test fails if config invalid
+    let results = scan(&config).unwrap();
+    assert!(!results.is_empty());
+}
+```
+
+---
 
 ## Quick Reference Card
 
@@ -717,6 +1176,25 @@ let _ = validate(input);  // Silently ignores error
 // GOOD: Handle or expect
 let _ = validate(input).expect("validation should pass");
 ```
+
+## Best Practices
+
+- **Read compiler errors fully before acting**: Rust's error messages are verbose for a reason—read the entire diagnostic including suggestions.
+- **Use `cargo check` in a tight loop**: Faster than full builds; run after every small change to catch errors early.
+- **Structure tests in `tests/` for integration and `#[cfg(test)] mod tests` for unit**: Keep unit tests close to code; use `tests/` for cross-module integration tests.
+- **Enforce coverage with `cargo tarpaulin` or `cargo-llvm-cov`**: Set CI gates (e.g., 80% line coverage) to prevent regression.
+- **Prefer `Result<T, E>` over `Option<T>` when errors carry meaning**: Use `Option` for absence, `Result` for recoverable failures with context.
+
+---
+
+## References
+
+- [The Rust Programming Language (The Book)](https://doc.rust-lang.org/book/)
+- [Rust Compiler Error Index](https://doc.rust-lang.org/error-index.html)
+- [rustc Error Documentation](https://doc.rust-lang.org/rustc/errors/)
+- [Cargo Book: Testing Chapter](https://doc.rust-lang.org/cargo/reference/testing.html)
+- [cargo-llvm-cov Documentation](https://github.com/taiki-e/cargo-llvm-cov)
+- [cargo-tarpaulin Documentation](https://github.com/xd009642/tarpaulin)
 
 ---
 

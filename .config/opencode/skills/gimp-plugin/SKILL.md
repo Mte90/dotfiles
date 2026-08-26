@@ -2,7 +2,7 @@
 name: gimp-plugin
 description: "Develop GIMP 3.0+ plugins using Python 3 with GEGL operations, image manipulation, UI dialogs, and procedure registration"
 metadata:
-  author: "OSS AI Skills"
+  author: mte90
   version: "1.0.0"
   tags:
     - python

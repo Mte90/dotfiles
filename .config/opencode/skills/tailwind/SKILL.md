@@ -2,9 +2,14 @@
 name: tailwind
 description: Utility-first CSS framework v4 with CSS-first configuration, @theme directive, and the new Oxide engine.
 metadata:
-  author: OSS AI Skills
+  author: mte90
   version: 2.1.0
-  tags: [css, tailwind, v4, utility-first, oxide-engine]
+  tags:
+    - css
+    - tailwind
+    - v4
+    - utility-first
+    - oxide-engine
 ---
 
 ## Overview
@@ -784,3 +789,11 @@ Prefixes now work like variants—always at the beginning:
 - [ ] Test dark mode
 - [ ] Verify custom utilities work with `@utility`
 - [ ] Update Vue/Svelte components with `@reference` if needed
+
+## References
+
+- [Tailwind CSS v4 Official Documentation](https://tailwindcss.com/docs)
+- [Tailwind CSS v4: Everything You Need to Know](https://tailwindcss.com/blog/tailwindcss-v4)
+- [Oxide Engine Announcement](https://tailwindcss.com/blog/oxcide)
+- [Migration Guide: v3 to v4](https://tailwindcss.com/docs/upgrade-guide)
+- [Tailwind CSS on GitHub](https://github.com/tailwindlabs/tailwindcss)

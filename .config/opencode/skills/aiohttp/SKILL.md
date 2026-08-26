@@ -2,7 +2,7 @@
 name: aiohttp
 description: "Async HTTP server and client for Python with WebSocket support, middleware, streaming, and server-sent events"
 metadata:
-  author: "OSS AI Skills"
+  author: mte90
   version: "1.0.0"
   tags:
     - python
@@ -48,6 +48,13 @@ pip install aiohttp[speedups]
 # With all extras
 pip install aiohttp[cryptography, speedups]
 ```
+
+## See Also
+
+- **fastapi** — Modern Python web framework with automatic OpenAPI and Pydantic integration
+- **httpx** — Modern async HTTP client with sync/async API and HTTP/2 support
+- **pydantic** — Data validation using Python type hints with automatic JSON validation
+- **uvicorn** — ASGI server for running aiohttp and other async frameworks
 
 ## Web Server
 
@@ -281,6 +288,65 @@ async def handle_request(request):
     })
 ```
 
+### JSON Request Body Validation with Pydantic
+
+```python
+from aiohttp import web
+from pydantic import BaseModel, Field, ValidationError
+from typing import Optional
+import json
+
+# Define validation model
+class UserCreate(BaseModel):
+    username: str = Field(..., min_length=3, max_length=50, description="Username")
+    email: str = Field(..., pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$', description="Valid email")
+    age: Optional[int] = Field(None, ge=0, le=150, description="Age (0-150)")
+
+# Pydantic v2 middleware for validation
+@web.middleware
+async def json_validation_middleware(request: web.Request, handler: web.Handler):
+    """Validate JSON body against Pydantic model."""
+    
+    # Skip validation for non-POST/PUT requests
+    if request.method not in ('POST', 'PUT'):
+        return await handler(request)
+    
+    # Get content type
+    if request.content_type != 'application/json':
+        return await handler(request)
+    
+    try:
+        # Parse and validate JSON
+        body = await request.json()
+        validated_data = UserCreate(**body)
+        
+        # Replace body with validated data
+        request._body = json.dumps(validated_data.dict()).encode()
+        request._parsed_json = validated_data
+        
+    except (json.JSONDecodeError, ValidationError) as e:
+        return web.json_response(
+            {"error": "Invalid JSON", "details": str(e)},
+            status=400
+        )
+    
+    return await handler(request)
+
+# Add middleware to app
+app = web.Application(middlewares=[json_validation_middleware])
+
+# Handler receives validated data
+async def create_user(request):
+    # Access validated data
+    user = request._parsed_json
+    return web.json_response({
+        "id": 1,
+        "username": user.username,
+        "email": user.email,
+        "age": user.age
+    }, status=201)
+```
+
 ### Request Properties
 
 ```python
@@ -377,6 +443,7 @@ async def stream_response(request):
     
     for i in range(10):
         await response.write(f"Line {i}\n".encode())
+        await response.drain()
         await asyncio.sleep(0.1)
     
     await response.write_eof()
@@ -485,6 +552,67 @@ app = web.Application(
 )
 ```
 
+### Global Error Handlers
+
+```python
+from aiohttp import web
+import logging
+import traceback
+
+logger = logging.getLogger(__name__)
+
+@web.middleware
+async def error_handling_middleware(request: web.Request, handler: web.Handler) -> web.Response:
+    """Global error handler middleware."""
+    try:
+        response = await handler(request)
+        response.headers['X-Request-Id'] = request.headers.get('X-Request-Id', '')
+        return response
+    except web.HTTPException as e:
+        # Re-raise HTTP exceptions (4xx, 5xx)
+        raise e
+    except Exception as e:
+        # Log unexpected errors
+        logger.error(
+            f"Unhandled exception: {e}",
+            extra={
+                'path': request.path,
+                'method': request.method,
+                'remote': request.remote,
+            },
+            exc_info=True
+        )
+        return web.json_response(
+            {
+                "error": "Internal Server Error",
+                "message": str(e),
+                "traceback": traceback.format_exc()
+            },
+            status=500
+        )
+
+# Custom exception handler for specific errors
+async def not_found_handler(request):
+    """404 Not Found handler."""
+    return web.json_response(
+        {"error": "Not Found", "path": request.path},
+        status=404
+    )
+
+async def method_not_allowed_handler(request):
+    """405 Method Not Allowed handler."""
+    return web.json_response(
+        {"error": "Method Not Allowed", "allowed": ['GET', 'POST']},
+        status=405
+    )
+
+# Add error handlers
+app = web.Application()
+app.middlewares.append(error_handling_middleware)
+app.on_exception.append(not_found_handler)
+app.on_exception.append(method_not_allowed_handler)
+```
+
 ### Common Middleware Patterns
 
 ```python
@@ -498,7 +626,17 @@ async def log_middleware(request, handler):
     response = await handler(request)
     duration = time.time() - start
     
-    print(f"{request.method} {request.path} - {response.status} - {duration:.3f}s")
+    # Structured logging
+    logger.info(
+        "HTTP request completed",
+        extra={
+            "method": request.method,
+            "path": request.path,
+            "status": response.status,
+            "duration": duration,
+            "remote_ip": request.remote,
+        }
+    )
     return response
 
 # CORS middleware
@@ -519,6 +657,136 @@ async def rate_limit_middleware(request, handler):
     
     await increment_rate_limit(ip)
     return await handler(request)
+
+# Structured Logging Setup
+import logging
+from aiohttp import web
+
+def setup_logging(app):
+    """Configure structured logging for aiohttp."""
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    
+    # File handler
+    file_handler = logging.FileHandler('app.log')
+    file_handler.setFormatter(formatter)
+    
+    # Console handler with JSON formatting
+    console_handler = logging.StreamHandler()
+    json_formatter = logging.Formatter('%(message)s')
+    console_handler.setFormatter(json_formatter)
+    
+    logging.basicConfig(
+        level=logging.INFO,
+        handlers=[file_handler, console_handler]
+    )
+```
+
+### Authentication/Authorization Patterns
+
+```python
+from aiohttp import web
+import jwt
+import time
+from typing import Optional, Dict, Callable
+
+# JWT Token Validation Middleware
+@web.middleware
+async def jwt_auth_middleware(request: web.Request, handler: web.Handler) -> web.Response:
+    """JWT authentication middleware."""
+    
+    # Skip auth for public endpoints
+    public_paths = ['/public/*', '/health']
+    if any(request.path.startswith(p) for p in public_paths):
+        return await handler(request)
+    
+    # Get token from Authorization header
+    auth_header = request.headers.get('Authorization', '')
+    
+    if not auth_header.startswith('Bearer '):
+        return web.json_response(
+            {"error": "Missing Authorization header"},
+            status=401
+        )
+    
+    token = auth_header[7:]  # Remove 'Bearer ' prefix
+    
+    try:
+        # Decode and verify JWT token
+        payload = jwt.decode(
+            token,
+            options={"verify_exp": True},  # Verify expiration
+            algorithms=["HS256"],  # Your algorithm
+            audience="your-audience"
+        )
+        
+        # Attach user data to request for handlers
+        request['user'] = payload
+        return await handler(request)
+        
+    except jwt.ExpiredSignatureError:
+        return web.json_response(
+            {"error": "Token expired"},
+            status=401
+        )
+    except jwt.InvalidTokenError:
+        return web.json_response(
+            {"error": "Invalid token"},
+            status=403
+        )
+
+# Basic Auth Middleware
+@web.middleware
+async def basic_auth_middleware(request: web.Request, handler: web.Handler) -> web.Response:
+    """Basic authentication middleware."""
+    
+    # Skip auth for public paths
+    if request.path.startswith('/public'):
+        return await handler(request)
+    
+    # Get authorization header
+    auth = request.headers.get('Authorization')
+    if not auth:
+        return web.Response(
+            'Unauthorized',
+            headers={'WWW-Authenticate': 'Basic realm="Login"'}
+        )
+    
+    # Parse Basic auth
+    try:
+        username, password = auth.split(' ')[1].decode('base64').split(':')
+    except:
+        return web.Response(
+            'Unauthorized',
+            headers={'WWW-Authenticate': 'Basic realm="Login"'}
+        )
+    
+    # Verify credentials
+    if not verify_credentials(username, password):
+        return web.Response(
+            'Unauthorized',
+            headers={'WWW-Authenticate': 'Basic realm="Login"'}
+        )
+    
+    # Attach user to request
+    request['user'] = {'username': username}
+    return await handler(request)
+
+# Helper functions
+def verify_token(token: str) -> bool:
+    """Verify JWT token (implementation depends on your setup)."""
+    try:
+        jwt.decode(token, options={"verify_exp": True}, algorithms=["HS256"])
+        return True
+    except:
+        return False
+
+def verify_credentials(username: str, password: str) -> bool:
+    """Verify username/password (use database in production)."""
+    # Replace with actual authentication logic
+    return username == 'admin' and password == 'secret'
 ```
 
 ## Static Files
@@ -897,30 +1165,92 @@ class MyTestCase(AioHTTPTestCase):
             assert text == 'OK'
 ```
 
-### pytest-aiohttp
+### pytest-aiohttp with Async Fixtures
 
 ```bash
-pip install pytest-aiohttp
+pip install pytest pytest-aiohttp
 ```
 
 ```python
 import pytest
 from aiohttp import web
 
+# Async server fixture
 @pytest.fixture
-def app():
+async def aiohttp_server():
+    """Create and return an aiohttp test server."""
     app = web.Application()
-    app.router.add_get('/', lambda r: web.Response(text='OK'))
-    return app
+    
+    # Add test routes
+    @app.router.post('/users')
+    async def create_user(request):
+        data = await request.json()
+        return web.json_response(
+            {"id": 1, "username": data.get('username')},
+            status=201
+        )
+    
+    @app.router.get('/users/{user_id}')
+    async def get_user(request, match_info):
+        user_id = match_info['user_id']
+        return web.json_response({"id": user_id, "name": f"User {user_id}"})
+    
+    server = await aiohttp_test_client(app)
+    yield server
+    await server.close()
 
-@pytest.mark.parametrize('path,expected', [
-    ('/', 'OK'),
-])
-async def test_root(client, path, expected):
-    async with client.get(path) as response:
+# Route-specific fixture
+@pytest.fixture
+async def user_endpoint(aiohttp_client):
+    """Test client for user endpoints."""
+    app = web.Application()
+    
+    @app.router.post('/users')
+    async def create_user(request):
+        data = await request.json()
+        return web.json_response(
+            {"id": 1, "username": data.get('username')},
+            status=201
+        )
+    
+    app.router.add_get('/users/{user_id:int}', get_user_handler)
+    
+    async with aiohttp_client(app) as client:
+        yield client
+
+async def get_user_handler(request, match_info):
+    user_id = match_info['user_id']
+    return web.json_response({"id": user_id, "name": f"User {user_id}"})
+
+# Test with fixtures
+async def test_user_creation(aiohttp_server):
+    """Test user creation endpoint."""
+    response = await aiohttp_server.post('/users', json={'username': 'testuser'})
+    assert response.status == 201
+    data = await response.json()
+    assert data['id'] == 1
+    assert data['username'] == 'testuser'
+
+async def test_user_retrieval(user_endpoint):
+    """Test user retrieval by ID."""
+    async with user_endpoint.get('/users/123') as response:
         assert response.status == 200
-        text = await response.text()
-        assert text == expected
+        data = await response.json()
+        assert data['name'] == 'User 123'
+
+# Test cleanup strategies
+async def test_cleanup():
+    """Test with proper cleanup."""
+    session = None
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get('https://api.example.com') as response:
+                data = await response.json()
+                assert response.status == 200
+    finally:
+        # Cleanup will happen automatically with async with
+        if session:
+            await session.close()
 ```
 
 ## Performance
@@ -977,124 +1307,147 @@ async with aiohttp.ClientSession() as session:
         pass
 ```
 
-## Security
+## Troubleshooting
 
-### CORS
+### Connection Refused
+
+**Problem:** `aiohttp.connector.TCPConnector._resolve_host() raised for Connection refused`
+
+**Solutions:**
+1. Ensure the server is running on the expected port
+2. Check firewall settings
+3. Verify host address is correct
 
 ```python
-from aiohttp import web
+# With retry logic
+import aiohttp
+from aiohttp import ClientConnectorError
 
-@web.middleware
-async def cors_middleware(request, handler):
-    if request.method == 'OPTIONS':
-        # Preflight request
-        response = web.Response()
-    else:
-        response = await handler(request)
-    
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-    response.headers['Access-Control-Max-Age'] = '3600'
-    
-    return response
-
-app = web.Application(middlewares=[cors_middleware])
+async def fetch_with_retry(url, max_retries=3):
+    for attempt in range(max_retries):
+        try:
+            async with aiohttp.ClientSession().get(url) as response:
+                return await response.json()
+        except ClientConnectorError as e:
+            print(f"Connection attempt {attempt + 1} failed: {e}")
+            if attempt < max_retries - 1:
+                await asyncio.sleep(2 ** attempt)  # Exponential backoff
+            else:
+                raise
 ```
 
-### Rate Limiting
+### Timeout Issues
 
+**Problem:** Request hangs indefinitely
+
+**Solutions:**
 ```python
-from aiohttp import web
-import time
-from collections import defaultdict
+# Always set timeouts
+timeout = aiohttp.ClientTimeout(
+    total=30,        # Max total time
+    connect=5,       # Connection timeout
+    sock_connect=5,  # Socket connection timeout
+    sock_read=10     # Read timeout
+)
 
-class RateLimiter:
-    def __init__(self, max_requests, window):
-        self.max_requests = max_requests
-        self.window = window
-        self.requests = defaultdict(list)
-    
-    def is_allowed(self, ip):
-        now = time.time()
-        # Clean old requests
-        self.requests[ip] = [
-            t for t in self.requests[ip]
-            if now - t < self.window
-        ]
-        
-        if len(self.requests[ip]) >= self.max_requests:
-            return False
-        
-        self.requests[ip].append(now)
-        return True
-
-@web.middleware
-async def rate_limit_middleware(request, handler):
-    ip = request.remote
-    limiter = request.app['rate_limiter']
-    
-    if not limiter.is_allowed(ip):
-        return web.HTTPTooManyRequests(text="Rate limited")
-    
-    return await handler(request)
-
-app = web.Application()
-app['rate_limiter'] = RateLimiter(max_requests=100, window=60)
-app.middlewares.append(rate_limit_middleware)
-```
-
-## Common Issues
-
-### Memory Leaks
-
-```python
-# Issue: Not closing response
-async def bad_request():
-    session = aiohttp.ClientSession()
-    response = await session.get('https://example.com')
-    data = await response.json()
-    # Missing: await response.release()
-    # Or use async with!
-
-# Good: Always use context manager
-async def good_request():
-    async with aiohttp.ClientSession() as session:
-        async with session.get('https://example.com') as response:
-            data = await response.json()
+async with aiohttp.ClientSession(timeout=timeout) as session:
+    async with session.get('https://api.example.com') as response:
+        data = await response.json()
 ```
 
 ### SSL Errors
 
+**Problem:** SSL certificate verification failures
+
+**Solutions:**
 ```python
-# Issue: SSL verification failed
-# Solution 1: Update certifi
+# Solution 1: Update certificates (recommended)
 # pip install --upgrade certifi
 
-# Solution 2: Disable verification (not recommended)
-async with aiohttp.ClientSession(
-    connector=aiohttp.TCPConnector(ssl=False)
-) as session:
-    pass
-
-# Solution 3: Custom SSL context
+# Solution 2: Custom SSL context (verify only specific certs)
 import ssl
-ssl_context = ssl.create_default_context()
+ssl_context = ssl.create_default_context(
+    purpose=ssl.Purpose.SERVER_AUTH,
+    cafile='/path/to/ca-bundle.crt'
+)
 async with aiohttp.ClientSession(
     connector=aiohttp.TCPConnector(ssl=ssl_context)
 ) as session:
     pass
+
+# Solution 3: Debug SSL issues
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE  # Use only for development!
 ```
 
-### Timeouts
+### Memory Leaks with Long-Running Sessions
 
+**Problem:** Memory growth over time in long-running applications
+
+**Solutions:**
 ```python
-# Issue: Request hangs
-# Solution: Always set timeouts
-timeout = aiohttp.ClientTimeout(total=30, connect=10)
-async with aiohttp.ClientSession(timeout=timeout) as session:
-    async with session.get('https://example.com') as response:
-        pass
+# 1. Always use async with for responses
+# ❌ BAD
+async def bad_handler(request):
+    session = aiohttp.ClientSession()
+    response = await session.get('https://example.com')
+    data = await response.json()
+    return web.Response(text=str(data))
+
+# ✅ GOOD
+async def good_handler(request):
+    async with aiohttp.ClientSession() as session:
+        async with session.get('https://example.com') as response:
+            data = await response.json()
+            return web.Response(text=str(data))
+
+# 2. Clean up application resources
+async def on_cleanup(app):
+    """Clean up database connections, caches, etc."""
+    if 'db_pool' in app:
+        await app['db_pool'].close()
+    if 'cache' in app:
+        await app['cache'].close()
+
+# 3. Monitor memory usage
+import os, resource
+
+async def memory_monitor(request):
+    try:
+        usage = resource.getrusage(resource.RUSAGE_SELF)
+        mem_mb = usage.ru_maxrss / 1024  # Convert to MB (Linux)
+        return web.Response(text=f"Memory: {mem_mb:.2f} MB")
+    except:
+        return web.Response(text="Memory monitoring not available")
+
+# 4. Use garbage collection
+import gc
+
+def setup_gc(app):
+    """Run garbage collection periodically."""
+    @web.middleware
+    async def gc_middleware(request, handler):
+        response = await handler(request)
+        # Run GC for long-running requests
+        if request.path.startswith('/api/'):
+            gc.collect()
+        return response
+
+app.middlewares.append(gc_middleware)
+
+# 5. Close WebSocket connections properly
+async def websocket_handler(request):
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+    
+    try:
+        async for msg in ws:
+            await ws.send_str(f"Echo: {msg.data}")
+    finally:
+        # Ensure cleanup
+        await ws.close()
+    return ws
 ```
 
 ## Best Practices
@@ -1104,7 +1457,7 @@ async with aiohttp.ClientSession(timeout=timeout) as session:
 ```python
 # ❌ BAD: Create session per request
 async def bad_handler(request):
-    session = aiohttp.ClientSession()  # Creates new connection each time
+    session = aiohttp.ClientSession()
     async with session.get(url) as response:
         return response
 
@@ -1161,6 +1514,12 @@ async def safe_request(url):
 - Always use `async with` for responses
 - Set timeouts on all requests
 - Use `raise_for_status()` for HTTP errors
+- Implement proper error handling
+- Use structured logging
+- Validate request data with Pydantic
+- Add authentication middleware
+- Implement request logging
+- Use connection pooling
 
 ### Don't:
 
@@ -1168,8 +1527,20 @@ async def safe_request(url):
 - Forget to close sessions on shutdown
 - Use sync I/O in handlers
 - Store large data in memory (use streaming)
+- Rely on default timeouts
+- Skip authentication middleware
+- Use global variables for shared state
 
----
+## Changelog
+
+### 1.0.0 (2026-05-21)
+- Initial skill publication
+- Basic web server and client examples
+- Routing and middleware patterns
+- WebSocket and SSE support
+- Testing with pytest-aiohttp
+- Common troubleshooting guides
+- Performance and best practices
 
 ## References
 
@@ -1177,3 +1548,9 @@ async def safe_request(url):
 - **GitHub Repository**: https://github.com/aio-libs/aiohttp
 - **aio-libs Discord**: https://discord.gg/aio-libs
 - **Stack Overflow**: https://stackoverflow.com/questions/tagged/aiohttp
+- **PEP 3333**: WSGI Reference (Python Web Server Gateway Interface)
+- **PEP 552**: Minimum Version Requirement for JSON Requests
+- **RFC 7231**: HTTP/1.1 Semantics and Content
+- **RFC 7235**: HTTP Authentication: Basic and Digest Access Authentication
+- **Pydantic Documentation**: https://docs.pydantic.dev/
+- **pytest-aiohttp**: https://pytest-aiohttp.readthedocs.io/
