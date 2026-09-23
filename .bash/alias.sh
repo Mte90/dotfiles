@@ -47,16 +47,6 @@ alias nvim.tiny="nvim -u NONE"
 complete -F _complete_alias "${!BASH_ALIASES[@]}"
 eval "$(uv generate-shell-completion bash)"
 
-# https://github.com/flyingrhinonz/nccm
-function nccm(){
-  for dir in /home/mte90/Desktop/kde/nccm/nccm /home/mte90/Desktop/Prog/nccm/nccm; do
-    if [ -e "$dir/nccm" ]; then
-      exec "$dir/nccm"
-    fi
-  done
-  echo "nccm not found" >&2
-}
-
 # https://gist.github.com/kishannareshpal/342efc4a15e47ea5d338784d3e9a8d98
 function activatevenv() {
   VIRTUALENV_DIRS=("venv/" "env/" ".env/" ".venv/" "${PWD##*/}")

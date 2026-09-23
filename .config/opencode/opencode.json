@@ -711,7 +711,8 @@
     "question": "allow",
     "external_directory": {
       "/tmp/**": "allow",
-      "/home/d.scasciafratte/*": "allow"
+      "/home/d.scasciafratte/*": "allow",
+      "/media/mte90/Doh-cker/**": "allow"
     }
   },
   "tools": {
@@ -736,11 +737,16 @@
     ]
   },
   "plugin": [
-    "oh-my-opencode-slim@2.2.17",
+    "oh-my-opencode-slim@2.2.21",
     "@franlol/opencode-md-table-formatter@0.0.6",
-    "@cortexkit/aft-opencode@0.54.0",
-    "opencode-auto-resume@1.1.11",
-    "@cortexkit/opencode-magic-context@0.41.1",
+    "@cortexkit/aft-opencode@0.56.1",
+    "[@[",
+    "  \"opencode-auto-resume@1.1.15\",",
+    "  {@  {",
+    "    \"subagentNativeCompactionEnabled\": true@    \"subagentNativeCompactionEnabled\": true",
+    "  }@  }",
+    "]@]",
+    "@cortexkit/opencode-magic-context@0.42.5",
     "@tarquinen/opencode-smart-title@0.1.7"
   ],
   "autoupdate": true,

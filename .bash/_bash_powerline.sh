@@ -163,87 +163,97 @@ _trueline_aws_profile_segment() {
     fi
 }
 
-_trueline_has_git_branch() {
-    branch=$(git rev-parse --abbrev-ref HEAD 2> /dev/null)
+declare -gA _TRUELINE_GIT_REMOTE_ICON_CACHE=()
 
-    if [[ "$?" -ne "128" ]]; then
-        printf "%s" "$branch"
-    else
-        printf "%s" ""
-    fi
-}
-_trueline_git_mod_files() {
-    nr_mod_files="$(git diff --name-only --diff-filter=M 2> /dev/null | wc -l | sed 's/^ *//')"
-    mod_files=''
-    if [[ ! "$nr_mod_files" -eq 0 ]]; then
-        mod_files="${TRUELINE_SYMBOLS[git_modified]} "
-        if [[ "$TRUELINE_GIT_SHOW_STATUS_NUMBERS" = true ]]; then
-            mod_files+="$nr_mod_files "
-        fi
-    fi
-    echo "$mod_files"
-}
-_trueline_git_behind_ahead() {
-    branch="$1"
-    upstream="$(git config --get branch."$branch".merge)"
-    if [[ -n $upstream ]]; then
-        nr_behind_ahead="$(git rev-list --count --left-right '@{upstream}...HEAD' 2> /dev/null)" || nr_behind_ahead=''
-        nr_behind="${nr_behind_ahead%	*}"
-        nr_ahead="${nr_behind_ahead#*	}"
-        git_behind_ahead=''
-        if [[ ! "$nr_behind" -eq 0 ]]; then
-            git_behind_ahead+="${TRUELINE_SYMBOLS[git_behind]} "
-            if [[ "$TRUELINE_GIT_SHOW_STATUS_NUMBERS" = true ]]; then
-                git_behind_ahead+="$nr_behind "
+_trueline_git_status_v2() {
+    local out
+    out=$(git status --porcelain=v2 --branch -uno 2>/dev/null) || return 1
+    [[ -z "$out" ]] && return 1
 
-            fi
+    local branch="" behind=0 ahead=0 mod_count=0 upstream=""
+    local line xy rest
+    while IFS= read -r line; do
+        if [[ "$line" == "# branch.head "* ]]; then
+            branch=${line#"# branch.head "}
+        elif [[ "$line" == "# branch.ab "* ]]; then
+            rest=${line#"# branch.ab "}
+            ahead=${rest#+}
+            ahead=${ahead%% *}
+            behind=${rest##*-}
+        elif [[ "$line" == "# branch.upstream "* ]]; then
+            upstream=${line#"# branch.upstream "}
+        elif [[ "$line" == [1-2]" "* ]]; then
+            xy=${line:2:2}
+            [[ "${xy:1:1}" == "M" ]] && ((mod_count++))
         fi
-        if [[ ! "$nr_ahead" -eq 0 ]]; then
-            git_behind_ahead+="${TRUELINE_SYMBOLS[git_ahead]} "
-            if [[ "$TRUELINE_GIT_SHOW_STATUS_NUMBERS" = true ]]; then
-                git_behind_ahead+="$nr_ahead "
+    done <<< "$out"
 
-            fi
-        fi
-        echo "$git_behind_ahead"
-    fi
+    [[ -z "$branch" ]] && return 1
+    printf '%s\t%s\t%s\t%s\t%s' "$branch" "$behind" "$ahead" "$mod_count" "$upstream"
 }
+
 _trueline_git_remote_icon() {
-    remote=$(command git ls-remote --get-url 2> /dev/null)
-    remote_icon="${TRUELINE_SYMBOLS[git_branch]}"
-    if [[ "$remote" =~ "github" ]]; then
-        remote_icon="${TRUELINE_SYMBOLS[git_github]} "
-    elif [[ "$remote" =~ "bitbucket" ]]; then
-        remote_icon="${TRUELINE_SYMBOLS[git_bitbucket]} "
-    elif [[ "$remote" =~ "gitlab" ]]; then
-        remote_icon="${TRUELINE_SYMBOLS[git_gitlab]} "
+    local upstream="$1"
+    if [[ -z "$upstream" ]]; then
+        printf '%s' "${TRUELINE_SYMBOLS[git_branch]}"
+        return
     fi
-    if [[ -n "${remote_icon// /}" ]]; then
-        remote_icon=" $remote_icon "
+    if [[ -n "${_TRUELINE_GIT_REMOTE_ICON_CACHE[$upstream]+x}" ]]; then
+        printf '%s' "${_TRUELINE_GIT_REMOTE_ICON_CACHE[$upstream]}"
+        return
     fi
-    echo "$remote_icon"
+    local remote=${upstream%%/*}
+    local url
+    url=$(git config --get "remote.${remote}.url" 2>/dev/null)
+    local icon="${TRUELINE_SYMBOLS[git_branch]}"
+    case "$url" in
+        *github*)    icon="${TRUELINE_SYMBOLS[git_github]}";;
+        *bitbucket*) icon="${TRUELINE_SYMBOLS[git_bitbucket]}";;
+        *gitlab*)    icon="${TRUELINE_SYMBOLS[git_gitlab]}";;
+    esac
+    _TRUELINE_GIT_REMOTE_ICON_CACHE[$upstream]=$icon
+    printf '%s' "$icon"
 }
-_trueline_git_segment() {
-    local branch="$(_trueline_has_git_branch)"
-    if [[ -n $branch ]]; then
-        local fg_color="$1"
-        local bg_color="$2"
-        local font_style="$3"
-        local segment="$(_trueline_separator)"
 
-        local branch_icon="$(_trueline_git_remote_icon)"
-        segment+="$(_trueline_content "$fg_color" "$bg_color" "$font_style" "$branch_icon$branch ")"
-        local mod_files="$(_trueline_git_mod_files)"
-        if [[ -n "$mod_files" ]]; then
-            segment+="$(_trueline_content "$TRUELINE_GIT_MODIFIED_COLOR" "$bg_color" "$font_style" "$mod_files")"
+_trueline_git_segment() {
+    local status
+    status=$(_trueline_git_status_v2) || return
+
+    local branch behind ahead mod_count upstream
+    IFS=$'\t' read -r branch behind ahead mod_count upstream <<< "$status"
+
+    local fg_color="$1"
+    local bg_color="$2"
+    local font_style="$3"
+    local segment="$(_trueline_separator)"
+
+    local branch_icon="$(_trueline_git_remote_icon "$upstream")"
+    [[ -n "${branch_icon// /}" ]] && branch_icon=" $branch_icon "
+    segment+="$(_trueline_content "$fg_color" "$bg_color" "$font_style" "$branch_icon$branch ")"
+
+    if (( mod_count > 0 )); then
+        local mod_files="${TRUELINE_SYMBOLS[git_modified]} "
+        if [[ "$TRUELINE_GIT_SHOW_STATUS_NUMBERS" = true ]]; then
+            mod_files+="$mod_count "
         fi
-        local behind_ahead="$(_trueline_git_behind_ahead "$branch")"
-        if [[ -n "$behind_ahead" ]]; then
-            segment+="$(_trueline_content "$TRUELINE_GIT_BEHIND_AHEAD_COLOR" "$bg_color" "$font_style" "$behind_ahead")"
-        fi
-        PS1+="$segment"
-        _trueline_record_colors "$fg_color" "$bg_color" "$font_style"
+        segment+="$(_trueline_content "$TRUELINE_GIT_MODIFIED_COLOR" "$bg_color" "$font_style" "$mod_files")"
     fi
+
+    local behind_ahead=""
+    if (( behind > 0 )); then
+        behind_ahead="${TRUELINE_SYMBOLS[git_behind]} "
+        [[ "$TRUELINE_GIT_SHOW_STATUS_NUMBERS" = true ]] && behind_ahead+="$behind "
+    fi
+    if (( ahead > 0 )); then
+        behind_ahead+="${TRUELINE_SYMBOLS[git_ahead]} "
+        [[ "$TRUELINE_GIT_SHOW_STATUS_NUMBERS" = true ]] && behind_ahead+="$ahead "
+    fi
+    if [[ -n "$behind_ahead" ]]; then
+        segment+="$(_trueline_content "$TRUELINE_GIT_BEHIND_AHEAD_COLOR" "$bg_color" "$font_style" "$behind_ahead")"
+    fi
+
+    PS1+="$segment"
+    _trueline_record_colors "$fg_color" "$bg_color" "$font_style"
 }
 
 _trueline_working_dir_segment() {
