@@ -216,6 +216,12 @@ Tests against mocks, stubs, or toy proxies are weaker evidence than tests agains
 
 A passing test against a mock of X proves your code talks to your model of X — not that it talks to X.
 
+### 10.3 Damaged Prompts
+
+If a prompt looks damaged or wrong, STOP and say so. Do not execute a best-guess reconstruction. Damaged means: truncated mid-sentence, duplicated blocks, garbled copy/paste, references to context that does not exist, or instructions that contradict prior decisions without acknowledging it.
+
+A mangled prompt executed faithfully is worse than a delay.
+
 ## 15. Auto-Dispatch Protocol
 
 When the user describes a task, immediately dispatch the applicable subagents in PARALLEL before planning. Reconcile their results, then plan.
@@ -408,7 +414,7 @@ Before building anything, establish what already exists and how the problem is c
 These are non-negotiable. They apply to any code the agent writes or modifies — a one-line fix, a refactor, a plan task, a subagent delegation, anything.
 
 - **Zero compilation errors.** Every file you touch must compile/parse without errors after your change. If you can't verify compilation, you don't know if your change works. If the same error persists after 3 fix attempts → STOP, revert, ask user.
-- **Zero warnings.** Warnings indicate a mismatch between intent and reality. Fix them immediately or stop and design a clean fix before continuing. Don't suppress, don't ignore, don't defer.
+- **Zero warnings.** Warnings indicate a mismatch between intent and reality. Fix them immediately or stop and design a clean fix before continuing. Don't suppress, don't ignore, don't defer. Lint suppressions require a stated justification.
 - **No stubs.** Never leave placeholder code, `// implementation here`, `TODO`, `FIXME`, incomplete functions, or `NotImplementedError`/`NotImplemented` exceptions. If you don't know how to implement something, ask the user instead of stubbing.
 - **No useless comments.** Every comment must explain a non-obvious WHY. Restating WHAT the code does is a violation. Self-explanatory code > comment. If in doubt, omit.
 - **No unused imports/variables introduced by your changes.** Clean up what your edit made dead. Don't touch pre-existing dead code unless asked.
@@ -446,6 +452,9 @@ Anti-pattern in any language: a record with `completed: bool` and `completed_at:
 - Valid time range = start + duration, not two timestamps you must keep ordered.
 - Two values that must stay in sync → derive one from the other, don't store both.
 - Semantic primitives that share a type but mean different things (UserId vs OrderId as bare strings) → wrap at construction, validate once, trust downstream.
+- Quantities with units (`seconds`, `ticks`, `pixels`, `cents`) get nominal/branded types — a unit mixup must fail to typecheck. Names alone are not enough for domain quantities.
+- An operation that can legitimately refuse returns a result type the caller must explicitly handle — never a boolean the caller can ignore. Bugs still crash.
+- Detect "did X happen" by reading a direct fact (monotonic counter, identity) — never a proxy (stack depth, array length, timestamp) that can alias under saturation or reuse.
 
 If you can write a comment explaining when a field combination is valid, the type is too loose — split it.
 
@@ -456,6 +465,7 @@ Validate once at the system boundary (parse time, entry point — CLI, config, n
 - No redundant nil-check deep in a call chain if the boundary already validated.
 - Keep business logic in framework-free pure functions; the shell is thin and mechanical.
 - Expose domain concepts through the boundary, not the boundary's private representation.
+- Cross-cutting policies (write gating, locking, validation, sanitization) are enforced at ONE structural chokepoint that all call sites flow through — never by remembering a guard at each site. Bypassing the chokepoint is a build failure.
 
 Two tests: "Is this data crossing a system boundary right now?" and "Could this be a pure function the shell calls?"
 
@@ -501,6 +511,7 @@ Consolidate decisions. When two values must stay in sync, derive one from the ot
 - One place defines the canonical form; everywhere else reads it.
 - Duplicated constants drift. Duplicated logic diverges. Duplicated types rot.
 - Config in code, env, file, and docs = four sources of truth = three drift surfaces. Pick one, generate the rest.
+- One canonical name per domain concept, everywhere — never introduce a synonym for an existing concept.
 
 Related to §30.4 (invalid states) but broader: applies to config, constants, business logic — not just types.
 
@@ -516,6 +527,40 @@ A deprecated API left in tree accumulates new callers. "Temporary" deprecations 
 
 If you can't delete because of external consumers, version the boundary explicitly and document the sunset.
 
+### 30.11 No Pattern-Driven Writing
+
+Mass edits are never done by regex alone. Pattern *searching* to find candidate sites is fine — the ban is on pattern-driven *writing*. Edit site by site: read each one, know what it means, change it deliberately. Identical text can mean different things in different domains; only reading the call site tells them apart.
+
+Codemods (§15) are the sanctioned exception for proven-mechanical repetition: first unit by hand, and the tool must reproduce the hand result exactly.
+
+### 30.12 Consistency Beats Local Taste
+
+Before writing in an area, read the neighboring code and match its patterns. If a pattern deserves changing, change it everywhere in a dedicated refactor commit — never fork a second style alongside the first.
+
+## 32. No Silent Failures
+
+Crashes make bugs obvious. Silent fallbacks make bugs hard to find. Fail loudly — never hide bugs behind default values or fallback behavior.
+
+- Programmer error → crash (throw/assert). 🚫 `port = config.port ?? 8080` — a silent default hides missing config; assert it exists.
+- Do not type values as optional/nullable when they are always expected to be present. Direct access; a violation is a bug to fix, not a case to handle.
+- No defensive code for impossible cases. If a branch is unreachable, fail with an error saying so. Use exhaustiveness checks over closed sets so adding a variant breaks the build, not the runtime.
+- 🚫 Empty catch blocks. Do not catch errors that indicate bugs — let them crash.
+- Every raised error names what went wrong plus the offending values: `Unknown effect type "reverb2" in project "demo"`, not `invalid input`.
+- Environmental failures (disk full, permission denied) are hard errors naming the operation and the OS error. Never continue in silently degraded mode. Report the error observed; do not speculate about causes not measured.
+- Shell scripts use `set -euo pipefail`.
+- Gate-then-commit chains abort on failure: `check && commit`, 🚫 `check; commit` — a red gate must make the commit unreachable, not optional.
+
+## 33. Security (High-Assurance Code)
+
+Extra scrutiny for crypto, authentication, parsing untrusted input, process/FFI boundaries, process spawning, filesystem access, concurrency.
+
+- Secure-by-default designs over manual discipline at every call site: templating that escapes by default, parameterized queries, schema validation on arrival at every trust boundary.
+- Never build shell strings, HTML, or queries from data. Spawn processes with argument arrays; render text as text.
+- Data formats never gain an eval path, dynamic import, or plugin hook for user-supplied code. That boundary is what makes untrusted content safe.
+- Crypto: established, audited libraries only — never implement primitives or protocols. Assume side channels: constant-time comparison for anything secret-dependent; key material never appears in errors, logs, or debug output.
+- Adding a dependency means trusting its authors with arbitrary code execution. Only well-known, actively-maintained packages; anything less → ask the user first.
+- After each commit, review your own diff for injection, path traversal, XSS, unvalidated boundary input, auth gaps, hardcoded secrets. Report findings before continuing.
+
 ## 35. Goal-Driven Execution: Loop Until Done (No Early Stop)
 
 **Do not stop until all work is complete.** The unlock: give verifiable criteria and iterate until criteria are satisfied.
@@ -529,6 +574,8 @@ If you can't delete because of external consumers, version the boundary explicit
 - **Restart-bug heuristic.** "Code doesn't change between runs. State does." When something fails after a restart, suspect stale persistent state first (config, caches, lock files, serialized state). If clearing a state file restores behavior, the fix is state validation, not a code patch.
 - **Sequence verifiable units.** Verify each small change before proceeding. Treat each edit+test as one bounded unit: make the edit, run the check, observe the result, decide. Don't stack five edits then run tests once — you won't know which edit broke what.
 - Write failing test first → code change only after test fails → fix until it passes
+- **Tests ship in the same commit** as the code they cover. A feature without tests is incomplete work, not a follow-up task.
+- **Refactors go spec-first.** Implement the change against the spec or reference behavior, then run tests as independent checks on finished work. Never let a refactor emerge from fixing failing tests one by one — with "make this test green" as the goal, every edit bends toward current behavior and the suite ends up green while certifying bugs.
 
 📌 **Project-native runner only:** Keep using existing command (jest, pytest, unittest, etc.). Do not define new runner unless user explicitly requests it.
 
@@ -548,6 +595,9 @@ Commit messages: terse and factual — summarize change + efficacy.
 
 - **No plan references**: commit messages and code must NOT reference internal work plans, task numbers, phases, or plan details (e.g., "T1", "phase 2", "per the plan"). These are internal scaffolding, not part of the codebase history.
 - **No plan artifacts in code**: comments, variable names, and docstrings must not expose plan structure — no `// Task 3: ...`, no phase markers, no TODO references to plan items.
+- **Decisions live in the repo, not chat.** When a ruling or plan change arrives mid-session, write it into the durable work file (AGENTS.md, spec, progress notes) and commit before executing it. If the session ended right after the message was read, the repo alone must be enough to act on.
+- Atomic commits per logical unit of work — never batch unrelated changes. Message starts with a verb: Add, Fix, Update, Remove, Refactor.
+- 🚫 Never `git add -A` / `git add .`. Read `git status` first, stage explicit paths. The user's working files must never enter commits, gitignored or not.
 
 ## 55. Session Runners and Diagnostics
 
@@ -600,6 +650,15 @@ One-liner commands to gate edits before marking tasks complete; run **after ever
 - Run **in project root** via terminal.
 - **Show outputs** — never assert "works," always quote the command's output.
 
+### 55.4 Test Quality
+
+- Assert exact expected values and exact error messages — not loose predicates like "contains 'error'". Vague assertions give false confidence.
+- Cover every legitimate use case explicitly — happy paths, plural — plus boundaries and failure modes. One happy-path test plus ten edge cases is under-tested where it matters most.
+- Every claimed invariant ("never"/"always" in a comment, commit, or issue) exists as a property test spanning the full input regime, including regime boundaries. Examples prove existence; properties prove claims.
+- A comparison test proves nothing unless its output is SENSITIVE to the behavior under test. Saturated values and all-zero outputs pass for broken code — verify empirically that a plausible bug moves the result.
+- Test runs are bounded and exit: no orphaned watch modes, dev servers, or background processes.
+- Verify UI or visual work by looking at rendered output (screenshots), not by assuming.
+
 ## 70. File & Output Rules
 
 ### 71. /tmp & temporary files
@@ -611,6 +670,7 @@ All temporary files → only `/tmp/`
 - any file created for internal debugging
 
 ❌ Never touch project root or src/
+- No scratch SUMMARY/NOTES/PLAN files — durable docs live in the designated docs location, working state in the designated progress file.
 
 ### 72. README generation rules
 

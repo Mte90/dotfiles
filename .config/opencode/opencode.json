@@ -737,16 +737,16 @@
     ]
   },
   "plugin": [
-    "oh-my-opencode-slim@2.2.21",
+    "oh-my-opencode-slim@2.2.24",
     "@franlol/opencode-md-table-formatter@0.0.6",
-    "@cortexkit/aft-opencode@0.56.1",
-    "[@[",
-    "  \"opencode-auto-resume@1.1.15\",",
-    "  {@  {",
-    "    \"subagentNativeCompactionEnabled\": true@    \"subagentNativeCompactionEnabled\": true",
-    "  }@  }",
-    "]@]",
-    "@cortexkit/opencode-magic-context@0.42.5",
+    "@cortexkit/aft-opencode@0.57.2",
+    [
+      "opencode-auto-resume@1.1.15",
+      {
+        "subagentNativeCompactionEnabled": true
+      }
+    ],
+    "@cortexkit/opencode-magic-context@0.42.6",
     "@tarquinen/opencode-smart-title@0.1.7"
   ],
   "autoupdate": true,
