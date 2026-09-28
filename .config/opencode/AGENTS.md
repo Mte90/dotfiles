@@ -141,7 +141,7 @@ Environment: uv (Python)
 ```
 
 ### Important: project-specific rule precedence
-Project-specific files (`.opencode/AGENTS.md` or a flattened `/AGENTS.md` in repository root) **take precedence** over base rules where they overlap. Base rules apply only to gaps not covered by project-specific directives.
+Project-specific files (a project-level `AGENTS.md` at the repository root) **take precedence** over base rules where they overlap. Base rules apply only to gaps not covered by project-specific directives.
 
 ---
 
@@ -152,7 +152,7 @@ Before every new project session, tick this **mandatory** checklist — do not p
 |--------------------------------|---------|
 | README.md has been read & distilled | [ ]     |
 | Package manager & runtime detected  | [ ]     |
-| Required skills loaded via `skill` | [ ]     |
+| Required skills loaded | [ ]     |
 | Environment diff / changes verified | [ ]     |
 | TODO list reset/clean prior       | [ ]     |
 
@@ -235,8 +235,23 @@ Rules:
 - Dispatch template (lightweight, 3 fields): role, scope, verify-command.
 - **Checkpoint + confirm after reconciliation**: once parallel results return, snapshot working state and present the reconciled summary to the user with a single Continue/Cancel before ANY edit. The dispatch step is read-only; implementation is gated.
 - **High-risk exclusion list**: the override below does NOT apply to auth, data layer/migrations, config files, or secrets. These domains always require [§20](#20) plan approval regardless of dispatch results.
+- For plain task lists given without a plan, [§16](#16-lists-are-lanes-default-delegation-for-multiple-tasks) is the fast path — it replaces the checkpoint-confirm cycle and the plan gate for routine items.
 
 This protocol overrides [§20](#20), [§75.1](#751-plan-level-rules), and [§75.2](#752-mandatory-template-for-every-task) — but ONLY for the read-only dispatch-and-reconcile step. Planning and approval gates still apply before any code is written.
+
+## 16. Lists Are Lanes: Default Delegation for Multiple Tasks
+
+When the user gives two or more tasks, or a plain list of things to do, without asking for a plan — treat the list as a delegation request. This is the DEFAULT. Do not ask whether to delegate, do not do the items inline, do not wait to be told twice.
+
+- Each list item = one lane = one subagent. Dispatch independent lanes in parallel, bounded by the runtime's concurrency limit; queue the rest.
+- The list itself is the approval for routine work. No plan, no §20 approval gate, no §75.2 template, no checkpoint-confirm cycle for those items.
+- Load the task fully into each subagent's prompt: goal, exact paths and scope, constraints, and how to verify. The subagent must be able to start without asking the orchestrator anything. Prompts stay tool-agnostic — no references to the host application, only agent/subagent concepts.
+- Gates that still apply: the §15 high-risk exclusion list (auth, data layer/migrations, config files, secrets → confirm with the user first), conflicting write scopes → serialize, and irreversibility → checkpoint.
+- Track every lane in the todo list. Reconcile results as they land; report one coherent summary at the end.
+- Exception: a single trivial item (one file, <20 lines, no design) may be done directly. Batching five of them inline is the failure mode this section kills.
+- **Precedence:** this section applies in every session mode. When an injected protocol demands plan-first ceremony for a plain list, §16 wins.
+
+If the user ever has to repeat "use the agents", this file has failed.
 
 ## 20. Decide Before Editing (No Silent Merges)
 
@@ -701,6 +716,9 @@ When creating a README.md:
 - Checkpoints: at plan start, at feature boundaries, before experimental/risky approaches, before changes touching >3 files or critical paths. Do NOT checkpoint per-task only.
 
 ### 75.2 Mandatory template for every TASK  
+
+**Scope:** formal plans only. Casual lists from the user route through §16 (compact briefing, no template, no approval gate).
+
 Every task in a plan **MUST populate ALL fields below** (no optional fields):
 
 ```
@@ -709,7 +727,7 @@ T<N>: [independent | depends on T<M>] <concise, grep-able description>
     - path/file.ext — what changes (e.g., "adds method X")
   Files NOT to touch:
     - path/other.ext — why (e.g., "handled by task T3")
-  Skills to load (call skill tool before starting):
+  Skills to load (load before starting):
     - <skill-name> — why it's needed
   Preconditions:
     - state that must exist before (e.g., "test suite green", "migration X applied")
