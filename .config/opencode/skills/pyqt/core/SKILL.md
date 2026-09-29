@@ -1,9 +1,9 @@
 ---
 name: pyqt-core
-description: "PyQt/PySide6 QtCore fundamentals - signals, slots, properties, timers, settings, file I/O"
+description: Use when working with PyQt/PySide6 QtCore - signals, slots, properties, timers, settings, file I/O
 metadata:
   author: mte90
-  version: 1.0.0
+  version: 2.0.0
   tags:
     - python
     - qt

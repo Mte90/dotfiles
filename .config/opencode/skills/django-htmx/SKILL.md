@@ -1,9 +1,9 @@
 ---
 name: django-htmx
-description: "Build modern dynamic web applications with Django and htmx - partial rendering, HTMX-specific responses, and seamless frontend integration"
+description: Use when building dynamic Django web apps with htmx - partial rendering, HTMX responses, querystring tag, CSP
 metadata:
   author: mte90
-  version: 1.0.0
+  version: 1.0.1
   tags:
     - django
     - htmx

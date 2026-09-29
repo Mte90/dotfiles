@@ -1,9 +1,9 @@
 ---
 name: pydantic
-description: "Data validation using Python type hints with Pydantic models, settings, serialization, and performance optimization"
+description: Use when validating and serializing Python data with Pydantic v2 - models, field and model validators, constrained and special types, TypeAdapter, discriminated unions, BaseSettings, or FastAPI integration
 metadata:
   author: mte90
-  version: "1.0.0"
+  version: 2.0.0
   tags:
     - python
     - validation
@@ -84,86 +84,36 @@ user = User.model_validate_json(json_data)
 
 ```python
 from pydantic import BaseModel
-from typing import Optional, List, Dict, Set, Tuple, Union, Any
+from typing import Optional, List, Dict, Literal
 
 class AllTypesExample(BaseModel):
-    # Primitives
     string: str
     integer: int
-    floating: float
-    boolean: bool
-    bytes: bytes
-    
-    # Optional
     optional_string: Optional[str] = None
-    optional_with_default: Optional[int] = 42
-    
-    # Collections
     list_of_strings: List[str] = []
-    list_of_ints: List[int]
     dict_data: Dict[str, int] = {}
-    set_of_ints: Set[int] = set()
-    tuple_data: Tuple[int, str, float] = (1, "a", 1.5)
-    
-    # Union
-    union_field: Union[int, str] = 1
-    
-    # Any
-    any_field: Any = "anything"
-    
-    # Literal
-    from typing import Literal
-    status: Literal["pending", "active", "completed"] = "pending"
+    status: Literal["pending", "active"] = "pending"
 ```
 
 ### Nested Models
 
 ```python
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import Optional
 
-class ChildModel(BaseModel):
-    """Nested child model with alias for input."""
-    child_id: int
-    child_name: str
-
-class ParentModel(BaseModel):
-    """Parent containing child model with Field alias."""
-    parent_id: int
-    parent_name: str
-    child_data: ChildModel = Field(alias='child_data')  # Field alias for input
-    
-    def __init__(self, parent_id: int, parent_name: str, child_info: ChildModel = None, **data):
-        super().__init__(
-            parent_id=parent_id,
-            parent_name=parent_name,
-            child_data=child_info if child_info else data.get('child_data')
-        )
+class Address(BaseModel):
+    street: str
+    city: str
 
 class Person(BaseModel):
     name: str
     email: str
     address: Optional[Address] = None
-    company: Optional[Company] = None
 
-# Create nested data
 person = Person(
     name="John",
     email="john@example.com",
-    address=Address(
-        street="123 Main St",
-        city="New York",
-        country="USA"
-    ),
-    company=Company(
-        name="Tech Corp",
-        address=Address(
-            street="456 Business Ave",
-            city="San Francisco",
-            country="USA"
-        ),
-        employees=["Alice", "Bob"]
-    )
+    address=Address(street="123 Main St", city="New York")
 )
 ```
 
@@ -183,8 +133,8 @@ class ConstrainedUser(BaseModel):
     email: str = Field(format="email")
     
     # Number constraints
-    age: int = Field(ge=0, le=150)  # greater or equal, less or equal
-    price: float = Field(gt=0)      # greater than
+    age: int = Field(ge=0, le=150)
+    price: float = Field(gt=0)
     quantity: int = Field(ge=0, default=0)
     
     # Collection constraints
@@ -250,14 +200,14 @@ class MultiValidatedField(BaseModel):
     @field_validator('value')
     @classmethod
     def strip_value(cls, v: str) -> str:
-        return v.strip()  # First: strip whitespace
+        return v.strip()
     
     @field_validator('value')
     @classmethod
     def validate_not_empty(cls, v: str) -> str:
         if not v:
             raise ValueError('Value cannot be empty')
-        return v  # Then: check not empty
+        return v
 ```
 
 ### Model Validators
@@ -287,7 +237,7 @@ class UserRegistration(BaseModel):
             raise ValueError('Username cannot be part of the password')
         return self
 
-# Root validator (alias for model_validator in v1)
+# Date validation
 class AdvancedValidation(BaseModel):
     start_date: str
     end_date: str
@@ -338,97 +288,45 @@ print(json_str)
 # {"id":1,"name":"John",...}
 
 # Include/Exclude fields
-data = user.model_dump(include={'id', 'name'})  # Only id and name
-data = user.model_dump(exclude={'metadata'})     # Everything except metadata
+data = user.model_dump(include={'id', 'name'})
+data = user.model_dump(exclude={'metadata'})
 
-# Serialization Tips for clean API responses
 # Exclude None values
 data = user.model_dump(exclude_none=True)
-
-# Exclude nested None values recursively
-from pydantic import TypeAdapter
-ta = TypeAdapter(List[Optional[str]])
-clean_data = ta.dump_json(["a", None, "b"])  # Clean API responses
 ```
 
-### Advanced Serialization
+### Custom Serialization
 
 ```python
-from pydantic import BaseModel, Field, SerializerFunctionWrap
-from typing import List, Optional
+from pydantic import BaseModel, field_serializer
 from datetime import datetime
 
 class User(BaseModel):
     id: int
-    name: str
     created_at: datetime
     
-    # Custom serialization
-    @property
-    def display_name(self) -> str:
-        return f"#{self.id} - {self.name}"
-    
-    # Custom field serializer
     @field_serializer('created_at')
     def serialize_datetime(self, dt: datetime) -> str:
         return dt.isoformat()
 
-user = User(id=1, name="John", created_at=datetime.now())
-
-# Serialization options
-data = user.model_dump(
-    mode='json',           # Convert to JSON-serializable types
-    include={'id', 'name'},
-    exclude={'created_at'},
-    by_alias=True,         # Use field aliases
-    exclude_none=True,    # Exclude None values
-    exclude_unset=True,   # Exclude unset fields
-    exclude_defaults=True # Exclude default values
-)
-
-# model_rebuild for dynamic schema generation
-def dynamic_schema_gen():
-    # Generate schema at runtime
-    schema = {
-        "type": "object",
-        "properties": {"id": {"type": "integer"}, "name": {"type": "string"}}
-    }
-    User.model_rebuild()  # Rebuild model with new schema
-    return User
+user = User(id=1, created_at=datetime.now())
+data = user.model_dump(mode='json', exclude_none=True)
 ```
 
 ### Model Validate
 
 ```python
 from pydantic import BaseModel
-from typing import Optional
 
 class User(BaseModel):
     id: int
     name: str
-    email: str
 
 # From dictionary
-data = {"id": 1, "name": "John", "email": "john@example.com"}
-user = User.model_validate(data)
+user = User.model_validate({"id": 1, "name": "John"})
 
-# From JSON string
-json_str = '{"id": 2, "name": "Jane", "email": "jane@example.com"}'
-user = User.model_validate_json(json_str)
-
-# From object
-class SomeClass:
-    def __init__(self):
-        self.id = 3
-        self.name = "Bob"
-        self.email = "bob@example.com"
-
-obj = SomeClass()
-user = User.model_validate(obj)
-
-# Partial update
-data = {"name": "Updated Name"}
-user = User.model_validate(data, update={"id": 1, "email": "old@example.com"})
+# From JSON
+user = User.model_validate_json('{"id": 2, "name": "Jane"}')
 ```
 
 ### JSON Schema
@@ -439,943 +337,18 @@ from pydantic import BaseModel
 class User(BaseModel):
     id: int
     name: str
-    email: str
 
-# Generate JSON Schema
 schema = User.model_json_schema()
-print(schema)
-
-# With configuration
-class ConfiguredUser(BaseModel):
-    model_config = {'title': 'User Model', 'description': 'A user model'}
-    
-    id: int
-    name: str
-
-schema = ConfiguredUser.model_json_schema()
 ```
 
-## Alias and Naming
+## Deep Dives
 
-### Field Aliases
+The following reference files provide detailed coverage of advanced topics. Load them on demand:
 
-```python
-from pydantic import BaseModel, Field, AliasChoices
-
-class UserWithAlias(BaseModel):
-    # Use alias for input, different name for code
-    user_id: int = Field(alias='userId')
-    first_name: str = Field(alias='firstName')
-    last_name: str = Field(alias='lastName')
-    email_address: str = Field(validation_alias='email')  # AliasChoices for multiple
-
-# Populate using alias
-data = {"userId": 1, "firstName": "John", "lastName": "Doe", "email": "john@example.com"}
-user = UserWithAlias.model_validate(data)
-
-# Access by Python name
-print(user.user_id)
-print(user.first_name)
-
-# Serialize with alias
-json_data = user.model_dump(by_alias=True)
-# {'userId': 1, 'firstName': 'John', 'lastName': 'Doe', 'email': 'john@example.com'}
-```
-
-### Alias Generator
-
-```python
-from pydantic import BaseModel, ConfigDict
-from pydantic.alias_generators import to_camel, to_snake, to_pascal
-
-class CamelCaseUser(BaseModel):
-    """User with camelCase serialization."""
-    model_config = ConfigDict(alias_generator=to_camel)
-    
-    user_id: int
-    first_name: str
-    last_name: str
-    email_address: str
-
-user = CamelCaseUser(
-    user_id=1,
-    first_name="John",
-    last_name="Doe",
-    email_address="john@example.com"
-)
-
-# Serialized as camelCase
-print(user.model_dump(by_alias=True))
-# {'userId': 1, 'firstName': 'John', 'lastName': 'Doe', 'emailAddress': 'john@example.com'}
-```
-
-## Default Values
-
-### Field Defaults
-
-```python
-from pydantic import BaseModel, Field
-from typing import Optional, List
-
-class DefaultsExample(BaseModel):
-    # Simple default
-    name: str = "Unknown"
-    
-    # Default with type
-    age: int = 25
-    
-    # Optional with default None
-    nickname: Optional[str] = None
-    
-    # Required (no default)
-    email: str
-    
-    # Field with default
-    tags: List[str] = Field(default_factory=list)
-    
-    # Field with factory
-    items: List[int] = Field(default_factory=lambda: [1, 2, 3])
-    
-    # Default factory for mutable objects (important!)
-    metadata: dict = Field(default_factory=dict)
-    scores: List[int] = Field(default_factory=list)
-
-# Using default_factory for complex defaults
-import uuid
-class WithFactory(BaseModel):
-    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
-    created_at: str = Field(default_factory=lambda: "generated_value")
-```
-
-### Default Values with Validators
-
-```python
-from pydantic import BaseModel, field_validator, Field
-from typing import Optional
-
-class UserWithDefaultValidator(BaseModel):
-    username: str
-    # Validator runs even with default
-    display_name: str = Field(default="")
-    
-    @field_validator('display_name', mode='before')
-    @classmethod
-    def use_username_as_display_name(cls, v, info):
-        # If display_name not provided, use username
-        if v == "":
-            # info.data contains other field values
-            return info.data.get('username', 'Unknown')
-        return v
-
-# Without display_name - uses username
-user = UserWithDefaultValidator(username="john")
-print(user.display_name)  # "john"
-
-# With display_name - uses provided value
-user = UserWithDefaultValidator(username="john", display_name="John Doe")
-print(user.display_name)  # "John Doe"
-```
-
-## Constrained Types
-
-### String Constraints
-
-```python
-from pydantic import BaseModel, Field, constr
-
-# Using Field
-class FieldConstraints(BaseModel):
-    username: str = Field(min_length=3, max_length=20)
-    password: str = Field(min_length=8)
-    slug: str = Field(pattern=r'^[a-z0-9-]+$')
-
-# Using constrained types
-class ConstrainedTypes(BaseModel):
-    # constr creates a constrained string type
-    username: constr(min_length=3, max_length=20)
-    password: constr(min_length=8)
-    slug: constr(pattern=r'^[a-z0-9-]+$')
-    email: constr(pattern=r'^[\w\.-]+@[\w\.-]+\.\w+$')
-
-user = ConstrainedTypes(
-    username="john_doe",
-    password="secret123",
-    slug="my-blog-post",
-    email="john@example.com"
-)
-```
-
-### Numeric Constraints
-
-```python
-from pydantic import BaseModel, Field, conint, confloat, conlist
-
-class NumericConstraints(BaseModel):
-    # Integer constraints
-    quantity: conint(ge=0, le=1000)
-    age: conint(ge=0, le=150)
-    
-    # Float constraints
-    price: confloat(gt=0)
-    rating: confloat(ge=0.0, le=5.0)
-    
-    # List constraints
-    scores: conlist(int, min_length=1, max_length=10)
-    codes: conlist(str, min_length=3)
-
-product = NumericConstraints(
-    quantity=10,
-    age=25,
-    price=19.99,
-    rating=4.5,
-    scores=[90, 85, 95],
-    codes=["ABC", "DEF"]
-)
-```
-
-## Special Types
-
-### Email, URL, UUID
-
-```python
-from pydantic import BaseModel, EmailStr, HttpUrl, UUID1, UUID4, PaymentCardNumber
-from typing import Optional
-import uuid
-
-class ContactInfo(BaseModel):
-    # Email validation
-    email: EmailStr
-    secondary_email: Optional[EmailStr] = None
-    
-    # URL validation
-    website: HttpUrl
-    api_endpoint: Optional[HttpUrl] = None
-    
-    # UUID
-    user_uuid: UUID1  # UUID version 1
-    session_uuid: UUID4  # UUID version 4
-    
-    # Payment card (Luhn validation)
-    card_number: Optional[PaymentCardNumber] = None
-
-contact = ContactInfo(
-    email="user@example.com",
-    website="https://example.com",
-    user_uuid=uuid.uuid1(),
-    session_uuid=uuid.uuid4()
-)
-```
-
-### Secret Types
-
-```python
-from pydantic import BaseModel, SecretStr, SecretBytes
-
-class Credentials(BaseModel):
-    # Masks value in output
-    password: SecretStr
-    api_key: Optional[SecretStr] = None
-    
-    # For binary secrets
-    encryption_key: SecretBytes
-
-creds = Credentials(password="secret123")
-
-# Access the secret
-print(creds.password)              # SecretStr('**********')
-print(creds.password.get_secret_value())  # "secret123"
-
-# Serialization
-data = creds.model_dump()
-# {'password': SecretStr('**********'), 'api_key': None, 'encryption_key': SecretBytes(b'**********')}
-```
-
-### Enum Types
-
-```python
-from pydantic import BaseModel, StrEnum, IntEnum
-from enum import Enum
-
-class Status(str, Enum):
-    PENDING = "pending"
-    ACTIVE = "active"
-    COMPLETED = "completed"
-    FAILED = "failed"
-
-class Priority(int, Enum):
-    LOW = 1
-    MEDIUM = 2
-    HIGH = 3
-
-class Task(BaseModel):
-    # Works with any enum
-    status: Status = Status.PENDING
-    priority: Priority = Priority.MEDIUM
-
-task = Task(status=Status.ACTIVE, priority=Priority.HIGH)
-
-# StringEnum (Pydantic v2)
-class UserRole(StrEnum):
-    ADMIN = "admin"
-    USER = "user"
-    GUEST = "guest"
-
-class User(BaseModel):
-    role: UserRole = UserRole.GUEST
-```
-
-## Configuration
-
-### Model Config
-
-```python
-from pydantic import BaseModel, ConfigDict
-from typing import Optional
-
-# Pydantic v2 style
-class User(BaseModel):
-    model_config = ConfigDict(
-        str_strip_whitespace=True,      # Strip whitespace from strings
-        validate_assignment=True,       # Validate on assignment
-        arbitrary_types_allowed=True,   # Allow arbitrary types
-        use_enum_values=True,           # Use enum values (not enum objects)
-        populate_by_name=True,          # Allow population by name (not alias)
-        extra='forbid',                 # Forbid extra fields
-        frozen=True,                    # Make model immutable
-        strict_fields=False,            # Not strict by default
-    )
-    
-    id: int
-    name: str
-    email: Optional[str] = None
-
-# v1 style (still works)
-class UserV1(BaseModel):
-    class Config:
-        str_strip_whitespace = True
-        validate_assignment = True
-    
-    id: int
-    name: str
-```
-
-### Field-Level Config
-
-```python
-from pydantic import BaseModel, Field, field_config
-
-@field_config(validate_default=True)
-def validated_field():
-    return Field(default="default_value")
-
-class ModelWithFieldConfig(BaseModel):
-    # This field will be validated even with default
-    value: str = Field(default="test", validate_default=True)
-```
-
-### Advanced Config Patterns
-
-#### Strict Mode and Extra Fields
-
-```python
-from pydantic import BaseModel, ConfigDict, Field
-from typing import Any, Optional
-
-# Strict mode with extra allowed
-class StrictWithExtra(BaseModel):
-    model_config = ConfigDict(
-        strict=False,                   # Non-strict mode
-        extra="allow"                   # Allow extra fields
-    )
-    
-    id: int
-    name: str
-    metadata: Optional[dict] = None
-    extra_data: Any = Field(default=None)
-
-# This accepts extra fields without error
-data = {"id": 1, "name": "John", "extra_field": "allowed"}
-user = StrictWithExtra(**data)
-print(user.extra_field)  # "allowed"
-
-# Strict mode with forbid (default)
-class StrictModel(BaseModel):
-    model_config = ConfigDict(strict=True, extra="forbid")
-    
-    id: int
-    name: str
-    
-    # This will raise ValidationError for extra fields
-    data = {"id": 1, "name": "John", "extra": "not allowed"}
-```
-
-#### Multi-Environment Settings
-
-```python
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
-import os
-
-class DatabaseSettings(BaseSettings):
-    """Database configuration."""
-    model_config = SettingsConfigDict(
-        env_file='.env.prod',           # Different env file for production
-        env_nested_delimiter='__',
-    )
-    
-    host: str = "localhost"
-    port: int = 5432
-    name: str
-    user: str
-    password: str
-
-class DevSettings(BaseSettings):
-    """Development settings."""
-    model_config = SettingsConfigDict(
-        env_file='.env.dev',
-    )
-    
-    debug: bool = True
-    host: str = "127.0.0.1"
-    port: int = 8000
-
-class ProdSettings(BaseSettings):
-    """Production settings."""
-    model_config = SettingsConfigDict(
-        env_file='.env.prod',
-    )
-    
-    debug: bool = False
-    host: str = os.getenv("DATABASE_HOST", "db.prod.example.com")
-    port: int = 5432
-
-# Use environment-aware settings
-env = os.getenv("ENVIRONMENT", "dev")
-if env == "prod":
-    settings = ProdSettings()
-else:
-    settings = DevSettings()
-
-# Environment variables:
-# For production:
-# export ENVIRONMENT=prod
-# source .env.prod
-
-# For development:
-# export ENVIRONMENT=dev
-# source .env.dev
-```
-
-#### Nested Structure Config
-
-```python
-from pydantic import BaseModel, ConfigDict
-from typing import Dict, Any, Optional
-
-class APIConfig(BaseModel):
-    """Nested API configuration."""
-    model_config = ConfigDict(
-        extra="allow",
-    )
-    
-    timeout: int = 30
-    retries: int = 3
-    endpoints: Dict[str, Any] = {}
-
-class Application(BaseModel):
-    """Application with nested config structures."""
-    model_config = ConfigDict(
-        str_strip_whitespace=True,
-    )
-    
-    app_name: str
-    version: str
-    api: APIConfig = Field(default_factory=APIConfig)
-    features: Dict[str, bool] = {}
-
-# Usage
-app = Application(
-    app_name="MyApp",
-    version="1.0.0",
-    api={"timeout": 60, "retries": 5, "custom_setting": "extra"}
-)
-```
-
-## TypeAdapter
-
-### TypeAdapter for Custom Validation
-
-```python
-from pydantic import TypeAdapter, ValidationError
-from typing import List, Optional, Any
-
-# TypeAdapter for custom validation on arbitrary objects
-ta_list_str = TypeAdapter(List[str])
-
-# Validate arbitrary data against the adapter
-data = ["a", "b", "c"]
-validated = ta_list_str.validate_python(data)
-print(validated)  # ["a", "b", "c"]
-
-# Validate from JSON
-json_data = '["x", "y", "z"]'
-validated_json = ta_list_str.validate_json(json_data)
-print(validated_json)  # ["x", "y", "z"]
-
-# Convert to JSON
-output = ta_list_str.dump_json(["hello", "world"])
-print(output)  # b'["hello","world"]'
-
-# Using TypeAdapter for type coercion
-ta_int = TypeAdapter(int)
-result = ta_int.validate_python("42")  # Converts "42" to 42
-print(result)  # 42
-
-# TypeAdapter for complex nested types
-from typing import Dict
-ta_dict = TypeAdapter(Dict[str, int])
-nested_data = {"a": 1, "b": 2, "c": 3}
-validated_nested = ta_dict.validate_python(nested_data)
-
-# TypeAdapter for custom error messages
-class CustomIntError(BaseException):
-    pass
-
-ta_custom = TypeAdapter(int)
-try:
-    ta_custom.validate_python("not a number")
-except ValidationError as e:
-    # Custom error handling
-    print(f"Validation failed: {e.errors()[0]['msg']}")
-```
-
-### RootModel
-
-### RootModel for Collection-Only Schemas
-
-```python
-from pydantic import RootModel
-from typing import List, Optional
-
-# RootModel for collection-only schemas
-class StringList(RootModel[List[str]]):
-    """Root model for list of strings - no parent wrapper."""
-    
-    @property
-    def labels(self) -> List[str]:
-        """Derived property for list items."""
-        return [item.upper() for item in self.root]
-
-# Usage with list of strings
-strings = StringList(root=["apple", "banana", "cherry"])
-print(strings.root)  # ["apple", "banana", "cherry"]
-print(strings.labels)  # ["APPLE", "BANANA", "CHERRY"]
-
-# From JSON
-json_data = '["dog", "cat", "bird"]'
-pets = StringList.model_validate_json(json_data)
-print(pets)  # StringList(root=['dog', 'cat', 'bird'])
-
-# Optional root
-class OptionalList(RootModel[Optional[List[str]]]):
-    """Root model with optional root."""
-    pass
-
-optional = OptionalList(root=["a", "b"])
-empty = OptionalList(root=None)
-print(optional.root)  # ["a", "b"]
-print(empty.root)  # None
-
-# Multiple types with RootModel
-class NumberList(RootModel[List[int]]):
-    """List of numbers."""
-    pass
-
-numbers = NumberList(root=[1, 2, 3])
-print(numbers.model_dump())  # [1, 2, 3]
-```
-
-## Discriminated Unions
-
-### Basic Discriminated Union
-
-```python
-from pydantic import BaseModel, Field, Discriminator
-from typing import Union, Annotated
-
-class Cat(BaseModel):
-    pet_type: str = Field(default="cat", const=True)
-    meows: int
-
-class Dog(BaseModel):
-    pet_type: str = Field(default="dog", const=True)
-    barks: float
-
-class Zoo(BaseModel):
-    # Using Tag for discriminated union
-    pet: Union[Cat, Dog] = Field(..., discriminator='pet_type')
-
-# Pydantic v2 style
-class ZooV2(BaseModel):
-    pet: Annotated[
-        Union[Cat, Dog],
-        Discriminator(tag='pet_type')
-    ]
-
-# This is how it's done in API responses with multiple types
-class ApiResponse(BaseModel):
-    status: str
-    data: Union[Cat, Dog] = Field(..., discriminator='pet_type')
-
-# Usage
-response = ApiResponse(
-    status="success",
-    data={"pet_type": "cat", "meows": 5}
-)
-print(response.data)  # Cat(meows=5)
-```
-
-### Advanced Discriminated Union
-
-```python
-from pydantic import BaseModel, Field, Discriminator
-from typing import Union, Literal, Annotated
-
-class Image(BaseModel):
-    type: Literal["image"]
-    url: str
-    format: Literal["jpg", "png", "gif"]
-
-class Video(BaseModel):
-    type: Literal["video"]
-    url: str
-    duration: int
-    format: Literal["mp4", "webm"]
-
-class Document(BaseModel):
-    type: Literal["document"]
-    pages: int
-    format: Literal["pdf", "docx"]
-
-# API Response with multiple media types
-class MediaResponse(BaseModel):
-    id: int
-    title: str
-    media: Annotated[
-        Union[Image, Video, Document],
-        Discriminator(tag='type')
-    ]
-    created_at: str
-
-# Pydantic automatically routes based on discriminator
-response = MediaResponse(
-    id=1,
-    title="My Video",
-    media={"type": "video", "url": "https://example.com/video.mp4", "duration": 120, "format": "mp4"},
-    created_at="2024-01-01T00:00:00Z"
-)
-print(response.media)  # Video(duration=120, url='https://example.com/video.mp4', format='mp4')
-```
-
-### Error Handling
-
-### Error Handling with ValidationError
-
-```python
-from pydantic import BaseModel, ValidationError
-from typing import List, Optional
-
-# API response handling with error formatting
-class UserResponse(BaseModel):
-    id: int
-    username: str
-    email: str
-    age: int
-
-# Try/except for API responses
-def fetch_user_from_api(api_data):
-    try:
-        user = UserResponse(**api_data)
-        return {"success": True, "data": user}
-    except ValidationError as e:
-        # Format validation errors for API
-        errors = e.errors()
-        formatted_errors = {
-            error['loc'][0]: {
-                'message': error['msg'],
-                'type': error['type'],
-                'input': error['input']
-            }
-            for error in errors
-            if error['loc'] and len(error['loc']) > 0
-        }
-        return {
-            "success": False,
-            "errors": formatted_errors
-        }
-
-# Example usage
-valid_data = {"id": 1, "username": "john", "email": "john@example.com", "age": 30}
-invalid_data = {"id": "not_an_int", "username": "jo", "email": "invalid", "age": -5}
-
-result = fetch_user_from_api(valid_data)
-print(result["success"])  # True
-
-result = fetch_user_from_api(invalid_data)
-print(result["success"])  # False
-print(result["errors"])  # Formatted error dict
-
-# Error details in e.errors()
-try:
-    user = UserResponse(id="not an int", name="John", age="not an int")
-except ValidationError as e:
-    # Full error list
-    print(e.errors())
-    # [
-    #     {
-    #         'type': 'int_parsing',
-    #         'loc': ('id',),
-    #         'msg': 'Input should be a valid integer',
-    #         'input': 'not an int'
-    #     },
-    #     {
-    #         'type': 'int_parsing',
-    #         'loc': ('age',),
-    #         'msg': 'Input should be a valid integer',
-    #         'input': 'not an int'
-    #     }
-    # ]
-    
-    # Human-readable
-    print(e)
-    # 2 validation errors for UserResponse
-    # id
-    #   Input should be a valid integer [type=int_parsing, input_value='not an int', input_type=str]
-    # age
-    #   Input should be a valid integer [type=int_parsing, input_value='not an int', input_type=str]
-
-# Custom error messages in field validators
-from pydantic import field_validator
-
-class AgeUser(BaseModel):
-    age: int
-    
-    @field_validator('age')
-    @classmethod
-    def validate_age(cls, v):
-        if v < 0:
-            raise ValueError('Age must be a positive number')
-        if v > 150:
-            raise ValueError('Are you really that old?')
-        return v
-
-try:
-    AgeUser(age=-5)
-except ValidationError as e:
-    print(e.error_count())  # 1
-    for error in e.errors():
-        print(f"Field: {error['loc']}")
-        print(f"Message: {error['msg']}")
-        print(f"Input: {error['input']}")
-```
-
-## Settings
-
-### BaseSettings
-
-```python
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
-
-class Settings(BaseSettings):
-    """Application settings from environment variables."""
-    
-    # Required settings
-    app_name: str
-    database_url: str
-    
-    # Optional with defaults
-    debug: bool = False
-    port: int = 8000
-    max_connections: int = 10
-    
-    # Sensitive settings (will be masked in output)
-    secret_key: str
-    
-    # Settings with aliases
-    db_host: str = Field(alias='DATABASE_HOST', default='localhost')
-    
-    #model_config = SettingsConfigDict(env_file='.env', env_file_encoding='utf-8')
-
-# Usage
-# Reads from environment variables and .env file
-settings = Settings(
-    app_name="My App",
-    database_url="postgresql://localhost/mydb",
-    secret_key="super-secret"
-)
-
-# Access values
-print(settings.app_name)
-print(settings.debug)
-
-# Configuration via model_config
-class SettingsV2(BaseSettings):
-    model_config = SettingsConfigDict(
-        env_file='.env',
-        env_file_encoding='utf-8',
-        case_sensitive=False,
-        extra='ignore'
-    )
-    
-    app_name: str
-    debug: bool = False
-```
-
-### Nested Settings
-
-```python
-from pydantic_settings import BaseSettings, SettingsConfigDict
-from typing import Optional
-
-class DatabaseSettings(BaseSettings):
-    """Database configuration."""
-    host: str = "localhost"
-    port: int = 5432
-    name: str
-    user: str
-    password: str
-
-class RedisSettings(BaseSettings):
-    """Redis configuration."""
-    host: str = "localhost"
-    port: int = 6379
-    db: int = 0
-
-class Settings(BaseSettings):
-    """Application settings."""
-    app_name: str
-    database: DatabaseSettings
-    redis: RedisSettings
-    
-    model_config = SettingsConfigDict(env_nested_delimiter='__')
-
-# Environment variables:
-# APP_NAME=MyApp
-# DATABASE__HOST=db.example.com
-# DATABASE__PORT=5432
-# REDIS__HOST=redis.example.com
-
-settings = Settings(
-    app_name="MyApp",
-    database={"name": "mydb", "user": "user", "password": "pass"},
-    redis={}
-)
-```
-
-## FastAPI Integration
-
-### Request Models
-
-```python
-from fastapi import FastAPI, Depends, HTTPException
-from pydantic import BaseModel, EmailStr, Field
-
-app = FastAPI()
-
-class UserCreate(BaseModel):
-    """User creation schema."""
-    username: str = Field(min_length=3, max_length=50)
-    email: EmailStr
-    password: str = Field(min_length=8)
-    age: int = Field(ge=0, le=150)
-
-class UserResponse(BaseModel):
-    """User response schema (excludes sensitive data)."""
-    id: int
-    username: str
-    email: str
-    
-    model_config = {'from_attributes': True}
-
-@app.post("/users", response_model=UserResponse, status_code=201)
-async def create_user(user: UserCreate):
-    """Create a new user."""
-    # Validate and process user data
-    # user is already validated!
-    new_user = await save_user(user.model_dump())
-    return new_user
-
-@app.get("/users/{user_id}", response_model=UserResponse)
-async def get_user(user_id: int):
-    """Get user by ID."""
-    user = await get_user_by_id(user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
-```
-
-### Response Models
-
-```python
-from fastapi import FastAPI
-from pydantic import BaseModel
-from datetime import datetime
-
-class Item(BaseModel):
-    id: int
-    name: str
-    price: float
-
-class ItemWithTax(BaseModel):
-    """Item with calculated tax."""
-    id: int
-    name: str
-    price: float
-    tax: float
-    
-    @classmethod
-    def from_item(cls, item: Item):
-        return cls(
-            id=item.id,
-            name=item.name,
-            price=item.price,
-            tax=item.price * 0.1  # 10% tax
-        )
-
-app = FastAPI()
-
-@app.get("/items/{item_id}", response_model=ItemWithTax)
-async def get_item(item_id: int):
-    item = await get_item_from_db(item_id)
-    return ItemWithTax.from_item(item)
-```
-
-### Nested Validation
-
-```python
-from fastapi import FastAPI
-from pydantic import BaseModel, ValidationError
-
-app = FastAPI()
-
-class Address(BaseModel):
-    street: str
-    city: str
-    country: str
-
-class UserWithAddress(BaseModel):
-    name: str
-    address: Address
-
-@app.post("/users")
-async def create_user(user: UserWithAddress):
-    return user
-
-# Nested validation error example:
-# Request: {"name": "John", "address": {"street": "123 Main"}}
-# Error: Validation error for address.city (field required)
-```
+- **types-and-defaults.md** — Field aliases, naming conventions, default values, constrained types, and special types (email, URL, UUID, secrets, enums)
+- **config-and-settings.md** — Model configuration, strict mode, multi-environment settings, and BaseSettings
+- **validation-patterns.md** — TypeAdapter, RootModel, discriminated unions, and error handling
+- **fastapi.md** — FastAPI integration with request/response models and nested validation
 
 ## Best Practices
 
@@ -1405,7 +378,7 @@ class User(BaseModel):
 
 # Bad: Mutable default argument
 class User(BaseModel):
-    tags: List[str] = []  # ERROR: mutable default!
+    tags: List[str] = []
     metadata: dict = {}
 ```
 
@@ -1475,7 +448,7 @@ class FastModel(BaseModel):
 # Issue: Mutable default arguments
 # Error in Pydantic v2
 class BadModel(BaseModel):
-    items: list = []  # ERROR!
+    items: list = []
 
 # Solution: Use default_factory
 class GoodModel(BaseModel):
@@ -1495,13 +468,11 @@ class OrderedValidation(BaseModel):
     @field_validator('value', mode='before')
     @classmethod
     def before_validation(cls, v):
-        # Runs first
         return v.strip().lower() if isinstance(v, str) else v
     
     @field_validator('value')
     @classmethod
     def after_validation(cls, v):
-        # Runs after type validation
         return v
 ```
 

@@ -1,9 +1,9 @@
 ---
 name: pyqt-dialogs
-description: "PyQt/PySide6 dialogs - QFileDialog, QMessageBox, QInputDialog, QColorDialog, custom QDialog patterns"
+description: Use when implementing PyQt/PySide6 dialogs - standard dialogs (QFileDialog, QMessageBox, QInputDialog, QColorDialog, QFontDialog), custom QDialog patterns, modal vs modeless dialogs, input validation, Qt 6 dialog APIs
 metadata:
   author: mte90
-  version: 1.0.0
+  version: 2.0.0
   tags:
     - python
     - qt

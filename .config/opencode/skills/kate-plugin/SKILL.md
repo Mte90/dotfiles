@@ -1,9 +1,9 @@
 ---
 name: kate-plugin
-description: "Develop C++ plugins for Kate text editor using KTextEditor Framework, CMake with ECM, Qt threading, and KDE plugin architecture"
+description: Use when developing C++ plugins for Kate - KTextEditor Framework, CMake/ECM, Qt threading, KDE plugin architecture
 metadata:
   author: mte90
-  version: "2.0.0"
+  version: 2.0.1
   tags:
     - kate
     - kde

@@ -76,9 +76,6 @@ reference local files by path rather than copying their contents.
   mandatory after each one; record the phase order, specialist ownership, gate
   order, and one-line gate rationale in the deepwork file; share a compact
   version with the user;
-- before starting each phase, replace the OpenCode todo list with actionable
-  delivery todos for that phase only;
-
 ## Phase Execution
 
 - before each implementation phase, decide the execution path: what can run in

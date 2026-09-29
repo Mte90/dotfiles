@@ -1,9 +1,9 @@
 ---
 name: pyqt-testing
-description: "PyQt/PySide6 testing with pytest-qt - qtbot fixture, waitSignal, mouse/keyboard simulation, dialog testing"
+description: Use when testing PyQt/PySide6 applications with pytest-qt - qtbot fixture, signal/wait patterns, mouse/keyboard simulation, dialog testing, model/view testing, threaded code testing, or manual debugging techniques
 metadata:
   author: mte90
-  version: 1.0.0
+  version: 2.0.0
   tags:
     - python
     - qt
@@ -436,6 +436,26 @@ def temp_settings(tmp_path):
 4. **Test signals, not implementation** - Verify behavior
 5. **Use fixtures for common setup** - DRY principle
 6. **Keep tests isolated** - Each test should be independent
+
+## Manual Testing
+
+Debugging techniques for interactive testing and troubleshooting:
+
+```python
+# Add debug output
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+# Check memory
+from PySide6.QtCore import QObject
+print(f"QObject children: {len(self.children())}")
+
+# Dump widget tree
+def dump_widgets(widget, indent=0):
+    print(" " * indent + (widget.objectName() or widget.__class__.__name__))
+    for child in widget.findChildren(QObject):
+        dump_widgets(child, indent + 2)
+```
 
 ## References
 

@@ -1,9 +1,9 @@
 ---
 name: django-filter
-description: "django-filter - Django filtering library for querysets with Django REST Framework integration"
+description: Use when filtering Django querysets - FilterSet, custom filters, Django REST Framework integration, explicit fields
 metadata:
   author: mte90
-  version: 1.0.0
+  version: 1.0.1
   tags:
     - django
     - django-filter
