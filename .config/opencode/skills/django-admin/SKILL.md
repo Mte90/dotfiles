@@ -484,7 +484,6 @@ class ParentAdmin(admin.ModelAdmin):
 ```
 
 ---
----
 
 ## Ecosystem Libraries
 

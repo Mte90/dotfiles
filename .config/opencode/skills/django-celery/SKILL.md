@@ -102,72 +102,217 @@ python manage.py migrate django_celery_beat
 
 ---
 
-## Best Practices
+## Anti-Patterns
 
-### Task Design
+### Database Pitfalls
 
-1. **Keep tasks small and idempotent** - Tasks may be retried
-2. **Pass IDs, not model instances** - Serialize only primitives
-3. **Use `bind=True` for retry** - Access `self.retry()`
-4. **Set time limits** - Prevent stuck tasks
-5. **Use `ignore_result=True`** when you don't need the return value
+**Passing QuerySets or model instances as task arguments** — The value is serialized at call time in the worker, which may evaluate against a different DB state. Always serialize IDs instead.
 
 ```python
-# BAD: passing model instance
+# BAD: QuerySet evaluated in worker against stale state
 @shared_task
-def process(user):
-    pass
+def send_emails_to_users(users_qs):
+    for user in users_qs:  # Evaluates in worker, may miss recent changes
+        send_email(user)
 
-# GOOD: passing ID
+# GOOD: serialize IDs, re-fetch in worker
 @shared_task
-def process(user_id):
-    from myapp.models import User
-    user = User.objects.get(pk=user_id)
-    pass
+def send_emails_to_user_ids(user_ids):
+    for user in User.objects.filter(pk__in=user_ids):
+        send_email(user)
 ```
 
-### Error Handling
+**Calling `delay()`/`apply_async()` inside a transaction that later rolls back** — The task runs for a row that no longer exists. Use `transaction.on_commit` to defer task dispatch until the transaction commits.
 
 ```python
-from celery import shared_task
-from celery.utils.log import get_task_logger
+# BAD: task fires before transaction commits
+@transaction.atomic
+def create_order(request_data):
+    order = Order.objects.create(**request_data)
+    send_confirmation.delay(order.id)  # May run if outer transaction rolls back
+    return order
 
-logger = get_task_logger(__name__)
-
-@shared_task(bind=True, max_retries=3)
-def reliable_task(self, data_id):
-    try:
-        result = do_work(data_id)
-        return result
-    except TemporaryError as exc:
-        logger.warning(f"Temporary failure for {data_id}: {exc}")
-        self.retry(exc=exc, countdown=60 * (self.request.retries + 1))
-    except PermanentError as exc:
-        logger.error(f"Permanent failure for {data_id}: {exc}")
-        raise
-
-@shared_task(bind=True)
-def task_with_callback(self, data_id):
-    try:
-        result = do_work(data_id)
-    except Exception as exc:
-        self.update_state(state='FAILED', meta={'error': str(exc)})
-        raise
+# GOOD: defer until commit
+@transaction.atomic
+def create_order(request_data):
+    order = Order.objects.create(**request_data)
+    transaction.on_commit(lambda: send_confirmation.delay(order.id))
+    return order
 ```
 
-### Testing
+### Testing Pitfalls
+
+**Assuming `CELERY_TASK_ALWAYS_EAGER` makes tests faithful** — Eager mode executes tasks synchronously in the test process. It does not exercise serialization, routing, retries, or worker behavior. It can produce false positives.
 
 ```python
-from django.test import TestCase, override_settings
+# BAD: eager mode hides serialization bugs
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+def test_task_with_model(self):
+    obj = MyModel.objects.create(name='test')
+    my_task.delay(obj)  # Runs immediately, no serialization
+    # Passes even if task can't serialize the object properly
+
+# GOOD: test the function directly, mock apply_async
+@mock.patch('myapp.tasks.my_task.apply_async')
+def test_task_routing(self, mock_apply):
+    my_task.delay(123)
+    mock_apply.assert_called_once_with(args=[123], queue='default')
+```
+
+### Operational Pitfalls
+
+**DB connections opened per task without cleanup** — Long-running workers accumulate stale connections. Use `close_old_connections()` at task start or configure `CELERY_WORKER_MAX_TASKS_PER_CHILD`.
+
+```python
+from django.db import close_old_connections
+
+@shared_task
+def long_running_task(data_id):
+    close_old_connections()  # Drop stale DB connections
+    # ... task work
+```
+
+**Timezone-aware datetimes not surviving naive serialization** — Naive serialization strips timezone info. Always use UTC and ensure serializers preserve timezone awareness.
+
+```python
+# BAD: naive datetime loses TZ
+from datetime import datetime
+send_report.delay(datetime.now())  # Loses timezone in JSON serializer
+
+# GOOD: use UTC-aware datetime
+from django.utils import timezone
+send_report.delay(timezone.now())  # Preserves TZ through serialization
+```
+
+**Settings read at import time break `override_settings` in tests** — Access `django.conf.settings` at call time, not module load time.
+
+```python
+# BAD: settings read at import time
+from django.conf import settings
+BATCH_SIZE = settings.CELERY_BATCH_SIZE  # Fixed at import
+
+@shared_task
+def process_batch():
+    for i in range(BATCH_SIZE):  # Can't be overridden in tests
+        ...
+
+# GOOD: read at call time
+@shared_task
+def process_batch():
+    from django.conf import settings
+    batch_size = settings.CELERY_BATCH_SIZE  # Read fresh each call
+    for i in range(batch_size):
+        ...
+```
+
+---
+
+## Testing
+
+### Testing Task Functions Directly
+
+Call the underlying task function directly instead of using `delay()` or `apply_async()`. This tests the actual logic without Celery machinery.
+
+```python
+from django.test import TestCase
 from myapp.tasks import send_welcome_email
 
-@override_settings(CELERY_TASK_ALWAYS_EAGER=True, CELERY_TASK_EAGER_PROPAGATES=True)
-class TaskTests(TestCase):
-    def test_send_welcome_email(self):
+class TaskFunctionTests(TestCase):
+    def test_send_welcome_email_logic(self):
         user = User.objects.create_user(username='test', email='test@example.com')
+        
+        # Call the function directly, bypassing Celery
         send_welcome_email(user.id)
+        
+        # Assert on side effects
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['test@example.com'])
+```
+
+### Mocking `apply_async` to Assert Task Dispatch
+
+Mock `apply_async` to verify that tasks are scheduled with correct arguments and routing.
+
+```python
+from unittest import mock
+from django.test import TestCase
+from myapp.tasks import process_upload
+
+class TaskDispatchTests(TestCase):
+    @mock.patch('myapp.tasks.process_upload.apply_async')
+    def test_process_upload_scheduled_with_queue(self, mock_apply):
+        process_upload.delay(123, queue='heavy')
+        
+        mock_apply.assert_called_once_with(args=[123], queue='heavy')
+    
+    @mock.patch('myapp.tasks.send_confirmation.apply_async')
+    def test_task_scheduled_after_commit(self, mock_apply):
+        with transaction.atomic():
+            order = Order.objects.create(total=100)
+            transaction.on_commit(lambda: send_confirmation.delay(order.id))
+        
+        # Verify on_commit callback scheduled the task
+        mock_apply.assert_called_once()
+```
+
+### Testing Retries Deterministically
+
+Test retry behavior by mocking the retry mechanism and asserting on the `Retry` exception.
+
+```python
+from unittest import mock
+from celery.exceptions import Retry
+from django.test import TestCase
+from myapp.tasks import fetch_external_data
+
+class TaskRetryTests(TestCase):
+    @mock.patch('myapp.tasks.fetch_external_data.retry')
+    def test_fetch_external_data_retries_on_connection_error(self, mock_retry):
+        with mock.patch('myapp.tasks.fetch_external_data', side_effect=ConnectionError('timeout')):
+            with self.assertRaises(Retry):
+                fetch_external_data('http://example.com')
+        
+        mock_retry.assert_called_once()
+    
+    def test_fetch_external_data_succeeds_without_retry(self):
+        with mock.patch('myapp.tasks.requests.get') as mock_get:
+            mock_get.return_value.json.return_value = {'data': 'value'}
+            result = fetch_external_data('http://example.com')
+        
+        self.assertEqual(result, {'data': 'value'})
+```
+
+### When Eager Mode Produces False Positives
+
+Eager mode runs tasks synchronously in the test process. It does not test:
+- Serialization/deserialization of task arguments
+- Task routing and queue configuration
+- Retry behavior with actual backoff
+- Worker concurrency issues
+
+```python
+# FALSE POSITIVE: eager mode passes, but task fails in production
+@override_settings(CELERY_TASK_ALWAYS_EAGER=True)
+def test_model_instance_passed(self):
+    obj = MyModel.objects.create(name='test')
+    # This passes in eager mode but fails in production because
+    # model instances can't be serialized by JSON serializer
+    my_task.delay(obj)  # ERROR: Object of type MyModel is not JSON serializable
+
+# CORRECT: test serialization explicitly
+def test_task_argument_serialization(self):
+    from celery.backends.base import BaseBackend
+    
+    obj = MyModel.objects.create(name='test')
+    
+    # Verify the argument can be serialized
+    backend = BaseBackend(None)
+    with self.assertRaises(TypeError):
+        backend.encode({'obj': obj})  # Should fail for model instances
+    
+    # Verify ID serializes correctly
+    result = backend.encode({'obj_id': obj.id})  # Should pass
+    self.assertIn('obj_id', result[0])
 ```
 
 ---
@@ -199,11 +344,14 @@ Load these reference files on demand for detailed patterns:
 
 ### Alternatives
 
-For lighter-weight task queues or different use cases:
-- **django-q2** (https://github.com/django-q2/django-q2) — Simple Django task queue with own scheduler
-- **django-dramatiq** (https://github.com/Bogdanp/django_dramatiq) — Dramatiq integration for Django (alternative Celery-style queue)
-- **huey** (https://github.com/coleifer/huey) — Lightweight task queue with Django integration
-- **django-tasks** (https://github.com/realOrangeOne/django-tasks) — Reference implementation for background workers (Django DEP 14)
+| Library | Problem it solves | When to choose over Celery |
+|---------|-------------------|----------------------------|
+| **django-q2** (https://github.com/django-q2/django-q2) | Simple task queue with built-in scheduler, no external broker needed | You want periodic tasks without Redis/RabbitMQ; prefer Django-native scheduler |
+| **django-dramatiq** (https://github.com/Bogdanp/django_dramatiq) | High-performance task queue with better retry semantics | You need message acknowledgment guarantees, better observability than Celery |
+| **huey** (https://github.com/coleifer/huey) | Minimal task queue, works with SQLite/Redis | Tiny projects, no external broker infrastructure, simple scheduling needs |
+| **django-tasks** (https://github.com/realOrangeOne/django-tasks) | Django DEP 14 reference implementation | Evaluating future Django standard task queue API; experimental |
+
+**Selection criteria:** If you already use Celery for a task queue, stick with it. Choose an alternative only if: (1) you need zero external dependencies (huey, django-q2), (2) you require stronger message guarantees (dramatiq), or (3) you're prototyping against future Django standards (django-tasks).
 
 ---
 

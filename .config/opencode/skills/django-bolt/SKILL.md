@@ -270,15 +270,55 @@ class UserAPITest(AsyncAPITestClient):
 
 ## Performance Benchmarks
 
-**Conditions:** 8 processes, C=100, loopback, AMD Ryzen 5 5600G
+### Reference Setup
 
-| Endpoint Type | Requests/sec |
-|--------------|-------------|
-| Hello-world (10KB JSON) | **~311,000 RPS** |
-| 10KB JSON response | **~187,000 RPS** |
-| 10-row ORM query | **~21,000–27,000 RPS** |
+- **Hardware:** AMD Ryzen 5 5600G (6 cores / 12 threads), 16 GB RAM, Linux
+- **Server:** `python manage.py runbolt --processes 8` (8 processes × 1 Actix worker)
+- **Load generator:** [bombardier](https://github.com/codesenberg/bombardier), C=100, N=100000, loopback on same machine
+- **Baseline comparisons:** Plain Django views, DRF, FastAPI, Litestar, JavaScript runtimes (see sources)
+- **Run-to-run variance:** ±5% (gaps under ~10% are ties)
 
-Source: https://bolt.farhana.li/benchmarks/
+**Important:** The load generator shares the 12 cores with the 8 server processes, so numbers are a **floor**, not a ceiling. Absolute numbers are hardware-specific—always publish the conditions with the number.
+
+### Key Results
+
+| Endpoint Type | Req/s | What it measures |
+|--------------|-------|------------------|
+| JSON hello-world (`GET /`) | **311,270** | Routing + JSON serialization overhead |
+| 10 KB JSON (sync handler) | **187,186** | Response serialization bottleneck |
+| 10 KB JSON (async handler) | **184,059** | Async overhead negligible at scale |
+| 10-row ORM query (SQLite) | **20,963–26,694** | Django ORM executor + SQLite file lock |
+| JWT auth + DB load user | **40,312** | Rust JWT verify + ORM user fetch |
+| Full middleware stack | **8,744** | Sessions, CSRF, auth, messages, CSP |
+
+### What These Numbers Do NOT Tell You
+
+- **Not per-request latency figures** — p50/p99 are available for select endpoints but these RPS numbers measure throughput under load
+- **Excludes database time** for ORM benchmarks — measured with SQLite (single-writer file lock is the bottleneck); PostgreSQL uses more threads
+- **Does not include network latency** — loopback test on same machine
+- **Not a measure of developer productivity** — pure throughput comparison
+
+### Cross-Framework Comparison (same machine, one process each, PostgreSQL)
+
+Source: https://github.com/FarhanAliRaza/python-api-frameworks-benchmark (2026-08-30)
+
+| Endpoint | Django-Bolt | Litestar + uvicorn | FastAPI + uvicorn |
+|----------|-------------|-------------------|-------------------|
+| 1 KB JSON | **43,541** | 15,477 | 7,517 |
+| 10 KB JSON | **27,610** | 12,925 | 1,805 |
+| 10 rows from PostgreSQL | **2,881** | 1,321 | 1,237 |
+| JWT auth + load user | **4,478** | 1,155 | 941 |
+
+### Reproduce
+
+```bash
+git clone https://github.com/dj-bolt/django-bolt.git && cd django-bolt
+uv sync && just build
+go install github.com/codesenberg/bombardier@latest
+just save-bench  # → python/benchmark/BENCHMARK.md
+```
+
+Source: https://bolt.farhana.li/benchmarks/ | https://github.com/dj-bolt/django-bolt/blob/master/python/benchmark/BENCHMARK.md
 
 ---
 
@@ -399,13 +439,13 @@ python manage.py runbolt --skip-checks
 
 ## Version Migration Gates
 
-| Version | Breaking Change |
-|---------|-----------------|
-| v0.4.0 | Python 3.12+ required |
-| v0.6.0 | SessionAuthentication removed |
-| v0.10.0 | bolt-mcp 0.2 API + cookie-JWT CSRF check ON by default |
-| v0.10.3 | BOLT_TRUSTED_PROXIES required behind proxies |
-| v0.11.0 | Nested() removed — use plain type hints |
+| Version | Breaking Change | Before / After |
+|---------|-----------------|----------------|
+| v0.4.0 | Python 3.12+ required | Requires upgrading runtime; no code changes |
+| v0.6.0 | `SessionAuthentication` removed | **Before:**<br>`from django_bolt.auth import SessionAuthentication`<br>`api = BoltAPI(auth=[SessionAuthentication()])`<br><br>**After:**<br>Use `JWTAuthentication` or `APIKeyBearer` |
+| v0.10.0 | Cookie-JWT CSRF check ON by default | **Before:**<br>`JWTAuthentication(cookie=True)`<br>(no CSRF check for API clients)<br><br>**After:**<br>`JWTAuthentication(cookie=False)`<br>for non-browser clients |
+| v0.10.3 | `BOLT_TRUSTED_PROXIES` required behind proxies | **Before:**<br>(rate limiting shared across all callers behind proxy)<br><br>**After:**<br>`BOLT_TRUSTED_PROXIES = ["10.0.0.0/8", "192.168.0.0/16"]`<br>in settings.py |
+| v0.11.0 | `Nested()` removed — use plain type hints | **Before:**<br>`author: Nested(AuthorSerializer)`<br><br>**After:**<br>`author: AuthorSerializer` |
 
 ---
 

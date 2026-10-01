@@ -30,27 +30,58 @@ Django Ninja is a web framework for building APIs with Django and Python 3.6+ ty
 - Easy: Django integration with minimal boilerplate
 - Async support: Native async/await support
 
-### Django Ninja vs Django REST Framework
+### DRF to Django Ninja Migration
 
-| Feature | Django Ninja | DRF |
-|---------|-------------|-----|
-| Validation | Pydantic | Serializers |
-| Performance | Very Fast | Fast |
-| Type Safety | Full | Partial |
-| OpenAPI | Auto | Manual (drf-spectacular) |
-| Learning Curve | Easy | Moderate |
-| Async | Native | Limited |
+**What has no clean equivalent:** browsable API, `get_serializer_class()` polymorphism, complex nested serializers with dynamic depth.
 
-**Use Django Ninja when:**
-- Building new REST APIs
-- Need type safety and IDE support
-- Want automatic OpenAPI docs
-- Prefer Pydantic validation
+**Mapping table:**
 
-**Use DRF when:**
-- Have existing DRF codebase
-- Need browsable API (HTML responses)
-- Require specific DRF features
+| DRF pattern | Django Ninja equivalent |
+|-------------|------------------------|
+| `ModelSerializer` | `ModelSchema` (generated from model) |
+| `ViewSet` | `Router` + `api.get`/`api.post` decorators |
+| `perform_create()` | resolver body (function body) |
+| `APIView` class | function-based handler |
+| `IsAuthenticated` | operation-level auth callback (`auth=`) |
+| `PageNumberPagination` | `paginate(PageNumberPagination)` decorator |
+
+**Before (DRF):**
+
+```python
+# serializers.py
+class PostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['id', 'title', 'body']
+
+# views.py
+class PostViewSet(viewsets.ModelViewSet):
+    queryset = Post.objects.all()
+    serializer_class = PostSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+```
+
+**After (Django Ninja):**
+
+```python
+# schemas.py
+class PostSchema(ModelSchema):
+    class Config:
+        model = Post
+        model_fields = ['id', 'title', 'body']
+
+# api.py
+@api.get("/posts", response=List[PostSchema], auth=IsAuthenticated())
+def list_posts(request):
+    return Post.objects.all()
+
+@api.post("/posts", response=PostSchema, auth=IsAuthenticated())
+def create_post(request, payload: PostCreateSchema):
+    return Post.objects.create(author=request.user, **payload.dict())
+```
 
 ## Installation
 
@@ -93,25 +124,16 @@ urlpatterns = [
 
 ```
 myproject/
-├── api/
-│   ├── __init__.py
-│   ├── urls.py
-│   ├── schemas.py
-│   ├── views/
-│   │   ├── __init__.py
-│   │   ├── users.py
-│   │   └── posts.py
-│   └── auth.py
+├── api/           # NinjaAPI, routers, schemas
 ├── models.py
 └── settings.py
 ```
 
 ## Schema Definitions
 
-### Pydantic v2 Context Support
+### Pydantic v2 Context Support (Django 6.0+)
 
 ```python
-# Django 6.0+ context access in schemas
 class Payload(Schema):
     id: int
     request_path: str
@@ -189,89 +211,56 @@ from typing import List
 class CommentSchema(Schema):
     id: int
     content: str
-    author: str
-    created_at: datetime
 
 class PostDetailSchema(Schema):
     id: int
     title: str
-    slug: str
-    body: str
     author: UserSchema
-    categories: List[str]
     comments: List[CommentSchema]
-    created_at: datetime
-    updated_at: datetime
 ```
 
-### Validators
+### Pydantic-in-Django specifics
+
+For full validator/type reference, see https://docs.pydantic.dev/. Focus on these Django-specific patterns:
 
 ```python
-from ninja import Schema
-from pydantic import validator, root_validator
-import re
+from ninja import Schema, ModelSchema
+from pydantic import ConfigDict, field_validator
+from typing import Optional, Partial
 
-class UserCreate(Schema):
-    username: str
-    email: str
-    password: str
+# DjangoGetter for lazy model field access (avoids N+1)
+class UserSchema(ModelSchema):
+    class Config:
+        model = User
+        model_fields = ['id', 'username', 'email']
+
+# ConfigDict(extra="forbid") for strict input validation
+class CreatePostSchema(Schema):
+    title: str
+    body: str
     
-    @validator('username')
-    def validate_username(cls, v):
-        if len(v) < 3:
-            raise ValueError('Username must be at least 3 characters')
-        if not re.match(r'^[a-zA-Z0-9_]+$', v):
-            raise ValueError('Username can only contain letters, numbers, and underscores')
-        return v
+    model_config = ConfigDict(extra="forbid")  # reject unknown fields
+
+# Partial[ModelSchema] for PATCH requests
+class UpdatePostSchema(Schema):
+    title: Optional[str] = None
+    body: Optional[str] = None
+
+# Handling deferred/annotated values
+class PostWithAnnotations(Schema):
+    # Works with annotated/deferred model fields
+    comment_count: int
     
-    @validator('email')
-    def validate_email(cls, v):
-        if '@' not in v:
-            raise ValueError('Invalid email format')
-        return v.lower()
-    
-    @validator('password')
-    def validate_password(cls, v):
-        if len(v) < 8:
-            raise ValueError('Password must be at least 8 characters')
-        return v
-    
-    @root_validator
-    def validate_all(cls, values):
-        # Cross-field validation
-        if values.get('username') == values.get('password'):
-            raise ValueError('Password cannot be the same as username')
-        return values
+    @staticmethod
+    def resolve_comment_count(data, context):
+        # Access request context for custom resolution
+        return data.get("_comment_count", 0)
 ```
 
-### Custom Types
-
-```python
-from ninja import Schema
-from typing import Annotated, List
-from pydantic import Field, HttpUrl
-
-# Using Annotated for reusable validators
-class PostCreate(Schema):
-    title: Annotated[str, Field(min_length=5, max_length=200)]
-    slug: Annotated[str, Field(pattern=r'^[a-z0-9-]+$')]
-    body: Annotated[str, Field(min_length=10)]
-    tags: Annotated[List[str], Field(max_items=10)] = []
-    
-# Custom type with validator
-class URLSchema(Schema):
-    url: HttpUrl  # Validates URL format
-
-# Using constrint
-from pydantic import constr
-
-ShortStr = constr(max_length=50)
-EmailStr = constr(regex=r'^[^@]+@[^@]+\.[^@]+$')
-
-class ContactSchema(Schema):
-    name: ShortStr
-    email: EmailStr
-```
+**Key points:**
+- `ConfigDict(from_attributes=True)` required when reading from Django model instances (auto-set by `ModelSchema`)
+- `extra="forbid"` prevents silent data loss on unknown input fields
+- Use `Partial[]` or optional fields with defaults for PATCH operations
 
 ## Router & API
 
@@ -331,28 +320,16 @@ def delete_user(request, user_id: int):
 from ninja import Path
 
 @api.get("/posts/{post_id}/comments/{comment_id}")
-def get_comment(
-    request,
-    post_id: int,
-    comment_id: int
-):
-    """Path parameters with type hints are automatically validated."""
+def get_comment(request, post_id: int, comment_id: int):
     comment = get_object_or_404(Comment, id=comment_id, post_id=post_id)
     return {"comment": comment.content}
-
-# String path parameters
-@api.get("/categories/{slug}/posts")
-def category_posts(request, slug: str):
-    category = get_object_or_404(Category, slug=slug)
-    return category.posts.all()
 
 # UUID path parameters
 import uuid
 
 @api.get("/orders/{order_id}")
 def get_order(request, order_id: uuid.UUID):
-    order = get_object_or_404(Order, id=order_id)
-    return order
+    return get_object_or_404(Order, id=order_id)
 ```
 
 ### Query Parameters
@@ -365,42 +342,20 @@ from datetime import date
 class FilterParams(Schema):
     search: Optional[str] = None
     status: Optional[str] = None
-    category: Optional[int] = None
-    tags: Optional[List[str]] = None
-    created_after: Optional[date] = None
-    created_before: Optional[date] = None
     ordering: Optional[str] = "-created_at"
     page: int = 1
     page_size: int = 20
 
 @api.get("/posts", response=List[PostSchema])
 def list_posts(request, filters: FilterParams = Query(...)):
-    """Query parameters are automatically validated and parsed."""
     posts = Post.objects.all()
     
     if filters.search:
-        posts = posts.filter(
-            Q(title__icontains=filters.search) |
-            Q(body__icontains=filters.search)
-        )
-    
+        posts = posts.filter(Q(title__icontains=filters.search))
     if filters.status:
         posts = posts.filter(status=filters.status)
     
-    if filters.category:
-        posts = posts.filter(categories__id=filters.category)
-    
-    if filters.tags:
-        posts = posts.filter(tags__name__in=filters.tags)
-    
-    if filters.created_after:
-        posts = posts.filter(created_at__gte=filters.created_after)
-    
-    if filters.created_before:
-        posts = posts.filter(created_at__lte=filters.created_before)
-    
     posts = posts.order_by(filters.ordering)
-    
     return posts[(filters.page - 1) * filters.page_size:filters.page * filters.page_size]
 ```
 
@@ -418,39 +373,15 @@ class PostCreate(Schema):
 
 @api.post("/posts", response=PostSchema)
 def create_post(request, payload: PostCreate):
-    """Request body is automatically validated against schema."""
-    # payload is a Pydantic model instance
-    post = Post.objects.create(
-        title=payload.title,
-        body=payload.body,
-        author=request.user
-    )
-    
+    post = Post.objects.create(title=payload.title, body=payload.body, author=request.user)
     if payload.category_ids:
         post.categories.set(payload.category_ids)
-    
-    if payload.tags:
-        post.tags.set(payload.tags)
-    
     return post
 
 # Multiple body parameters
 @api.post("/posts/{post_id}/comments")
-def add_comment(
-    request,
-    post_id: int,
-    content: str = Body(...),
-    author_name: str = Body(...),
-    author_email: str = Body(...)
-):
-    post = get_object_or_404(Post, id=post_id)
-    comment = Comment.objects.create(
-        post=post,
-        content=content,
-        author_name=author_name,
-        author_email=author_email
-    )
-    return {"id": comment.id}
+def add_comment(request, post_id: int, content: str = Body(...), author_name: str = Body(...)):
+    return Comment.objects.create(post_id=post_id, content=content, author_name=author_name)
 ```
 
 ### Form Data
@@ -466,20 +397,11 @@ class ContactForm(Schema):
 
 @api.post("/contact")
 def contact_form(request, data: ContactForm = Form(...)):
-    """Handle form submission."""
     send_contact_email(data.name, data.email, data.message)
     return {"status": "sent"}
 
-# File uploads with form data
 @api.post("/upload")
-def upload_with_data(
-    request,
-    file: UploadedFile = File(...),
-    description: str = Form(...),
-    tags: List[str] = Form(default=[])
-):
-    """Upload file with metadata."""
-    # Handle file and form data together
+def upload_file(request, file: UploadedFile = File(...), description: str = Form(...)):
     pass
 ```
 
@@ -493,97 +415,176 @@ For detailed coverage of advanced topics, load these reference files on demand:
 - **references/django-integration.md** — Django model integration, middleware, signals, and production best practices
 - **references/testing-troubleshooting.md** — Testing with pytest, authentication testing, and common issue resolutions
 
+## Runtime Behavior
+
+### Validation Timing
+
+Validation happens **before** the resolver function executes. If input fails validation:
+- The operation body never runs
+- A 422 response is returned immediately
+- You cannot "catch" validation errors inside the resolver
+
+```python
+# This never runs if payload fails validation
+@api.post("/posts", response=PostSchema)
+def create_post(request, payload: PostCreateSchema):
+    # payload is guaranteed valid here
+    return Post.objects.create(**payload.dict())
+```
+
+### The `response=` Parameter
+
+The `response=` annotation affects **both** runtime serialization AND OpenAPI schema generation:
+
+```python
+# Without response= — OpenAPI shows 200 with empty schema
+@api.get("/health")
+def health(request):
+    return {"status": "ok"}  # Works, but docs are incomplete
+
+# With response= — OpenAPI documents the actual response
+@api.get("/health", response=dict)
+def health(request):
+    return {"status": "ok"}  # Docs show {"status": "string"}
+```
+
+**Common mistake:** omitting `response=` on endpoints that return data. The endpoint works, but generated clients (from OpenAPI) have no type information.
+
+### `dict`/`list` Annotations Bypass Validation
+
+```python
+# Bypasses Pydantic validation — raw dict passthrough
+@api.post("/raw", response=dict)
+def raw_handler(request, payload: dict):
+    return payload  # No validation, no type safety
+
+# Use Schema for validation
+@api.post("/typed", response=PostSchema)
+def typed_handler(request, payload: PostCreateSchema):
+    return Post.objects.create(**payload.dict())  # Validated
+```
+
+### `operation_id` Contract
+
+The `operation_id` is used by code generation tools. Changing it breaks generated clients:
+
+```python
+# Stable operation IDs for client generation
+@api.get("/posts/{id}", operation_id="get_post")
+def get_post(request, id: int):
+    ...
+
+# Bad: changing this breaks existing generated clients
+@api.get("/posts/{id}", operation_id="fetch_post")  # Breaking change!
+```
+
+## Testing
+
+### TestClient from django-ninja
+
+```python
+from ninja.testing import TestClient
+from .api import api  # Your NinjaAPI instance
+
+client = TestClient(api)
+
+def test_list_posts():
+    response = client.get("/posts")
+    assert response.status_code == 200
+    data = response.json()
+    assert len(data) == 2
+    assert data[0]["title"] == "Test Post"
+
+def test_create_post():
+    payload = {"title": "New Post", "body": "Content here"}
+    response = client.post("/posts", json=payload)
+    assert response.status_code == 200
+    assert response.json()["id"] == 1
+
+def test_validation_error():
+    payload = {"title": ""}  # Missing required field
+    response = client.post("/posts", json=payload)
+    assert response.status_code == 422  # Validation error
+```
+
+### Testing Auth Callbacks
+
+```python
+from ninja.security import HttpBearer
+
+class CustomAuth(HttpBearer):
+    def __call__(self, request, token: str):
+        if not is_valid_token(token):
+            raise PermissionError("Invalid token")
+        request.user = get_user_by_token(token)
+        return request.user
+
+# Test the auth callback directly
+def test_custom_auth_invalid():
+    auth = CustomAuth()
+    try:
+        auth(None, "invalid_token")
+        assert False, "Should have raised"
+    except PermissionError:
+        pass  # Expected
+
+# Test endpoint with auth
+@api.get("/protected", auth=CustomAuth())
+def protected(request):
+    return {"user": request.user.username}
+
+def test_protected_endpoint():
+    response = client.get("/protected")
+    assert response.status_code == 401  # No auth header
+    
+    response = client.get("/protected", headers={"Authorization": "Bearer valid_token"})
+    assert response.status_code == 200
+```
+
+### Separating Resolver Logic from HTTP
+
+```python
+# business_logic.py — pure functions, no HTTP dependencies
+def create_post_data(title: str, body: str, author_id: int) -> dict:
+    """Pure function — easy to test without Django."""
+    return {
+        "title": title.strip(),
+        "body": body.strip(),
+        "author_id": author_id,
+    }
+
+# api.py — thin HTTP layer
+class PostCreateSchema(Schema):
+    title: str
+    body: str
+
+@api.post("/posts", response=PostSchema)
+def create_post(request, payload: PostCreateSchema):
+    data = create_post_data(payload.title, payload.body, request.user.id)
+    return Post.objects.create(**data)
+```
+
 ## Ecosystem Libraries
 
 ### django-ninja-extra
-- **URL**: https://github.com/eadwinCode/django-ninja-extra
-- **PyPI**: `django-ninja-extra`
-- **Version**: 0.31.7 (requires Python >=3.7, Django >=2.2, django-ninja >=1.6.3)
+**PyPI**: `django-ninja-extra` | **URL**: https://github.com/eadwinCode/django-ninja-extra
 
-Extension of Django Ninja that adds class-based views (controllers) and advanced features on top of the framework.
-
-**Key features:**
-- Class-based controllers via `@api_controller` and HTTP method decorators (`http_get`, etc.), registered with `api.register_controllers()`
-- DRF-like permission system: controller-level permissions, route-level overrides, custom `PermissionBase` subclasses
-- Dependency injection built on the `Injector` library; injectable service layer (`ModelController`/`ModelService` pattern)
-- Inherits Django Ninja's core features (Pydantic validation, async, OpenAPI docs, throttling)
-
-```bash
-pip install django-ninja-extra
-```
-Add `'ninja_extra'` to `INSTALLED_APPS`.
-
-### ninja-schema
-- **URL**: https://github.com/eadwinCode/ninja-schema
-- **PyPI**: `ninja-schema`
-- **Version**: 0.14.3 (requires Python >=3.8)
-
-Converts Django ORM models to Pydantic schemas with full Pydantic feature support. Inspired by django-ninja and djantic.
-
-**Key features:**
-- `ModelSchema` with `include`, `exclude`, `optional`, and `depth` config (nested relation schema generation)
-- `model_validator` for field-level pre/post validation
-- `from_orm()` to instantiate schemas from model instances; `apply_to_model()` to write schema data back to a model instance
-- Supports Pydantic v1 and v2 (dual support since 0.13.4)
-
-```bash
-pip install ninja-schema
-```
+Use when you need class-based controllers (`@api_controller`) or DRF-style permission classes. Adds dependency injection via `Injector` library. **Tradeoff:** adds complexity; prefer function-based handlers for simple APIs.
 
 ### django-ninja-jwt
-- **URL**: https://github.com/eadwinCode/django-ninja-jwt
-- **PyPI**: `django-ninja-jwt`
-- **Version**: 5.4.5 (requires Python >=3.7, `django-ninja-extra>=0.30.5`, `pyjwt>=1.7.1,<3`)
+**PyPI**: `django-ninja-jwt` | **URL**: https://github.com/eadwinCode/django-ninja-jwt
 
-JSON Web Token (JWT) plugin for Django-Ninja. Fork of Jazzband's Simple JWT that removes the DRF dependency and targets Django Ninja. Note: `django-ninja-jwt` depends on `django-ninja-extra`, so installing JWT pulls in Extra.
-
-**Key features:**
-- `NinjaJWTDefaultController` registering `obtain_token`, `refresh_token`, and `verify_token` routes
-- Custom controllers by inheriting the token controller classes and registering via `api.register_controller()`
-- Customizable token classes and claims; configuration via `pydantic-settings`
-- Optional use with a plain Django Ninja `Router`
-
-```bash
-pip install django-ninja-jwt
-```
+Use for JWT authentication (obtain/refresh/verify tokens). **Tradeoff:** pulls in `django-ninja-extra` as a dependency. For custom token logic, write your own `HttpBearer` subclass instead.
 
 ### django-ninja-aio-crud
-- **URL**: https://github.com/caspel26/django-ninja-aio-crud
-- **PyPI**: `django-ninja-aio-crud`
-- **Version**: 2.34.2 (requires Python >=3.10,<3.15; django-ninja >=1.3.0,<1.7.0)
+**PyPI**: `django-ninja-aio-crud` | **URL**: https://github.com/caspel26/django-ninja-aio-crud
 
-Async CRUD framework for Django Ninja providing automatic schema generation, filtering, pagination, auth, and M2M management.
-
-**Key features:**
-- Fully async CRUD viewsets (create/list/retrieve/update/delete) via `@api.viewset(Model)` and `APIViewSet`
-- Two schema styles: meta-driven `Serializer` (existing models) or `ModelSerializer` models with `Read/Create/UpdateSerializer` inner classes
-- Auto Pydantic schemas (read/create/update) and dynamic query params via `pydantic.create_model`
-- Per-method auth (incl. `AsyncJwtBearer` using `joserfc`), async pagination, M2M relation endpoints with filtering
-- Bulk create/update/delete endpoints, `@action`/`@on` custom endpoints, lifecycle hooks
-- ORJSON rendering; optional MCP extra exposing ViewSets as Model Context Protocol tools
-
-```bash
-pip install django-ninja-aio-crud
-```
-MCP support: `pip install "django-ninja-aio-crud[mcp]"`
+Use for auto-generated async CRUD endpoints with built-in filtering/pagination. **Tradeoff:** opinionated structure; harder to customize than hand-written handlers.
 
 ### django-contract-tester
-- **URL**: https://github.com/maticardenas/django-contract-tester
-- **PyPI**: `django-contract-tester`
-- **Version**: 1.8.2
+**PyPI**: `django-contract-tester` | **URL**: https://github.com/maticardenas/django-contract-tester
 
-Test utility for validating DRF and Django Ninja test requests/responses against OpenAPI 2.0/3.0.x/3.1.x schemas. Forked from `snok/drf-openapi-tester`.
-
-**Key features:**
-- `SchemaTester` with `validate_response()` / `validate_request()`; auto-detects `drf-yasg` or `drf-spectacular` schemas, or loads schema files
-- `OpenAPIClient` (extends DRF `APIClient`) and `OpenAPINinjaClient` (extends the Django Ninja test client) for automatic per-request validation
-- Built-in key-case testers (`is_camel_case`, `is_pascal_case`, `is_snake_case`, `is_kebab_case`), `ignore_case`, custom validators
-- Config file support (`.django-contract-tester` INI or `[tool.django-contract-tester]` in `pyproject.toml`)
-
-```bash
-pip install django-contract-tester
-```
-Optional extras: `django-ninja`, `drf-yasg`, `drf-spectacular`.
+Use to validate test requests/responses against OpenAPI schemas. **Tradeoff:** only needed for strict contract testing; regular pytest assertions work for most cases.
 
 ## References
 

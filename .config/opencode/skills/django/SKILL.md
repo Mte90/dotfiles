@@ -28,12 +28,6 @@ Django provides a batteries-included web framework with robust features out of t
 - **GeoDjango** - Geographic database operations with GPS extraction
 - **Django 6.0** - Middleware changes, built-in tasks framework, CSP, GeneratedField
 - **Admin Extensions** - Operational dashboards and monitoring tools
-Django provides robust security features out of the box:
-- **CSRF Protection** - Prevents cross-site request forgery
-- **Authentication** - User login/logout, password management
-- **Sessions** - Secure session management
-- **Security Middleware** - Various security headers
-- **Password Hashing** - Secure password storage
 
 ## Specialized Skills
 

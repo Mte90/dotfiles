@@ -32,7 +32,7 @@ django-filter provides a declarative way to filter querysets based on URL query 
 ```bash
 pip install django-filter
 
-# With DRF support
+# With DRF integration
 pip install django-filter djangorestframework
 ```
 
@@ -40,29 +40,13 @@ Add to `INSTALLED_APPS`:
 
 ```python
 INSTALLED_APPS = [
-    # ...
     'django_filters',
 ]
 ```
 
 ---
 
-## Basic Usage
-
-### Django 6.0 Breaking Change
-
-**`fields` requires explicit `__all__`:**
-
-```python
-class UserFilter(FilterSet):
-    class Meta:
-        model = User
-        fields = '__all__'  # Must be string, not list
-```
-
-Using `fields = []` or `fields = ['field1', 'field2']` without `__all__` will raise an error in Django 6.0+
-
-### FilterSet Class
+## Basic FilterSet Pattern
 
 ```python
 # filters.py
@@ -70,249 +54,74 @@ import django_filters
 from .models import Product
 
 class ProductFilter(django_filters.FilterSet):
-    # Exact match
-    category = django_filters.NumberFilter(field_name='category_id')
-    
-    # Lookup expressions (icontains, exact, gt, gte, lt, lte, contains, in)
-    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+    # Range filters (min/max naming convention)
     price_min = django_filters.NumberFilter(field_name='price', lookup_expr='gte')
     price_max = django_filters.NumberFilter(field_name='price', lookup_expr='lte')
     
+    # Text search
+    name = django_filters.CharFilter(field_name='name', lookup_expr='icontains')
+    
     # Boolean filter
-    in_stock = django_filters.BooleanFilter(field_name='stock', lookup_expr='gt', method='filter_in_stock')
+    in_stock = django_filters.BooleanFilter(method='filter_in_stock')
     
-    # Date filters
+    # Multiple selection (comma-separated values)
+    categories = django_filters.CharFilter(field_name='category__slug', lookup_expr='in')
+    
+    # Date range
     created_after = django_filters.DateFilter(field_name='created_at', lookup_expr='gte')
-    created_before = django_filters.DateFilter(field_name='created_at', lookup_expr='lte')
     
-    # Multiple selection (comma-separated)
-    categories = django_filters.CharFilter(field_name='category_id', lookup_expr='in')
-    
-    # Ordering filter
+    # Ordering
     order_by = django_filters.OrderingFilter(
-        fields=['price', 'created_at', 'name'],
-        field_labels={'price': 'Price', 'created_at': 'Date'}
+        fields=[('price', 'price'), ('created_at', 'created_at'), ('name', 'name')]
     )
 
     class Meta:
         model = Product
-        # Django 6.0+: Use '__all__' string or explicit field list
-        fields = '__all__'  # or ['category', 'name', 'price', ...]
+        fields = '__all__'  # Django 6.0+: must be string '__all__' or explicit list
 
     def filter_in_stock(self, queryset, name, value):
-        """Custom filter method for in_stock."""
         if value:
             return queryset.filter(stock__gt=0)
-        return queryset.filter(stock=0)
-```
+        return queryset
 
-### FilterSet with ModelForm
-
-```python
-# Auto-generate filters from model fields
-class ProductFilter(django_filters.FilterSet):
     class Meta:
         model = Product
-        fields = ['name', 'category', 'price', 'is_active', 'stock']
+        fields = ['category', 'name', 'price', 'stock']
 ```
 
----
+### Django 6.0 Breaking Change
 
-## Django REST Framework Integration
-
-### ViewSet Integration
+The `fields` attribute requires explicit `__all__`:
 
 ```python
-# views.py
-from rest_framework import viewsets
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
-from .models import Product
-from .serializers import ProductSerializer
-from .filters import ProductFilter
-
-class ProductViewSet(viewsets.ModelViewSet):
-    queryset = Product.objects.all()
-    serializer_class = ProductSerializer
-    
-    # Filter backends
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.SearchFilter,
-        filters.OrderingFilter
-    ]
-    
-    # Filterset class
-    filterset_class = ProductFilter
-    
-    # Or inline filterset_fields
-    filter_fields = ['category', 'is_active']
-    
-    # Search configuration
-    search_fields = ['name', 'description', 'category__name']
-    
-    # Ordering fields
-    ordering_fields = ['price', 'created_at', 'name']
-    ordering = ['-created_at']
-```
-
-### APIView Integration
-
-```python
-# views.py
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
-from .models import Product
-from .serializers import ProductSerializer
-from .filters import ProductFilter
-
-class ProductListView(APIView):
-    def get(self, request):
-        queryset = Product.objects.all()
-        
-        # Apply filters manually
-        filter_backend = DjangoFilterBackend()
-        queryset = filter_backend.filter_queryset(request, queryset, self)
-        
-        serializer = ProductSerializer(queryset, many=True)
-        return Response(serializer.data)
-```
-
----
-
-## Filter Types Reference
-
-### NumberFilter
-
-```python
-price = django_filters.NumberFilter()
-price_gt = django_filters.NumberFilter(field_name='price', lookup_expr='gt')
-price_range = django_filters.RangeFilter(field_name='price')
-```
-
-### CharFilter
-
-```python
-name = django_filters.CharFilter(lookup_expr='icontains')
-description = django_filters.CharFilter(lookup_expr='contains')
-```
-
-### DateFilter / DateTimeFilter
-
-```python
-created = django_filters.DateFilter()
-created_after = django_filters.DateTimeFilter(field_name='created_at', lookup_expr='gte')
-```
-
-### BooleanFilter
-
-```python
-is_active = django_filters.BooleanFilter()
-is_featured = django_filters.BooleanFilter(field_name='is_featured', distinct=False)
-```
-
-### ModelChoiceFilter / ModelMultipleChoiceFilter
-
-```python
-category = django_filters.ModelChoiceFilter(
-    queryset=Category.objects.all(),
-    empty_label='All Categories'
-)
-
-tags = django_filters.ModelMultipleChoiceFilter(
-    queryset=Tag.objects.all(),
-    conjoined=True  # AND vs OR behavior
-)
-```
-
-### ChoiceFilter
-
-```python
-status = django_filters.ChoiceFilter(
-    choices=Product.STATUS_CHOICES,
-    empty_label=None
-)
-```
-
-### UUIDFilter
-
-```python
-id = django_filters.UUIDFilter(field_name='id')
-```
-
-### AllValuesFilter / AllValuesMultipleFilter
-
-```python
-# Dropdown with all possible values
-category = django_filters.AllValuesFilter(field_name='category_id')
-```
-
-### DateFromToRangeFilter
-
-```python
-date_range = django_filters.DateFromToRangeFilter(field_name='created_at')
-```
-
-### TimeFromToRangeFilter
-
-```python
-time_range = django_filters.TimeFromToRangeFilter(field_name='created_at')
-```
-
-### DateTimeFromToRangeFilter
-
-```python
-datetime_range = django_filters.DateTimeFromToRangeFilter(field_name='created_at')
-```
-
-### NumberRangeFilter
-
-```python
-price_range = django_filters.NumberRangeFilter(field_name='price')
-```
-
----
-
-## Custom Filter Methods
-
-### Method Filter with Request Context
-
-```python
-class ProductFilter(django_filters.FilterSet):
-    # Access request in filter method
-    category = django_filters.NumberFilter(method='filter_by_category')
-    
+class UserFilter(FilterSet):
     class Meta:
-        model = Product
-        fields = ['category']
-
-    def filter_by_category(self, queryset, name, value):
-        # Access request, user, etc. via self.request
-        user = self.request.user
-        
-        if user.is_premium:
-            return queryset.filter(category_id=value)
-        return queryset.filter(category_id=value, category__is_premium=False)
+        model = User
+        fields = '__all__'  # String, not list
 ```
 
-### Filter with Multiple Fields
-
-```python
-class ProductFilter(django_filters.FilterSet):
-    price_min = django_filters.NumberFilter(field_name='price', lookup_expr='gte')
-    price_max = django_filters.NumberFilter(field_name='price', lookup_expr='lte')
-    min_max_price = django_filters.NumberFilter(method='filter_price_range')
-
-    def filter_price_range(self, queryset, name, value):
-        # Handle custom filter logic
-        return queryset.filter(price__gte=value)
-```
+Using `fields = []` without `__all__` raises an error in Django 6.0+.
 
 ---
 
-## Composable QuerySet Methods (FilterSet Alternative)
+## Filter Type Selection
+
+Choose filter types based on query shape, not field type. See [django-filter field documentation](https://django-filter.readthedocs.io/en/stable/guide/fields.html) for the full API.
+
+| Query shape | Filter type | Example |
+|-------------|-------------|---------|
+| Exact match | `CharFilter` / `NumberFilter` | `category = CharFilter()` |
+| Multiple values | `CharFilter` with `lookup_expr='in'` | `ids = CharFilter(lookup_expr='in')` |
+| Range (min/max) | Two separate filters | `price_min`, `price_max` |
+| Date range | `DateFromToRangeFilter` | `date_range = DateFromToRangeFilter()` |
+| Relational (FK/M2M) | Filter on related field | `author__name = CharFilter()` |
+| Custom logic | `Filter` with `method=` | `status = Filter(method='filter_status')` |
+
+**Avoid enumerating all 12+ filter types** — focus on the lookup expressions you actually need: `exact`, `icontains`, `gt`, `gte`, `lt`, `lte`, `in`, `isnull`.
+
+---
+
+## Composable QuerySet Methods
 
 When filtering is driven by code paths rather than user-supplied query params,
 define a custom `QuerySet` with one method per `WHERE` clause. The view reads
@@ -320,6 +129,7 @@ like a sentence, and each method is independently testable.
 
 ```python
 from django.db import models
+from django.utils import timezone
 
 class EventQuerySet(models.QuerySet):
     def approved(self):
@@ -328,6 +138,9 @@ class EventQuerySet(models.QuerySet):
     def future(self):
         today = timezone.localdate()
         return self.filter(end__gt=self._midnight(today))
+
+    def _midnight(self, date):
+        return timezone.datetime(date.year, date.month, date.day, tzinfo=timezone.utc)
 
     def with_tags(self, tags):
         if not tags:
@@ -338,6 +151,13 @@ class EventQuerySet(models.QuerySet):
         if free is None:
             return self
         return self.filter(price=0) if free else self
+
+    def for_tab(self, tab):
+        if tab == 'featured':
+            return self.filter(featured=True)
+        if tab == 'popular':
+            return self.filter(views__gte=100)
+        return self
 
 class Event(models.Model):
     objects = EventQuerySet.as_manager()
@@ -351,162 +171,415 @@ def event_list(request, tab):
     qs = (
         Event.objects.approved()
         .for_tab(tab)
-        .with_festivals(tab_params.festival_slugs)
-        .is_free(tab_params.free)
+        .with_tags(request.GET.getlist('tags'))
+        .is_free(request.GET.get('free') == 'true')
     )
     return render(request, 'events/list.html', {'events': qs})
 ```
 
-### When to choose QuerySet methods vs FilterSet
+### Guidelines for QuerySet methods
 
-| Need | Pick |
-|------|------|
-| User-facing filters from query params, DRF integration, auto-generated form | `FilterSet` |
-| Code-driven filtering, readable chains, no query-param binding | Custom `QuerySet` methods |
-| Both | Combine: `FilterSet` for the API surface, `QuerySet` methods for internal reuse |
-
-Guidelines for QuerySet methods:
 - Return `self` (not `None`) when the filter is a no-op, so chains never break.
 - Guard each method against its argument being empty/None — callers should not
   have to branch before calling.
 - Keep methods single-purpose; compose in the view rather than adding flags.
 
-## DRF Tips & Patterns
+---
 
-### FilterBackend per Action
+## FilterSet Composition
+
+### Combining FilterSets with `&`
+
+Combine multiple `FilterSet` classes to create composite filters:
+
+```python
+class BaseProductFilter(django_filters.FilterSet):
+    """Common filters used across multiple views."""
+    search = django_filters.CharFilter(method='filter_search')
+    category = django_filters.ModelChoiceFilter(
+        field_name='category',
+        queryset=Category.objects.active()
+    )
+
+    class Meta:
+        model = Product
+        fields = []
+
+    def filter_search(self, queryset, name, value):
+        if not value:
+            return queryset
+        return queryset.filter(
+            models.Q(name__icontains=value) |
+            models.Q(description__icontains=value)
+        )
+
+class PriceFilter(django_filters.FilterSet):
+    price_min = django_filters.NumberFilter(field_name='price', lookup_expr='gte')
+    price_max = django_filters.NumberFilter(field_name='price', lookup_expr='lte')
+    on_sale = django_filters.BooleanFilter(method='filter_on_sale')
+
+    class Meta:
+        model = Product
+        fields = []
+
+    def filter_on_sale(self, queryset, name, value):
+        if value:
+            return queryset.filter(discount__gt=0)
+        return queryset
+
+# Combine filters
+ProductFilter = BaseProductFilter & PriceFilter
+```
+
+**Failure mode**: Without composition, you either duplicate filter definitions or create bloated monolithic `FilterSet` classes. The `&` operator merges filters cleanly.
+
+### Subclassing for shared base filters
+
+```python
+class BaseFilter(django_filters.FilterSet):
+    """Base class with filters shared across multiple FilterSets."""
+    created_after = django_filters.DateFilter(field_name='created_at', lookup_expr='gte')
+    created_before = django_filters.DateFilter(field_name='created_at', lookup_expr='lte')
+    ordering = django_filters.OrderingFilter(
+        fields=['created_at', 'updated_at', 'name']
+    )
+
+    class Meta:
+        model = None  # Subclasses must define Meta.model
+        fields = []
+
+class ProductFilter(BaseFilter):
+    class Meta:
+        model = Product
+        fields = ['category', 'is_active']
+
+class OrderFilter(BaseFilter):
+    class Meta:
+        model = Order
+        fields = ['status', 'customer']
+```
+
+**Failure mode**: Duplicating date range and ordering filters across multiple `FilterSet` classes leads to drift when you add a new field to one but forget another.
+
+### Using `@property` for computed filters
+
+```python
+class ProductFilter(django_filters.FilterSet):
+    price_min = django_filters.NumberFilter()
+    price_max = django_filters.NumberFilter()
+
+    class Meta:
+        model = Product
+        fields = []
+
+    @property
+    def is_price_range_valid(self):
+        """Check if both min and max are provided and valid."""
+        price_min = self.data.get('price_min')
+        price_max = self.data.get('price_max')
+        if price_min and price_max:
+            return float(price_min) <= float(price_max)
+        return True
+
+    @property
+    def qs(self):
+        qs = super().qs
+        # Access computed property to trigger validation
+        if not self.is_price_range_valid:
+            # Return empty queryset or raise error
+            return qs.none()
+        return qs
+```
+
+**Failure mode**: Trying to validate cross-field constraints in `__init__` fails because filters haven't been instantiated yet. Use `@property` on `qs` to validate after filter application.
+
+### Overriding `get_queryset()` for cross-field logic
+
+```python
+class ProductFilter(django_filters.FilterSet):
+    min_price = django_filters.NumberFilter(field_name='price', lookup_expr='gte')
+    max_price = django_filters.NumberFilter(field_name='price', lookup_expr='lte')
+    category = django_filters.CharFilter()
+
+    class Meta:
+        model = Product
+        fields = []
+
+    def get_queryset(self):
+        """Access other filter values for cross-field logic."""
+        qs = super().get_queryset()
+        
+        # Example: filter based on relationship between fields
+        min_price = self.data.get('min_price')
+        max_price = self.data.get('max_price')
+        
+        if min_price and max_price:
+            # Custom logic: ensure price is within 10% of midpoint
+            midpoint = (float(min_price) + float(max_price)) / 2
+            tolerance = midpoint * 0.1
+            qs = qs.filter(price__gte=midpoint - tolerance, price__lte=midpoint + tolerance)
+        
+        return qs
+```
+
+**Failure mode**: `FilterSet` re-runs `get_queryset()` per request — there's no caching of the base queryset. If your `get_queryset()` performs expensive operations, cache the result or move logic to the view.
+
+### `distinct()` for ManyToMany traversals
+
+```python
+class ProductFilter(django_filters.FilterSet):
+    tags = django_filters.CharFilter(field_name='tags__name', lookup_expr='in')
+    categories = django_filters.CharFilter(field_name='category__slug', lookup_expr='in')
+
+    class Meta:
+        model = Product
+        fields = ['tags', 'categories']
+        # Enable distinct to avoid duplicate rows from M2M joins
+        # Note: django-filter doesn't auto-add distinct; you must handle it
+```
+
+In the view:
+
+```python
+def product_list(request):
+    filter = ProductFilter(request.GET, queryset=Product.objects.all())
+    qs = filter.qs.distinct()  # Required for M2M filters
+    return render(request, 'products.html', {'products': qs})
+```
+
+**Failure mode**: Without `distinct()`, filtering on multiple M2M relationships produces duplicate rows (Cartesian product of joins).
+
+---
+
+## Decision: django-filter vs plain query params vs manual filtering
+
+### Use django-filter when
+
+- You need **DRF integration** (automatic filter schema, OpenAPI docs)
+- Filters are **user-facing and dynamic** (users can combine any filter)
+- You have **10+ filter parameters** or complex cross-field logic
+- Multiple views share **the same filter set**
+- You want **validation** of filter values (type coercion, range checks)
+
+### Use plain `request.GET` when
+
+- You have **2-3 stable parameters** (e.g., `page`, `limit`, `sort`)
+- The API is **internal** with controlled consumers
+- You need **full control** over query construction
+- The threshold: hand-written `request.GET` handling is simpler for ≤3 params
+
+```python
+def product_list(request):
+    page = int(request.GET.get('page', 1))
+    limit = min(int(request.GET.get('limit', 20)), 100)  # Cap at 100
+    sort = request.GET.get('sort', 'created_at')
+    
+    if sort not in ['created_at', 'price', 'name']:
+        sort = 'created_at'  # Whitelist validation
+    
+    qs = Product.objects.all().order_by(sort)[(page-1)*limit:page*limit]
+    return render(request, 'products.html', {'products': qs})
+```
+
+### When django-filter is overkill
+
+- **Public API with a handful of stable params** — manual handling is clearer
+- **Filters that depend on session/auth state** — put logic in `get_queryset()`
+- **Complex business logic** — use QuerySet methods instead of filters
+
+---
+
+## Correctness & Performance
+
+### `distinct()` on ManyToMany traversals
+
+When filtering on M2M relationships, JOINs produce duplicate rows:
+
+```python
+# Without distinct: products with 3 tags appear 3 times
+qs = Product.objects.filter(tags__name__in=['sale', 'new'])
+
+# With distinct: each product appears once
+qs = Product.objects.filter(tags__name__in=['sale', 'new']).distinct()
+```
+
+**Warning**: `distinct()` without arguments uses all fields. If you need to order by a filtered field, use `distinct('field_name')` (PostgreSQL only) or restructure the query.
+
+### Indexing filtered columns
+
+A filter on an unindexed column is a table scan:
+
+```python
+class Product(models.Model):
+    name = models.CharField(max_length=255, db_index=True)  # Index on filter field
+    price = models.DecimalField(max_digits=10, 2, db_index=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    
+    class Meta:
+        indexes = [
+            models.Index(fields=['-created_at']),  # For ordering
+            models.Index(fields=['category', '-created_at']),  # Composite
+        ]
+```
+
+Use `EXPLAIN` to verify index usage on slow filters.
+
+### Bounding `__in` with user-supplied lists
+
+```python
+# Dangerous: unbounded list from user input
+ids = request.GET.getlist('ids')
+Product.objects.filter(id__in=ids)  # Could be millions of rows
+
+# Safe: cap the list length
+MAX_IDS = 100
+ids = request.GET.getlist('ids')[:MAX_IDS]
+Product.objects.filter(id__in=ids)
+```
+
+**Failure mode**: `id__in` with 10,000 values creates a massive SQL IN clause, causing query timeouts.
+
+### `FilterSet` re-runs `get_queryset()` per request
 
 ```python
 class ProductViewSet(viewsets.ModelViewSet):
-    def get_filter_backends(self):
-        if self.action == 'list':
-            return [DjangoFilterBackend, filters.SearchFilter]
-        return []
-
-class OrderViewSet(viewsets.ModelViewSet):
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = OrderFilter
+    filterset_class = ProductFilter
     
     def get_queryset(self):
-        # Exclude cancelled orders for non-admin users
-        if not self.request.user.is_staff:
-            return Order.objects.exclude(status='cancelled')
-        return Order.objects.all()
+        # This runs EVERY request, not just once
+        return Product.objects.select_related('category')
 ```
 
-### Conditional Filter Fields
+**Failure mode**: Assuming `get_queryset()` is cached and putting expensive operations there (e.g., calling an external API). Cache explicitly if needed:
+
+```python
+from django.core.cache import cache
+
+def get_queryset(self):
+    cache_key = 'product_base_qs'
+    qs = cache.get(cache_key)
+    if qs is None:
+        qs = Product.objects.select_related('category')
+        cache.set(cache_key, qs, timeout=300)
+    return qs
+```
+
+---
+
+## Django REST Framework Integration
+
+### Basic ViewSet setup
+
+```python
+from rest_framework import viewsets
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
+from .models import Product
+from .filters import ProductFilter
+
+class ProductViewSet(viewsets.ModelViewSet):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
+    
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = ProductFilter
+    ordering_fields = ['price', 'created_at']
+    ordering = ['-created_at']
+```
+
+### Ordering pitfall: `OrderingFilter` vs FilterSet ordering
+
+`OrderingFilter` (from DRF) and `FilterSet` ordering are separate:
+
+```python
+class ProductFilter(django_filters.FilterSet):
+    # This creates an 'order_by' filter param
+    order_by = django_filters.OrderingFilter(
+        fields=['price', 'created_at']
+    )
+
+    class Meta:
+        model = Product
+        fields = []
+
+class ProductViewSet(viewsets.ModelViewSet):
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = ProductFilter
+    # ordering_fields applies to DRF's OrderingFilter, NOT FilterSet
+    ordering_fields = ['price', 'created_at']
+```
+
+**Failure mode**: Using both `OrderingFilter` in `filter_backends` AND an `OrderingFilter` field in your `FilterSet` creates conflicting ordering behavior. Pick one:
+- Use `FilterSet.ordering` for filter-param-based ordering (user types `?order_by=-price`)
+- Use `OrderingFilter` in `filter_backends` for header-based ordering (user sends `Order: -price`)
+
+---
+
+## URL Patterns
+
+```bash
+# Basic filtering
+GET /api/products/?category=1
+GET /api/products/?price_min=10&price_max=100
+
+# Text search
+GET /api/products/?name__icontains=laptop
+
+# Multiple values (comma-separated)
+GET /api/products/?categories=electronics,books
+
+# Date range
+GET /api/products/?created_after=2024-01-01
+
+# Ordering
+GET /api/products/?order_by=-price
+GET /api/products/?ordering=-price  # DRF OrderingFilter
+```
+
+---
+
+## Common Pitfalls
+
+### S silently ignoring unknown query parameters
+
+django-filter ignores parameters not defined in your `FilterSet`:
+
+```python
+class ProductFilter(django_filters.FilterSet):
+    price_min = django_filters.NumberFilter()
+    
+    class Meta:
+        model = Product
+        fields = []
+
+# GET /api/products/?unknown_param=123 → silently ignored
+```
+
+**Fix**: Validate with `strict=True` (django-filter 4.0+):
 
 ```python
 class ProductFilter(django_filters.FilterSet):
     class Meta:
         model = Product
         fields = []
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        
-        # Add fields dynamically based on user
-        if self.request.user.is_staff:
-            self.filters['is_active'].field_class = django_filters.BooleanFilter()
+        strict = True  # Raise error on unknown params
 ```
 
-### Select Related in Filtered Viewsets
+### Not exposing all model fields accidentally
 
 ```python
-class ProductViewSet(viewsets.ModelViewSet):
-    serializer_class = ProductSerializer
-    
-    def get_queryset(self):
-        # Use select_related to avoid N+1
-        return Product.objects.select_related('category').prefetch_related('tags')
+class Meta:
+    model = Product
+    fields = '__all__'  # Exposes EVERY field — often unintended
 ```
 
----
-
-## URL Patterns
-
-### Basic
-
-```bash
-GET /api/products/
-GET /api/products/?category=1
-GET /api/products/?category=1&price_min=10&price_max=100
-GET /api/products/?search=laptop
-GET /api/products/?ordering=price
-GET /api/products/?ordering=-price
-GET /api/products/?categories=1,2,3
-```
-
-### With Filterset Class
-
-```bash
-GET /api/products/?name__icontains=laptop
-GET /api/products/?price__gte=10
-GET /api/products/?in_stock=true
-GET /api/products/?created_after=2024-01-01
-```
-
-### Range Filters
-
-```bash
-GET /api/products/?price_range_min=10&price_range_max=100
-GET /api/products/?date_range_after=2024-01-01&date_range_before=2024-12-31
-```
-
----
-
-## Best Practices
-
-### Filter Naming Conventions
+**Fix**: Be explicit:
 
 ```python
-# Use descriptive names that map to query params
-price_min = django_filters.NumberFilter(field_name='price', lookup_expr='gte')
-price_max = django_filters.NumberFilter(field_name='price', lookup_expr='lte')
-
-# In URL: ?price_min=10&price_max=100
+class Meta:
+    model = Product
+    fields = ['category', 'price', 'name', 'is_active']
 ```
-
-### Performance
-
-```python
-# Always use select_related/prefetch_related in get_queryset
-class ProductViewSet(viewsets.ModelViewSet):
-    def get_queryset(self):
-        return Product.objects.select_related('category', 'vendor').prefetch_related('tags')
-```
-
-### Validation
-
-```python
-class ProductFilter(django_filters.FilterSet):
-    price_min = django_filters.NumberFilter()
-    price_max = django_filters.NumberFilter()
-    
-    class Meta:
-        model = Product
-        fields = ['price_min', 'price_max']
-    
-    def validate_price_range(self, cleaned_data):
-        if cleaned_data.get('price_min') and cleaned_data.get('price_max'):
-            if cleaned_data['price_min'] > cleaned_data['price_max']:
-                raise serializers.ValidationError("price_min must be less than price_max")
-        return cleaned_data
-```
-
----
-
-## Do
-
-- Use `filterset_class` for complex filtering logic
-- Use `select_related` and `prefetch_related` to avoid N+1 queries
-- Use meaningful filter field names (`price_min`, `price_max` instead of `price` used twice)
-- Add empty labels for optional filters with ModelChoiceFilter
-
-## Don't
-
-- Don't expose all model fields as filters - only expose what's needed
-- Don't forget to add appropriate indexes on filtered fields
-- Don't use filters that require expensive operations without pagination
 
 ---
 

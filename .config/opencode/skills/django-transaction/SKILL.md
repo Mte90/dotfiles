@@ -450,32 +450,6 @@ def create_batch_orders(order_data_list):
     return orders
 ```
         
-        # ❌ This fails: M2M on unsaved object
-        # order = Order(items=item_ids)  # ERROR!
-        
-        return order
-```
-
-**Rule**: Always `save()` first, then set M2M relationships.
-
-**Custom M2M through model:**
-```python
-# models.py
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
-    item = models.ForeignKey(Item, on_delete=models.CASCADE)
-    quantity = models.IntegerField(default=1)
-    
-    class Meta:
-        unique_together = ['order', 'item']  # Prevent duplicates
-
-# Usage
-with transaction.atomic():
-    order = Order.objects.create(user=user)
-    OrderItem.objects.create(order=order, item=item1, quantity=2)
-    OrderItem.objects.create(order=order, item=item2, quantity=1)
-```
-
 ---
 
 ## Best Practices

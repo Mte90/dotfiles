@@ -8,7 +8,16 @@ description: >
 globs: ["**/*.rs"]
 license: MIT
 metadata:
+  author: mte90
   version: "2.0.0"
+  tags:
+    - rust
+    - core
+    - ownership
+    - error-handling
+    - async
+    - performance
+    - testing
   sources:
     - Rust API Guidelines
     - Rust Performance Book
@@ -63,7 +72,7 @@ Run `cargo fix --edition` to apply most changes automatically.
 | 13 | Clippy & Linting | `lint-` | 11 |
 | 14 | Anti-patterns | `anti-` | 15 |
 
-Detailed rules live in `rules/` — read on demand by prefix.
+Detailed rules live in `rules/` — 14 files, one per prefix group (`ownership.md` covers `own-`, `error-handling.md` covers `err-`, …). Each `## <rule-id>` section inside a category file is one rule, so a grep for a rule id lands directly on it.
 
 ## Rule Index
 
@@ -398,20 +407,7 @@ Detailed rules live in `rules/` — read on demand by prefix.
 
 ## Anti-Patterns
 
-- Don't use `.unwrap()` in production code
-- Don't use `.expect()` for recoverable errors
-- Don't clone when borrowing works
-- Don't hold locks across `.await`
-- Don't accept `&String` when `&str` works, `&Vec<T>` when `&[T]` works
-- Don't use indexing when iterators work
-- Don't panic on expected/recoverable errors
-- Don't use empty `if let Err(_) = ...` blocks
-- Don't over-abstract with excessive generics
-- Don't optimize before profiling
-- Don't use `Box<dyn Trait>` when `impl Trait` works
-- Don't use `format!()` in hot paths
-- Don't `collect()` intermediate iterators
-- Don't use strings for structured data
+The 15 `anti-*` rules are indexed in the Rule Index above with full rationale and ❌/✅ examples in [`rules/anti-patterns.md`](rules/anti-patterns.md).
 
 ## Essential Commands
 
@@ -442,5 +438,5 @@ opt-level = 3
 
 ## References
 
-- `rules/` — 179 detailed rule files organized by prefix (read on demand)
+- `rules/` — 14 category files (179 rules total), one file per prefix group, read on demand
 - `references/compiler-errors.md` — Compiler error quick reference (E0382, E0502, E0716, etc.)

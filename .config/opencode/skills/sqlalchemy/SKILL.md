@@ -1,6 +1,6 @@
 ---
 name: sqlalchemy
-description: "Use when working with SQLAlchemy 2.0 in Python - declarative models and relationships, queries and sessions, async engines with FastAPI, Alembic migrations, bulk operations, or PostgreSQL query optimization"
+description: "Use when working with SQLAlchemy 2.0 in Python - declarative models, queries, sessions, async engines, Alembic migrations, relationship loading strategies, N+1 detection, pool exhaustion, or 2.0 migration"
 metadata:
   author: mte90
   version: "3.0.0"
@@ -15,81 +15,33 @@ metadata:
 
 # SQLAlchemy
 
-Complete reference for Python SQL toolkit and ORM.
+Python SQL toolkit and ORM. See [official docs](https://docs.sqlalchemy.org/en/20/) for full API reference.
 
-## Overview
-
-SQLAlchemy provides a full suite of well-known enterprise-level persistence patterns, designed for efficient and high-performing database access.
-
-**Key Features:**
-- **Core**: SQL expression language for building queries
-- **ORM**: Object-relational mapping with declarative models
-- **Async**: Full async/await support (SQLAlchemy 2.0+)
-- **Migrations**: Alembic integration for schema changes
-- **Multiple DBs**: PostgreSQL, MySQL, SQLite, Oracle, SQL Server
-
-### Installation
+## Installation
 
 ```bash
-pip install sqlalchemy
-
-# With async support
-pip install sqlalchemy[asyncio]
-
-# With PostgreSQL async driver
-pip install sqlalchemy[asyncio] asyncpg
-
-# With Alembic migrations
-pip install alembic
-
-# With specific database drivers
-pip install psycopg2-binary  # PostgreSQL
-pip install pymysql          # MySQL
-pip install aiosqlite        # SQLite async
+pip install sqlalchemy[asyncio] alembic
+pip install asyncpg  # PostgreSQL async driver
+pip install psycopg2-binary  # PostgreSQL sync driver
 ```
 
-### SQLAlchemy 2.0
-
-This skill covers SQLAlchemy 2.0+ syntax which is the current standard:
-
-```python
-# SQLAlchemy 2.0 style (recommended)
-from sqlalchemy import select
-from sqlalchemy.orm import Session
-
-stmt = select(User).where(User.name == "john")
-result = session.execute(stmt)
-users = result.scalars().all()
-```
-
-## Engine and Connection
-
-### Creating Engine
+## Engine and Pool Configuration
 
 ```python
 from sqlalchemy import create_engine
 
-# SQLite
-engine = create_engine("sqlite:///database.db")
+# Basic engine
+engine = create_engine("postgresql://user:pass@localhost/db", echo=True)
 
-# PostgreSQL
-engine = create_engine("postgresql://user:password@localhost:5432/mydb")
-
-# PostgreSQL with psycopg2
-engine = create_engine("postgresql+psycopg2://user:password@localhost/mydb")
-
-# MySQL
-engine = create_engine("mysql+pymysql://user:password@localhost:3306/mydb")
-
-# Connection pool settings
+# Production pool settings
 engine = create_engine(
-    "postgresql://user:password@localhost/mydb",
-    pool_size=10,           # Number of connections to keep
-    max_overflow=20,        # Additional connections allowed
-    pool_timeout=30,        # Seconds to wait for connection
+    "postgresql://user:pass@localhost/db",
+    pool_size=10,           # Base connection pool
+    max_overflow=20,        # Max extra connections under load
+    pool_timeout=30,        # Wait time for connection
     pool_recycle=3600,      # Recycle connections after 1 hour
-    echo=True,              # Log SQL statements
-    echo_pool=True,         # Log connection pool events
+    pool_pre_ping=True,     # Check connection health (critical for pool exhaustion fix)
+    echo_pool=True,         # Log pool events for debugging
 )
 ```
 
@@ -99,493 +51,335 @@ engine = create_engine(
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-# Async engine
 async_engine = create_async_engine(
-    "postgresql+asyncpg://user:password@localhost/mydb",
+    "postgresql+asyncpg://user:pass@localhost/db",
     echo=True,
-    pool_size=10,
 )
 
-# Async session factory
 AsyncSessionLocal = sessionmaker(
     async_engine,
     class_=AsyncSession,
     expire_on_commit=False,
 )
-
-# Usage
-async with AsyncSessionLocal() as session:
-    result = await session.execute(select(User))
-    users = result.scalars().all()
 ```
 
-### Connection URL Formats
+### Serverless (NullPool)
 
 ```python
-# SQLite
-"sqlite:///database.db"              # Relative path
-"sqlite:////absolute/path/to/db.db"  # Absolute path
-"sqlite:///:memory:"                 # In-memory database
+from sqlalchemy.pool import NullPool
 
-# PostgreSQL
-"postgresql://user:password@host:port/database"
-"postgresql+asyncpg://user:password@host/database"  # Async
-
-# MySQL
-"mysql+pymysql://user:password@host:port/database"
-"mysql+aiomysql://user:password@host/database"  # Async
-
-# Oracle
-"oracle+cx_oracle://user:password@host:port/?service_name=myservice"
-
-# SQL Server
-"mssql+pyodbc://user:password@host/database?driver=ODBC+Driver+17+for+SQL+Server"
+# AWS Lambda, Vercel - no persistent connections
+engine = create_engine(DATABASE_URL, poolclass=NullPool)
 ```
 
 ## Declarative Models
 
-### Basic Model
-
 ```python
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, Text
-from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
-from datetime import datetime
+from typing import Optional, List
 
 class Base(DeclarativeBase):
-    """Base class for all models."""
     pass
 
 class User(Base):
     __tablename__ = "users"
     
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(50), unique=True, nullable=False)
-    email = Column(String(255), unique=True, nullable=False)
-    password_hash = Column(String(255), nullable=False)
-    is_active = Column(Boolean, default=True)
-    is_superuser = Column(Boolean, default=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    id: Mapped[int] = mapped_column(primary_key=True)
+    username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
+    email: Mapped[str] = mapped_column(String(255), unique=True)
+    created_at: Mapped[DateTime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    
+    # Relationship (see Relationship Loading Guide below)
+    articles: Mapped[List["Article"]] = relationship(back_populates="author")
     
     def __repr__(self):
         return f"<User(id={self.id}, username='{self.username}')>"
+
+class Article(Base):
+    __tablename__ = "articles"
+    
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(200))
+    author_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    
+    author: Mapped["User"] = relationship(back_populates="articles")
 ```
 
-### Column Types
+### Column Types Reference
 
 ```python
-from sqlalchemy import (
-    Column, Integer, BigInteger, SmallInteger,
-    String, Text, Unicode, UnicodeText,
-    Float, Double, Numeric, Decimal,
-    Boolean, Date, Time, DateTime,
-    JSON, LargeBinary, Enum,
-    ForeignKey, ForeignKeyConstraint,
-    Index, UniqueConstraint, CheckConstraint,
-)
+from sqlalchemy import BigInteger, Text, Numeric, JSON, Enum, LargeBinary
 
 class Product(Base):
     __tablename__ = "products"
     
-    # Integer types
-    id = Column(Integer, primary_key=True)
-    quantity = Column(Integer, default=0)
-    big_id = Column(BigInteger)
-    small_int = Column(SmallInteger)
-    
-    # String types
-    name = Column(String(100), nullable=False)
-    description = Column(Text)
-    code = Column(Unicode(20))  # Unicode support
-    
-    # Numeric types
-    price = Column(Numeric(10, 2))  # Precision, scale
-    weight = Column(Float)
-    
-    # Boolean
-    is_available = Column(Boolean, default=True)
-    
-    # Date/Time
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    published_date = Column(Date)
-    open_time = Column(Time)
-    
-    # JSON
-    metadata = Column(JSON)
-    tags = Column(JSON)  # PostgreSQL JSONB
-    
-    # Binary
-    image_data = Column(LargeBinary)
-    
-    # Enum
-    status = Column(Enum("draft", "published", "archived", name="product_status"))
-```
-
-### Table Arguments
-
-```python
-class Article(Base):
-    __tablename__ = "articles"
-    
-    id = Column(Integer, primary_key=True)
-    slug = Column(String(100))
-    title = Column(String(200))
-    author_id = Column(Integer, ForeignKey("users.id"))
-    
-    # Table-level constraints
-    __table_args__ = (
-        UniqueConstraint("slug", name="uq_article_slug"),
-        Index("ix_article_author", "author_id"),
-        CheckConstraint("length(title) > 0", name="ck_article_title"),
-        {"schema": "blog"},  # Schema name
-    )
-```
-
-### Non-Integer Primary Keys
-
-See `references/queries.md` for UUID, string PKs, and composite keys.
-
-```python
-import uuid
-from sqlalchemy.dialects.postgresql import UUID
-
-# UUID primary key
-class Email(Base):
-    __tablename__ = "emails"
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    subject = Column(String(255))
-
-# String primary key with custom generator
-import secrets
-
-def generate_id(prefix: str = "") -> str:
-    """Generate a unique string ID."""
-    return f"{prefix}{secrets.token_hex(8)}"
-
-class Service(Base):
-    __tablename__ = "services"
-    id = Column(String(64), primary_key=True, default=lambda: generate_id("svc_"))
-```
-
-## Relationships
-
-### One-to-Many
-
-```python
-from sqlalchemy.orm import relationship, Mapped, mapped_column
-from typing import List, Optional
-
-class Author(Base):
-    __tablename__ = "authors"
-    
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(100))
-    
-    # One-to-many relationship
-    articles: Mapped[List["Article"]] = relationship(
-        back_populates="author",
-        cascade="all, delete-orphan",
-    )
-
-class Article(Base):
-    __tablename__ = "articles"
-    
-    id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(200))
-    author_id: Mapped[int] = mapped_column(ForeignKey("authors.id"))
-    
-    # Relationship to parent
-    author: Mapped["Author"] = relationship(back_populates="articles")
-```
-
-### Many-to-Many
-
-```python
-# Association table
-article_tags = Table(
-    "article_tags",
-    Base.metadata,
-    Column("article_id", Integer, ForeignKey("articles.id", ondelete="CASCADE"), primary_key=True),
-    Column("tag_id", Integer, ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True),
-    Column("created_at", DateTime, server_default=func.now()),
-)
-
-class Article(Base):
-    __tablename__ = "articles"
-    
-    id: Mapped[int] = mapped_column(primary_key=True)
-    title: Mapped[str] = mapped_column(String(200))
-    
-    tags: Mapped[List["Tag"]] = relationship(
-        secondary=article_tags,
-        back_populates="articles",
-    )
-
-class Tag(Base):
-    __tablename__ = "tags"
-    
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(50), unique=True)
-    
-    articles: Mapped[List["Article"]] = relationship(
-        secondary=article_tags,
-        back_populates="tags",
-    )
-```
-
-### One-to-One
-
-```python
-class User(Base):
-    __tablename__ = "users"
-    
-    id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(String(50), unique=True)
-    
-    profile: Mapped["UserProfile"] = relationship(
-        back_populates="user",
-        uselist=False,  # One-to-one
-        cascade="all, delete-orphan",
-    )
-
-class UserProfile(Base):
-    __tablename__ = "user_profiles"
-    
-    id: Mapped[int] = mapped_column(primary_key=True)
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), unique=True)
-    bio: Mapped[Optional[str]] = mapped_column(Text)
-    avatar_url: Mapped[Optional[str]] = mapped_column(String(255))
-    
-    user: Mapped["User"] = relationship(back_populates="profile")
-```
-
-### Self-Referential
-
-```python
-class Category(Base):
-    __tablename__ = "categories"
-    
-    id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(String(100))
-    parent_id: Mapped[Optional[int]] = mapped_column(ForeignKey("categories.id"))
-    
-    # Self-referential relationship
-    parent: Mapped[Optional["Category"]] = relationship(
-        back_populates="children",
-        remote_side=[id],
-    )
-    children: Mapped[List["Category"]] = relationship(
-        back_populates="parent",
-        cascade="all, delete-orphan",
-    )
-```
-
-### Relationship Options
-
-```python
-class Article(Base):
-    # Lazy loading options
-    comments: Mapped[List["Comment"]] = relationship(
-        lazy="select",      # Default: load on access
-        # lazy="joined",    # Eager load with JOIN
-        # lazy="subquery",  # Eager load with separate query
-        # lazy="dynamic",   # Return query object (for filtering)
-        # lazy="noload",    # Don't load
-        # lazy="raise",     # Raise error on access
-    )
-    
-    # Cascade options
-    items: Mapped[List["Item"]] = relationship(
-        cascade="all",              # All operations
-        cascade="all, delete-orphan",  # Delete children when parent deleted
-        cascade="save-update, merge",  # Only these operations
-    )
-    
-    # Order by
-    comments: Mapped[List["Comment"]] = relationship(
-        order_by="Comment.created_at.desc()",
-    )
+    description: Mapped[str] = mapped_column(Text)
+    price: Mapped[Decimal] = mapped_column(Numeric(10, 2))
+    metadata: Mapped[dict] = mapped_column(JSON)
+    status: Mapped[str] = mapped_column(Enum("draft", "published", name="product_status"))
 ```
 
 ## Sessions
 
-### Session Management
+### Session Lifecycle (Critical)
+
+**One session per request/task, never shared.** Sessions are not thread-safe.
 
 ```python
-from sqlalchemy.orm import Session, sessionmaker
-
-# Create session factory
-SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
-
-# Use session with context manager
-with SessionLocal() as session:
-    user = session.execute(select(User)).scalar()
-    session.commit()
-
-# Manual management
-session = SessionLocal()
-try:
-    user = session.execute(select(User)).scalar()
-    session.commit()
-finally:
-    session.close()
-
-# Dependency injection (FastAPI style)
+# ✅ GOOD: One session per request
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
-```
 
-### Adding and Updating
+# ✅ GOOD: One AsyncSession per async task
+async def process_user(user_id: int):
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(select(User).where(User.id == user_id))
+        return result.scalar_one_or_none()
 
-```python
-# Add single object
-user = User(username="john", email="john@example.com")
-session.add(user)
-session.commit()
-session.refresh(user)  # Refresh to get server-generated values
-
-# Add multiple objects
-users = [
-    User(username="user1", email="user1@example.com"),
-    User(username="user2", email="user2@example.com"),
-]
-session.add_all(users)
-session.commit()
-
-# Update object
-user = session.get(User, 1)
-user.email = "newemail@example.com"
-session.commit()
-
-# Update with query
-from sqlalchemy import update
-stmt = (
-    update(User)
-    .where(User.is_active == True)
-    .values(last_login=func.now())
-)
-session.execute(stmt)
-session.commit()
-```
-
-### Deleting
-
-```python
-# Delete object
-user = session.get(User, 1)
-session.delete(user)
-session.commit()
-
-# Delete with query
-from sqlalchemy import delete
-stmt = delete(User).where(User.is_active == False)
-session.execute(stmt)
-session.commit()
+# ❌ BAD: Module-level shared session (race conditions)
+db = SessionLocal()  # Never do this!
 ```
 
 ### Transaction Management
 
 ```python
-# Nested transaction (SAVEPOINT)
-with session.begin_nested():
-    session.add(User(username="test"))
-    # Auto-rollback on exception
-
-# Manual transaction control
-session.begin()
-try:
+# Implicit transaction (default)
+with SessionLocal() as session:
     session.add(user)
     session.commit()
-except:
-    session.rollback()
-    raise
 
-# Using begin() context manager
-with session.begin():
-    session.add(user)
-    # Auto-commit or rollback
+# Explicit transaction (recommended)
+with SessionLocal() as session:
+    with session.begin():  # Auto-commit/rollback
+        session.add(user)
+
+# Nested transaction (SAVEPOINT)
+with SessionLocal() as session:
+    with session.begin():
+        session.add(user)
+        with session.begin_nested():
+            session.add(related_object)
+            # Rolls back to savepoint on exception
 ```
 
-## Best Practices
-
-### 1. Use Mapped Types (SQLAlchemy 2.0)
+### expire_on_commit=False Trade-off
 
 ```python
-# Good: Mapped types with type hints
-class User(Base):
-    __tablename__ = "users"
+SessionLocal = sessionmaker(engine, expire_on_commit=False)
+
+# ✅ Can access attributes after commit
+with SessionLocal() as session:
+    user = User(name="test")
+    session.add(user)
+    session.commit()
+    print(user.name)  # Works
+
+# Trade-off: Convenient but may return stale data if DB changed externally
+```
+
+## Queries (2.0 Style)
+
+```python
+from sqlalchemy import select, update, delete
+
+# Select all
+stmt = select(User)
+users = session.execute(stmt).scalars().all()
+
+# Select with filter
+stmt = select(User).where(User.is_active == True)
+users = session.execute(stmt).scalars().all()
+
+# Get by primary key
+user = session.get(User, 1)  # Returns None if not found
+
+# Get one
+stmt = select(User).where(User.username == "john")
+user = session.execute(stmt).scalar_one_or_none()
+
+# Update
+stmt = update(User).where(User.id == 1).values(email="new@example.com")
+session.execute(stmt)
+session.commit()
+
+# Delete
+stmt = delete(User).where(User.is_active == False)
+session.execute(stmt)
+session.commit()
+```
+
+See `references/queries.md` for joins, aggregations, CTEs, window functions, and bulk operations.
+
+## Relationship Loading Decision Guide
+
+**The single most important performance decision.** Wrong choices cause N+1 queries or row explosion.
+
+### Strategy Comparison
+
+| Strategy | Query Count | Row Duplication | When to Use |
+|----------|-------------|-----------------|-------------|
+| `lazy="select"` (default) | N+1 if iterated | No | **Avoid in production** - one extra query per relation |
+| `joinedload` | 1 query | **Yes** - duplicates parent columns | Scalar relations only (one-to-one, many-to-one) |
+| `selectinload` | 2-3 queries | No | **Default recommendation** - efficient for collections |
+| `raiseload` | Raises error | No | Tests/debugging - catch lazy loads |
+| `noload` | 0 queries | No | Optional relations you never need |
+
+### Why `joinedload` on Collections Explodes
+
+```python
+# Author has 3 articles, each with 2 tags
+# joinedload creates: 1 × 3 × 2 = 6 rows (Cartesian product)
+
+stmt = select(Author).options(
+    joinedload(Author.articles).joinedload(Article.tags)
+)
+authors = session.execute(stmt).unique().scalars().all()
+# Memory: O(parents × children × grandchildren) - BAD!
+```
+
+**Fix**: Use `selectinload` for collections:
+
+```python
+stmt = select(Author).options(
+    selectinload(Author.articles).selectinload(Article.tags)
+)
+# Query 1: SELECT authors
+# Query 2: SELECT articles WHERE author_id IN (...)
+# Query 3: SELECT tags WHERE article_id IN (...)
+```
+
+### Decision Table
+
+```
+Do you need the relation?
+├─ No → noload or don't include
+├─ Yes, always, scalar relation → joinedload
+├─ Yes, always, collection → selectinload (default recommendation)
+├─ Sometimes → lazy="select" or explicit load per endpoint
+└─ In tests → raiseload to catch bugs
+```
+
+### The "Load Only What You Serialize" Rule
+
+Never eager-load relations you won't return. Loading full object graphs wastes memory.
+
+```python
+# Bad: Load entire graph
+stmt = select(User).options(
+    joinedload(User.articles).joinedload(Article.comments)
+)
+
+# Good: Load only what you return
+stmt = select(User.id, User.username)  # No relations
+
+# Or: Load specific relation only
+stmt = select(User).options(selectinload(User.articles))
+# Don't cascade to Article.comments unless needed
+```
+
+### raiseload as Bug Detector
+
+```python
+from sqlalchemy.orm import raiseload
+
+# Catch ANY lazy load in tests
+stmt = select(User).options(raiseload("*"))
+# Test fails if code accesses user.articles without eager loading
+```
+
+### noload for Optional Relations
+
+```python
+class Order(Base):
+    __tablename__ = "orders"
     
     id: Mapped[int] = mapped_column(primary_key=True)
-    username: Mapped[str] = mapped_column(String(50))
-    bio: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
-    articles: Mapped[List["Article"]] = relationship()
+    user_id: Mapped[Optional[int]] = mapped_column(ForeignKey("users.id"))
+    
+    # Rarely needed - most orders don't have extended details
+    shipping_address: Mapped[Optional["ShippingAddress"]] = relationship(
+        lazy="selectin",  # Load only when explicitly accessed
+    )
 ```
 
-### 2. Session Scope
+### Before/After: Query Count
+
+**Before (N+1):**
 
 ```python
-# Good: Use context managers
-with SessionLocal() as session:
-    user = session.execute(select(User)).scalar()
-    session.commit()
-
-# Bad: Forget to close
-session = SessionLocal()
-user = session.execute(select(User)).scalar()
-# session.close() missing!
-```
-
-### 3. Eager Loading
-
-```python
-# Good: Explicit eager loading
-stmt = select(Author).options(selectinload(Author.articles))
-
-# Bad: N+1 query problem
 authors = session.execute(select(Author)).scalars().all()
+for author in authors:  # 100 authors
+    print(len(author.articles))  # 100 more queries!
+# Total: 101 queries
+```
+
+**After (selectinload):**
+
+```python
+stmt = select(Author).options(selectinload(Author.articles))
+authors = session.execute(stmt).scalars().all()
 for author in authors:
-    print(author.articles)  # Triggers query for each author!
+    print(len(author.articles))  # Already loaded
+# Total: 2 queries
 ```
 
-### 4. Use expire_on_commit=False
+See `references/relationships.md` for full session lifecycle rules and async patterns.
+
+## 2.0 Migration Checklist
+
+| Old (1.x) | New (2.0) |
+|-----------|-----------|
+| `session.query(User).get(1)` | `session.get(User, 1)` |
+| `session.query(User).filter(...)` | `session.execute(select(User).where(...))` |
+| `Query` object | `select()` + `session.execute()` |
+| Implicit autocommit | Explicit `session.commit()` required |
+| `engine.execute("SELECT ...")` | Removed - use `session.execute(text("SELECT ..."))` |
+| `text("SELECT ...")` without binds | `text("SELECT ...").bindparams(...)` or `:param` in string |
+| `MetaData()` | `MetaData(naming_convention={...})` for constraints |
 
 ```python
-# Good: Can access attributes after commit
-SessionLocal = sessionmaker(
-    bind=engine,
-    expire_on_commit=False,  # Access attributes after commit
-)
+# Before (1.x)
+user = session.query(User).filter(User.id == 1).first()
 
-with SessionLocal() as session:
-    user = User(username="john")
-    session.add(user)
-    session.commit()
-    print(user.username)  # Works with expire_on_commit=False
+# After (2.0)
+user = session.get(User, 1)
+# OR
+user = session.execute(select(User).where(User.id == 1)).scalar_one_or_none()
 ```
 
-### 5. Connection Pooling
+## Common Issues
 
-```python
-# Good: Configure pool for production
-engine = create_engine(
-    DATABASE_URL,
-    pool_size=10,
-    max_overflow=20,
-    pool_pre_ping=True,  # Check connection health
-    pool_recycle=3600,   # Recycle old connections
-)
-```
+See `references/common-issues.md` for detailed detection and fixes:
+
+| Issue | Symptom | Detection |
+|-------|---------|-----------|
+| **N+1 queries** | Slow list endpoints | `echo=True` shows repeated queries; `assert_num_queries(2)` in tests |
+| **MissingGreenletError** | "greenlet_spawn has not been called" | Lazy load outside async context |
+| **StaleDataError** | "Could not refresh identity map" | Lost updates under concurrency |
+| **DetachedInstanceError** | "Parent instance is not bound to a Session" | Access after commit/expire |
+| **Pool exhaustion** | "QueuePool limit reached" | `echo_pool=True` logs; too many open connections |
+| **Missing tables** | "relation does not exist" | Migration not run; check with `inspect(engine).get_table_names()` |
+
+See `references/common-issues.md` for:
+- **N+1 detection** via `echo=True`, query counting, `assert_num_queries`
+- **MissingGreenletError** - lazy load outside async context fix
+- **StaleDataError** - optimistic/pessimistic locking patterns
+- **DetachedInstanceError** - access within session, eager load, `expire_on_commit=False`
+- **Pool exhaustion** - `pool_size`, `max_overflow`, `pool_pre_ping`, `NullPool` for serverless
 
 ## Deep Dives
 
 Load these reference files on demand for detailed coverage:
 
-- **`references/queries.md`** - Queries 2.0 style, CTEs, window functions, bulk operations, PostgreSQL optimization
-- **`references/async.md`** - Async engines, async sessions, FastAPI integration
+- **`references/queries.md`** - Joins, aggregations, CTEs, window functions, bulk operations, PostgreSQL optimization
+- **`references/relationships.md`** - Full relationship loading decision guide, session lifecycle rules, async patterns
+- **`references/common-issues.md`** - Real failure modes with detection and fixes (N+1, MissingGreenlet, StaleDataError, DetachedInstanceError, pool exhaustion)
 - **`references/migrations.md`** - Alembic setup, migration creation, testing strategies
-- **`references/debugging.md`** - DetachedInstanceError, lazy loading issues, N+1 queries, session leak detection

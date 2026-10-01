@@ -184,7 +184,13 @@ GET /api/books/?fields=title,price         # Client field selection
 
 ## Model Configuration
 
-### Basic Configuration
+**Decision:** How do I control which fields and endpoints are exposed?
+
+Configure your model's API surface with the `turbodrf()` classmethod. For the complete option reference, see [references/configuration.md](references/configuration.md).
+
+### Meta Options
+
+All options available in the `turbodrf()` classmethod:
 
 ```python
 @classmethod
@@ -200,6 +206,8 @@ def turbodrf(cls):
 ```
 
 ### Fields Specification
+
+**Decision:** Do I want all fields or a curated subset?
 
 **All database fields:**
 ```python
@@ -297,15 +305,39 @@ TURBODRF_ENABLE_DOCS = False
 
 ## Management Commands
 
+**Decision:** How do I validate my configuration and debug issues?
+
 ```bash
 # Validate configuration
 python manage.py turbodrf_check
 
+# Expected healthy output:
+# "✓ All models declared with turbodrf()"
+# "✓ Tenancy gates passed"
+# "✓ No unsafe FK/M2M traversals detected"
+# "Configuration valid."
+
+# Expected misconfiguration output:
+# "✗ Model 'MyModel' missing tenant_field or visibility declaration"
+# "✗ Unsafe M2M path detected: Book.tags -> Tag.secret_data"
+# "Configuration invalid. Fix errors before deployment."
+
 # Performance benchmark
 python manage.py turbodrf_benchmark
 
+# Expected output:
+# "Compiled path: 0.003s per request"
+# "Serializer path: 0.021s per request"
+# "Speedup: 7x"
+
 # Explain query execution
-python manage.py turbodrf_explain
+python manage.py turbodrf_explain --model Book --query "search=django"
+
+# Expected output:
+# "Query: SELECT ... FROM books_book"
+# "Tenant filter: workspace_id = 42"
+# "Predicate: (owner_id = 7) OR (workspace_id IN (SELECT id FROM workspace_members ...))"
+# "Fields projected: ['title', 'author__name', 'price']"
 ```
 
 ## Integrations
@@ -321,11 +353,40 @@ Fast JSON: `pip install turbodrf[fast]` adds msgspec (~7x faster serialization).
 
 ## AI Agent Guidance
 
-The TurboDRF repository ships an `AGENTS.md` with canonical guidance for AI coding agents — the "what never to do" list plus `invalidate_user_permissions()` cache API and testing patterns.
+**Decision:** What rules must I follow when generating TurboDRF code?
 
-- **Repo AGENTS.md**: https://github.com/AlexanderCollins/TurboDRF/blob/main/AGENTS.md
+### Startup-Gate Kill-Switches
 
-> **Docs status:** The readthedocs and GitHub Pages sites are currently 404. The repo `docs/` folder is the only current documentation source.
+Never disable safety gates in production. Each gate has a kill-switch for emergencies only:
+
+- `TURBODRF_REQUIRE_TENANCY=False` — allows models without tenant/visibility declaration
+- `TURBODRF_ALLOW_UNSAFE_COMPILED_FK=True` — bypasses FK annotation safety
+- `TURBODRF_ALLOW_UNSAFE_COMPILED_M2M=True` — bypasses M2M traversal safety
+- `TURBODRF_ALLOW_UNSAFE_FILTER_TRAVERSAL=True` — allows filter join leaks
+- `TURBODRF_ALLOW_UNSAFE_CUSTOM_WRITE=True` — allows custom predicates without write validators
+- `TURBODRF_ALLOW_UNKNOWN_PERMISSIONS=True` — disables typo checking
+
+### Tenant-Scoping Invariants
+
+- **Prohibition:** Never write `Either(Tenant('workspace'), Owner('owner'))` — the tenant boundary must not be OR-able away. Use `visibility: [Tenant('workspace'), Either(Owner('owner'), Members('shared_with'))]` instead.
+- **Mandatory:** Every shared-tenant model must declare `tenant_field`, `visibility`, or `tenancy: 'shared'`.
+- **Read-only predicates:** `Members()` and `Group()` raise `NotImplementedError` on writes.
+
+### Predicate Vocabulary Contract
+
+When generating row-level access rules, use only these primitives from `turbodrf.predicates`:
+
+- `Tenant(field)` — mandatory tenant boundary
+- `Owner(field)` — row belongs to request.user
+- `Members(field)` — M2M contains user (read-only)
+- `Group(field)` — group field matches user's group (read-only)
+- `Either(left, right)` — logical OR
+- `Conditional(q_func, write_validator=...)` — custom with mandatory write validator
+- `Custom(q_func, write_validator=...)` — fully custom with mandatory write validator
+
+### Cache API
+
+After bulk permission changes, call `invalidate_user_permissions(user)` to clear the permission cache.
 
 ## Best Practices
 
@@ -378,8 +439,9 @@ TURBODRF_SENSITIVE_FIELDS = [
 
 The following reference documents are loaded on demand from `references/`:
 
+- **references/configuration.md** — Complete Meta options, settings reference, startup safety gates
 - **references/permissions-tenancy.md** — Role-based permissions, field-level access, multi-tenant predicates, row-level scoping
-- **references/security-settings.md** — Security gates, fail-closed design, settings reference, troubleshooting
+- **references/security-settings.md** — Security gates, fail-closed design, troubleshooting
 - **references/examples.md** — Complete CRUD API examples with nested relationships
 
 ## References
@@ -396,4 +458,3 @@ The following reference documents are loaded on demand from `references/`:
   - [Security](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/security.md)
   - [Management Commands](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/commands.md)
   - [Settings Reference](https://github.com/AlexanderCollins/TurboDRF/blob/main/docs/settings_reference.md)
-- **AI Agent Guide (AGENTS.md)**: https://github.com/AlexanderCollins/TurboDRF/blob/main/AGENTS.md

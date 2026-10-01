@@ -35,7 +35,7 @@ INSTALLED_APPS = [
 ]
 ```
 
-Add the middleware:
+Add the middleware (order matters - after SessionMiddleware, before AuthenticationMiddleware):
 
 ```python
 MIDDLEWARE = [
@@ -44,11 +44,57 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django_htmx.middleware.HtmxMiddleware",  # Required for request.htmx
     "django.contrib.messages.middleware.MessageMiddleware",
-    "django_htmx.middleware.HtmxMiddleware",  # Add this
     ...
 ]
 ```
+
+## Setup
+
+### Base Template
+
+Load the template tag and include the htmx script once in your base template:
+
+```django
+{% load django_htmx %}
+<!DOCTYPE html>
+<html>
+<head>
+    {% htmx_script %}
+</head>
+<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
+    {% block content %}{% endblock %}
+</body>
+</html>
+```
+
+The `hx-headers` attribute on `<body>` ensures all htmx requests carry the CSRF token. Without this, POST/PUT/DELETE requests fail with 403.
+
+For debugging, use the unminified version:
+
+```django
+{% htmx_script minified=False %}
+```
+
+### Jinja2 Configuration
+
+If using Jinja2 templates, configure the global:
+
+```python
+# settings.py or jinja2 config
+from django_htmx.jinja import htmx_script
+
+def environment(**options):
+    from jinja2 import Environment
+    env = Environment(**options)
+    env.globals.update({"htmx_script": htmx_script})
+    return env
+```
+
+Then in templates: `{{ htmx_script() }}`
+
+**See**: `references/csp-nonce.md` for Content-Security-Policy integration.
 
 ## Core Concepts
 
@@ -69,136 +115,51 @@ def my_view(request):
 
 ### HtmxDetails Attributes
 
-The `request.htmx` object provides these attributes:
+The `request.htmx` object provides:
 
 - `request.htmx` - Boolean, True if request is from htmx
-- `request.htmx.boosted` - True if request is from boosted element (hx-boost)
-- `request.htmx.current_url` - Current URL in browser from HX-Current-URL header
+- `request.htmx.boosted` - True if from boosted element (hx-boost)
+- `request.htmx.current_url` - Current URL from HX-Current-URL header
 - `request.htmx.current_url_abs_path` - Absolute path form of current_url
-- `request.htmx.history_restore_request` - True if request is for history restoration
+- `request.htmx.history_restore_request` - True for history restoration
 - `request.htmx.target` - Target element ID from HX-Target header
 - `request.htmx.trigger` - Trigger element ID from HX-Trigger header
 - `request.htmx.trigger_name` - Trigger element name from HX-Trigger-Name header
 - `request.htmx.prompt` - User response to hx-prompt attribute
 - `request.htmx.triggering_event` - Deserialized JSON from event-header extension
 
-## Template Tags
+## HTTP Response Classes (Decision Guide)
 
-Load and use in templates:
+Choose the right response type based on what should happen on the client:
 
-```django
-{% load django_htmx %}
-<!DOCTYPE html>
-<html>
-<head>
-    {% htmx_script %}
-</head>
-<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
-    ...
-</body>
-</html>
-```
-
-### CSP Nonce Support (Django 6.0+)
-
-```django
-{% load htmx %}
-<!DOCTYPE html>
-<html>
-<head>
-    {% htmx_script %}  {# Automatically includes nonce #}
-</head>
-<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
-    ...
-</body>
-</html>
-```
-
-### Django Templates
-
-```django
-{% load django_htmx %}
-<!doctype html>
-<html>
-  <head>
-    {% htmx_script %}
-  </head>
-  <body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
-    ...
-  </body>
-</html>
-```
-
-Use `minified=False` for debugging:
-
-```django
-{% htmx_script minified=False %}
-```
-
-### Jinja2
-
-```python
-from jinja2 import Environment
-from django_htmx.jinja import htmx_script
-
-def environment(**options):
-    env = Environment(**options)
-    env.globals.update({"htmx_script": htmx_script})
-    return env
-```
-
-```html
-{{ htmx_script() }}
-```
-
-### Built-in Filters Useful with HTMX
-
-`{% querystring %}` (Django 4.1+) rebuilds the current query string with one
-key changed — ideal for htmx filter links that re-render a list partial:
-
-```django
-{% load django_htmx %}
-
-<!-- keep all current filters, flip `outdoors` off -->
-<a hx-get="{% querystring outdoors=None %}" hx-target="#list"
-   hx-push-url="true">hide outdoors</a>
-
-<!-- paginate by changing only `page` -->
-<a hx-get="{% querystring page=page.next %}" hx-target="#list">next</a>
-```
-
-`json_script` safely embeds a Python dict as a `<script>` tag, useful for
-seeding htmx-driven widgets with initial state:
-
-```django
-{{ row.config|json_script:"row-config" }}
-<script>
-  const cfg = JSON.parse(document.getElementById('row-config').textContent);
-  htmx.trigger('#row', 'config-ready', cfg);
-</script>
-```
-
-Other high-signal built-ins: `urlize`, `linebreaksbr`, `date:"M j"`.
-
-## HTTP Response Classes
+| Response Type | When to Use | What Breaks If Wrong |
+|---------------|-------------|---------------------|
+| `HttpResponse` (normal) | Full page reload needed, or swapping entire document | Using htmx-specific responses here causes no-op or unexpected behavior |
+| `HttpResponseClientRedirect` | Navigate to different URL without full reload | Using plain `HttpResponseRedirect` leaves stale DOM; user sees old content |
+| `HttpResponseClientRefresh` | Force full page reload (stale session, permission change) | Using redirect instead loses form data; using `HttpResponse` doesn't refresh |
+| `HttpResponseLocation` | "Boosted" navigation to new URL | Using redirect causes full reload; using `HttpResponse` shows wrong URL |
+| `HttpResponseStopPolling` | End polling loop (event finished, error unrecoverable) | Omitting this keeps polling, wasting resources |
+| Plain `HttpResponse` + `HX-Trigger` | Update fragment and trigger client event | Without trigger, client doesn't know to update related UI (e.g., badge count) |
+| Plain `HttpResponse` + `HX-Redirect` header | Client-side redirect from server logic | Using `HttpResponseClientRedirect` directly is cleaner; manual header is for custom logic |
 
 ### HttpResponseClientRedirect
 
-Triggers a client-side redirect (HX-Redirect header):
+Use for navigation that should update browser history without full reload:
 
 ```python
 from django_htmx.http import HttpResponseClientRedirect
 
 def sensitive_view(request):
     if not sudo_mode.active(request):
-        next_url = request.htmx.current_url_abs_path or ""
-        return HttpResponseClientRedirect(f"/activate-sudo/?next={next_url}")
+        return HttpResponseClientRedirect("/activate-sudo/")
     ...
 ```
 
+**What breaks**: A plain `HttpResponseRedirect` causes htmx to follow the redirect as a normal request, which may swap the wrong fragment or leave the original DOM intact.
+
 ### HttpResponseClientRefresh
 
-Triggers a page reload (HX-Refresh header):
+Force a full page reload:
 
 ```python
 from django_htmx.http import HttpResponseClientRefresh
@@ -209,9 +170,11 @@ def partial_table_view(request):
     ...
 ```
 
+**What breaks**: Without this, the client keeps showing stale data. Use when session expired, permissions changed, or cache invalidation occurred.
+
 ### HttpResponseLocation
 
-Makes htmx do a client-side "boosted" request (HX-Location header):
+Trigger client-side "boosted" navigation (hx-boost behavior):
 
 ```python
 from django_htmx.http import HttpResponseLocation
@@ -223,9 +186,11 @@ def wait_for_completion(request, action_id):
     ...
 ```
 
+**What breaks**: Using a redirect causes a full page reload, losing the htmx benefits.
+
 ### HttpResponseStopPolling
 
-Stops polling when using hx-trigger="every":
+End a polling loop:
 
 ```python
 from django_htmx.http import HttpResponseStopPolling
@@ -233,107 +198,62 @@ from django_htmx.http import HttpResponseStopPolling
 def my_pollable_view(request):
     if event_finished():
         return HttpResponseStopPolling()
-    ...
+    return render(request, "status.html", {"status": "running"})
 ```
 
-Or use the constant directly:
+Or use the constant with `render()`:
 
 ```python
 from django_htmx.http import HTMX_STOP_POLLING
-from django.shortcuts import render
 
 def my_pollable_view(request):
     if event_finished():
         return render(request, "event-finished.html", status=HTMX_STOP_POLLING)
-    ...
 ```
 
 ## Response Modifying Functions
 
-### push_url
+These wrap an `HttpResponse` to add htmx-specific headers:
 
-Push a new URL to the browser history:
+### push_url / replace_url
+
+Update browser history without navigation:
 
 ```python
 from django_htmx.http import push_url
 
-def leaf(request, leaf_id):
+def leaf_select(request, leaf_id):
     ...
-    if leaf is None:
-        response = branch(request, branch=leaf.branch)
-        return push_url(response, f"/branch/{leaf.branch.id}")
-    ...
+    response = render(request, "leaf-detail.html", {"leaf": leaf})
+    return push_url(response, f"/leaf/{leaf.id}")
 ```
 
-### replace_url
+Use `replace_url()` to replace current history entry instead of pushing.
 
-Replace the current URL in browser history:
+### reswap / retarget / reselect
 
-```python
-from django_htmx.http import replace_url
-
-def dashboard(request):
-    ...
-    response = render(request, "dashboard.html", ...)
-    return replace_url(response, "/dashboard/")
-```
-
-### reswap
-
-Override the swap method:
+Override htmx behavior server-side:
 
 ```python
-from django.shortcuts import render
-from django_htmx.http import reswap
+from django_htmx.http import reswap, retarget, reselect
 
-def employee_table_row(request):
-    ...
-    response = render(...)
-    if employee.is_boss:
-        reswap(response, "afterbegin")
-    return response
-```
-
-### retarget
-
-Override the target element:
-
-```python
-from django.shortcuts import render
-from django.views.decorators.http import require_POST
-from django_htmx.http import retarget
-
-@require_POST
-def add_widget(request):
-    ...
-    if form.is_valid():
-        response = render(request, "widget-table.html", ...)
-        return retarget(response, "#widgets")
-    return render(request, "widget-table-row.html", ...)
-```
-
-### reselect
-
-Override the content selection:
-
-```python
-from django_htmx.http import reselect
-
-def update_table(request):
-    response = render(request, "table.html", ...)
-    return reselect(response, "tbody")
+def conditional_swap(request):
+    response = render(request, "row.html", {"row": row})
+    if row.is_special:
+        reswap(response, "afterbegin")  # Override hx-swap
+        retarget(response, "#special-container")  # Override hx-target
+    return reselect(response, ".data-row")  # Override CSS selector
 ```
 
 ### trigger_client_event
 
-Trigger client-side events:
+Trigger custom JavaScript events after swap:
 
 ```python
-from django.shortcuts import render
 from django_htmx.http import trigger_client_event
 
-def end_of_long_process(request):
-    response = render(request, "end-of-long-process.html")
+def end_of_process(request):
+    response = render(request, "done.html")
     return trigger_client_event(
         response,
         "showConfetti",
@@ -342,11 +262,42 @@ def end_of_long_process(request):
     )
 ```
 
+The event name (`showConfetti`) must match a handler registered via `htmx.on()`.
+
+## Template Tags
+
+### querystring Filter (Django 4.1+)
+
+Rebuild query strings for filter/pagination links:
+
+```django
+{% load django_htmx %}
+
+<!-- Keep all filters, flip `outdoors` off -->
+<a hx-get="{% querystring outdoors=None %}" hx-target="#list"
+   hx-push-url="true">hide outdoors</a>
+
+<!-- Paginate -->
+<a hx-get="{% querystring page=page.next %}" hx-target="#list">next</a>
+```
+
+### json_script
+
+Embed Python data for client-side use:
+
+```django
+{{ row.config|json_script:"row-config" }}
+<script>
+  const cfg = JSON.parse(document.getElementById('row-config').textContent);
+  htmx.trigger('#row', 'config-ready', cfg);
+</script>
+```
+
 ## Best Practices
 
-### Partial Rendering
+### Partial Rendering with Template Partials
 
-Use django-template-partials for efficient partial rendering:
+Use `django-template-partials` for efficient fragment rendering:
 
 ```bash
 pip install django-template-partials
@@ -359,60 +310,27 @@ pip install django-template-partials
 {% block main %}
   {% partialdef country-table inline %}
     <table id="country-data">
-      ...
+      {% for country in countries %}
+        <tr><td>{{ country.name }}</td></tr>
+      {% endfor %}
     </table>
   {% endpartialdef %}
 {% endblock main %}
 ```
 
-In views:
-
 ```python
 def country_listing(request):
-    template_name = "countries.html"
+    template = "countries.html"
     if request.htmx:
-        template_name += "#country-table"
-
-    countries = Country.objects.all()
-    return render(request, template_name, {"countries": countries})
+        template += "#country-table"  # Render partial only
+    return render(request, template, {"countries": Country.objects.all()})
 ```
 
-### Swapping Base Template
+### Caching
+
+Keep the cached template loader enabled (it's default, but easy to break):
 
 ```python
-def partial_rendering(request):
-    if request.htmx:
-        base_template = "_partial.html"
-    else:
-        base_template = "_base.html"
-
-    return render(request, "page.html", {"base_template": base_template})
-```
-
-```django
-{% extends base_template %}
-{% block main %}
-  ...
-{% endblock %}
-```
-
-### CSRF Protection
-
-Always include CSRF token in htmx requests:
-
-```html
-<body hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
-```
-
-### Caching with HTMX
-
-Keep the **cached template loader** on (`django.template.loaders.cached.Loader`).
-It is on by default, but it is easy to disable by accident while tweaking
-`TEMPLATES` — without it Django recompiles every template on every render, which
- dominates CPU for server-rendered htmx partials.
-
-```python
-# settings.py — the safe shape. Wrap app_dirs in cached.Loader.
 TEMPLATES = [{
     "BACKEND": "django.template.backends.django.DjangoTemplates",
     "DIRS": [BASE_DIR / "templates"],
@@ -427,49 +345,178 @@ TEMPLATES = [{
 }]
 ```
 
-If a CPU profile (`py-spy record -o profile.svg --pid <django_pid>`) shows
-`django.template.base.compile` near the top, the cached loader is off.
+Without it, Django recompiles templates on every request, dominating CPU for htmx partials.
 
-Add appropriate Vary headers for cacheable responses:
+**Diagnosis**: If `py-spy` shows `django.template.base.compile` at the top, the cache is off.
+
+### Vary Headers
+
+Tell caches that content differs by htmx request:
 
 ```python
-from django.shortcuts import render
 from django.views.decorators.cache import cache_control
 from django.views.decorators.vary import vary_on_headers
 
 @cache_control(max_age=300)
 @vary_on_headers("HX-Request")
 def my_view(request):
-    if request.htmx:
-        template_name = "partial.html"
-    else:
-        template_name = "complete.html"
-    return render(request, template_name, ...)
+    ...
 ```
 
-### HTMX Extensions
+## Anti-Patterns
 
-Download extensions locally (avoid CDNs):
+### 1. Business Logic in Template Fragments
 
-```bash
-curl -L https://unpkg.com/htmx-ext-ws/dist/ws.min.js -o static/htmx-ext-ws.min.js
-```
+**Wrong**: A partial that needs data the parent page didn't load.
 
 ```django
-{% load django_htmx static %}
-<!doctype html>
-<html>
-  <head>
-    {% htmx_script %}
-    <script src="{% static 'htmx-ext-ws.min.js' %}" defer></script>
-  </head>
-  ...
-</html>
+<!-- BAD: template tries to access data not in context -->
+{% partialdef user-stats %}
+  {{ user.profile.score }}  {# user not passed to partial #}
+{% endpartialdef %}
 ```
+
+**Fix**: Ensure the view serving the fragment has all required context.
+
+### 2. Returning JSON to hx-get
+
+**Wrong**: htmx expects HTML by default.
+
+```python
+# BAD: htmx silently ignores JSON responses
+def data_view(request):
+    return JsonResponse({"data": items})
+```
+
+**Symptom**: No error, but nothing updates in the DOM.
+
+**Fix**: Return HTML fragments, or use `hx-trigger` with JavaScript to handle JSON.
+
+### 3. Missing hx-swap-oob for Out-of-Band Updates
+
+**Wrong**: Updating a badge without telling htmx where to put it.
+
+```python
+# BAD: client doesn't know to update badge
+return render(request, "order-status.html", {"status": "shipped"})
+```
+
+**Fix**: Use `hx-swap-oob` to update multiple fragments:
+
+```django
+<!-- In the fragment response -->
+<span id="badge" hx-swap-oob="true">{{ new_count }}</span>
+```
+
+### 4. Expensive Polling with every="1s"
+
+**Wrong**: Self-inflicted load generator.
+
+```django
+<div hx-get="/status" hx-trigger="every 1s">...</div>
+```
+
+**Fix**: Use longer intervals, or WebSockets for real-time:
+
+```django
+<div hx-get="/status" hx-trigger="every 5s">...</div>
+```
+
+Or load the `ws` extension for push-based updates.
+
+### 5. Missing CSRF Token
+
+**Wrong**: POST requests fail with 403.
+
+```django
+<!-- BAD: no CSRF token -->
+<body>
+  <form hx-post="/submit">...</form>
+</body>
+```
+
+**Symptom**: 403 errors that look like template bugs.
+
+**Fix**: Include token in `hx-headers` on `<body>` (see Setup section) or per-form:
+
+```django
+<form hx-post="/submit" hx-headers='{"x-csrftoken": "{{ csrf_token }}"}'>
+```
+
+### 6. Forgetting HX-Redirect for Client-Side Redirects
+
+**Wrong**: Using Django's `HttpResponseRedirect` in htmx context.
+
+```python
+# BAD: causes full page reload
+return HttpResponseRedirect("/done/")
+```
+
+**Fix**: Use `HttpResponseClientRedirect` for htmx-aware redirects.
+
+## Testing
+
+### What You Can Test Server-Side
+
+**Fragment content**:
+
+```python
+from django.test import TestCase
+
+class HtmxTests(TestCase):
+    def test_fragment_content(self):
+        response = self.client.get(
+            "/partial/",
+            HTTP_HX_REQUEST="true",  # Sets HX-Request header
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Expected fragment content")
+```
+
+**HX-Response headers**:
+
+```python
+def test_redirect_header(self):
+    response = self.client.post("/sensitive-action/")
+    self.assertEqual(response["HX-Redirect"], "/activate-sudo/")
+```
+
+**Out-of-band swaps**:
+
+```python
+def test_oob_swap(self):
+    response = self.client.post("/update-badge/")
+    # Check the response contains hx-swap-oob attribute
+    self.assertIn(b'hx-swap-oob="true"', response.content)
+```
+
+**CSRF handling**:
+
+```python
+def test_csrf_required(self):
+    response = self.client.post("/action/", HTTP_HX_REQUEST="true")
+    self.assertEqual(response.status_code, 403)  # No CSRF token
+
+    response = self.client.post(
+        "/action/",
+        HTTP_HX_REQUEST="true",
+        HTTP_X_CSRFTOKEN=self.client.cookies["csrftoken"].value,
+    )
+    self.assertEqual(response.status_code, 200)
+```
+
+### What You Cannot Test Server-Side
+
+- **Actual DOM swaps**: Django tests don't render HTML in the browser
+- **hx-trigger timing**: Polling intervals, debouncing
+- **Client-side event handlers**: `htmx.on()` handlers triggered by `HX-Trigger`
+- **hx-swap behavior**: How content is actually inserted (use Playwright/Cypress for this)
+
+**For client-side behavior**: Use end-to-end tests with Playwright or Cypress.
 
 ## Type Checking
 
-For type-checking, extend HttpRequest:
+Extend `HttpRequest` for type hints:
 
 ```python
 from django.http import HttpRequest as HttpRequestBase
@@ -479,10 +526,16 @@ class HttpRequest(HttpRequestBase):
     htmx: HtmxDetails
 ```
 
+## Deep Dives
+
+Load these reference files for detailed guidance:
+
+- `references/csp-nonce.md` - Content-Security-Policy nonce integration (when strict CSP breaks htmx)
+- `references/testing-patterns.md` - Extended testing strategies and e2e setup
+
 ## References
 
 - **Official Documentation**: https://django-htmx.readthedocs.io/
 - **GitHub Repository**: https://github.com/adamchainz/django-htmx
 - **htmx Reference**: https://htmx.org/reference/
 - **jvns.ca – More nice Django things**: https://jvns.ca/blog/2026/07/21/more-nice-django-things/
-- **HN discussion**: https://news.ycombinator.com/item?id=48997828

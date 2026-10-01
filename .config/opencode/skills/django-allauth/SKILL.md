@@ -353,197 +353,169 @@ ALLAUTH_HEADLESS_TOKEN_STRATEGY = 'allauth.headless.token.StrategyJWT'
 ALLAUTH_HEADLESS_TOKEN_STRATEGY = 'allauth.headless.token.StrategySession'
 ```
 
+## Signals
+
+Only a handful of signals matter operationally. Full list: https://docs.allauth.org/en/latest/_modules/allauth/core/signals.html
+
+| Signal | When it fires | Use this when… |
+|--------|---------------|----------------|
+| `user_signed_up` | After user object created, before email sent | Send welcome emails, create profile rows, call external services |
+| `user_logged_in` | After successful authentication | Log activity, refresh sessions, sync with external systems |
+| `email_confirmed` | After email verification completes | Grant features, send confirmation receipts, update CRM |
+| `password_changed` | After password update | Invalidate other sessions, notify user, audit trail |
+| `social_account_added` | After OAuth account linked | Sync profile data, merge duplicate accounts |
+
+```python
+from allauth.account import signals
+from django.dispatch import receiver
+
+@receiver(signals.user_signed_up)
+def on_user_signup(request, user, **kwargs):
+    # Create profile, send welcome email
+    pass
+```
+## Templates
+
+All allauth templates are overridable by shadowing them in your project's `templates/` directory. See [template overriding docs](https://docs.allauth.org/en/latest/templates.html) for the full list.
+
+Common overrides:
+- `account/login.html`, `account/signup.html` — customize forms
+- `account/email/email_confirmation_message.txt` — branded emails
+- `socialaccount/login.html` — provider selection UI
+
+## Anti-Patterns
+
+| Failure | Cause | Fix |
+|---------|-------|-----|
+| `user.email` raises `DoesNotExist` | Accessing email before checking `EmailAddress` table | Use `EmailAddress.objects.get_primary(user)` or check `user.email_set.exists()` first |
+| Stale sessions after password reset | Not invalidating other sessions | Set `ACCOUNT_SESSION_COOKIE_AGE` short; use `signals.password_changed` to revoke |
+| Verification emails not sending | `EMAIL_BACKEND` set to console in production | Configure real SMTP; test with `EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'` in dev |
+| Social login creates duplicates | Not checking existing emails in `pre_social_login` | In adapter: check `EmailAddress` for matching email, merge if found |
+| MFA bypass in dev | `MFA_ENABLED = False` but prod uses MFA | Keep MFA on in all envs; disable per-user for testing |
+
+## When Not to Use allauth
+
+**API-only / headless projects** — If you're building a SPA or mobile backend with no server-rendered pages, allauth's template system is dead weight. Consider:
+- Simple JWT signup/login with `djangorestframework-simplejwt`
+- Custom views using Django's `User` model directly
+- Only adopt allauth if you need social providers or complex email flows
+
+**Existing user model conflicts** — If your project already has:
+- A custom `AbstractUser` with fields allauth doesn't expect
+- Existing auth logic that would need to be unwound
+- Third-party packages that hook into auth in incompatible ways
+
+Check before adopting:
+1. `python manage.py shell` → `from django.contrib.auth import get_user_model; print(get_user_model()._meta.fields)` — does it match allauth's expectations?
+2. Search for `AUTH_USER_MODEL` — is it already set to something custom?
+3. Review existing login/signup views — can they be replaced, or would allauth fight them?
+
+## Flow Decision Guide
+
+### Email Verification
+
+| Requirement | Setting | Common failure |
+|-------------|---------|----------------|
+| Must verify before login | `ACCOUNT_EMAIL_VERIFICATION = 'mandatory'` | Users complain they can't login; forgot to configure SMTP |
+| Optional, but prefer verified | `ACCOUNT_EMAIL_VERIFICATION = 'optional'` + middleware check | Feature access not gated; check `EmailAddress.verified` in views |
+| No verification needed | `ACCOUNT_EMAIL_VERIFICATION = 'none'` | Only for internal tools; emails still stored |
+
+### Social + Password Combo
+
+| Scenario | Configuration |
+|----------|---------------|
+| Social-only (no password) | Set `ACCOUNT_PASSWORD_REQUIRED = False`; remove password URLs from nav |
+| Both allowed, separate flows | Default config; users choose at login |
+| Password users can link social | Enable `SOCIALACCOUNT_AUTO_SIGNUP = False`; let users connect in settings |
+
+### MFA Enablement
+
+| Timing | Approach |
+|--------|----------|
+| Force at next login | Set `MFA_REQUIRED = True`; users redirected to `/mfa/` on auth |
+| Optional, encourage | Show MFA status in profile; no enforcement |
+| Per-role enforcement | Middleware: check `request.user.groups`, redirect high-priv users to `/mfa/` if not enrolled |
+
+### Session / Redirect Separation
+
+| Setting | Purpose |
+|---------|--------|
+| `LOGIN_REDIRECT_URL` | Where authenticated users go after login (allauth uses this) |
+| `ACCOUNT_LOGIN_REDIRECT_URL` | Overrides `LOGIN_REDIRECT_URL` for allauth specifically |
+| `ACCOUNT_LOGOUT_REDIRECT_URL` | Where users land after logout |
+| Common failure | Set both `LOGIN_REDIRECT_URL` and `ACCOUNT_LOGIN_REDIRECT_URL` inconsistently; pick one and stick with it |
+
 ## Adapters
 
-### Custom Adapter
+Adapters are the structural chokepoint for auth logic. Customize here instead of patching allauth internals.
+
+### Custom Account Adapter
+
+**Why you need this:** Add validation, enforce policies, integrate with external systems.
 
 ```python
 # myapp/adapter.py
 from allauth.account.adapter import DefaultAccountAdapter
+from django.core.exceptions import ValidationError
 
 class CustomAccountAdapter(DefaultAccountAdapter):
-    def is_open_for_signup(self, request):
-        return True  # Allow signup
+    def save_user(self, request, user, form, commit=True):
+        """Add profile row when user signs up."""
+        user = super().save_user(request, user, form, commit=False)
+        if commit:
+            from myapp.models import Profile
+            Profile.objects.create(user=user)
+        return user
     
-    def send_mail(self, template_prefix, email_context, users):
-        # Custom email sending
-        pass
-    
-    def get_email_confirmation_redirect_url(self, request):
-        return '/confirmed/'
-    
-    def authenticate(self, request, **credentials):
-        # Custom authentication
-        return super().authenticate(request, **credentials)
+    def clean_email(self, request, email):
+        """Reject disposable email domains."""
+        email = super().clean_email(request, email)
+        disposable_domains = {'tempmail.com', 'throwaway.email'}
+        domain = email.split('@')[-1].lower()
+        if domain in disposable_domains:
+            raise ValidationError('Disposable email domains not allowed')
+        return email
 
 # settings.py
 ACCOUNT_ADAPTER = 'myapp.adapter.CustomAccountAdapter'
 ```
 
-### Social Account Adapter
+### Custom Social Account Adapter
+
+**Why you need this:** Enforce allowlists, merge accounts, enforce org membership.
 
 ```python
 # myapp/adapter.py
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+from allauth.socialaccount.models import SocialLogin
+from django.core.exceptions import PermissionDenied
 
 class CustomSocialAccountAdapter(DefaultSocialAccountAdapter):
+    ALLOWED_DOMAINS = {'company.com', 'partner.org'}
+    
     def pre_social_login(self, request, sociallogin):
-        # Called after login, before creating user
-        pass
+        """Reject signups from unauthorized domains."""
+        if sociallogin.state.get('action') != 'login':
+            return  # New signup flow
+        
+        email = sociallogin.user.email
+        if not email:
+            return  # Let provider handle it
+        
+        domain = email.split('@')[-1].lower()
+        if domain not in self.ALLOWED_DOMAINS:
+            raise PermissionDenied(f'@{domain} not authorized for signup')
     
     def populate_user(self, request, sociallogin, data):
-        # Populate user fields
-        user = sociallogin.user
+        """Sync profile fields from provider."""
+        user = super().populate_user(request, sociallogin, data)
+        # Sync first/last name from provider data
         user.first_name = data.get('first_name', '')
         user.last_name = data.get('last_name', '')
         return user
 
 # settings.py
 SOCIALACCOUNT_ADAPTER = 'myapp.adapter.CustomSocialAccountAdapter'
-```
-
-## Signals
-
-### Account Signals
-
-```python
-from allauth.account import signals
-
-# User signs up
-signals.user_signed_up.connect(my_handler, sender=User)
-
-# User logs in
-signals.user_logged_in.connect(my_handler, sender=User)
-
-# Email added
-signals.email_added.connect(my_handler, sender=User)
-
-# Email confirmed
-signals.email_confirmed.connect(my_handler, sender=User)
-
-# Password changed
-signals.password_changed.connect(my_handler, sender=User)
-
-# Password reset
-signals.password_reset.connect(my_handler, sender=User)
-```
-
-### Social Account Signals
-
-```python
-from allauth.socialaccount import signals
-
-# Social login successful
-signals.social_login.connect(my_handler, sender=SocialLogin)
-
-# Social account added
-signals.social_account_added.connect(my_handler, sender=SocialAccount)
-
-# Social account removed
-signals.social_account_removed.connect(my_handler, sender=SocialAccount)
-
-# Pre-update
-signals.pre_update.connect(my_handler, sender=SocialAccount)
-```
-
-### MFA Signals
-
-```python
-from allauth.mfa import signals
-
-# MFA enabled
-signals.mfa_enabled.connect(my_handler, sender=User)
-
-# MFA disabled
-signals.mfa_disabled.connect(my_handler, sender=User)
-
-# Authenticator created
-signals.authenticator_created.connect(my_handler, sender=User)
-```
-
-## Templates
-
-### Custom Templates
-
-```
-templates/
-├── account/
-│   ├── base.html
-│   ├── login.html
-│   ├── signup.html
-│   ├── logout.html
-│   ├── password_change.html
-│   ├── password_reset.html
-│   ├── password_set.html
-│   ├── email/
-│   │   ├── email_confirmation_subject.txt
-│   │   └── email_confirmation_message.txt
-│   └── snippets/
-│       └── form.html
-├── socialaccount/
-│   ├── base.html
-│   ├── login.html
-│   ├── signup.html
-│   ├── connections.html
-│   └── snippets/
-│       └── provider_list.html
-└── mfa/
-    ├── index.html
-    ├── totp.html
-    └── webauthn.html
-```
-
-### Template Tags
-
-```django
-{% load allauth_tags %}
-
-{# Check if user is verified #}
-{% user_verified request.user %}
-
-{# Social account connections #}
-{% socialaccount_providers %}
-
-{# Login URL #}
-{% provider_login_url "google" %}
-```
-
-## Best Practices
-
-### 1. Use Adapter for Customization
-
-```python
-# Instead of modifying allauth, use adapter
-ACCOUNT_ADAPTER = 'myapp.adapter.CustomAccountAdapter'
-```
-
-### 2. Enable HTTPS
-
-```python
-# In production
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
-```
-
-### 3. Rate Limiting
-
-```python
-# Allauth has rate limiting built-in
-ACCOUNT_RATE_LIMITS = {
-    'signup': '5/hour',
-    'password_reset': '3/hour',
-}
-```
-
-### 4. Email Verification
-
-```python
-# Require verification
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-
-# Or optional
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
 ```
 
 ## Deep Dives

@@ -18,468 +18,278 @@ Data validation using Python type annotations.
 
 ## Overview
 
-Pydantic is a Python library that provides data validation and settings management using Python type annotations. It validates data at runtime and generates JSON Schema for automatic documentation.
+Pydantic provides data validation and settings management using Python type hints. Validates at runtime and generates JSON Schema.
 
-**Key Features:**
-- Data validation using type hints
-- Automatic data coercion
-- JSON Schema generation
-- Serialization/deserialization
-- Settings management with environment variables
-- Fast performance (especially v2)
-- Extensive customization options
+**Source**: https://docs.pydantic.dev/ | https://github.com/pydantic/pydantic
 
-### Installation
+## Installation
 
 ```bash
-# Basic installation
-pip install pydantic
-
-# With email validation
-pip install pydantic[email]
-
-# With best performance (recommended)
-pip install pydantic[email] orjson
-
-# Version 2 (current)
-pip install pydantic>=2.0.0
+pip install pydantic          # Core
+pip install pydantic[email]   # Email validation
+pip install pydantic orjson   # Best performance
+pip install pydantic-settings # Settings management
 ```
 
-## Basic Models
+## Quick Start
 
-### Creating Models
+```python
+from pydantic import BaseModel, Field
+
+class User(BaseModel):
+    id: int
+    name: str
+    email: str
+    age: int | None = None
+
+# Validation + coercion
+user = User(id="1", name="John", email="john@example.com")  # id coerced to int
+
+# From dict/JSON
+user = User.model_validate({"id": 2, "name": "Jane", "email": "jane@example.com"})
+user = User.model_validate_json('{"id": 3, "name": "Bob", "email": "bob@example.com"}')
+
+# Serialization
+data = user.model_dump()           # dict
+json_str = user.model_dump_json()  # JSON string
+```
+
+## Field Constraints
+
+Compact examples—see [validators.md](references/validators.md) for full reference.
 
 ```python
 from pydantic import BaseModel, Field
 from typing import Optional, List
 
-class User(BaseModel):
-    """Basic user model."""
-    id: int
-    name: str
-    email: str
-    age: Optional[int] = None
-    is_active: bool = True
-
-# Create instance
-user = User(id=1, name="John", email="john@example.com")
-print(user)
-# id=1 name='John' email='john@example.com' age=None is_active=True
-
-# From dictionary
-data = {
-    "id": 2,
-    "name": "Jane",
-    "email": "jane@example.com",
-    "age": 25
-}
-user = User(**data)
-
-# From JSON
-json_data = '{"id": 3, "name": "Bob", "email": "bob@example.com"}'
-user = User.model_validate_json(json_data)
-```
-
-### Field Types
-
-```python
-from pydantic import BaseModel
-from typing import Optional, List, Dict, Literal
-
-class AllTypesExample(BaseModel):
-    string: str
-    integer: int
-    optional_string: Optional[str] = None
-    list_of_strings: List[str] = []
-    dict_data: Dict[str, int] = {}
-    status: Literal["pending", "active"] = "pending"
-```
-
-### Nested Models
-
-```python
-from pydantic import BaseModel, Field
-from typing import Optional
-
-class Address(BaseModel):
-    street: str
-    city: str
-
-class Person(BaseModel):
-    name: str
-    email: str
-    address: Optional[Address] = None
-
-person = Person(
-    name="John",
-    email="john@example.com",
-    address=Address(street="123 Main St", city="New York")
-)
-```
-
-## Field Validation
-
-### Field Constraints
-
-```python
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional
-import re
-
-class ConstrainedUser(BaseModel):
-    # String constraints
+class ConstrainedModel(BaseModel):
+    # Strings
     name: str = Field(min_length=1, max_length=100)
     username: str = Field(pattern=r'^[a-zA-Z0-9_]+$')
-    email: str = Field(format="email")
     
-    # Number constraints
+    # Numbers
     age: int = Field(ge=0, le=150)
     price: float = Field(gt=0)
-    quantity: int = Field(ge=0, default=0)
     
-    # Collection constraints
-    tags: List[str] = Field(min_length=1, max_length=10)
-    scores: List[int] = Field(min_length=1, max_length=100)
+    # Collections
+    tags: List[str] = Field(min_length=1)
     
-    # Optional with constraint
+    # Optional
     nickname: Optional[str] = Field(default=None, max_length=50)
-
-# Validation examples
-user = ConstrainedUser(
-    name="John Doe",
-    username="john_doe",
-    email="john@example.com",
-    age=25,
-    price=19.99,
-    tags=["python", "fastapi"]
-)
 ```
 
-### Field Validators
+## Validators
+
+See [validators.md](references/validators.md) for comprehensive patterns.
 
 ```python
-from pydantic import BaseModel, field_validator, Field
+from pydantic import BaseModel, field_validator, model_validator, Field
 import re
 
-class ValidatedUser(BaseModel):
+class ValidatedModel(BaseModel):
     username: str
     password: str
-    age: int
     
     @field_validator('username')
     @classmethod
     def validate_username(cls, v: str) -> str:
         if len(v) < 3:
             raise ValueError('Username must be at least 3 characters')
-        if not re.match(r'^[a-zA-Z0-9_]+$', v):
-            raise ValueError('Username can only contain letters, numbers, and underscores')
-        return v
-    
-    @field_validator('password')
-    @classmethod
-    def validate_password(cls, v: str) -> str:
-        if len(v) < 8:
-            raise ValueError('Password must be at least 8 characters')
-        if not re.search(r'[A-Z]', v):
-            raise ValueError('Password must contain at least one uppercase letter')
-        if not re.search(r'[0-9]', v):
-            raise ValueError('Password must contain at least one digit')
-        return v
-    
-    @field_validator('age')
-    @classmethod
-    def validate_age(cls, v: int) -> int:
-        if v < 0 or v > 150:
-            raise ValueError('Age must be between 0 and 150')
-        return v
-
-# Multiple validators on same field
-class MultiValidatedField(BaseModel):
-    value: str
-    
-    @field_validator('value')
-    @classmethod
-    def strip_value(cls, v: str) -> str:
-        return v.strip()
-    
-    @field_validator('value')
-    @classmethod
-    def validate_not_empty(cls, v: str) -> str:
-        if not v:
-            raise ValueError('Value cannot be empty')
-        return v
-```
-
-### Model Validators
-
-```python
-from pydantic import BaseModel, model_validator, field_validator
-from typing import Optional
-
-class UserRegistration(BaseModel):
-    password: str
-    confirm_password: str
-    username: str
-    
-    @model_validator(mode='before')
-    @classmethod
-    def check_passwords_match(cls, data):
-        """Validate before any field validation."""
-        if isinstance(data, dict):
-            if data.get('password') != data.get('confirm_password'):
-                raise ValueError('Passwords do not match')
-        return data
+        return v.strip().lower()
     
     @model_validator(mode='after')
-    def validate_username_not_password(self):
-        """Validate after all field validation."""
-        if self.username.lower() in self.password.lower():
-            raise ValueError('Username cannot be part of the password')
-        return self
-
-# Date validation
-class AdvancedValidation(BaseModel):
-    start_date: str
-    end_date: str
-    
-    @model_validator(mode='after')
-    def validate_dates(self):
-        from datetime import datetime
-        start = datetime.fromisoformat(self.start_date)
-        end = datetime.fromisoformat(self.end_date)
-        
-        if end < start:
-            raise ValueError('End date must be after start date')
-        
+    def validate_password_strength(self):
+        if len(self.password) < 8:
+            raise ValueError('Password too short')
+        if not re.search(r'[A-Z]', self.password):
+            raise ValueError('Password needs uppercase')
         return self
 ```
 
-## Serialization
+## v1 → v2 Migration Checklist
 
-### Model Dump
+Critical: v2 changes can silently break v1 code. Check each item.
+
+| v1 | v2 | Symptom |
+|----|----|---------|
+| `@validator` | `@field_validator` | Import error; `validator` deprecated |
+| `@validator(..., each_item=True)` | `@field_validator` with `PlainSerializer` | List validation fails |
+| `@root_validator` | `@model_validator(mode='before'/'after')` | `root_validator` removed; need mode |
+| `class Config` | `model_config = ConfigDict(...)` | `Config` class ignored |
+| `.dict()` | `.model_dump()` | Method not found |
+| `.json()` | `.model_dump_json()` | Method not found |
+| `.parse_obj()` | `.model_validate()` | Method not found |
+| `.parse_raw()` | `.model_validate_json()` | Method not found |
+| `.schema()` | `.model_json_schema()` | Method not found |
+| `Field(..., regex=r'...')` | `Field(pattern=r'...')` | `regex` removed |
+| `Field(..., min_length=...)` | `Field(min_length=...)` | Works (unchanged) |
+| `copy(update={...})` | `model_copy(update={...})` | `copy` is shallow; use `model_copy` |
+| `allow_population_by_field_name` | `populate_by_name` | Config key renamed |
+| `orm_mode` | `from_attributes` | Config key renamed |
+| `Optional[X] = None` default behavior | Defaults no longer filled for `None` | `None` stays `None`, not replaced |
+
+**Source**: https://docs.pydantic.dev/latest/migration/
+
+## Serialization Performance
+
+Measure before optimizing: use `timeit` or a profiler on `model_dump()` for deeply nested models.
 
 ```python
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional, List
+import time
 
-class User(BaseModel):
-    id: int
-    name: str
-    email: str
-    tags: List[str] = []
-    metadata: Optional[dict] = None
+class NestedModel(BaseModel):
+    data: dict
+    items: List[str]
 
-user = User(
-    id=1,
-    name="John",
-    email="john@example.com",
-    tags=["admin", "developer"],
-    metadata={"department": "Engineering"}
+class DeepModel(BaseModel):
+    level1: NestedModel
+    level2: NestedModel
+    level3: NestedModel
+
+model = DeepModel(
+    level1=NestedModel(data={}, items=[]),
+    level2=NestedModel(data={}, items=[]),
+    level3=NestedModel(data={}, items=[])
 )
 
-# To dictionary
-data = user.model_dump()
-print(data)
-# {'id': 1, 'name': 'John', 'email': 'john@example.com', 'tags': ['admin', 'developer'], 'metadata': {'department': 'Engineering'}}
-
-# To JSON string
-json_str = user.model_dump_json()
-print(json_str)
-# {"id":1,"name":"John",...}
-
-# Include/Exclude fields
-data = user.model_dump(include={'id', 'name'})
-data = user.model_dump(exclude={'metadata'})
-
-# Exclude None values
-data = user.model_dump(exclude_none=True)
+# Measure
+start = time.perf_counter()
+for _ in range(10000):
+    model.model_dump()
+print(f"Time: {time.perf_counter() - start:.3f}s")
 ```
 
-### Custom Serialization
+**Guidance**:
+
+- **`model_dump()` vs `dict(model)`**: `model_dump()` is O(1) per field; `dict(model)` triggers reflection O(fields) each call. Always use `model_dump()`.
+- **`model_dump(mode="json")`**: Use when the consumer is JSON (serializes datetime, decimals, etc. to JSON-native types).
+- **`exclude_none=True`**: Omits fields with `None` value. Use when you want to hide nulls.
+- **`exclude_unset=True`**: Omits fields that were never explicitly set (even if they have defaults). Usually what you want for partial updates.
+- **Deeply nested models**: The hot spot. Profile first; consider selective `include`/`exclude` or flattening.
+
+## Django Integration
+
+See [django.md](references/django.md) for detailed patterns.
 
 ```python
-from pydantic import BaseModel, field_serializer
-from datetime import datetime
+from pydantic import BaseModel, ConfigDict
+from myapp.models import User as UserModel
 
-class User(BaseModel):
-    id: int
-    created_at: datetime
+class UserPydantic(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     
-    @field_serializer('created_at')
-    def serialize_datetime(self, dt: datetime) -> str:
-        return dt.isoformat()
+    id: int
+    username: str
+    email: str
 
-user = User(id=1, created_at=datetime.now())
-data = user.model_dump(mode='json', exclude_none=True)
-```
+# Accept ORM objects
+user_orm = UserModel.objects.get(id=1)
+user_py = UserPydantic.model_validate(user_orm)  # from_attributes=True enables this
 
-### Model Validate
+# DjangoChoices for enum validation
+from django.db import models
 
-```python
+class Status(models.TextChoices):
+    PENDING = "pending"
+    ACTIVE = "active"
+
+# Must be TextChoices, not plain str for enum validation
 from pydantic import BaseModel
 
-class User(BaseModel):
-    id: int
-    name: str
-
-# From dictionary
-user = User.model_validate({"id": 1, "name": "John"})
-
-# From JSON
-user = User.model_validate_json('{"id": 2, "name": "Jane"}')
+class Task(BaseModel):
+    status: Status  # Works with TextChoices
 ```
 
-### JSON Schema
+**Pitfalls**:
+
+- **Unsaved instances**: Validating an unsaved Django model instance may fail if validators expect `id` or other DB-generated fields.
+- **Lazy model fields**: Use `DjangoGetter` wrapper for lazy evaluation of related fields (avoids N+1 queries).
+
+## When Not to Use a Strict Model
+
+Not every case benefits from Pydantic's coercion:
+
+- **Internal dataclasses**: Where data is already validated at the boundary, coercion surprises hurt more than help. Use `@dataclass` or plain classes internally.
+- **Boundary discipline**: Validate external input ONCE at the boundary. Internal call sites should not re-validate—pass typed data directly.
+- **Performance-critical paths**: If validation is not needed (e.g., internal cache hits), skip Pydantic overhead.
 
 ```python
-from pydantic import BaseModel
+# Good: Validate at boundary
+def handle_request(raw_data: dict):
+    user = User.model_validate(raw_data)  # Boundary
+    process_user(user)  # Internal—no re-validation
 
-class User(BaseModel):
-    id: int
-    name: str
+def process_user(user: User):
+    # Use user directly; trust the type
+    send_email(user.email)
 
-schema = User.model_json_schema()
+# Bad: Re-validating internally
+def process_user_bad(raw_data: dict):
+    user = User.model_validate(raw_data)
+    # ...
+    user_again = User.model_validate(user.model_dump())  # Unnecessary
 ```
-
-## Deep Dives
-
-The following reference files provide detailed coverage of advanced topics. Load them on demand:
-
-- **types-and-defaults.md** — Field aliases, naming conventions, default values, constrained types, and special types (email, URL, UUID, secrets, enums)
-- **config-and-settings.md** — Model configuration, strict mode, multi-environment settings, and BaseSettings
-- **validation-patterns.md** — TypeAdapter, RootModel, discriminated unions, and error handling
-- **fastapi.md** — FastAPI integration with request/response models and nested validation
 
 ## Best Practices
 
-### 1. Use Type Hints
+1. **Use `Field(default_factory=...)` for mutable defaults**
+   ```python
+   class Model(BaseModel):
+       tags: List[str] = Field(default_factory=list)  # Good
+       # tags: List[str] = []  # Bad in v2
+   ```
 
-```python
-# Good: Full type hints
-class User(BaseModel):
-    id: int
-    name: str
-    email: str
-    is_active: bool = True
+2. **Separate schemas for operations**
+   ```python
+   class UserBase(BaseModel):
+       email: str
 
-# Bad: Missing type hints
-class User(BaseModel):
-    id = None
-    name = None
-```
+   class UserCreate(UserBase):
+       username: str
+       password: str
 
-### 2. Define Defaults Properly
+   class UserResponse(UserBase):
+       id: int
+       model_config = ConfigDict(from_attributes=True)
+   ```
 
-```python
-# Good: Use default_factory for mutable objects
-class User(BaseModel):
-    tags: List[str] = Field(default_factory=list)
-    metadata: dict = Field(default_factory=dict)
-
-# Bad: Mutable default argument
-class User(BaseModel):
-    tags: List[str] = []
-    metadata: dict = {}
-```
-
-### 3. Use Constrained Types
-
-```python
-# Good: Constrained types
-class User(BaseModel):
-    username: str = Field(min_length=3, max_length=20)
-    age: int = Field(ge=0, le=150)
-
-# Bad: Unconstrained validation in handler
-class User(BaseModel):
-    username: str
-    age: int
-    
-    @field_validator('username')
-    def validate_username(self, v):
-        if len(v) < 3 or len(v) > 20:
-            raise ValueError('Invalid username')
-        return v
-```
-
-### 4. Separate Schemas
-
-```python
-# Good: Separate schemas for different operations
-class UserBase(BaseModel):
-    email: EmailStr
-
-class UserCreate(UserBase):
-    username: str
-    password: str
-
-class UserUpdate(BaseModel):
-    email: Optional[EmailStr] = None
-    username: Optional[str] = None
-
-class UserResponse(UserBase):
-    id: int
-    created_at: datetime
-    
-    model_config = {'from_attributes': True}
-```
+3. **Validate once at the boundary** (see above)
 
 ## Common Issues
-
-### Performance
-
-```python
-# Issue: Slow validation
-# Solution: Use Pydantic v2 (much faster)
-# pip install pydantic>=2.0.0
-
-# Solution: Use orjson for serialization
-# pip install orjson
-
-import orjson
-
-class FastModel(BaseModel):
-    model_config = {'json_loads': orjson.loads, 'json_dumps': orjson.dumps}
-```
 
 ### Mutable Defaults
 
 ```python
-# Issue: Mutable default arguments
-# Error in Pydantic v2
+# v2 error: mutable default
 class BadModel(BaseModel):
     items: list = []
 
-# Solution: Use default_factory
+# Fix: use default_factory
 class GoodModel(BaseModel):
     items: list = Field(default_factory=list)
 ```
 
-### Validation Order
+### Performance
 
-```python
-# Issue: Validator order
-# In Pydantic v2, field_validators run in order of definition
-# mode='before' validators run first, then field type validation, then 'after'
+- Use Pydantic v2 (parsing is 10-100x faster than v1)
+- Use `orjson` for serialization: `model_config = ConfigDict(json_loads=orjson.loads, json_dumps=orjson.dumps)`
+- Measure `model_dump()` on deeply nested models first
 
-class OrderedValidation(BaseModel):
-    value: str
-    
-    @field_validator('value', mode='before')
-    @classmethod
-    def before_validation(cls, v):
-        return v.strip().lower() if isinstance(v, str) else v
-    
-    @field_validator('value')
-    @classmethod
-    def after_validation(cls, v):
-        return v
-```
+## Deep Dives
+
+Load these reference files on demand:
+
+- **validators.md** — Field/model validators, custom types, error handling, TypeAdapter, discriminated unions
+- **types-and-defaults.md** — Field aliases, naming conventions, constrained types, special types (email, URL, UUID, secrets, enums)
+- **config-and-settings.md** — Model configuration, strict mode, multi-environment settings, BaseSettings
+- **django.md** — Django ORM integration, DjangoGetter, TextChoices, unsaved instance pitfalls
+- **fastapi.md** — FastAPI integration with request/response models and nested validation
 
 ## References
 
-- **Official Documentation**: https://docs.pydantic.dev/
-- **GitHub Repository**: https://github.com/pydantic/pydantic
-- **Pydantic Discord**: https://discord.gg/pydantic
-- **FastAPI Documentation**: https://fastapi.tiangolo.com/
-- **Stack Overflow**: https://stackoverflow.com/questions/tagged/pydantic
+- Official Docs: https://docs.pydantic.dev/
+- GitHub: https://github.com/pydantic/pydantic
+- Pydantic Discord: https://discord.gg/pydantic
+- FastAPI: https://fastapi.tiangolo.com/
