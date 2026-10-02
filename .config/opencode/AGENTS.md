@@ -161,7 +161,7 @@ Do not merge decisions internally. Surface tradeoffs as Option A vs Option B wit
 
 **Imperative checklist:** inspect reality before proposing change (read code/runtime state first) · prefer discriminated types over boolean flags · keep helpers tiny and named for the work they do · log only real state transitions and failures.
 
-**Before decomposing into tasks, produce a brief feature spec (5-10 lines):** goal (one sentence), requirements (bullets), acceptance criteria (observable outcomes). If doubts arise while writing the spec, resolve them with the user before proceeding.
+**Before decomposing into tasks, produce a brief feature spec (5-10 lines):** goal (one sentence), requirements (bullets), acceptance criteria (observable outcomes). Write the spec in ASD-STE100 style (short sentences, active voice — §24). If doubts arise while writing the spec, resolve them with the user before proceeding.
 
 ### 11. Autonomy Calibration
 
@@ -369,6 +369,7 @@ Step 1/3: Enabling ESLint strict mode by editing eslint.config.js
 For analysis, writing, strategy:
 
 - **Open every analysis by restating, in your own words, what you believe the user's goals are and what problem they are trying to solve.** Only then produce the analysis itself — a wrong premise caught here is cheaper than a wrong analysis.
+- Prefer a Mermaid diagram over paragraphs when explaining structure, flow, or relationships. Diagram first, supporting prose second.
 - Never open with "In conclusion" / "It's important to note" / "In today's rapidly…". Max 2 consecutive adjectives. One idea per paragraph.
 - Remove 40% of words if meaning survives. Specific numbers ("3 weeks"), not vague quantifiers.
 - First draft is never final: present with an explicit confidence level ("80% confidence, needs validation on X"), ask what needs the most work, revise only flagged parts, track what changed and why.
