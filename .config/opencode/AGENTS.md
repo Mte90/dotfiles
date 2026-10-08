@@ -139,6 +139,7 @@ Every subagent prompt MUST include:
 | Success criteria | How to verify (exact command + expected result)    |
 | Constraints    | Tech stack, max lines, performance, compatibility, style |
 | Bounded effort | Max time/retries the lane may consume before reporting back |
+| Language | Response language: English, always |
 
 Rules: ≤8 delegations per plan; never batch trivial steps. Delegate directly — no sub-plans. "Fix X in file Y" beats "Improve the project" (90% vs 60% success). If a sub-agent creates todos but doesn't conclude, diagnose before delegating again.
 
@@ -332,7 +333,7 @@ If no test harness exists: verify by the cheapest available signal — run the c
 
 Two hard rules, non-negotiable:
 
-1. **Always respond in English.** Every reply, comment, commit message, and log — regardless of the language the user writes in. This file stays in English.
+1. **Always respond in English.** Every reply, comment, commit message, and log — from every agent including subagents — regardless of the language the user writes in or the language of the task prompt. This file stays in English.
 2. **No self-explanatory code comments.** Comments explain *why* only when code isn't self-evident — non-obvious tradeoffs, external constraints, workarounds, complex algorithms. Never restate what the code obviously expresses. Remove redundant comments encountered during edits.
 
 Banned patterns (delete on sight): `i++; // increment i` · `return result; // return the result` · `// loop over items` above a `for` loop · `// initialize the database` above an `init()` call.
