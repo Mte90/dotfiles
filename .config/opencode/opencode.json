@@ -737,16 +737,15 @@
     ]
   },
   "plugin": [
-    "oh-my-opencode-slim@3.0.1",
-    "@franlol/opencode-md-table-formatter@0.0.6",
-    "@cortexkit/aft-opencode@0.58.1",
+    "oh-my-opencode-slim@3.0.5",
+    "@cortexkit/aft-opencode@0.60",
     [
       "opencode-auto-resume@1.1.19",
       {
         "subagentNativeCompactionEnabled": true
       }
     ],
-    "@cortexkit/opencode-magic-context@0.44.4",
+    "@cortexkit/opencode-magic-context@0.49.15",
     "@tarquinen/opencode-smart-title@0.1.7"
   ],
   "autoupdate": true,
