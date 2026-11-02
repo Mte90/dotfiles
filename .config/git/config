@@ -12,6 +12,8 @@
 	# Changes in file permissions will be ignored: please use it!
 	filemode = false
 	autocrlf = input
+	fsmonitor = true
+	untrackedcache = true
 [push]
 	default = current
 [credential]

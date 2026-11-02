@@ -141,3 +141,5 @@ enable -f /home/mte90/.local/lib/libflyline.so flyline
 flyline set-style matching-char="bold green"
 flyline set-cursor --backend terminal
 flyline suggestions set-fuzzy-mode folder-prefixes
+
+. "/home/mte90/.local/share/cargo/env"

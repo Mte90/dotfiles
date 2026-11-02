@@ -21,3 +21,4 @@
 * https://github.com/vuejs-ai/skills
 * https://github.com/hyperb1iss/hyperskills
 * https://github.com/TheQtCompanyRnD/agent-skills
+* https://github.com/github/awesome-copilot/

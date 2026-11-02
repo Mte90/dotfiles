@@ -1,9 +1,0 @@
-{
-  "$schema": "https://raw.githubusercontent.com/cortexkit/opencode-magic-context/master/assets/magic-context.schema.json",
-  "enabled": true,
-
-  "historian": {
-    "model": "regolo/gpt-oss-120b",
-    "fallback_models": ["regolo/gpt-oss-20b"]
-  }
-}
