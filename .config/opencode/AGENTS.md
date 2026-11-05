@@ -57,7 +57,7 @@ Extra scrutiny for crypto, authentication, parsing untrusted input, process/FFI 
 - Secure-by-default at structural chokepoints: templating that escapes by default, parameterized queries, schema validation at every trust boundary. Never build shell strings, HTML, or queries from data; spawn processes with argument arrays; render text as text.
 - Data formats never gain an eval path, dynamic import, or plugin hook for user-supplied code. That boundary is what makes untrusted content safe.
 - Crypto: established, audited libraries only — never implement primitives or protocols. Assume side channels: constant-time comparison for anything secret-dependent; key material never appears in errors, logs, or debug output.
-- Adding a dependency means trusting its authors with arbitrary code execution. Only well-known, actively-maintained packages; anything less → ask first. Never print env files or secret stores; never stage them. A secret in terminal output is already leaked — say so.
+- Adding a dependency means trusting its authors with arbitrary code execution. Use only well-known, actively-maintained packages. Ask before adding any other. Never print env files or secret stores; never stage them. A secret in terminal output is already leaked — say so.
 - After each commit, review your own diff for injection, path traversal, XSS, unvalidated boundary input, auth gaps, hardcoded secrets. Report findings before continuing.
 
 ### 4. Git: Local-Only Discipline
@@ -244,7 +244,7 @@ Two tests: "Is this data crossing a system boundary right now?" and "Could this 
 
 ### 20. Testing
 
-- **TDD for features and bug fixes:** failing test first — the repro is the test (§19) → code only after it fails → fix until green.
+- **TDD for features and bug fixes:** write the failing test first — the repro is the test (§19). Code only after it fails. Fix until tests pass.
 - **Tests ship in the same commit** as the code they cover. A feature without tests is incomplete work, not a follow-up task.
 - **Refactors go spec-first.** Implement against the spec or reference behavior, then run tests as independent checks. Never let a refactor emerge from fixing failing tests one by one — every edit bends toward current behavior, and the suite ends green while certifying bugs. Never weaken an assertion to make it pass — test failures are information; discuss before changing test or code.
 - **Assert exact values and exact error messages**, not loose predicates like "contains 'error'". Vague assertions give false confidence.
@@ -279,6 +279,8 @@ Two hard rules, non-negotiable:
 2. **No self-explanatory code comments.** Comments explain *why* only when code isn't self-evident — non-obvious tradeoffs, external constraints, workarounds, complex algorithms. Never restate what the code expresses; remove redundant comments encountered while editing.
 
 Banned on sight: `i++; // increment i` · `return result; // return the result` · `// loop over items` above a `for` · `// initialize the database` above `init()`. Test: if deleting the comment leaves the code as clear, delete it.
+
+**No transcript leakage.** Never embed conversation excerpts, prompt text, iteration or repair history, plan/task IDs ("T1", "phase 2"), subagent briefs, or internal scaffolding in code comments, pull-request descriptions, commit messages, changelogs, or any maintainer-facing prose. Strip every such trace from the diff, PR body, and commit log before committing — commit messages obey §4; this rule names every surface where maintainers or git history read the text.
 
 ### 23. Output Style for Action
 
@@ -339,7 +341,7 @@ At the start of every new session (not sub-agents), before other work:
 Applies when the project emits user-facing logs.
 
 - One human summary string + one opaque details bag per failure context — no mirrored fields, no tunneling through `Error.message` or wrapper types. Emit rich raw observations and let the reading pipeline handle taxonomy; product logic branches on a category only when behavior depends on it.
-- Logs are a debugging contract: transition events and failure edges, not steady-state snapshots. Keep logging lightweight and stateless — caches, dedup, suppression only when real data proves necessary.
+- Logs are a debugging contract: transition events and failure edges, not steady-state snapshots. Make logging lightweight and stateless. Add caches, dedup, or suppression only when real data proves them necessary.
 - Log at the owning callsite, in the layer that owns the state, with only the data needed. No shared log-formatting modules; no unrelated fields carried because they're easy to log. Logging helpers stay effect-free.
 - Don't pair `logger.error` with `throw` at the same site — pack context into the error and let the catcher log once with full context. Catch only to translate state or enrich the error contract; otherwise let it propagate.
 - Monitoring-only probes stay minimal: one bounded best-effort signal. Never widen product state, contracts, startup, or caching for telemetry alone. Promote local `logger.info` diagnostics to centralized telemetry only for a clear cross-product analysis need.
@@ -348,7 +350,7 @@ Applies when the project emits user-facing logs.
 
 ### 28. Velocity Audit (last 24h)
 
-Trigger: the user asks to audit the last 24h, or weekly, or right after this file changes. Never every session.
+Trigger: audit on request, weekly, or right after this file changes — never every session.
 
 1. **Evidence first.** `git log --since=24.hours --stat`, `git reflog`, the session archive (search it with the session-history tool you have), test/lint output, todos. After a rule change, also list which rules were added or edited and whether any of them fired since. No data, no audit — name what is missing instead of guessing.
 2. **Measure, don't describe.** Per task: cycle time, rework (same file touched twice), failed attempts that hit the §16 3-strike rule, blocked time, context switches, review rounds. One number per metric, with its source.

@@ -225,7 +225,7 @@
             "thinking": true,
             "temperature": 0.7
           }
-        },
+        }
       }
     },
     "zai-coding-plan": {
@@ -540,10 +540,10 @@
     ]
   },
   "plugin": [
-    "oh-my-opencode-slim@3.0.5",
-    "@cortexkit/aft-opencode@0.63",
+    "oh-my-opencode-slim@3.0.7",
+    "@cortexkit/aft-opencode@0.63.5",
     [
-      "opencode-auto-resume@1.2.2",
+      "opencode-auto-resume@1.2.3",
       {
         "subagentNativeCompactionEnabled": true
       }
