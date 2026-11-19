@@ -101,8 +101,8 @@
           "name": "deepseek-v4.1-flash",
           "tools": true,
           "cost": {
-            "input": 2,
-            "output": 5.2
+            "input": 0.45,
+            "output": 1.8
           },
           "modalities": {
             "input": [
@@ -114,11 +114,11 @@
             ]
           },
           "limit": {
-            "context": 1000000,
+            "context": 750000,
             "output": 96000
           },
           "options": {
-            "reasoningEffort": "max",
+            "reasoningEffort": "high",
             "textVerbosity": "low",
             "reasoningSummary": "auto",
             "parallel_tool_calls": true,
@@ -594,14 +594,14 @@
   },
   "plugin": [
     "oh-my-opencode-slim@3.0.7",
-    "@cortexkit/aft-opencode@0.66",
+    "@cortexkit/aft-opencode@0.66.0",
     [
-      "opencode-auto-resume@1.2.5",
+      "opencode-auto-resume@1.2.6",
       {
         "subagentNativeCompactionEnabled": true
       }
     ],
-    "@cortexkit/opencode-magic-context@0.49.59",
+    "@cortexkit/opencode-magic-context@0.49.63",
     "@tarquinen/opencode-smart-title@0.1.7"
   ],
   "autoupdate": true,
