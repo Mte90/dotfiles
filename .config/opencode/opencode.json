@@ -596,7 +596,7 @@
     "oh-my-opencode-slim@3.0.7",
     "@cortexkit/aft-opencode@0.66.0",
     [
-      "opencode-auto-resume@1.2.6",
+      "opencode-auto-resume@1.2.7",
       {
         "subagentNativeCompactionEnabled": true
       }
