@@ -24,10 +24,10 @@
   "disabled_agents": ["council"],
   "presets": {
     "regolo": {
-      "orchestrator": { "model": ["regolo/deepseek-v4.1-flash", "regolo/qwen3.5-122b", "regolo/glm5.2"], "variant": "medium", "skills": ["*", "!codemap", "!clonedeps", "reflect", "worktrees"], "mcps": ["*", "!context7", "!gh_app", "!websearch"] },
-      "oracle": { "model": ["regolo/mistral-small-4-119b", "regolo/qwen3.5-122b"], "variant": "high", "skills": ["simplify", "Code Review Expert", "Debugging Expert", "System Design & Architecture Standards"], "mcps": ["deepwiki", "gh_grep", "tavily"] },
-      "explorer": { "model": ["regolo/deepseek-v4.1-flash", "regolo/qwen3.8-27b"], "variant": "medium", "skills": ["*", "!codemap", "!clonedeps"], "mcps": ["*"] },
-      "designer": { "model": ["regolo/gemma4-31b", "regolo/qwen3.5-122b"], "variant": "medium", "skills": ["visual-design-system", "product-design", "interaction-design", "responsive-design", "tui-design", "qt-ui-design", "minimalist-ui"], "mcps": [] },
+      "orchestrator": { "model": ["regolo/glm5.3", "regolo/glm5.2"], "variant": "medium", "skills": ["*", "!codemap", "!clonedeps", "reflect", "worktrees"], "mcps": ["*", "!context7", "!gh_app", "!websearch"] },
+      "oracle": { "model": ["regolo/mistral-small-4-119b", "regolo/qwen3.8-27b"], "variant": "high", "skills": ["simplify", "Code Review Expert", "Debugging Expert", "System Design & Architecture Standards"], "mcps": ["deepwiki", "gh_grep", "tavily"] },
+      "explorer": { "model": ["regolo/deepseek-v4.1-flash", "regolo/glm5.3"], "variant": "medium", "skills": ["*", "!codemap", "!clonedeps"], "mcps": ["*"] },
+      "designer": { "model": ["regolo/gemma4-31b", "regolo/qwen3.8-27b"], "variant": "medium", "skills": ["visual-design-system", "product-design", "interaction-design", "responsive-design", "tui-design", "qt-ui-design", "minimalist-ui"], "mcps": [] },
       "fixer": { "model": ["regolo/qwen3.5-122b", "regolo/deepseek-v4.1-flash"], "variant": "medium", "temperature": 0.3, "skills": ["*", "!codemap", "!clonedeps"], "mcps": [] },
       "observer": { "model": ["regolo/deepseek-v4.1-flash", "regolo/qwen3.8-27b"], "variant": "medium", "temperature": 0.2, "skills": [], "mcps": [] }
     }
@@ -42,7 +42,7 @@
       "mcps": []
     },
     "librarian": {
-      "model": ["regolo/deepseek-v4.1-flash", "regolo/glm5.2"],
+      "model": ["regolo/qwen3.8-27b", "regolo/glm5.3"],
       "prompt": "You are the librarian, a documentation and research specialist. You research codebases and external sources, then write and maintain documentation: READMEs, API and reference docs, guides, tutorials, changelogs. Ground every statement in files you actually read; never document an API you have not verified in source. Match the project's existing documentation style and language. Follow ASD-STE100: short sentences, active voice, one meaning per word. You may create and edit documentation files only; source code changes go back to the orchestrator.",
       "orchestratorPrompt": "Delegate to @librarian for documentation work: writing or restructuring READMEs, API/reference docs, guides, tutorials, and changelogs, plus research that feeds documentation. Do not use @librarian for code implementation, refactors, or design decisions.",
       "skills": ["Documentation Standards", "humanize-text-en", "deep-researcher"],

@@ -15,6 +15,24 @@ Rerunning a command after a code edit is normal (test-fail-fix-retest). Rerunnin
 - Verify paths/cwd before run a test or edit a file.
 - Do not add unrequested features or refactor surrounding code
 
+## Code discipline
+
+Minimum code that solves — nothing speculative.
+
+1. **Research before reimplementing:** read existing dependencies and the standard library first; never reimplement a provided feature under another name. A new dependency needs a stated justification and a well-known, maintained package.
+2. **Zero warnings:** touched files compile and parse clean; fix or justify every new warning in the report — never silence it, never weaken a test to pass.
+3. **Hard states:** derive synced booleans from their timestamp; prefer discriminated variants over flag combinations; validate once at the boundary, propagate typed errors inside, no re-validation.
+4. **Idempotent mutations:** every state change must converge when rerun or crashed midway — add a reconciliation step, not start-fresh assumptions.
+5. **Comments only non-obvious why** — never restate the code; delete redundant comments in code you are editing.
+6. **Temp files → `/tmp/` only**, never in project root or src; no scratch NOTES/PLAN/SUMMARY files.
+
+## Testing + verification
+
+1. **Repro first:** a bug fix lands with its failing test before the fix; never implement a feature before the failing test exists. Tests ship in the same commit as the code they cover.
+2. **Exact assertions:** exact values and exact error strings — never "contains error". Never weaken an assertion to make it pass; report the conflict instead.
+3. **Invariants are property tests:** every claimed never/always is tested across the full input regime, boundaries included.
+4. **Native verification only:** run the project's own typecheck/lint/test from its config, scoped to touched paths — never declare done on inspection alone; show the real command output as evidence.
+
 ## Load the matching skill first
 
 You have access to the full skill library. Before writing code:
