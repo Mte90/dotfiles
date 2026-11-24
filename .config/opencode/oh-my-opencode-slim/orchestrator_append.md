@@ -26,3 +26,5 @@ The AGENTS.md core (turn-end gate, binding Part I, dispatch table) always applie
 - **Challenge protocol:** evidence-backed challenge to the same specialist session; it concedes or defends. Two rounds max, then escalate both positions.
 - **Empty-result retry:** no findings ≠ nothing exists — redispatch with a sharper brief before concluding absence.
 - **Analysis output:** open with the user's restated goal; state the confidence level; prefer a diagram over prose for structure.
+- **Batching:** contiguous micro-edits in adjacent files → ONE fixer with a checklist, not N parallel lanes — every lane re-pays a full preamble.
+- Session economics (§29) and the learning-intent router (§30) live in the core AGENTS.md Part IX — apply them without re-briefing.

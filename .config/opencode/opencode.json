@@ -596,12 +596,12 @@
     "oh-my-opencode-slim@3.0.7",
     "@cortexkit/aft-opencode@0.66.0",
     [
-      "opencode-auto-resume@1.2.8",
+      "opencode-auto-resume@1.2.9",
       {
         "subagentNativeCompactionEnabled": true
       }
     ],
-    "@cortexkit/opencode-magic-context@0.49.63",
+    "@cortexkit/opencode-magic-context@0.49.72",
     "@tarquinen/opencode-smart-title@0.1.7"
   ],
   "autoupdate": true,

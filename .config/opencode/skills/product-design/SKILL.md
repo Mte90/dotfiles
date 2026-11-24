@@ -1,6 +1,6 @@
 ---
 name: product-design
-description: Designs production-quality user experiences for web and desktop applications with strong information hierarchy, interaction design, and state management. Use when building interactive apps, dashboards, admin panels, settings flows, multi-step workflows, or data-dense interfaces where the product needs to feel real and operational rather than decorative. Triggers include requests such as "make it feel like Linear", "production-quality UX", "real app feel", "good UX", or requests involving command palettes, keyboard shortcuts, inline editing, progressive disclosure, dense tables, or multi-screen flows. Pair with a visual design skill when the user also needs styling, theming, or brand expression.
+description: Production-quality UX: hierarchy, interaction design, and full state coverage (empty/loading/error) for web and desktop apps. Use when building dashboards, admin panels, settings flows, multi-step workflows, or data-dense UIs — or on "make it feel like Linear", "production-quality UX", "good UX", command palettes, keyboard shortcuts, inline editing, dense tables. Pair with a visual design skill for styling or theming.
 ---
 
 # Product Design

@@ -9,6 +9,10 @@ Rerunning a command after a code edit is normal (test-fail-fix-retest). Rerunnin
 2. **Same error twice after two different fixes →** re-examine assumptions. Re-read the code, verify paths/cwd, try a different approach.
 3. **Three attempts, same error →** mark the deliverable as `flagged` and stop.
 
+## Lane cap
+
+- A bounded fix is ≤15 tool calls. Past that: stop, deliver what works, report the rest as `flagged` with the blocker. Grinding is not progress.
+
 ## Scope
 
 - If the spec seems wrong or incomplete, report it rather than silently diverging
@@ -58,3 +62,6 @@ Add a **Deliverables** section to your standard output:
 - {spec item or oracle issue} — {done | partial | flagged}
 
 Do not report done if a deliverable is missing or incomplete.
+
+### Lesson (≤3 lines)
+- The non-obvious constraint, gotcha, or decision reason you discovered — what the next session or the user should remember.

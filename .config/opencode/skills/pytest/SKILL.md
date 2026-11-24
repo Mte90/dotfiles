@@ -31,12 +31,11 @@ pytest is a mature, full-featured Python testing framework that makes it easy to
 ### Installation
 
 ```bash
-pip install pytest>=9.0
-pip install pytest-cov>=5.0      # Coverage
-pip install pytest-mock     # Mocking
-pip install pytest-asyncio>=0.25 # Async tests
-pip install pytest-django>=4.8   # Django testing
-pip install pytest-xdist    # Parallel execution
+# uv (preferred on this machine)
+uv add pytest "pytest-cov>=5" pytest-mock "pytest-asyncio>=0.25" "pytest-django>=4.8" pytest-xdist
+
+# pip — constraints MUST be quoted: unquoted >= is shell redirection, not a version
+pip install "pytest>=9.0" "pytest-cov>=5.0" pytest-mock "pytest-asyncio>=0.25" "pytest-django>=4.8" pytest-xdist
 ```
 
 ### Python Version Requirements
@@ -101,41 +100,23 @@ def test_with_fixture(sample_data):
 ### Fixture Scopes
 
 ```python
-@pytest.fixture(scope="function")
-def function_fixture():
+@pytest.fixture(scope="function")   # also: "class", "module", "package", "session"
+def one_fixture():
     """Created for each test (default)."""
-    print("Setup: function scope")
-    yield {"data": "function"}
-    print("Teardown: function scope")
-
-@pytest.fixture(scope="class")
-def class_fixture():
-    """Created once per test class."""
-    print("Setup: class scope")
-    yield {"data": "class"}
-    print("Teardown: class scope")
-
-@pytest.fixture(scope="module")
-def module_fixture():
-    """Created once per module."""
-    print("Setup: module scope")
-    yield {"data": "module"}
-    print("Teardown: module scope")
-
-@pytest.fixture(scope="package")
-def package_fixture():
-    """Created once per package."""
-    print("Setup: package scope")
-    yield {"data": "package"}
-    print("Teardown: package scope")
-
-@pytest.fixture(scope="session")
-def session_fixture():
-    """Created once per test session."""
-    print("Setup: session scope")
-    yield {"data": "session"}
-    print("Teardown: session scope")
+    print("Setup")
+    yield {"data": "value"}
+    print("Teardown")
 ```
+
+| Scope | Created |
+|-------|---------|
+| `function` (default) | once per test |
+| `class` | once per test class |
+| `module` | once per file |
+| `package` | once per package |
+| `session` | once for the whole run |
+
+Higher scopes trade isolation for speed — reach for them when setup is expensive (database, containers) and read-only.
 
 ### Yield Fixtures (Setup/Teardown)
 

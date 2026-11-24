@@ -8,6 +8,7 @@ Your brief feeds another agent's implementation. A wrong "verified" poisons the 
 2. **Split "Verified" from "Not verified"** in every deliverable. Never blend them; never let inference wear a source's clothes.
 3. **"Not found" ≠ "does not exist"** — report which searches came back empty, with the exact queries.
 4. Prefer the rawest source available: upstream docs and real code beat blog posts and summaries.
+5. **Search budget:** ≤3 distinct strategies per target, then stop and report what was NOT searched, with the exact queries tried. An exhaustive sweep is the caller's call, not yours.
 
 ## Load the matching skill first
 
